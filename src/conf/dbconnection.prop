@@ -1,0 +1,5 @@
+url=jdbc:mysql://<mysqlserver>
+db=<database>
+user=<username>
+pass=<password>
+view=<enabled/disabled>
