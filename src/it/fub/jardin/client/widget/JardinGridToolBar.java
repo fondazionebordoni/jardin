@@ -87,8 +87,7 @@ public class JardinGridToolBar extends ToolBar {
       this.add(new Button("Aggiungi riga", IconHelper.createStyle("icon-add"),
           getListenerWithGrid(EventList.AddRow)));
     } else {
-      this.add(new Button("Aggiungi riga",
-          IconHelper.createStyle("icon-add-disabled")));
+      //this.add(new Button("Aggiungi riga", IconHelper.createStyle("icon-add-disabled")));
     }
 
     if (grid.getResultset().isDelete()) {
@@ -96,8 +95,7 @@ public class JardinGridToolBar extends ToolBar {
           IconHelper.createStyle("icon-delete"),
           getListenerWithGrid(EventList.RemoveRows)));
     } else {
-      this.add(new Button("Rimuovi righe",
-          IconHelper.createStyle("icon-delete-disabled")));
+      //this.add(new Button("Rimuovi righe", IconHelper.createStyle("icon-delete-disabled")));
     }
   }
 

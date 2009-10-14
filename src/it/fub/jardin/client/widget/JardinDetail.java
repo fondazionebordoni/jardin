@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 
 public class JardinDetail extends FormPanel {
 
-  private static final int defaultWidth = 100;
-  private static final int labelWidth = 150;
+  private static final int defaultWidth = 270; //width dei campi
+  private static final int labelWidth = 170;
   private static final int padding = 0;
 
   private ResultsetImproved resultset;
