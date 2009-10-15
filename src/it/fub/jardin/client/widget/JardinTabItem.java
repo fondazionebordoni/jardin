@@ -97,8 +97,8 @@ public class JardinTabItem extends TabItem {
     // this.center.setLayoutOnChange(true);
     this.center.setHeaderVisible(false);
 
-    this.createGrid();
     this.createDetail();
+    this.createGrid();
 
     BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
     centerData.setMargins(new Margins(MARGIN));
@@ -177,10 +177,11 @@ public class JardinTabItem extends TabItem {
 
   public void addDetail(JardinDetail detail) {
     this.detail = detail;
-    this.center_south.expand();
+    // this.center_south.expand();
     this.center_south.removeAll();
     this.center_south.add(detail);
-    this.center_south.collapse();
+    // this.center_south.collapse();
+    this.center_south.layout();
 
     /* Binding con l'area di dettaglio */
     this.formbinding = new FormBinding(this.detail, false);
