@@ -3,6 +3,9 @@
  */
 package it.fub.jardin.client.mvc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
@@ -269,6 +272,13 @@ public class JardinView extends View {
 
       /* Aggiungere il dettaglio al tabitem */
       item.addDetail(detail);
+      
+      /* Eseguo una ricerca per riempire la il resultset*/
+      // TODO non funziona l'aggiornamento dello store, bisogna massimizzare la finestra per vedere i risultati
+      SearchParams searchParams = new SearchParams(resultsetId);  
+      List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+      searchParams.setFieldsValuesList(queryFieldList);
+      Dispatcher.forwardEvent(EventList.Search, searchParams); 
     }
   }
 
