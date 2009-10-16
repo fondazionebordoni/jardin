@@ -4,15 +4,11 @@
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.model.Warning;
-
-import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -38,7 +34,7 @@ public class UserWindow extends Window {
   public UserWindow(User user) {
     this.user = user;
 
-    this.setSize(300, 300);
+    this.setSize(380, 380);
     this.setHeading("Area personale utente: <b>" + user.getFullName() + "</b>");
     this.setLayout(new FitLayout());
     this.setBorders(false);
@@ -67,7 +63,7 @@ public class UserWindow extends Window {
 
   private TabItem settingsItem() {
 
-    int defaultWidth = 140;
+    int defaultWidth = 220;
     int labelWidth = 100;
 
     TabItem item = new TabItem("Preferenze");
@@ -163,31 +159,8 @@ public class UserWindow extends Window {
     TabItem item = new TabItem("Comunicazioni");
     item.setBorders(false);
     item.setLayout(new FitLayout());
+    item.add(new TwitterPanel(user));
 
-    ContentPanel text = new ContentPanel();
-    text.setStyleName("message-area");
-    text.setHeaderVisible(false);
-    text.setBorders(false);
-    text.setBodyBorder(false);
-    text.setFrame(false);
-    text.setScrollMode(Scroll.AUTOY);
-
-    List<Warning> warnings = user.getWarnings();
-
-    if (warnings.size() <= 0) {
-      text.addText("<i>Nessuna comunicazione</i>");
-    }
-
-    for (Warning w : warnings) {
-      String body = w.getBody();
-      String date = "(" + w.getDate() + ")";
-      String title = "<b>" + w.getTitle() + "</b>";
-      String type = "[" + w.getType().substring(0, 1) + "]";
-      text.addText("<i>" + type + " " + date + "</i><br>" + title + "<br>"
-          + body + "<br><br>");
-    }
-
-    item.add(text);
     return item;
   }
 

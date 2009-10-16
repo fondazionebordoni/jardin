@@ -119,10 +119,8 @@
 	/* background: #b8cfee; */
 }
 
-.message-area .x-panel-body {
+.twitter-area .x-panel-body {
 	padding: 4px;
-	background: #ffffe5 !important;
-	font: 110% serif;
 	color: #2e3436;
 }
 
