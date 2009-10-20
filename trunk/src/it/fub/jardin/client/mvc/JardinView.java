@@ -274,7 +274,6 @@ public class JardinView extends View {
       item.addDetail(detail);
       
       /* Eseguo una ricerca per riempire la il resultset*/
-      // TODO non funziona l'aggiornamento dello store, bisogna massimizzare la finestra per vedere i risultati
       SearchParams searchParams = new SearchParams(resultsetId);  
       List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
       searchParams.setFieldsValuesList(queryFieldList);
