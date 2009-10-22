@@ -215,7 +215,6 @@ public class JardinView extends View {
 
   private void loginError(String message) {
     final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
-      @Override
       public void handleEvent(MessageBoxEvent we) {
         Dispatcher.forwardEvent(new AppEvent(EventList.Login));
       }

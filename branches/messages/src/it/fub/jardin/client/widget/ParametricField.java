@@ -50,7 +50,6 @@ public class ParametricField extends ComboBox<BaseModelData> {
 
     Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
-      @Override
       public void handleEvent(BaseEvent be) {
         final MessageBox wait =
             MessageBox.wait("Attendere",

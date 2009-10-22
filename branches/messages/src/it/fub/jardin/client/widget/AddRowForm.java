@@ -98,7 +98,6 @@ public class AddRowForm extends Window {
 
     group.addListener(Events.Change, new Listener<ComponentEvent>() {
 
-      @Override
       public void handleEvent(ComponentEvent be) {
         Radio selected = group.getValue();
         // MessageBox.alert("selezione", "selezionato: "

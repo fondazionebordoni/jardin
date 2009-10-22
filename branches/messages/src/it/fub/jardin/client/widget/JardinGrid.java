@@ -72,7 +72,6 @@ public class JardinGrid extends Grid<BaseModelData> {
 
     this.addListener(Events.Render, new Listener<GridEvent<BaseModelData>>() {
 
-      @Override
       public void handleEvent(GridEvent<BaseModelData> be) {
         // TODO Auto-generated method stub
         ((JardinGridView) getView()).setGridHeader();
