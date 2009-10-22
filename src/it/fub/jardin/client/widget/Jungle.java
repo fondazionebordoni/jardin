@@ -41,7 +41,6 @@ public class Jungle extends Dialog {
     this.add(this.grid);
 
     Listener<WindowEvent> listener = new Listener<WindowEvent>() {
-      @Override
       public void handleEvent(WindowEvent be) {
         grid.resizeTo(be.getWidth() - 14, be.getHeight());
       }

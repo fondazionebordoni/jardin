@@ -214,7 +214,6 @@ public class JardinTabItem extends TabItem {
 
     this.grid.getStore().addListener(Store.Update,
         new Listener<StoreEvent<BaseModelData>>() {
-          @Override
           public void handleEvent(StoreEvent<BaseModelData> be) {
             if (be.getOperation() == RecordUpdate.EDIT) {
               Dispatcher.forwardEvent(EventList.CommitChanges, grid);

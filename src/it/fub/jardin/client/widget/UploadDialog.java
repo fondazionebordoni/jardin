@@ -131,7 +131,6 @@ public class UploadDialog extends Window {
     panel.addButton(btn);
 
     panel.addListener(Events.Submit, new Listener<FormEvent>() {
-      @Override
       public void handleEvent(FormEvent fe) {
         hide();
         String message = fe.getResultHtml();
