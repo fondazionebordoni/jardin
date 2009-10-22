@@ -8,21 +8,21 @@
 package it.fub.jardin.client;
 
 import it.fub.jardin.client.model.Credentials;
+import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.model.Warning;
+import it.fub.jardin.client.model.Message;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 /**
@@ -35,7 +35,18 @@ public interface ManagerService extends RemoteService {
       PagingLoadConfig config, List<String> columns, SearchParams searchParams)
       throws UserException;
 
-  public List<Warning> getGroupWarnings(Integer groupId) throws DbException;
+  /**
+   * Sits on listening and gets events from server.
+   * 
+   * @gwt.typeArgs <it.fub.jardin.client.model.EventTypeSerializable>
+   */
+  public List<EventTypeSerializable> getEvents();
+
+  public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
+      throws DbException;
+
+  public List<Integer> getHeaderUserPreference(Integer id,
+      Integer userPreferenceHeaderId) throws DbException;
 
   /**
    * Effettua una ricerca su database. La query viene eseguita ritornando un
@@ -58,7 +69,7 @@ public interface ManagerService extends RemoteService {
 
   public User getUser(Credentials credentials) throws UserException;
 
-  public List<Warning> getUserWarnings(Integer userId) throws DbException;
+  public List<Message> getUserMessages(Integer userId) throws DbException;
 
   /**
    * @param resultsetId
@@ -69,6 +80,9 @@ public interface ManagerService extends RemoteService {
   public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldId)
       throws DbException;
 
+  public List<BaseModelData> getValuesOfAFieldFromTableName(String table,
+      String field) throws DbException;
+
   public FieldsMatrix getValuesOfFields(Integer resultsetId) throws DbException;
 
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
@@ -76,6 +90,9 @@ public interface ManagerService extends RemoteService {
 
   public Integer removeObjects(Integer resultset,
       List<BaseModelData> selectedRows) throws DbException;
+
+  // TODO implement USER direct messages
+  public void sendMessage(MessageType type, String title, String body);
 
   public Integer setObjects(Integer resultsetId, List<BaseModelData> newItemList)
       throws DbException;
@@ -85,14 +102,5 @@ public interface ManagerService extends RemoteService {
       throws DbException;
 
   public void updateUserProperties(User user) throws DbException;
-
-  public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
-      throws DbException;
-
-  public List<Integer> getHeaderUserPreference(Integer id,
-      Integer userPreferenceHeaderId) throws DbException;
-
-  public List<BaseModelData> getValuesOfAFieldFromTableName(String table,
-      String field) throws DbException;
 
 }

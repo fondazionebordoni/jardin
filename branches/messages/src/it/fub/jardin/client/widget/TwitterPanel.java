@@ -4,7 +4,7 @@
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.model.Warning;
+import it.fub.jardin.client.model.Message;
 
 import java.util.List;
 
@@ -79,17 +79,31 @@ public class TwitterPanel extends ContentPanel {
     text.setScrollMode(Scroll.AUTOY);
     text.setStyleAttribute("font", "serif");
 
-    List<Warning> warnings = this.user.getWarnings();
+    List<Message> messages = this.user.getWarnings();
 
-    if (warnings.size() <= 0) {
+    if (messages.size() <= 0) {
       text.addText("<i>Nessuna comunicazione</i>");
     }
 
-    for (Warning w : warnings) {
+    for (Message w : messages) {
       String body = w.getBody();
       String date = "(" + w.getDate() + ")";
       String title = "<b>" + w.getTitle() + "</b>";
-      String type = "[" + w.getType().substring(0, 1) + "]";
+      String type = "";
+      switch (w.getType()) {
+      case GROUP:
+        type = "&raquo;";
+        break;
+      case ALL:
+        type = "*";
+        break;
+      case USER:
+        type = "&rsaquo;";
+        break;
+      default:
+        break;
+      }
+      type = "<b>" + type + "</b>";
       text.addText("<i>" + type + " " + date + "</i><br>" + title + "<br>"
           + body + "<br><br>");
     }

@@ -335,8 +335,8 @@ public class JardinController extends Controller {
     for (ResultsetImproved resultset : this.user.getResultsets()) {
       final Integer resultsetId = resultset.getId();
       /* Avvisa la view che si sta creando un nuovo resultset */
-      forwardToView(view, EventList.newResultset, resultsetId);
-      forwardToView(view, EventList.gotValuesOfFields, resultsetId);
+      forwardToView(view, EventList.NewResultset, resultsetId);
+      forwardToView(view, EventList.GotValuesOfFields, resultsetId);
       // forwardToView(view, EventList.gotValuesOfForeignKeys, resultsetId);
 
       final ManagerServiceAsync service =
@@ -357,7 +357,7 @@ public class JardinController extends Controller {
             public void onSuccess(FieldsMatrix fieldsMatrix) {
               ResultsetImproved rs = user.getResultsetFromId(resultsetId);
               rs.setForeignKeyList(fieldsMatrix);
-              forwardToView(view, EventList.gotValuesOfForeignKeys, resultsetId);
+              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
             }
           };
 
@@ -575,7 +575,7 @@ public class JardinController extends Controller {
 
           public void onSuccess(HeaderPreferenceList result) {
             Info.display("Informazione", "Lista delle preferenze caricata");
-            forwardToView(view, EventList.gotHeaderPreference, result);
+            forwardToView(view, EventList.GotHeaderPreference, result);
           }
         };
 

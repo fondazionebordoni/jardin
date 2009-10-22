@@ -8,13 +8,14 @@ import it.fub.jardin.client.UserException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.Message;
+import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.model.Warning;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +43,7 @@ import javax.mail.MessagingException;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 /**
  * @author acozzolino
@@ -81,10 +82,12 @@ public class DbUtils {
       WRAP + SYSTEM_PREFIX + "fieldinpreference" + WRAP;
   public static final String T_GROUPING =
       WRAP + SYSTEM_PREFIX + "grouping" + WRAP;
-  public static final String T_USERWARNINGS =
+  public static final String T_USERMESSAGES =
       WRAP + SYSTEM_PREFIX + "userwarnings" + WRAP;
-  public static final String T_GROUPWARNINGS =
+  public static final String T_GROUPMESSAGES =
       WRAP + SYSTEM_PREFIX + "groupwarnings" + WRAP;
+  public static final String T_MESSAGES =
+      WRAP + SYSTEM_PREFIX + "messages" + WRAP;
 
   /**
    * Logga le operazioni su database dell'utente. Ogni messaggio sarà preceduto
@@ -468,56 +471,40 @@ public class DbUtils {
     }
   }
 
-  public List<Warning> getUserWarnigns(int userId) throws DbException {
-    List<Warning> resultSetList = new ArrayList<Warning>();
+  private MessageType getMessageType(String type) {
+    
+    for (MessageType m : MessageType.values()) {
+      if (type.compareToIgnoreCase(m.toString()) == 0) {
+        return m;
+      }
+    }
+    
+    return null;  
+  }
+  
+  public List<Message> getUserMessages(int userId) throws DbException {
+    List<Message> resultSetList = new ArrayList<Message>();
     Connection connection = dbConnectionHandler.getConn();
     String query =
-        "SELECT * FROM " + T_USERWARNINGS + " WHERE id_user = '" + userId + "'";
+        "SELECT * FROM " + T_MESSAGES + " WHERE recipient = '" + userId + "'";
 
     try {
       ResultSet result = doQuery(connection, query);
       while (result.next()) {
         int id = result.getInt("id");
         String title = result.getString("title");
-        String date = result.getString("date");
         String body = result.getString("body");
-        Warning w = new Warning(id, date, title, body, "USER");
+        String date = result.getString("date");
+        MessageType type = getMessageType(result.getString("type"));
+        int sender = result.getInt("sender");
+        int recipient = result.getInt("recipient");
+        Message w =
+            new Message(id, title, body, date, type, sender, recipient);
         resultSetList.add(w);
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
       throw new DbException("Errore durante il recupero dei messaggi di utente");
-    } finally {
-      dbConnectionHandler.closeConn(connection);
-    }
-    return resultSetList;
-  }
-
-  /**
-   * @param gid
-   * @return la lista degli avvisi per il gruppo il cui id è passato come
-   *         parametro
-   * @throws DbException
-   */
-  public List<Warning> getGroupWarnigns(int gid) throws DbException {
-    List<Warning> resultSetList = new ArrayList<Warning>();
-    Connection connection = dbConnectionHandler.getConn();
-    String query =
-        "SELECT * FROM " + T_GROUPWARNINGS + " WHERE id_group = '" + gid + "'";
-
-    try {
-      ResultSet result = doQuery(connection, query);
-      while (result.next()) {
-        int id = result.getInt("id");
-        String title = result.getString("title");
-        String date = result.getString("date");
-        String body = result.getString("body");
-        Warning w = new Warning(id, date, title, body, "GROUP");
-        resultSetList.add(w);
-      }
-    } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante il recupero dei messaggi di gruppo");
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
@@ -801,15 +788,14 @@ public class DbUtils {
         /* Carica le preferenze dell'utente */
         List<ResultsetImproved> resultsets = getUserResultsetImproved(uid, gid);
 
-        List<Warning> warnings = getUserWarnigns(uid);
-        warnings.addAll(getGroupWarnigns(gid));
+        List<Message> messages = getUserMessages(uid);
 
         updateLoginCount(uid, ++login);
 
         User user =
             new User(uid, gid, new Credentials(username, password), name,
                 surname, group, email, office, telephone, status, login, last,
-                resultsets, warnings);
+                resultsets, messages);
         this.user = user;
         return user;
       }
@@ -1439,5 +1425,10 @@ public class DbUtils {
         }
       }
     }
+  }
+
+  public void sendMessage(int uid, String title, String body, MessageType type) {
+    // TODO Auto-generated method stub
+
   }
 }

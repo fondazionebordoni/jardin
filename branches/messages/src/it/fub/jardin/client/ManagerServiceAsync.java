@@ -8,12 +8,14 @@
 package it.fub.jardin.client;
 
 import it.fub.jardin.client.model.Credentials;
+import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.Message;
+import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.model.Warning;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +31,13 @@ public interface ManagerServiceAsync {
       PagingLoadConfig config, List<String> columns, SearchParams searchParams,
       AsyncCallback<String> callback);
 
-  public void getGroupWarnings(Integer groupId,
-      AsyncCallback<List<Warning>> callback);
+  void getEvents(AsyncCallback<List<EventTypeSerializable>> callback);
+
+  public void getGridViews(Integer userId, Integer resultsetId,
+      AsyncCallback<HeaderPreferenceList> callback);
+
+  public void getHeaderUserPreference(Integer id,
+      Integer userPreferenceHeaderId, AsyncCallback<List<Integer>> callback);
 
   public void getRecords(PagingLoadConfig loadConfig,
       SearchParams searchParams,
@@ -43,10 +50,13 @@ public interface ManagerServiceAsync {
 
   public void getUser(Credentials credentials, AsyncCallback<User> callback);
 
-  public void getUserWarnings(Integer userId,
-      AsyncCallback<List<Warning>> callback);
+  public void getUserMessages(Integer userId,
+      AsyncCallback<List<Message>> callback);
 
   public void getValuesOfAField(int resultsetId, String fieldId,
+      AsyncCallback<List<BaseModelData>> callback);
+
+  public void getValuesOfAFieldFromTableName(String table, String field,
       AsyncCallback<List<BaseModelData>> callback);
 
   public void getValuesOfFields(Integer resultsetId,
@@ -58,22 +68,16 @@ public interface ManagerServiceAsync {
   public void removeObjects(Integer resultset,
       List<BaseModelData> selectedRows, AsyncCallback<Integer> asyncCallback);
 
+  // TODO implement USER direct messages
+  public void sendMessage(MessageType type, String title, String body, AsyncCallback callback);
+  
   public void setObjects(Integer resultset, List<BaseModelData> newItemList,
       AsyncCallback<Integer> asyncCallback);
-
-  public void updateUserProperties(User user, AsyncCallback callback);
 
   public void setUserResultsetHeaderPreferencesNoDefault(Integer integer,
       Integer resultsetId, ArrayList<Integer> headerFields, String value,
       AsyncCallback<Boolean> callback);
 
-  public void getGridViews(Integer userId, Integer resultsetId,
-      AsyncCallback<HeaderPreferenceList> callback);
-
-  public void getHeaderUserPreference(Integer id,
-      Integer userPreferenceHeaderId, AsyncCallback<List<Integer>> callback);
-
-  public void getValuesOfAFieldFromTableName(String table, String field,
-      AsyncCallback<List<BaseModelData>> callback);
+  public void updateUserProperties(User user, AsyncCallback callback);
 
 }

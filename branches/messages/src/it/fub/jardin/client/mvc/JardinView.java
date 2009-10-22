@@ -98,15 +98,15 @@ public class JardinView extends View {
         message = "Errore durante l'accesso";
       }
       loginError(message);
-    } else if (t == EventList.newResultset) {
+    } else if (t == EventList.NewResultset) {
       if (event.getData() instanceof Integer) {
         newResultset((Integer) event.getData());
       }
-    } else if (t == EventList.gotValuesOfFields) {
+    } else if (t == EventList.GotValuesOfFields) {
       if (event.getData() instanceof Integer) {
         gotValuesOfFields((Integer) event.getData());
       }
-    } else if (t == EventList.gotValuesOfForeignKeys) {
+    } else if (t == EventList.GotValuesOfForeignKeys) {
       if (event.getData() instanceof Integer) {
         gotValuesOfForeignKeys((Integer) event.getData());
       }
@@ -131,7 +131,7 @@ public class JardinView extends View {
       if (event.getData() instanceof Integer) {
         onSaveGridView((Integer) event.getData());
       }
-    } else if (t == EventList.gotHeaderPreference) {
+    } else if (t == EventList.GotHeaderPreference) {
       updatePreferenceListMenu((HeaderPreferenceList) event.getData());
       /*
        * -----------------------------------------------------------------------

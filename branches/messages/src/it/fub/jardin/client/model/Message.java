@@ -9,44 +9,55 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author acozzolino
  * 
  */
-public class Warning implements IsSerializable {
+public class Message implements IsSerializable {
 
-  /**
-	 * 
-	 */
   private static final long serialVersionUID = -6542980077484895267L;
 
-  private Integer id;
-  private String date;
+  public static final int MAX_MESSAGE_LENGTH = 160;
+
+  private int id;
   private String title;
   private String body;
-  private String type;
+  private String date;
+  private MessageType type;
+  private int sender;
+  private int recipient;
 
   @SuppressWarnings("unused")
-  private Warning() {
+  private Message() {
     // As of GWT 1.5, it must have a default (zero argument) constructor
     // (with any access modifier) or no constructor at all.
   }
 
   /**
    * @param id
+   *          Message's unique id
    * @param date
+   *          Sending date
    * @param title
+   *          Message's title
    * @param body
+   *          Message's body
    * @param type
+   *          Message's type (eg. warning)
+   * @param sender
+   *          Message's sender uid
    */
-  public Warning(Integer id, String date, String title, String body, String type) {
+  public Message(int id, String title, String body, String date,
+      MessageType type, int sender, int recipient) {
     this.id = id;
-    this.date = date;
     this.title = title;
     this.body = body;
+    this.date = date;
     this.type = type;
+    this.sender = sender;
+    this.recipient = recipient;
   }
 
   /**
    * @return the id
    */
-  public Integer getId() {
+  public int getId() {
     return id;
   }
 
@@ -74,8 +85,21 @@ public class Warning implements IsSerializable {
   /**
    * @return the type
    */
-  public String getType() {
+  public MessageType getType() {
     return type;
   }
 
+  /**
+   * @return the sender user uid
+   */
+  public int getSender() {
+    return sender;
+  }
+
+  /**
+   * @return the recipient user uid
+   */
+  public int getRecipient() {
+    return recipient;
+  }
 }
