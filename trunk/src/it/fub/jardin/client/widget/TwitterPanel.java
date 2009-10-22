@@ -108,7 +108,6 @@ public class TwitterPanel extends ContentPanel {
 
     Validator validator = new Validator() {
 
-      @Override
       public String validate(Field<?> field, String value) {
 
         boolean result =
