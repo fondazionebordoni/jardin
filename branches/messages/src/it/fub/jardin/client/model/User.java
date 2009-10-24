@@ -88,6 +88,7 @@ public class User implements IsSerializable {
     this.last = last;
     this.resultsets = resultsets;
     this.messages = messages;
+    this.events = new ArrayList<EventTypeSerializable>();
   }
   
   public void addEvent(EventTypeSerializable event) {
@@ -130,6 +131,10 @@ public class User implements IsSerializable {
     return login;
   }
 
+  public List<Message> getMessages() {
+    return messages;
+  }
+  
   public String getName() {
     return name;
   }
@@ -176,12 +181,12 @@ public class User implements IsSerializable {
     return getCredentials().getUsername();
   }
 
-  public List<Message> getWarnings() {
-    return messages;
-  }
-
   public void setEmail(String email) {
     this.email = email;
+  }
+  
+  public void setMessages(List<Message> messages) {
+    this.messages = messages;
   }
 
   public void setName(String name) {

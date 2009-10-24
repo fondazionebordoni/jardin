@@ -12,7 +12,6 @@ import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Message;
-import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
@@ -69,7 +68,7 @@ public interface ManagerServiceAsync {
       List<BaseModelData> selectedRows, AsyncCallback<Integer> asyncCallback);
 
   // TODO implement USER direct messages
-  public void sendMessage(MessageType type, String title, String body, AsyncCallback callback);
+  public void sendMessage(Message message, AsyncCallback callback);
   
   public void setObjects(Integer resultset, List<BaseModelData> newItemList,
       AsyncCallback<Integer> asyncCallback);

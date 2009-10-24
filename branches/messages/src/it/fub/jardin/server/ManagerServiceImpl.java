@@ -3,10 +3,10 @@
  */
 package it.fub.jardin.server;
 
-import it.fub.jardin.client.DbException;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.ManagerService;
-import it.fub.jardin.client.UserException;
+import it.fub.jardin.client.exception.HiddenException;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
@@ -57,10 +57,10 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   public String createReport(String file, Template template,
       PagingLoadConfig config, List<String> columns, SearchParams searchParams)
-      throws UserException {
+      throws VisibleException {
 
     if (searchParams == null) {
-      throw new UserException("Effettuare prima una ricerca");
+      throw new VisibleException("Effettuare prima una ricerca");
     }
 
     List<BaseModelData> records = dbUtils.getObjects(config, searchParams);
@@ -78,7 +78,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
         FileUtils.prepareDefaultTemplate(resultset, xsl);
       } catch (IOException e) {
         Log.error("Impossibile ottenere il template di default", e);
-        throw new UserException("Impossibile ottenere il template di default");
+        throw new VisibleException("Impossibile ottenere il template di default");
       }
     }
 
@@ -91,7 +91,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       Log.debug("Servlet context path: " + context);
       return result.substring(context.length());
     } else {
-      throw new UserException("Impossibile leggere il template");
+      throw new VisibleException("Impossibile leggere il template");
     }
   }
 
@@ -134,18 +134,18 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   // TODO get user from thread id
   public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
-      throws DbException {
+      throws HiddenException {
     return dbUtils.getHeaderUserPreferenceList(userId, resultsetId);
   }
 
   // TODO get user from thread id
   public List<Integer> getHeaderUserPreference(Integer idUser,
-      Integer userPreferenceHeaderId) throws DbException {
+      Integer userPreferenceHeaderId) throws HiddenException {
     return dbUtils.getHeaderUserPreference(idUser, userPreferenceHeaderId);
   }
 
   public PagingLoadResult<BaseModelData> getRecords(PagingLoadConfig config,
-      SearchParams searchParams) throws DbException {
+      SearchParams searchParams) throws HiddenException {
     List<BaseModelData> records = dbUtils.getObjects(config, searchParams);
     int recordSize = dbUtils.countObjects(searchParams);
 
@@ -157,8 +157,12 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     }
   }
 
-  public List<BaseModelData> getReGroupings(int resultSetId) {
-    return dbUtils.getReGroupings(resultSetId);
+  public List<BaseModelData> getReGroupings(int resultSetId) throws HiddenException {
+    try {
+      return dbUtils.getReGroupings(resultSetId);
+    } catch (SQLException e) {
+      throw new HiddenException(e.getLocalizedMessage());
+    }
   }
 
   public String getServerTime() {
@@ -166,7 +170,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return formatter.format(new Date());
   }
 
-  public User getUser(Credentials credentials) throws UserException {
+  public User getUser(Credentials credentials) throws VisibleException {
     User user = dbUtils.getUser(credentials);
 
     String id = getThreadLocalRequest().getSession().getId();
@@ -179,32 +183,32 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   // TODO get user from thread id
-  public List<Message> getUserMessages(Integer userId) throws DbException {
+  public List<Message> getUserMessages(Integer userId) throws HiddenException {
     return dbUtils.getUserMessages(userId);
   }
 
   public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldId)
-      throws DbException {
+      throws HiddenException {
     return dbUtils.getValuesOfAField(resultsetId, fieldId);
   }
 
   public List<BaseModelData> getValuesOfAFieldFromTableName(String table,
-      String field) throws DbException {
+      String field) throws HiddenException {
 
     return dbUtils.getValuesOfAFieldFromTableName(table, field);
   }
 
-  public FieldsMatrix getValuesOfFields(Integer resultsetId) throws DbException {
+  public FieldsMatrix getValuesOfFields(Integer resultsetId) throws HiddenException {
     return dbUtils.getValuesOfFields(resultsetId);
   }
 
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
-      throws DbException {
+      throws HiddenException {
     return dbUtils.getValuesOfForeignKeys(resultsetId);
   }
 
   public Integer removeObjects(Integer resultset,
-      List<BaseModelData> selectedRows) throws DbException {
+      List<BaseModelData> selectedRows) throws HiddenException {
     log("Removing records...");
     return dbUtils.removeObjects(resultset, selectedRows);
   }
@@ -219,28 +223,30 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   // TODO implement USER direct messages
-  public void sendMessage(MessageType type, String title, String body) {
+  public void sendMessage(Message message) throws HiddenException, VisibleException {
 
-    User sender = getCurrentUser();
-
+    MessageType type = message.getType();
+    User sender = getUserByUid(message.getSender());
+    
     switch (type) {
     case GROUP:
-      dbUtils.sendMessage(sender.getUid(), title, body, type);
+      dbUtils.sendMessage(message);
       for (User user : getGroupUsers(sender.getGid())) {
-        user.addEvent(EventList.SendMessage);
+        user.addEvent(EventList.NewMessage);
+        // TODO throws java.lang.IllegalMonitorStateException: current thread not owner 
         user.notifyAll();
       }
       break;
     case ALL:
-      dbUtils.sendMessage(sender.getUid(), title, body, type);
+      dbUtils.sendMessage(message);
       for (User user : this.users.values()) {
-        user.addEvent(EventList.SendMessage);
+        user.addEvent(EventList.NewMessage);
         user.notifyAll();
       }
       break;
     case USER:
-      // TODO implent user direct messages
-      // dbUtils.sendMessage(sender.getUid(), title, body, type, recipient);
+      // TODO implement user direct messages
+      // dbUtils.sendMessage(message);
       break;
     default:
       break;
@@ -249,7 +255,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public Integer setObjects(Integer resultsetId, List<BaseModelData> newItemList)
-      throws DbException {
+      throws HiddenException {
 
     log("Setting records...");
     // recupero dei vecchi parametri
@@ -270,13 +276,13 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   // TODO get user from thread id
   public boolean setUserResultsetHeaderPreferencesNoDefault(Integer userid,
       Integer resultsetId, ArrayList<Integer> listfields, String value)
-      throws DbException {
+      throws HiddenException {
     return dbUtils.setUserResultsetHeaderPreferencesNoDefault(userid,
         resultsetId, listfields, value);
   }
 
   // TODO get user from thread id
-  public void updateUserProperties(User user) throws DbException {
+  public void updateUserProperties(User user) throws HiddenException {
     dbUtils.updateUserProperties(user);
   }
 

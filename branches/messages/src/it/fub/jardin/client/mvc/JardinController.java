@@ -4,8 +4,10 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.Credentials;
+import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
@@ -96,6 +98,7 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.Jungle);
     registerEventTypes(EventList.ShowPieChart);
     registerEventTypes(EventList.ShowBarChart);
+    registerEventTypes(EventList.SendMessage);
   }
 
   public void initialize() {
@@ -275,7 +278,67 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.UpdateTemplates
         Log.error("Errore nei dati di EventList.UpdateTemplates");
       }
+    } else if (t == EventList.SendMessage) {
+      if (event.getData() instanceof Message) {
+        onSendMessage((Message) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.SendMessage
+        Log.error("Errore nei dati di EventList.SendMessage");
+      }
+    } else if (t == EventList.NewMessage) {
+      onNewMessage();
     }
+  }
+
+  private void onNewMessage() {
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    /* Set up the callback */
+    AsyncCallback<List<Message>> callback = new AsyncCallback<List<Message>>() {
+
+      public void onFailure(Throwable caught) {
+        // TODO Auto-generated method stub
+
+      }
+
+      public void onSuccess(List<Message> messages) {
+        user.setMessages(messages);
+        Info.display("Informazione", "Hai ricevuto un nuovo messaggio");
+        forwardToView(view, EventList.NewMessage, null);
+      }
+    };
+
+    /* Make the call */
+    service.getUserMessages(user.getUid(), callback);
+  }
+
+  private void onSendMessage(Message message) {
+
+    /* Fill message with sender id */
+    if (message.getSender() < 0) {
+      message.setSender(user.getUid());
+    }
+
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    /* Set up the callback */
+    AsyncCallback callback = new AsyncCallback() {
+
+      public void onFailure(Throwable caught) {
+        // TODO Auto-generated method stub
+
+      }
+
+      public void onSuccess(Object result) {
+        // TODO Auto-generated method stub
+
+      }
+    };
+
+    /* Make the call */
+    service.sendMessage(message, callback);
   }
 
   public User getUser() {
@@ -325,6 +388,28 @@ public class JardinController extends Controller {
 
   private void onInit(User user) {
     this.user = user;
+
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    AsyncCallback<List<EventTypeSerializable>> callback =
+        new AsyncCallback<List<EventTypeSerializable>>() {
+
+          public void onSuccess(List<EventTypeSerializable> eventTypes) {
+            for (EventTypeSerializable eventType : eventTypes) {
+              handleEvent(new AppEvent(eventType));
+            }
+
+          }
+
+          public void onFailure(Throwable caught) {
+            // TODO Auto-generated method stub
+
+          }
+        };
+
+    service.getEvents(callback);
+
     forwardToView(view, EventList.Init, user);
   }
 

@@ -3,6 +3,7 @@
  */
 package it.fub.jardin.client.model;
 
+import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -14,7 +15,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * TODO Eliminate this class upon integrating Ext-GWT version 2.0.2 library
  * see: http://www.extjs.com/products/gxt/CHANGES_extgwt-2.0.2.html
  */
-public class EventTypeSerializable
+public class EventTypeSerializable extends EventType
   implements IsSerializable {
 
   private Integer eventCode = -1;

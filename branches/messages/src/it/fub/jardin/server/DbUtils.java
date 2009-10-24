@@ -3,8 +3,8 @@
  */
 package it.fub.jardin.server;
 
-import it.fub.jardin.client.DbException;
-import it.fub.jardin.client.UserException;
+import it.fub.jardin.client.exception.HiddenException;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
@@ -28,7 +28,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,7 +45,8 @@ import javax.mail.MessagingException;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 /**
  * @author acozzolino
@@ -62,7 +65,7 @@ public class DbUtils {
 
   private static final String SPECIAL_FIELD = "searchField";
 
-  private static final String SYSTEM_PREFIX = "__SYSTEM_";
+  private static final String SYSTEM_PREFIX = "__system_";
   private static final char WRAP = '`';
   public static final String T_RESULTSET =
       WRAP + SYSTEM_PREFIX + "resultset" + WRAP;
@@ -116,7 +119,8 @@ public class DbUtils {
     return update.getGeneratedKeys();
   }
 
-  private void updateLoginCount(int userId, int loginCount) throws SQLException {
+  private void updateLoginCount(int userId, int loginCount)
+      throws SQLException, HiddenException {
     Connection connection = dbConnectionHandler.getConn();
     String query =
         "UPDATE " + T_USER
@@ -134,7 +138,7 @@ public class DbUtils {
     }
   }
 
-  public void updateUserProperties(User user) throws DbException {
+  public void updateUserProperties(User user) throws HiddenException {
     Connection connection = dbConnectionHandler.getConn();
     String query =
         "UPDATE " + T_USER + " SET" + " password=PASSWORD('"
@@ -147,7 +151,8 @@ public class DbUtils {
       doUpdate(connection, query);
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante il salvataggio delle preferenze");
+      throw new HiddenException(
+          "Errore durante il salvataggio delle preferenze");
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
@@ -163,7 +168,14 @@ public class DbUtils {
             + "ON (hp.id_user=u.id)) " + "WHERE u.id = '" + uid
             + "' AND f.id_resultset='" + rsid + "'";
 
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
+
     List<Integer> hp = new ArrayList<Integer>();
     try {
       ResultSet resultset = doQuery(connection, query);
@@ -171,7 +183,8 @@ public class DbUtils {
         hp.add(resultset.getInt("fieldid"));
       }
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+      // TODO throw a HiddenException to be caught by caller
+      Log.error("Error on loading user resultset preferences", e);
     }
 
     dbConnectionHandler.closeConn(connection);
@@ -319,7 +332,7 @@ public class DbUtils {
         }
         records.add(map);
       }
-    } catch (SQLException e) {
+    } catch (Exception e) {
       Log.warn("Errore SQL", e);
     } finally {
       dbConnectionHandler.closeConn(connection);
@@ -349,7 +362,7 @@ public class DbUtils {
     return map;
   }
 
-  public int countObjects(SearchParams searchParams) throws DbException {
+  public int countObjects(SearchParams searchParams) throws HiddenException {
     int recordSize = 0;
     Connection connection = dbConnectionHandler.getConn();
 
@@ -363,7 +376,7 @@ public class DbUtils {
       recordSize = result.getInt(1);
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante l'interrogazione del database");
+      throw new HiddenException("Errore durante l'interrogazione del database");
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
@@ -378,15 +391,19 @@ public class DbUtils {
    *         Ritorna una lista di record formata da id e alias per i
    *         raggruppamenti disponibili sui campi del resultset passato come
    *         parametro
+   * @throws HiddenException
+   * @throws SQLException
    */
-  public List<BaseModelData> getReGroupings(int resultSetId) {
+  public List<BaseModelData> getReGroupings(int resultSetId)
+      throws HiddenException, SQLException {
+    Connection connection = dbConnectionHandler.getConn();
     String groupingQuery =
         "SELECT DISTINCT " + T_GROUPING + ".id as id, " + T_GROUPING
             + ".name as name, " + T_GROUPING + ".alias as alias " + "FROM ("
             + T_GROUPING + " JOIN " + T_FIELD + " ON " + T_GROUPING + ".id = "
             + T_FIELD + ".id_grouping) " + "WHERE " + T_FIELD
             + ".id_resultset = '" + resultSetId + "'";
-    Connection connection = dbConnectionHandler.getConn();
+
     List<BaseModelData> groups = new ArrayList<BaseModelData>();
     try {
       ResultSet result = doQuery(connection, groupingQuery);
@@ -397,12 +414,11 @@ public class DbUtils {
         groups.add(m);
       }
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+      throw e;
+    } finally {
+      dbConnectionHandler.closeConn(connection);
     }
-
-    dbConnectionHandler.closeConn(connection);
     return groups;
-
   }
 
   /**
@@ -411,9 +427,10 @@ public class DbUtils {
    * @return Lista dei valori per quel determinato campo di quel determinato
    *         resultset. Serve a riempire i combobox per l'autocompletamento
    * @throws SQLException
+   * @throws HiddenException
    */
   private List<BaseModelData> getValuesOfAField(String resultset,
-      String fieldName) throws SQLException {
+      String fieldName) throws SQLException, HiddenException {
     List<BaseModelData> autoCompleteList = new ArrayList<BaseModelData>();
     Connection connection = dbConnectionHandler.getConn();
     try {
@@ -439,16 +456,17 @@ public class DbUtils {
    * @param fieldName
    * @return Lista dei valori per quel determinato campo di quel determinato
    *         resultset. Serve a riempire i combobox per l'autocompletamento
-   * @throws DbException
+   * @throws HiddenException
    */
   public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldName)
-      throws DbException {
+      throws HiddenException {
     try {
       return getValuesOfAField(dbProperties.getStatement(resultsetId),
           fieldName);
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante il recupero dei valori di campo");
+      throw new HiddenException(
+          "Errore durante il recupero dei valori di campo");
     }
   }
 
@@ -457,36 +475,40 @@ public class DbUtils {
    * @param fieldName
    * @return Lista dei valori per quel determinato campo di quell determinata
    *         tabella. Serve a riempire i combobox per la modifica della griglia
-   * @throws DbException
+   * @throws HiddenException
    * @throws SQLException
    */
   public List<BaseModelData> getValuesOfAFieldFromTableName(String tableName,
-      String fieldName) throws DbException {
+      String fieldName) throws HiddenException {
     try {
       return getValuesOfAField("`" + tableName + "`", fieldName);
     } catch (SQLException e) {
       e.printStackTrace();
-      throw new DbException("Errore con i valori della chiave primaria "
+      throw new HiddenException("Errore con i valori della chiave primaria "
           + e.getLocalizedMessage());
     }
   }
 
   private MessageType getMessageType(String type) {
-    
+
     for (MessageType m : MessageType.values()) {
       if (type.compareToIgnoreCase(m.toString()) == 0) {
         return m;
       }
     }
-    
-    return null;  
+
+    return null;
   }
-  
-  public List<Message> getUserMessages(int userId) throws DbException {
-    List<Message> resultSetList = new ArrayList<Message>();
+
+  public List<Message> getUserMessages(int uid) throws HiddenException {
+    List<Message> messages = new ArrayList<Message>();
     Connection connection = dbConnectionHandler.getConn();
+
     String query =
-        "SELECT * FROM " + T_MESSAGES + " WHERE recipient = '" + userId + "'";
+        "(SELECT m.* FROM " + T_MESSAGES + " m JOIN " + T_USER + " u "
+            + " ON (u.id = m.recipient OR u.id_group = m.recipient)"
+            + " WHERE u.id = " + uid + " ) UNION ( SELECT m.* FROM "
+            + T_MESSAGES + " m WHERE m.type = 'ALL' ) ORDER BY date DESC";
 
     try {
       ResultSet result = doQuery(connection, query);
@@ -494,25 +516,31 @@ public class DbUtils {
         int id = result.getInt("id");
         String title = result.getString("title");
         String body = result.getString("body");
-        String date = result.getString("date");
+        DateFormat df =
+            DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
+        Date date = df.parse(result.getString("date"));
         MessageType type = getMessageType(result.getString("type"));
         int sender = result.getInt("sender");
         int recipient = result.getInt("recipient");
-        Message w =
-            new Message(id, title, body, date, type, sender, recipient);
-        resultSetList.add(w);
+        Message w = new Message(id, title, body, date, type, sender, recipient);
+        messages.add(w);
       }
+    } catch (ParseException e) {
+      Log.warn("Errore durante il parsing della data del messaggio", e);
+      throw new HiddenException(
+          "Errore durante il recupero dei messaggi di utente");
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante il recupero dei messaggi di utente");
+      throw new HiddenException(
+          "Errore durante il recupero dei messaggi di utente");
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
-    return resultSetList;
+    return messages;
   }
 
   public int setObjects(Integer resultsetId, List<BaseModelData> records)
-      throws DbException {
+      throws HiddenException {
 
     log("<START> Setting records");
 
@@ -582,12 +610,13 @@ public class DbUtils {
             ex.getErrorCode()
                 + " - Errore!!! \n Problemi sui dati da salvare :\n" + message;
       }
-      throw new DbException(newMess);
+      throw new HiddenException(newMess);
 
     } catch (Exception e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante il salvataggio delle modifiche:\n"
-          + e.getLocalizedMessage());
+      throw new HiddenException(
+          "Errore durante il salvataggio delle modifiche:\n"
+              + e.getLocalizedMessage());
     } finally {
       log("<END> Setting records");
       dbConnectionHandler.closeConn(connection);
@@ -597,7 +626,7 @@ public class DbUtils {
 
   /*
    * public int removeObjects(int resultsetId, List<BaseModelData> records)
-   * throws DbException {
+   * throws HiddenException {
    * 
    * log("<START> Removing objects");
    * 
@@ -621,14 +650,14 @@ public class DbUtils {
    * Log.debug("Query DELETE: " + ps); int num = ps.executeUpdate(); if (num >
    * 0) { log("DELETE (" + ps.toString() + ")"); } result += num; } } catch
    * (Exception e) { Log.warn("Errore SQL", e); throw new
-   * DbException("Errore durante l'eliminazione dei record"); } finally {
+   * HiddenException("Errore durante l'eliminazione dei record"); } finally {
    * log("<END> Removing objects"); dbConnectionHandler.closeConn(connection); }
    * return result; }
    */
 
   // Cancella una riga dalla tabella
   public Integer removeObjects(Integer resultsetId, List<BaseModelData> records)
-      throws DbException {
+      throws HiddenException {
 
     int resCode = 0;
 
@@ -645,7 +674,7 @@ public class DbUtils {
       List<BaseModelData> primaryKeyList =
           dbProperties.getPrimaryKeys(tableName);
       if (primaryKeyList.size() <= 0) {
-        throw new DbException(
+        throw new HiddenException(
             "La tabella non contiene chiavi primarie: impossibile operare!");
       }
       for (BaseModelData record : records) {
@@ -685,7 +714,7 @@ public class DbUtils {
       }
     } catch (Exception e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante l'eliminazione dei record");
+      throw new HiddenException("Errore durante l'eliminazione dei record");
     } finally {
       log("<END> Removing objects");
       dbConnectionHandler.closeConn(connection);
@@ -728,13 +757,19 @@ public class DbUtils {
     return foreignKey;
   }
 
-  public User getUser(Credentials credentials) throws UserException {
+  public User getUser(Credentials credentials) throws VisibleException {
 
     String username = credentials.getUsername();
     String password = credentials.getPassword();
 
     ResultSet result;
-    Connection connection = dbConnectionHandler.getConn();
+
+    Connection connection;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      throw new VisibleException(e.getLocalizedMessage());
+    }
 
     String query =
         "SELECT u.id, u.name, u.surname, u.email, u.office, "
@@ -749,14 +784,15 @@ public class DbUtils {
       ps.setString(1, username);
       ps.setString(2, password);
     } catch (SQLException e) {
-      throw new UserException("Errore nella query "
+      throw new VisibleException("Errore nella query "
           + "per la verifica di username e password");
     }
 
     try {
       result = ps.executeQuery();
     } catch (SQLException e) {
-      throw new UserException("Errore durante l'interrogazione su database");
+      Log.debug("User validation query: " + ps.toString());
+      throw new VisibleException("Errore durante l'interrogazione su database");
     }
 
     int rows = 0;
@@ -764,7 +800,7 @@ public class DbUtils {
       while (result.next()) {
         rows++;
         if (rows > 1) {
-          throw new UserException("Errore nel database degli utenti: "
+          throw new VisibleException("Errore nel database degli utenti: "
               + "due account con username e password uguali");
         }
 
@@ -788,7 +824,7 @@ public class DbUtils {
         /* Carica le preferenze dell'utente */
         List<ResultsetImproved> resultsets = getUserResultsetImproved(uid, gid);
 
-        List<Message> messages = getUserMessages(uid);
+        List<Message> messages = new ArrayList<Message>();
 
         updateLoginCount(uid, ++login);
 
@@ -801,12 +837,12 @@ public class DbUtils {
       }
     } catch (Exception e) {
       Log.warn("Errore SQL", e);
-      throw new UserException("Errore di accesso "
+      throw new VisibleException("Errore di accesso "
           + "al risultato dell'interrogazione su database");
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
-    throw new UserException("Errore di accesso: username o password errati");
+    throw new VisibleException("Errore di accesso: username o password errati");
   }
 
   /**
@@ -815,9 +851,10 @@ public class DbUtils {
    *         ogni campo del resultset passato per parametro. I valori di
    *         autocompletamento, sono quelli già presenti in tabella per ognuno
    *         dei campi
-   * @throws DbException
+   * @throws HiddenException
    */
-  public FieldsMatrix getValuesOfFields(Integer resultsetId) throws DbException {
+  public FieldsMatrix getValuesOfFields(Integer resultsetId)
+      throws HiddenException {
     FieldsMatrix matrix = new FieldsMatrix();
 
     try {
@@ -833,14 +870,15 @@ public class DbUtils {
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante il recupero dei valori dei campi");
+      throw new HiddenException(
+          "Errore durante il recupero dei valori dei campi");
     }
 
     return matrix;
   }
 
   private HashMap<Integer, String> getResultsetFields(int resultsetId)
-      throws SQLException {
+      throws SQLException, HiddenException {
     HashMap<Integer, String> fieldList = new HashMap<Integer, String>();
 
     Connection connection = dbConnectionHandler.getConn();
@@ -868,10 +906,10 @@ public class DbUtils {
    *         ogni campo del resultset passato per parametro. I valori di
    *         autocompletamento, sono quelli già presenti in tabella per ognuno
    *         dei campi
-   * @throws DbException
+   * @throws HiddenException
    */
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
-      throws DbException {
+      throws HiddenException {
 
     FieldsMatrix matrix = new FieldsMatrix();
     Connection connection = dbConnectionHandler.getConn();
@@ -904,7 +942,8 @@ public class DbUtils {
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante il recupero dei valori dei vincoli");
+      throw new HiddenException(
+          "Errore durante il recupero dei valori dei vincoli");
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
@@ -918,10 +957,10 @@ public class DbUtils {
    * 
    *         Ritorna i resultset (id, alias e statement SQL) per i quali
    *         l'utente passato come parametro ha permesso 'read' uguale a 1
-   * @throws DbException
+   * @throws HiddenException
    */
   public List<ResultsetImproved> getUserResultsetImproved(Integer uid,
-      Integer gid) throws DbException {
+      Integer gid) throws HiddenException {
 
     List<ResultsetImproved> resultSetList = new ArrayList<ResultsetImproved>();
     Connection connection = dbConnectionHandler.getConn();
@@ -1062,7 +1101,7 @@ public class DbUtils {
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException(
+      throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
       dbConnectionHandler.closeConn(connection);
@@ -1090,7 +1129,7 @@ public class DbUtils {
 
   public boolean setUserResultsetHeaderPreferencesNoDefault(Integer userid,
       Integer resultsetId, ArrayList<Integer> listfields, String value)
-      throws DbException {
+      throws HiddenException {
     boolean esito = true;
     Connection connection = dbConnectionHandler.getConn();
 
@@ -1116,7 +1155,7 @@ public class DbUtils {
     } catch (SQLException e) {
       esito = false;
       Log.warn("Errore SQL", e);
-      throw new DbException(
+      throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
       dbConnectionHandler.closeConn(connection);
@@ -1126,7 +1165,7 @@ public class DbUtils {
   }
 
   public HeaderPreferenceList getHeaderUserPreferenceList(Integer idUser,
-      Integer idResultset) throws DbException {
+      Integer idResultset) throws HiddenException {
 
     HeaderPreferenceList hp = new HeaderPreferenceList();
     Connection connection = dbConnectionHandler.getConn();
@@ -1152,7 +1191,7 @@ public class DbUtils {
 
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException(
+      throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
       dbConnectionHandler.closeConn(connection);
@@ -1161,7 +1200,7 @@ public class DbUtils {
   }
 
   public List<Integer> getHeaderUserPreference(Integer idUser,
-      Integer userPreferenceHeaderId) throws DbException {
+      Integer userPreferenceHeaderId) throws HiddenException {
     List<Integer> fieldInPref = new ArrayList<Integer>();
     Connection connection = dbConnectionHandler.getConn();
     String query =
@@ -1177,7 +1216,7 @@ public class DbUtils {
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException(
+      throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
       dbConnectionHandler.closeConn(connection);
@@ -1187,7 +1226,7 @@ public class DbUtils {
   }
 
   public int importFile(Credentials credentials, int resultsetId,
-      File importFile) throws DbException, UserException {
+      File importFile) throws HiddenException, VisibleException {
 
     getUser(credentials);
 
@@ -1198,7 +1237,7 @@ public class DbUtils {
       in = new BufferedReader(new FileReader(importFile));
     } catch (FileNotFoundException e) {
       e.printStackTrace();
-      throw new DbException("file " + importFile.getName() + " non trovato");
+      throw new HiddenException("file " + importFile.getName() + " non trovato");
     }
 
     Connection connection = dbConnectionHandler.getConn();
@@ -1209,8 +1248,8 @@ public class DbUtils {
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-      throw new DbException("impossibile recuperare metadati per resultset: "
-          + resultsetId);
+      throw new HiddenException(
+          "impossibile recuperare metadati per resultset: " + resultsetId);
     }
 
     String recordLine;
@@ -1224,13 +1263,13 @@ public class DbUtils {
         if (validateLine(rsmd, recordLine)) {
           recordList.add(createRecord(rsmd, recordLine));
         } else
-          throw new DbException("record: " + recordLine + " non valido!");
+          throw new HiddenException("record: " + recordLine + " non valido!");
         recordLine = in.readLine();
       }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-      throw new DbException("impossibile leggere il file: "
+      throw new HiddenException("impossibile leggere il file: "
           + importFile.getName());
     }
 
@@ -1240,7 +1279,7 @@ public class DbUtils {
   }
 
   private BaseModelData createRecord(ResultSetMetaData rsmd, String recordLine)
-      throws DbException {
+      throws HiddenException {
 
     BaseModelData bm = new BaseModelData();
     try {
@@ -1258,7 +1297,7 @@ public class DbUtils {
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-      throw new DbException(
+      throw new HiddenException(
           "il seguente record è valido, ma non riesco a crearlo: " + recordLine);
     }
 
@@ -1266,7 +1305,7 @@ public class DbUtils {
   }
 
   private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
-      throws DbException {
+      throws HiddenException {
 
     boolean valid = false;
     try {
@@ -1277,7 +1316,7 @@ public class DbUtils {
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-      throw new DbException("problemi nella lettura dei metadata per il rs");
+      throw new HiddenException("problemi nella lettura dei metadata per il rs");
     }
 
     return valid;
@@ -1288,7 +1327,7 @@ public class DbUtils {
    * quindi che la chiave primaria non sia stata alterata
    */
   public Integer updateObjects(Integer resultsetId,
-      List<BaseModelData> newItemList) throws DbException {
+      List<BaseModelData> newItemList) throws HiddenException {
 
     log("<START> Setting records");
 
@@ -1351,7 +1390,7 @@ public class DbUtils {
       }
     } catch (Exception e) {
       Log.warn("Errore SQL", e);
-      throw new DbException("Errore durante l'aggiornamento del record:\n"
+      throw new HiddenException("Errore durante l'aggiornamento del record:\n"
           + e.getLocalizedMessage());
     } finally {
       log("<END> Setting records");
@@ -1361,7 +1400,7 @@ public class DbUtils {
   }
 
   public void notifyChanges(Integer resultsetId, List<BaseModelData> newItemList)
-      throws SQLException {
+      throws SQLException, HiddenException {
     Integer id_table = 0;
     String mitt = "notReplyJardin@fub.it";
     String oggetto = "Situazione pratica";
@@ -1427,8 +1466,37 @@ public class DbUtils {
     }
   }
 
-  public void sendMessage(int uid, String title, String body, MessageType type) {
-    // TODO Auto-generated method stub
+  public void sendMessage(Message message) throws HiddenException,
+      VisibleException {
 
+    String query =
+        "INSERT INTO "
+            + T_MESSAGES
+            + " (title, body, date, type, sender, recipient) VALUES (?, ?, ?, ?, ?, ?)";
+
+    Connection connection = dbConnectionHandler.getConn();
+
+    PreparedStatement ps;
+    try {
+      ps = (PreparedStatement) connection.prepareStatement(query);
+      // TODO Title could be NULL -> check sql
+      ps.setString(1, message.getTitle());
+      ps.setString(2, message.getBody());
+      Log.debug(message.toString());
+
+      DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+      String date = df.format(message.getDate());
+      ps.setString(3, date);
+
+      ps.setString(4, message.getType().type());
+      ps.setInt(5, message.getSender());
+      ps.setInt(6, message.getRecipient());
+      ps.executeUpdate();
+    } catch (SQLException e) {
+      Log.error("Error during new message insertion", e);
+      throw new VisibleException("Impossibile salvare il messaggio");
+    } finally {
+      dbConnectionHandler.closeConn(connection);
+    }
   }
 }

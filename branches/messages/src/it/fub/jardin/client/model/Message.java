@@ -3,6 +3,10 @@
  */
 package it.fub.jardin.client.model;
 
+import java.util.Date;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -18,7 +22,7 @@ public class Message implements IsSerializable {
   private int id;
   private String title;
   private String body;
-  private String date;
+  private Date date;
   private MessageType type;
   private int sender;
   private int recipient;
@@ -43,7 +47,7 @@ public class Message implements IsSerializable {
    * @param sender
    *          Message's sender uid
    */
-  public Message(int id, String title, String body, String date,
+  public Message(int id, String title, String body, Date date,
       MessageType type, int sender, int recipient) {
     this.id = id;
     this.title = title;
@@ -52,6 +56,11 @@ public class Message implements IsSerializable {
     this.type = type;
     this.sender = sender;
     this.recipient = recipient;
+  }
+
+  public Message(String title, String body, Date date, MessageType type,
+      int recipient) {
+    this(-1, title, body, date, type, -1, recipient);
   }
 
   /**
@@ -78,7 +87,7 @@ public class Message implements IsSerializable {
   /**
    * @return the date
    */
-  public String getDate() {
+  public Date getDate() {
     return date;
   }
 
@@ -102,4 +111,26 @@ public class Message implements IsSerializable {
   public int getRecipient() {
     return recipient;
   }
+
+  /**
+   * @param sender
+   *          the sender to set
+   */
+  public void setSender(int sender) {
+    this.sender = sender;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    String s =
+        this.id + " [" + this.type + "]: " + this.title + " - " + this.body
+            + " [" + this.sender + "->" + this.recipient + "] " + this.date.toString();
+    return s;
+  }
+
 }

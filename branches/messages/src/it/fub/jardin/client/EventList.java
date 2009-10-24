@@ -72,8 +72,7 @@ public class EventList {
 
   public static final EventType SearchCompravendita = new EventType();
 
-  public static final EventTypeSerializable SendMessage =
-      new EventTypeSerializable();
+  public static final EventTypeSerializable SendMessage = new EventTypeSerializable();
 
   public static final EventType ShowAllColumns = new EventType();
 
@@ -92,5 +91,7 @@ public class EventList {
   public static final EventType UploadImport = new EventType();
 
   public static final EventType UploadTemplate = new EventType();
+
+  public static final EventTypeSerializable NewMessage = new EventTypeSerializable();
 
 }

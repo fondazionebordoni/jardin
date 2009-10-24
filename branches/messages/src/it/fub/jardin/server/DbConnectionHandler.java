@@ -3,6 +3,8 @@
  */
 package it.fub.jardin.server;
 
+import it.fub.jardin.client.exception.HiddenException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -38,14 +40,15 @@ public class DbConnectionHandler {
     view = dbConnectionParameters.getView();
   }
 
-  public Connection getConn() {
+  public Connection getConn() throws HiddenException {
     Connection connection = null;
     try {
       Class.forName(driver).newInstance();
       connection =
           (Connection) DriverManager.getConnection(url + db, user, pass);
     } catch (Exception e) {
-      Log.warn("Errore durante la connesione a database", e);
+      Log.error("Errore durante la creazione della connesione a database", e);
+      throw new HiddenException("Errore durante la creazione della connessione a database");
     }
     return connection;
   }
