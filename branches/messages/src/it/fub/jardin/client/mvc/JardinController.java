@@ -99,6 +99,7 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.ShowPieChart);
     registerEventTypes(EventList.ShowBarChart);
     registerEventTypes(EventList.SendMessage);
+    registerEventTypes(EventList.NewMessage);
   }
 
   public void initialize() {
@@ -112,6 +113,7 @@ public class JardinController extends Controller {
    */
   public void handleEvent(AppEvent event) {
     EventType t = event.getType();
+
     if (t == EventList.Login) {
       forwardToView(view, EventList.Login, loginMessage());
     } else if (t == EventList.CheckUser) {
@@ -285,7 +287,7 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.SendMessage
         Log.error("Errore nei dati di EventList.SendMessage");
       }
-    } else if (t == EventList.NewMessage) {
+    } else if (t.getEventCode() == EventList.NewMessage.getEventCode()) {
       onNewMessage();
     }
   }
@@ -305,7 +307,7 @@ public class JardinController extends Controller {
       public void onSuccess(List<Message> messages) {
         user.setMessages(messages);
         Info.display("Informazione", "Hai ricevuto un nuovo messaggio");
-        forwardToView(view, EventList.NewMessage, null);
+        //forwardToView(view, EventList.NewMessage, null);
       }
     };
 
@@ -332,6 +334,7 @@ public class JardinController extends Controller {
       }
 
       public void onSuccess(Object result) {
+        Info.display("Informazione", "Messaggio inviato e memorizzato.");
         // TODO Auto-generated method stub
 
       }
@@ -388,6 +391,7 @@ public class JardinController extends Controller {
 
   private void onInit(User user) {
     this.user = user;
+    user.addEvent(EventList.NewMessage);
 
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -396,10 +400,11 @@ public class JardinController extends Controller {
         new AsyncCallback<List<EventTypeSerializable>>() {
 
           public void onSuccess(List<EventTypeSerializable> eventTypes) {
+            
             for (EventTypeSerializable eventType : eventTypes) {
               handleEvent(new AppEvent(eventType));
             }
-
+            service.getEvents(this);
           }
 
           public void onFailure(Throwable caught) {

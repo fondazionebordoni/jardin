@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +116,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     List<EventTypeSerializable> events = null;
     User user = getCurrentUser();
     if (user != null) {
-      if (user.getEvents().size() == 0) {
+      while (user.getEvents().size() == 0) {
         try {
           synchronized (user) {
             user.wait(30 * 1000);
@@ -124,7 +125,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
           ;
         }
       }
+      
       synchronized (user) {
+        Log.debug("User " + user.getUsername() + " got events!");
         events = user.getEvents();
         user.cleanEvents();
       }
@@ -227,29 +230,29 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
     MessageType type = message.getType();
     User sender = getUserByUid(message.getSender());
+    dbUtils.sendMessage(message);
+    Collection<User> users = null;
     
     switch (type) {
     case GROUP:
-      dbUtils.sendMessage(message);
-      for (User user : getGroupUsers(sender.getGid())) {
-        user.addEvent(EventList.NewMessage);
-        // TODO throws java.lang.IllegalMonitorStateException: current thread not owner 
-        user.notifyAll();
-      }
+      users = getGroupUsers(sender.getGid());
       break;
     case ALL:
-      dbUtils.sendMessage(message);
-      for (User user : this.users.values()) {
-        user.addEvent(EventList.NewMessage);
-        user.notifyAll();
-      }
-      break;
+      users = this.users.values();
     case USER:
       // TODO implement user direct messages
       // dbUtils.sendMessage(message);
       break;
     default:
       break;
+    }
+
+    for (User user : users) {
+      synchronized (user) {
+        // TODO throws java.lang.IllegalMonitorStateException: current thread not owner 
+        user.addEvent(EventList.NewMessage);
+        user.notifyAll();
+      }
     }
 
   }

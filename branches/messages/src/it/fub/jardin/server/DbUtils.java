@@ -28,9 +28,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +43,6 @@ import javax.mail.MessagingException;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 /**
@@ -516,19 +513,13 @@ public class DbUtils {
         int id = result.getInt("id");
         String title = result.getString("title");
         String body = result.getString("body");
-        DateFormat df =
-            DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
-        Date date = df.parse(result.getString("date"));
+        Date date = result.getDate("date");
         MessageType type = getMessageType(result.getString("type"));
         int sender = result.getInt("sender");
         int recipient = result.getInt("recipient");
         Message w = new Message(id, title, body, date, type, sender, recipient);
         messages.add(w);
       }
-    } catch (ParseException e) {
-      Log.warn("Errore durante il parsing della data del messaggio", e);
-      throw new HiddenException(
-          "Errore durante il recupero dei messaggi di utente");
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
       throw new HiddenException(

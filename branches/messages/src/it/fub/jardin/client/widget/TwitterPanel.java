@@ -48,8 +48,8 @@ public class TwitterPanel extends ContentPanel {
   private TextArea text;
   private Button send;
   private Status status;
-  private ContentPanel messageArea;
   private RadioGroup typeSelect;
+  private ContentPanel messageArea;
   private static final String TYPE = "TYPE";
 
   public TwitterPanel(User user) {
@@ -75,13 +75,13 @@ public class TwitterPanel extends ContentPanel {
     area.setBodyBorder(false);
     area.setFrame(false);
 
-    messageArea = new ContentPanel();
+    messageArea = new ContentPanel(new RowLayout(Orientation.VERTICAL));
     messageArea.setHeaderVisible(false);
     messageArea.setBorders(false);
     messageArea.setBodyBorder(false);
     messageArea.setFrame(false);
     messageArea.setScrollMode(Scroll.AUTOY);
-    messageArea.setStyleAttribute("font", "serif");
+    messageArea.setStyleAttribute("font", "120% serif");
     area.add(messageArea);
 
     return area;
@@ -148,6 +148,14 @@ public class TwitterPanel extends ContentPanel {
       }
     });
 
+    /* Update button */
+    Button update = new Button("Aggiorna");
+    update.addSelectionListener(new SelectionListener<ButtonEvent>() {
+      public void componentSelected(ButtonEvent ce) {
+        updateMessages();
+      }
+    });
+
     /* Radio selector for recipients */
     Radio radio = new Radio();
     radio.setData(TYPE, MessageType.GROUP);
@@ -170,6 +178,7 @@ public class TwitterPanel extends ContentPanel {
     bb.add(new FillToolItem());
     bb.add(status);
     bb.add(send);
+    bb.add(update);
 
     return area;
   }
@@ -177,34 +186,46 @@ public class TwitterPanel extends ContentPanel {
   private void submit() {
     String body = text.getValue();
 
-    MessageType type = (MessageType) typeSelect.getValue().getData(TYPE);
-
     // TODO manage recipient?
     // TODO eliminate title
-    Message message = new Message(null, body, new Date(), type, -1);
+    MessageType type = (MessageType) typeSelect.getValue().getData(TYPE);
+    Message message = null;
+    switch (type) {
+    case GROUP:
+      message =
+          new Message("Titolo messaggio", body, new Date(), type, user.getGid());
+      break;
+    case ALL:
+      message = new Message("Titolo messaggio", body, new Date(), type, -1);
+      break;
+    default:
+      break;
+    }
+
     Log.debug(message.toString());
     Dispatcher.forwardEvent(EventList.SendMessage, message);
     text.reset();
+    text.validate();
   }
-  
+
   @Override
   protected void onShow() {
     super.onShow();
     this.updateMessages();
   }
-  
+
   private void updateMessages() {
     messageArea.removeAll();
-    
-    List<Message> messages = this.user.getMessages();
 
-    if (messages.size() <= 0) {
+    List<Message> m = this.user.getMessages();
+
+    if (m.size() <= 0) {
       messageArea.addText("<i>Nessuna comunicazione</i>");
     }
 
-    for (Message w : messages) {
+    for (Message w : m) {
       String body = w.getBody();
-      String date = "(" + w.getDate() + ")";
+      String date = "<i>(" + w.getDate().toString() + ")</i>";
       String title = "<b>" + w.getTitle() + "</b>";
       String type = "";
       switch (w.getType()) {
@@ -212,7 +233,7 @@ public class TwitterPanel extends ContentPanel {
         type = "&raquo;";
         break;
       case ALL:
-        type = "*";
+        type = "#";
         break;
       case USER:
         type = "&rsaquo;";
@@ -221,11 +242,12 @@ public class TwitterPanel extends ContentPanel {
         break;
       }
       type = "<b>" + type + "</b>";
-      messageArea.addText("<i>" + type + " " + date + "</i><br>" + title + "<br>"
-          + body + "<br><br>");
+
+      messageArea.addText("<p>" + type + " " + date + ": " + title + "<br>"
+          + body + "</p>");
     }
 
-    
+    messageArea.layout();
   }
 
 }
