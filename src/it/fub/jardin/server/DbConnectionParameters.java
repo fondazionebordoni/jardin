@@ -17,6 +17,7 @@ public class DbConnectionParameters {
   private String path = "/conf/db.conf";
   private String url;
   private String db;
+  private String dbInformationSchema;
   private String driver;
   private String user;
   private String pass;
@@ -33,6 +34,7 @@ public class DbConnectionParameters {
       myProps.load(in);
       setUrl(myProps.getProperty("url"));
       setDb(myProps.getProperty("db"));
+      setDbInformationSchema(myProps.getProperty("dbInformationSchema"));
       setDriver(myProps.getProperty("driver"));
       setUser(myProps.getProperty("user"));
       setPass(myProps.getProperty("pass"));
@@ -56,6 +58,10 @@ public class DbConnectionParameters {
    */
   public String getDb() {
     return db;
+  }
+  
+  public String getDbInformationSchema() {
+    return dbInformationSchema;
   }
 
   /**
@@ -93,6 +99,10 @@ public class DbConnectionParameters {
    */
   private void setDb(String db) {
     this.db = db;
+  }
+  
+  private void setDbInformationSchema(String dbInformationSchema) {
+    this.dbInformationSchema = dbInformationSchema;
   }
 
   /**

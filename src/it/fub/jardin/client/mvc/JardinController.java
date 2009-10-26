@@ -362,7 +362,22 @@ public class JardinController extends Controller {
           };
 
       service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
+      
+      AsyncCallback<ArrayList<BaseModelData>> callbackForeignKeyInForATable =
+        new AsyncCallback<ArrayList<BaseModelData>>() {
+          public void onFailure(Throwable caught) {
+            Dispatcher.forwardEvent(EventList.Error,
+                caught.getLocalizedMessage());
+          }
 
+          public void onSuccess(ArrayList<BaseModelData> ForeignKeyIn) {
+            ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+            rs.setForeignKeyIn(ForeignKeyIn);
+            forwardToView(view, EventList.gotValuesOfForeignKeysIn, resultsetId);
+          }
+        };
+
+    service.getForeignKeyInForATable(resultsetId, callbackForeignKeyInForATable);
     }
 
   }
