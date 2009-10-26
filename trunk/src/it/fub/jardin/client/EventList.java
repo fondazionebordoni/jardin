@@ -57,6 +57,8 @@ public class EventList {
   public static final EventType gotValuesOfFields = new EventType();
 
   public static final EventType gotValuesOfForeignKeys = new EventType();
+  
+  public static final EventType gotValuesOfForeignKeysIn = new EventType();
 
   public static final EventType AddRow = new EventType();
 

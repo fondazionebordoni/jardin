@@ -140,6 +140,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return dbUtils.getValuesOfForeignKeys(resultsetId);
   }
 
+  public ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
+      throws DbException {
+    return dbUtils.getForeignKeyInForATable(resultsetId);
+  }
+  
   public Integer removeObjects(Integer resultset,
       List<BaseModelData> selectedRows) throws DbException {
     Log.info("[" + this.user.getUsername() + "] Removing records...");

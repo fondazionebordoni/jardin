@@ -741,6 +741,66 @@ public class DbUtils {
     return foreignKey;
   }
 
+  // ------------------------------------------------------------------->
+  ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
+      throws DbException {
+    // TODO sarebbe consigliabile passare il nome della tabella al posto dell'id
+    // del resultset!
+    ArrayList<BaseModelData> foreignKeysIn = new ArrayList<BaseModelData>();
+    String tableName = null;
+    Connection connection = dbConnectionHandler.getConn();
+    String queryStatement = null;
+    String query =
+        "SELECT statement FROM " + T_RESULTSET + " WHERE id = '" + resultsetId
+            + "'";
+    try {
+      ResultSet res = doQuery(connection, query);
+      while (res.next()) {
+        queryStatement = res.getString("statement");
+      }
+
+      ResultSet result = doQuery(connection, queryStatement);
+
+      if ((result != null) && (result.getMetaData().getColumnCount() > 1)) {
+        tableName = result.getMetaData().getTableName(1);
+      }
+
+      if (tableName.length() <= 0) {
+        return null;
+      }
+      String db =
+        dbConnectionHandler.getDB();
+      Connection connectionInformationSchema =
+          dbConnectionHandler.getConnDbInformationSchema();
+      String queryFKIn =
+          "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_COLUMN_NAME FROM KEY_COLUMN_USAGE where TABLE_SCHEMA = '"+ db +"' AND REFERENCED_TABLE_NAME = '" + tableName + "'";
+      ResultSet resultFKIn = doQuery(connectionInformationSchema, queryFKIn);
+
+      while (resultFKIn.next()) {
+        BaseModelData fkin = new BaseModelData();
+        //fkin.set("TABLE", resultFKIn.getString("TABLE_NAME"));
+        //fkin.set("COLUMN_NAME", resultFKIn.getString("COLUMN_NAME"));
+        ArrayList<String> Keys = new ArrayList<String>();
+        Keys.add(resultFKIn.getString("COLUMN_NAME"));
+        Keys.add(resultFKIn.getString("REFERENCED_COLUMN_NAME"));
+        fkin.set(resultFKIn.getString("TABLE_NAME"), Keys);
+        foreignKeysIn.add(fkin);
+      }
+    } catch (SQLException e) {
+      Log.warn("Errore SQL", e);
+      throw new DbException(
+          "Errore durante il recupero delle preferenze utente");
+    } finally {
+      dbConnectionHandler.closeConn(connection);
+    }
+    
+    
+
+    return foreignKeysIn;
+  }
+
+  // ------------------------------------------------------------------->
+
   public User getUser(Credentials credentials) throws UserException {
 
     String username = credentials.getUsername();

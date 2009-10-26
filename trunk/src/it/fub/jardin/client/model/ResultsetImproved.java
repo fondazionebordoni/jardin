@@ -3,6 +3,7 @@ package it.fub.jardin.client.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -30,6 +31,8 @@ public class ResultsetImproved implements IsSerializable {
   private FieldsMatrix foreignKeyList;
   /* Lista dei valori dei campi */
   private FieldsMatrix valuesList;
+  /* Lista delle foreignKey entranti */
+  private ArrayList<BaseModelData> foreignKeyIn;
 
   @SuppressWarnings("unused")
   private ResultsetImproved() {
@@ -113,6 +116,10 @@ public class ResultsetImproved implements IsSerializable {
   public FieldsMatrix getForeignKeyList() {
     return foreignKeyList;
   }
+  
+  public ArrayList<BaseModelData>  getForeignKeyIn() {
+    return foreignKeyIn;
+  }
 
   public FieldsMatrix getValuesList() {
     return valuesList;
@@ -164,6 +171,10 @@ public class ResultsetImproved implements IsSerializable {
 
   public void setForeignKeyList(FieldsMatrix foreignKeyList) {
     this.foreignKeyList = foreignKeyList;
+  }
+  
+  public void setForeignKeyIn(ArrayList<BaseModelData> foreignKeyIn) {
+    this.foreignKeyIn = foreignKeyIn;
   }
 
   public void setValuesList(FieldsMatrix valuesList) {
