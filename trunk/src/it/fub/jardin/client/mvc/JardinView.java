@@ -293,14 +293,13 @@ public class JardinView extends View {
     
     ArrayList<BaseModelData> foreignKeyIn = new ArrayList<BaseModelData>();
     foreignKeyIn = resultset.getForeignKeyIn();
-    Log.info("Foreign Key Entranti");
+    System.out.println("Foreign Key Entranti");
     for (BaseModelData fk : foreignKeyIn) {
       Map<String, Object> fkInProp = fk.getProperties();
       String referenceTable = fkInProp.toString();
       //ArrayList<String> referenceColumn = fk.get(referenceTable);
       System.out.println(referenceTable);
     }
-    Log.info("----------------------");
   }
 
   private void onGotExport(String url) {
