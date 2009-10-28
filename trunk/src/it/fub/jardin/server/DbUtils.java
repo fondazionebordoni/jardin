@@ -744,8 +744,6 @@ public class DbUtils {
   // ------------------------------------------------------------------->
   ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
       throws DbException {
-    // TODO sarebbe consigliabile passare il nome della tabella al posto dell'id
-    // del resultset!
     ArrayList<BaseModelData> foreignKeysIn = new ArrayList<BaseModelData>();
     String tableName = null;
     Connection connection = dbConnectionHandler.getConn();
@@ -758,13 +756,10 @@ public class DbUtils {
       while (res.next()) {
         queryStatement = res.getString("statement");
       }
-
       ResultSet result = doQuery(connection, queryStatement);
-
       if ((result != null) && (result.getMetaData().getColumnCount() > 1)) {
         tableName = result.getMetaData().getTableName(1);
       }
-
       if (tableName.length() <= 0) {
         return null;
       }
@@ -778,8 +773,6 @@ public class DbUtils {
 
       while (resultFKIn.next()) {
         BaseModelData fkin = new BaseModelData();
-        //fkin.set("TABLE", resultFKIn.getString("TABLE_NAME"));
-        //fkin.set("COLUMN_NAME", resultFKIn.getString("COLUMN_NAME"));
         ArrayList<String> Keys = new ArrayList<String>();
         Keys.add(resultFKIn.getString("COLUMN_NAME"));
         Keys.add(resultFKIn.getString("REFERENCED_COLUMN_NAME"));
@@ -793,8 +786,6 @@ public class DbUtils {
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
-    
-    
 
     return foreignKeysIn;
   }
