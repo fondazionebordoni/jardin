@@ -30,7 +30,8 @@ public class User implements IsSerializable {
   private Credentials credentials;
   private String name, surname, group, email, office, telephone, last;
   private List<ResultsetImproved> resultsets;
-  private List<Warning> warnings;
+  private List<Message> messages;
+  private List<EventTypeSerializable> events;
 
   @SuppressWarnings("unused")
   private User() {
@@ -65,13 +66,13 @@ public class User implements IsSerializable {
    *          Last login time
    * @param resultsets
    *          Resultset list
-   * @param warnings
-   *          Warning messages' list
+   * @param messages
+   *          Message messages' list
    */
   public User(int uid, int gid, Credentials credentials, String name,
       String surname, String group, String email, String office,
       String telephone, int status, int login, String last,
-      List<ResultsetImproved> resultsets, List<Warning> warnings) {
+      List<ResultsetImproved> resultsets, List<Message> messages) {
     super();
     this.uid = uid;
     this.gid = gid;
@@ -86,99 +87,64 @@ public class User implements IsSerializable {
     this.login = login;
     this.last = last;
     this.resultsets = resultsets;
-    this.warnings = warnings;
+    this.messages = messages;
+    this.events = new ArrayList<EventTypeSerializable>();
+  }
+  
+  public void addEvent(EventTypeSerializable event) {
+    this.events.add(event);
   }
 
-  public int getUid() {
-    return uid;
+  public void cleanEvents() {
+    this.events = new ArrayList<EventTypeSerializable>();
   }
-
-  public int getGid() {
-    return gid;
-  }
-
-  public int getLogin() {
-    return login;
-  }
-
+  
   public Credentials getCredentials() {
     return credentials;
-  }
-
-  public String getUsername() {
-    return getCredentials().getUsername();
-  }
-
-  public String getPassword() {
-    return getCredentials().getPassword();
-  }
-
-  public void setPassword(String password) {
-    getCredentials().setPassword(password);
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getSurname() {
-    return surname;
-  }
-
-  public void setSurname(String surname) {
-    this.surname = surname;
-  }
-
-  public String getFullName() {
-    return getName() + " " + getSurname();
-  }
-
-  public String getGroup() {
-    return group;
   }
 
   public String getEmail() {
     return email;
   }
 
-  public void setEmail(String email) {
-    this.email = email;
+  public List<EventTypeSerializable> getEvents() {
+    return events;
+  }
+  
+  public String getFullName() {
+    return getName() + " " + getSurname();
   }
 
-  public String getOffice() {
-    return office;
+  public int getGid() {
+    return gid;
   }
 
-  public void setOffice(String office) {
-    this.office = office;
-  }
-
-  public String getTelephone() {
-    return telephone;
-  }
-
-  public void setTelephone(String telephone) {
-    this.telephone = telephone;
-  }
-
-  public int getStatus() {
-    return status;
+  public String getGroup() {
+    return group;
   }
 
   public String getLast() {
     return last;
   }
 
-  public List<ResultsetImproved> getResultsets() {
-    return resultsets;
+  public int getLogin() {
+    return login;
   }
 
-  public List<Warning> getWarnings() {
-    return warnings;
+  public List<Message> getMessages() {
+    return messages;
+  }
+  
+  public String getName() {
+    return name;
+  }
+
+  public String getOffice() {
+    return office;
+  }
+
+  public String getPassword() {
+    return getCredentials().getPassword();
   }
 
   public ResultsetImproved getResultsetFromId(int resultsetId) {
@@ -191,22 +157,48 @@ public class User implements IsSerializable {
     return res;
   }
 
-  public void updateUserProperties() {
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+  public List<ResultsetImproved> getResultsets() {
+    return resultsets;
+  }
 
-    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-      public void onFailure(Throwable caught) {
-        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
-      }
+  public int getStatus() {
+    return status;
+  }
 
-      public void onSuccess(Integer result) {
-        Info.display("Informazione", "Salvate preferenze per l'utente "
-            + getUsername());
-      }
-    };
+  public String getSurname() {
+    return surname;
+  }
 
-    service.updateUserProperties(this, callback);
+  public String getTelephone() {
+    return telephone;
+  }
+
+  public int getUid() {
+    return uid;
+  }
+
+  public String getUsername() {
+    return getCredentials().getUsername();
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+  
+  public void setMessages(List<Message> messages) {
+    this.messages = messages;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setOffice(String office) {
+    this.office = office;
+  }
+
+  public void setPassword(String password) {
+    getCredentials().setPassword(password);
   }
 
   /**
@@ -246,6 +238,32 @@ public class User implements IsSerializable {
     /* Make the call */
     service.setUserResultsetHeaderPreferencesNoDefault(getUid(), resultsetId,
         headerFields, value, callback);
+  }
+
+  public void setSurname(String surname) {
+    this.surname = surname;
+  }
+
+  public void setTelephone(String telephone) {
+    this.telephone = telephone;
+  }
+
+  public void updateUserProperties() {
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+      public void onFailure(Throwable caught) {
+        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
+      }
+
+      public void onSuccess(Integer result) {
+        Info.display("Informazione", "Salvate preferenze per l'utente "
+            + getUsername());
+      }
+    };
+
+    service.updateUserProperties(this, callback);
   }
 
 }

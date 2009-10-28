@@ -4,8 +4,10 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.Credentials;
+import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
@@ -96,6 +98,8 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.Jungle);
     registerEventTypes(EventList.ShowPieChart);
     registerEventTypes(EventList.ShowBarChart);
+    registerEventTypes(EventList.SendMessage);
+    registerEventTypes(EventList.NewMessage);
   }
 
   public void initialize() {
@@ -109,6 +113,7 @@ public class JardinController extends Controller {
    */
   public void handleEvent(AppEvent event) {
     EventType t = event.getType();
+
     if (t == EventList.Login) {
       forwardToView(view, EventList.Login, loginMessage());
     } else if (t == EventList.CheckUser) {
@@ -275,7 +280,68 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.UpdateTemplates
         Log.error("Errore nei dati di EventList.UpdateTemplates");
       }
+    } else if (t == EventList.SendMessage) {
+      if (event.getData() instanceof Message) {
+        onSendMessage((Message) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.SendMessage
+        Log.error("Errore nei dati di EventList.SendMessage");
+      }
+    } else if (t.getEventCode() == EventList.NewMessage.getEventCode()) {
+      onNewMessage();
     }
+  }
+
+  private void onNewMessage() {
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    /* Set up the callback */
+    AsyncCallback<List<Message>> callback = new AsyncCallback<List<Message>>() {
+
+      public void onFailure(Throwable caught) {
+        // TODO Auto-generated method stub
+
+      }
+
+      public void onSuccess(List<Message> messages) {
+        user.setMessages(messages);
+        Info.display("Informazione", "Hai ricevuto un nuovo messaggio");
+        //forwardToView(view, EventList.NewMessage, null);
+      }
+    };
+
+    /* Make the call */
+    service.getUserMessages(user.getUid(), callback);
+  }
+
+  private void onSendMessage(Message message) {
+
+    /* Fill message with sender id */
+    if (message.getSender() < 0) {
+      message.setSender(user.getUid());
+    }
+
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    /* Set up the callback */
+    AsyncCallback callback = new AsyncCallback() {
+
+      public void onFailure(Throwable caught) {
+        // TODO Auto-generated method stub
+
+      }
+
+      public void onSuccess(Object result) {
+        Info.display("Informazione", "Messaggio inviato e memorizzato.");
+        // TODO Auto-generated method stub
+
+      }
+    };
+
+    /* Make the call */
+    service.sendMessage(message, callback);
   }
 
   public User getUser() {
@@ -325,6 +391,30 @@ public class JardinController extends Controller {
 
   private void onInit(User user) {
     this.user = user;
+    user.addEvent(EventList.NewMessage);
+
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    AsyncCallback<List<EventTypeSerializable>> callback =
+        new AsyncCallback<List<EventTypeSerializable>>() {
+
+          public void onSuccess(List<EventTypeSerializable> eventTypes) {
+            
+            for (EventTypeSerializable eventType : eventTypes) {
+              handleEvent(new AppEvent(eventType));
+            }
+            service.getEvents(this);
+          }
+
+          public void onFailure(Throwable caught) {
+            // TODO Auto-generated method stub
+
+          }
+        };
+
+    service.getEvents(callback);
+
     forwardToView(view, EventList.Init, user);
   }
 
@@ -335,8 +425,8 @@ public class JardinController extends Controller {
     for (ResultsetImproved resultset : this.user.getResultsets()) {
       final Integer resultsetId = resultset.getId();
       /* Avvisa la view che si sta creando un nuovo resultset */
-      forwardToView(view, EventList.newResultset, resultsetId);
-      forwardToView(view, EventList.gotValuesOfFields, resultsetId);
+      forwardToView(view, EventList.NewResultset, resultsetId);
+      forwardToView(view, EventList.GotValuesOfFields, resultsetId);
       // forwardToView(view, EventList.gotValuesOfForeignKeys, resultsetId);
 
       final ManagerServiceAsync service =
@@ -357,7 +447,7 @@ public class JardinController extends Controller {
             public void onSuccess(FieldsMatrix fieldsMatrix) {
               ResultsetImproved rs = user.getResultsetFromId(resultsetId);
               rs.setForeignKeyList(fieldsMatrix);
-              forwardToView(view, EventList.gotValuesOfForeignKeys, resultsetId);
+              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
             }
           };
 
@@ -590,7 +680,7 @@ public class JardinController extends Controller {
 
           public void onSuccess(HeaderPreferenceList result) {
             Info.display("Informazione", "Lista delle preferenze caricata");
-            forwardToView(view, EventList.gotHeaderPreference, result);
+            forwardToView(view, EventList.GotHeaderPreference, result);
           }
         };
 

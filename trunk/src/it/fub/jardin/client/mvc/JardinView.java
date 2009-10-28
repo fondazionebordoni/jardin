@@ -3,10 +3,6 @@
  */
 package it.fub.jardin.client.mvc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
@@ -19,10 +15,12 @@ import it.fub.jardin.client.widget.JardinDetail;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.LoginDialog;
-import it.fub.jardin.client.widget.UploadDialog;
 import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -100,15 +98,15 @@ public class JardinView extends View {
         message = "Errore durante l'accesso";
       }
       loginError(message);
-    } else if (t == EventList.newResultset) {
+    } else if (t == EventList.NewResultset) {
       if (event.getData() instanceof Integer) {
         newResultset((Integer) event.getData());
       }
-    } else if (t == EventList.gotValuesOfFields) {
+    } else if (t == EventList.GotValuesOfFields) {
       if (event.getData() instanceof Integer) {
         gotValuesOfFields((Integer) event.getData());
       }
-    } else if (t == EventList.gotValuesOfForeignKeys) {
+    } else if (t == EventList.GotValuesOfForeignKeys) {
       if (event.getData() instanceof Integer) {
         gotValuesOfForeignKeys((Integer) event.getData());
       }
@@ -137,7 +135,7 @@ public class JardinView extends View {
       if (event.getData() instanceof Integer) {
         onSaveGridView((Integer) event.getData());
       }
-    } else if (t == EventList.gotHeaderPreference) {
+    } else if (t == EventList.GotHeaderPreference) {
       updatePreferenceListMenu((HeaderPreferenceList) event.getData());
       /*
        * -----------------------------------------------------------------------

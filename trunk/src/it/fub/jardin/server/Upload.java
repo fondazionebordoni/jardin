@@ -3,7 +3,7 @@
  */
 package it.fub.jardin.server;
 
-import it.fub.jardin.client.DbException;
+import it.fub.jardin.client.exception.HiddenException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.widget.UploadDialog;
@@ -154,7 +154,7 @@ public class Upload extends HttpServlet {
         Log.warn("Manca il tipo di azione da eseguire con il file");
         return "Errore. Non è possibile decidere quale azione eseguire con il file";
       }
-    } catch (DbException e) {
+    } catch (HiddenException e) {
       Log.warn("Errore durante il caricamento dei dati", e);
       return "Errore. " + e.getLocalizedMessage();
     } catch (Exception e) {
