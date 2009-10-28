@@ -749,7 +749,7 @@ public class DbUtils {
   }
 
   public ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
-      throws DbException {
+      throws HiddenException {
     ArrayList<BaseModelData> foreignKeysIn = new ArrayList<BaseModelData>();
     String tableName = null;
     Connection connection = dbConnectionHandler.getConn();
@@ -787,7 +787,7 @@ public class DbUtils {
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
-      throw new DbException(
+      throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
       dbConnectionHandler.closeConn(connection);
@@ -1378,7 +1378,7 @@ public class DbUtils {
       ResultSetMetaData metadata =
           dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
-      int columns = metadata.getColumnCount();
+      //int columns = metadata.getColumnCount();
 
       List<BaseModelData> PKs = dbProperties.getPrimaryKeys(tableName);
       String PKset = "";

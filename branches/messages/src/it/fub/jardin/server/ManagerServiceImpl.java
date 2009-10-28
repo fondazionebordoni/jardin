@@ -211,7 +211,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
-      throws DbException {
+      throws HiddenException {
     return dbUtils.getForeignKeyInForATable(resultsetId);
   }
   
