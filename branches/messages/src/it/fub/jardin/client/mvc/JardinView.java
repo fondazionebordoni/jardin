@@ -20,7 +20,8 @@ import it.fub.jardin.client.widget.SearchAreaBase;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -108,6 +109,10 @@ public class JardinView extends View {
     } else if (t == EventList.GotValuesOfForeignKeys) {
       if (event.getData() instanceof Integer) {
         gotValuesOfForeignKeys((Integer) event.getData());
+      }
+    } else if (t == EventList.gotValuesOfForeignKeysIn) {
+      if (event.getData() instanceof Integer) {
+        gotForeignKeyInForATable((Integer) event.getData());
       }
     } else if (t == EventList.Search) {
       if (event.getData() instanceof SearchParams) {
@@ -276,6 +281,22 @@ public class JardinView extends View {
       List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
       searchParams.setFieldsValuesList(queryFieldList);
       Dispatcher.forwardEvent(EventList.Search, searchParams); 
+    }
+  }
+  
+  private synchronized void gotForeignKeyInForATable(Integer resultsetId) {
+ // recuperiamo le fk entranti del resultset attuale
+    ResultsetImproved resultset =
+      controller.getUser().getResultsetFromId(resultsetId);
+    
+    ArrayList<BaseModelData> foreignKeyIn = new ArrayList<BaseModelData>();
+    foreignKeyIn = resultset.getForeignKeyIn();
+    System.out.println("Foreign Key Entranti");
+    for (BaseModelData fk : foreignKeyIn) {
+      Map<String, Object> fkInProp = fk.getProperties();
+      String referenceTable = fkInProp.toString();
+      //ArrayList<String> referenceColumn = fk.get(referenceTable);
+      System.out.println(referenceTable);
     }
   }
 

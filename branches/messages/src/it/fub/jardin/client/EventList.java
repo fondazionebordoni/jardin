@@ -61,6 +61,8 @@ public class EventList {
   public static final EventType ResultSetsLoaded = new EventType();
 
   public static final EventType ResultSetsSearch = new EventType();
+  
+  public static final EventType gotValuesOfForeignKeysIn = new EventType();
 
   public static final EventType SaveChangesCommit = new EventType();
 

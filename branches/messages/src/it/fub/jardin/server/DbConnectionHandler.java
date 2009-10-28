@@ -25,6 +25,7 @@ public class DbConnectionHandler {
   DbConnectionParameters dbConnectionParameters;
   String url;
   String db;
+  String dbInformationSchema;
   String driver;
   String user;
   String pass;
@@ -34,6 +35,7 @@ public class DbConnectionHandler {
     dbConnectionParameters = new DbConnectionParameters();
     url = dbConnectionParameters.getUrl();
     db = dbConnectionParameters.getDb();
+    dbInformationSchema = dbConnectionParameters.getDbInformationSchema();
     driver = dbConnectionParameters.getDriver();
     user = dbConnectionParameters.getUser();
     pass = dbConnectionParameters.getPass();
@@ -52,11 +54,27 @@ public class DbConnectionHandler {
     }
     return connection;
   }
+  
+  public Connection getConnDbInformationSchema() {
+    Connection connection = null;
+    try {
+      Class.forName(driver).newInstance();
+      connection =
+          (Connection) DriverManager.getConnection(url + dbInformationSchema, user, pass);
+    } catch (Exception e) {
+      Log.warn("Errore durante la connesione a database", e);
+    }
+    return connection;
+  }
 
   public String getDB() {
     return db;
   }
 
+  public String getDbInformationSchema() {
+    return dbInformationSchema;
+  }
+  
   public String getView() {
     return view;
   }
