@@ -3,7 +3,7 @@
  */
 package it.fub.jardin.server;
 
-import it.fub.jardin.client.UserException;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.Template;
@@ -61,7 +61,7 @@ public class FileUtils {
   public static final char CSV_REPLACER = '?';
 
   public static String createReport(String file, String xsl, Template template,
-      List<BaseModelData> records, List<String> columns) throws UserException {
+      List<BaseModelData> records, List<String> columns) throws VisibleException {
     try {
       // TODO Possibile che non ci sia un modo migliore? Vedi EventList
       File f = createTempFile(file, template.getExt());
@@ -75,7 +75,7 @@ public class FileUtils {
       return f.getPath();
     } catch (Exception e) {
       Log.error("Errore durante l'esportazione del file " + file, e);
-      throw new UserException("Impossibile creare il file d'esportazione");
+      throw new VisibleException("Impossibile creare il file d'esportazione");
     }
   }
 

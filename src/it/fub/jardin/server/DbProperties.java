@@ -3,7 +3,7 @@
  */
 package it.fub.jardin.server;
 
-import it.fub.jardin.client.DbException;
+import it.fub.jardin.client.exception.HiddenException;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -39,7 +39,14 @@ public class DbProperties {
    */
   public List<BaseModelData> getPrimaryKeys(String table) throws SQLException {
     List<BaseModelData> primaryKeys = new ArrayList<BaseModelData>();
-    Connection connection = dbConnectionHandler.getConn();
+
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
 
     try {
       DatabaseMetaData dbmt = connection.getMetaData();
@@ -66,7 +73,14 @@ public class DbProperties {
 
   public List<BaseModelData> getForeignKeys(String table) throws SQLException {
     List<BaseModelData> foreignKeys = new ArrayList<BaseModelData>();
-    Connection connection = dbConnectionHandler.getConn();
+
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
 
     try {
       DatabaseMetaData dbmt = connection.getMetaData();
@@ -93,7 +107,13 @@ public class DbProperties {
   }
 
   public String getForeignKey(String table, String field) {
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
 
     DatabaseMetaData dbmt;
     try {
@@ -102,10 +122,6 @@ public class DbProperties {
       ResultSet infoForeignKey =
           dbmt.getImportedKeys(connection.getCatalog(), null, table);
       while (infoForeignKey.next()) {
-        // System.out.println("campo :" +
-        // infoForeignKey.getString("FKCOLUMN_NAME")
-        // + " FK: "+ infoForeignKey.getString("PKTABLE_NAME")
-        // + "." + infoForeignKey.getString("PKCOLUMN_NAME"));
         if (infoForeignKey.getString("FKCOLUMN_NAME").compareToIgnoreCase(field) == 0) {
           dbConnectionHandler.closeConn(connection);
           return infoForeignKey.getString("PKTABLE_NAME") + "."
@@ -123,9 +139,16 @@ public class DbProperties {
   }
 
   public List<String> getFieldList(int resultset) {
-    List<String> result = new ArrayList<String>();
-    Connection connection = dbConnectionHandler.getConn();
 
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
+
+    List<String> result = new ArrayList<String>();
     try {
       ResultSetMetaData metadata = getResultsetMetadata(connection, resultset);
 
@@ -166,7 +189,14 @@ public class DbProperties {
    */
   public String getStatement(int resultset) throws SQLException {
     String statement;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
+
     String query =
         "SELECT statement FROM " + DbUtils.T_RESULTSET + " WHERE id = "
             + resultset;
@@ -188,7 +218,8 @@ public class DbProperties {
     return statement;
   }
 
-  public int getTableNumber(int resultsetId) throws DbException, SQLException {
+  public int getTableNumber(int resultsetId) throws HiddenException,
+      SQLException {
     int tableNumber = 0;
 
     Connection connection = dbConnectionHandler.getConn();
@@ -210,10 +241,15 @@ public class DbProperties {
 
   public List<String> getResultsetTableList(int resultsetId)
       throws SQLException {
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
 
     ResultSetMetaData metadata = getResultsetMetadata(connection, resultsetId);
-    // int columns = metadata.getColumnCount();
 
     String lastName = "";
     List<String> tableList = new ArrayList<String>();
@@ -229,10 +265,10 @@ public class DbProperties {
   }
 
   public List<BaseModelData> getResultsetForeignKeys(int resultsetId)
-      throws SQLException {
-    List<BaseModelData> foreignKeys = new ArrayList<BaseModelData>();
+      throws SQLException, HiddenException {
     Connection connection = dbConnectionHandler.getConn();
 
+    List<BaseModelData> foreignKeys = new ArrayList<BaseModelData>();
     try {
       DatabaseMetaData dbmt = connection.getMetaData();
 
@@ -261,7 +297,7 @@ public class DbProperties {
   }
 
   public List<BaseModelData> getResultsetPrimaryKeys(int resultsetId)
-      throws SQLException {
+      throws SQLException, HiddenException {
     List<BaseModelData> primaryKeys = new ArrayList<BaseModelData>();
     Connection connection = dbConnectionHandler.getConn();
 

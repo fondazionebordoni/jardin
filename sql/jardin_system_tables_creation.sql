@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `__system_management` (
 DROP TABLE IF EXISTS `__system_messages`;
 CREATE TABLE IF NOT EXISTS `__system_messages` (
   `id` int(11) NOT NULL auto_increment,
-  `title` varchar(256) NOT NULL,
+  `title` varchar(256),
   `body` text,
   `date` datetime NOT NULL,
   `type` varchar(5) NOT NULL,
@@ -263,8 +263,7 @@ ALTER TABLE `__system_management`
 -- Constraints for table `__system_groupwarnings`
 --
 ALTER TABLE `__system_messages`
-  ADD CONSTRAINT `__system_messages_ibfk_1` FOREIGN KEY (`sender`) REFERENCES `__system_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `__system_messages_ibfk_2` FOREIGN KEY (`recipient`) REFERENCES `__system_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `__system_messages_ibfk_1` FOREIGN KEY (`sender`) REFERENCES `__system_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `__system_resultset`
@@ -278,3 +277,10 @@ ALTER TABLE `__system_resultset`
 ALTER TABLE `__system_user`
   ADD CONSTRAINT `__system_user_ibfk_1` FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE SET NULL;
 
+-- --------------------------------------------------------
+  
+INSERT INTO `__system_group` (`id`, `name`, `status`) VALUES
+(1, 'developers', 1);
+
+INSERT INTO `__system_user` (`id`, `username`, `password`, `name`, `surname`, `email`, `office`, `telephone`, `status`, `lastlogintime`, `logincount`, `id_group`) VALUES
+(1, 'test', '*94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29', 'Utente', 'Test', 'test@test.com', 'null', 'null', 1, '2009-10-26 14:33:32', 2, 1);

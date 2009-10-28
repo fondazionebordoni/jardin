@@ -7,22 +7,23 @@
  */
 package it.fub.jardin.client;
 
+import it.fub.jardin.client.exception.HiddenException;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
+import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.model.Warning;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 /**
@@ -33,9 +34,18 @@ public interface ManagerService extends RemoteService {
 
   public String createReport(String file, Template template,
       PagingLoadConfig config, List<String> columns, SearchParams searchParams)
-      throws UserException;
+      throws VisibleException;
 
-  public List<Warning> getGroupWarnings(Integer groupId) throws DbException;
+  /**
+   * Sits on listening and gets events from server.
+   */
+  public List<EventTypeSerializable> getEvents();
+
+  public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
+      throws HiddenException;
+
+  public List<Integer> getHeaderUserPreference(Integer id,
+      Integer userPreferenceHeaderId) throws HiddenException;
 
   /**
    * Effettua una ricerca su database. La query viene eseguita ritornando un
@@ -43,9 +53,9 @@ public interface ManagerService extends RemoteService {
    * (configurazione di paginazione).
    */
   public PagingLoadResult<BaseModelData> getRecords(PagingLoadConfig config,
-      SearchParams searchParams) throws DbException;
+      SearchParams searchParams) throws HiddenException;
 
-  public List<BaseModelData> getReGroupings(int resultSetId);
+  public List<BaseModelData> getReGroupings(int resultSetId) throws HiddenException;
 
   /**
    * Chiede al server l'ora attuale formattata nel modo HH:MM. La funzione può
@@ -56,9 +66,9 @@ public interface ManagerService extends RemoteService {
    */
   public String getServerTime();
 
-  public User getUser(Credentials credentials) throws UserException;
+  public User getUser(Credentials credentials) throws VisibleException;
 
-  public List<Warning> getUserWarnings(Integer userId) throws DbException;
+  public List<Message> getUserMessages(Integer userId) throws HiddenException;
 
   /**
    * @param resultsetId
@@ -67,35 +77,32 @@ public interface ManagerService extends RemoteService {
    *         resultset. Serve per l'autocompletamento dei combobox
    */
   public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldId)
-      throws DbException;
+      throws HiddenException;
 
-  public FieldsMatrix getValuesOfFields(Integer resultsetId) throws DbException;
+  public List<BaseModelData> getValuesOfAFieldFromTableName(String table,
+      String field) throws HiddenException;
+
+  public FieldsMatrix getValuesOfFields(Integer resultsetId) throws HiddenException;
 
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
-      throws DbException;
+      throws HiddenException;
   
   public  ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
-      throws DbException;
+      throws HiddenException;
 
   public Integer removeObjects(Integer resultset,
-      List<BaseModelData> selectedRows) throws DbException;
+      List<BaseModelData> selectedRows) throws HiddenException;
+
+  // TODO implement USER direct messages
+  public void sendMessage(Message message) throws HiddenException, VisibleException;
 
   public Integer setObjects(Integer resultsetId, List<BaseModelData> newItemList)
-      throws DbException;
+      throws HiddenException;
 
   public boolean setUserResultsetHeaderPreferencesNoDefault(Integer userid,
       Integer resultsetId, ArrayList<Integer> listfields, String value)
-      throws DbException;
+      throws HiddenException;
 
-  public void updateUserProperties(User user) throws DbException;
-
-  public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
-      throws DbException;
-
-  public List<Integer> getHeaderUserPreference(Integer id,
-      Integer userPreferenceHeaderId) throws DbException;
-
-  public List<BaseModelData> getValuesOfAFieldFromTableName(String table,
-      String field) throws DbException;
+  public void updateUserProperties(User user) throws HiddenException;
 
 }
