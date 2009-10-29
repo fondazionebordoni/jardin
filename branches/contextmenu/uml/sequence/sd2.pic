@@ -1,0 +1,114 @@
+.PS
+
+copy "sequence.pic";
+
+boxht = 0.3;
+boxwid = 0.5;
+movewid = 0.2;
+
+object(U,":User");
+
+boxwid = 0.8;
+object(MAV,":MainAreaView");
+object(MAC,":MainAreaController");
+object(D,":Dispatcher");
+
+boxwid = 0.5;
+object(G,":Grid");
+object(ST,":Store");
+object(S,":Service");
+object(DU,":DbUtils");
+boxwid = 1.2;
+object(DC,":DbConnectionHandler");
+
+boxwid = 0.5;
+
+step();
+
+sync();
+active(U);
+message(U,G,"End editing cell");
+active(G);
+inactive(U);
+
+message(G,MAV,"commitChanges()");
+active(MAV);
+inactive(G);
+
+async();
+message(MAV,U,"Saving changes...");
+sync();
+message(MAV,D,"forwardEvent()");
+inactive(MAV);
+
+active(D);
+message(D,MAC,"handleEvent()");
+inactive(D);
+
+active(MAC);
+message(MAC,G,"getStore()");
+active(G);
+rmessage(G,MAC,"");
+inactive(G);
+message(MAC,ST,"getModifiedRecords()");
+active(ST);
+rmessage(ST,MAC,"");
+inactive(ST);
+async();
+
+message(MAC,S,"setObjects()");
+active(S);
+rmessage(S,MAC,"");
+inactive(MAC);
+
+sync();
+message(S,DU,"setObjects()");
+active(DU);
+
+message(DU,DC,"getConnection()");
+active(DC)
+rmessage(DC,DU,"");
+inactive(DC);
+
+message(DU,DU,"executeQuery()");
+
+message(DU,DC,"closeConnection()");
+active(DC)
+rmessage(DC,DU,"");
+inactive(DC);
+
+rmessage(DU,S,"");
+inactive(DU);
+
+async();
+rmessage(S,MAC,"success()");
+inactive(S);
+
+active(MAC);
+message(MAC,ST,"getLoader.load()");
+inactive(MAC);
+
+active(ST);
+message(ST,G,"update()");
+inactive(ST);
+
+active(G);
+message(G,MAV,"update()");
+inactive(G);
+
+active(MAV);
+message(MAV,U,"Saved");
+inactive(MAV)
+
+step();
+complete(U);
+complete(MAV);
+complete(MAC);
+complete(D);
+complete(ST);
+complete(G);
+complete(S);
+complete(DU);
+complete(DC);
+
+.PE
