@@ -1,0 +1,169 @@
+.PS
+
+copy "sequence.pic";
+
+boxht = 0.3;
+boxwid = 0.5;
+movewid = 0.2;
+
+
+boxwid = 0.8;
+object(U,	":Administrator");
+object(MAV,	":MainAreaView");
+
+boxwid = 0.5;
+pobject(W,	":Window");
+
+boxwid = 0.8;
+object(MAC,	":MainAreaController");
+object(D,	":Dispatcher");
+
+boxwid = 0.5;
+object(S,	":Service");
+object(DU,	":DbUtils");
+object(DC,	":DbConnection");
+
+boxwid = 0.5;
+
+step();
+
+sync();
+active(U);
+message(U,MAV,"Create new resultset");
+
+active(MAV);
+cmessage(MAV,W, ":Window");
+async();
+rmessage(MAV,U,"Please insert query...");
+inactive(U);
+inactive(MAV);
+step();
+
+sync();
+active(U);
+message(U,W,"Query statement");
+
+async();
+active(W);
+rmessage(W,U,"Preparing resultset...");
+inactive(U);
+message(W,D,"forwardEvent()");
+inactive(W);
+
+active(D);
+message(D,MAC,"handleEvent()");
+inactive(D);
+
+active(MAC);
+message(MAC,S,"createResultset()");
+inactive(MAC);
+
+sync();
+active(S);
+message(S,DU,"createResultset()");
+
+active(DU);
+message(DU,DC,"getConnection()");
+active(DC)
+rmessage(DC,DU,"");
+inactive(DC);
+
+message(DU,DU,"getFields()");
+message(DU,DU,"insertResultsetResource()");
+message(DU,DU,"insertResource()");
+
+message(DU,DC,"closeConnection()");
+active(DC)
+rmessage(DC,DU,"");
+inactive(DC);
+
+rmessage(DU,S,"Field names");
+inactive(DU);
+
+
+
+
+
+
+
+async();
+rmessage(S,MAC,"Field names");
+inactive(S);
+
+active(MAC)
+message(MAC,MAV,"handleEvent()");
+inactive(MAC);
+
+active(MAV);
+message(MAV,W,"");
+inactive(MAV);
+
+active(W);
+message(W,U,"Please choose policy");
+inactive(W);
+step();
+
+sync();
+active(U);
+message(U,W,"Set policy");
+async();
+active(W);
+rmessage(W,U,"Saving policy...");
+inactive(U);
+message(W,D,"forwardEvent");
+inactive(W);
+
+
+
+active(D);
+message(D,MAC,"handleEvent()");
+inactive(D);
+
+active(MAC);
+message(MAC,S,"setPolicy()");
+inactive(MAC);
+
+sync();
+active(S);
+message(S,DU,"setPolicy()");
+
+active(DU);
+message(DU,DC,"getConnection()");
+active(DC)
+rmessage(DC,DU,"");
+inactive(DC);
+
+message(DU,DU,"setPolicy()");
+
+message(DU,DC,"closeConnection()");
+active(DC)
+rmessage(DC,DU,"");
+inactive(DC);
+
+rmessage(DU,S,"");
+inactive(DU);
+
+
+async();
+rmessage(S,MAC,"");
+inactive(S);
+
+active(MAC)
+message(MAC,MAV,"handleEvent()");
+inactive(MAC);
+
+active(MAV);
+dmessage(MAV,W);
+message(MAV,U,"Policy saved!");
+inactive(MAV);
+
+step();
+complete(U);
+complete(MAC);
+complete(MAV);
+complete(D);
+complete(S);
+complete(DU);
+complete(DC);
+
+.PE

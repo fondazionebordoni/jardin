@@ -1,0 +1,110 @@
+.PS
+
+copy "sequence.pic";
+
+boxht = 0.3;
+boxwid = 0.5;
+movewid = 0.2;
+
+object(U,":User");
+
+boxwid = 0.8;
+object(MAV,":MainAreaView");
+object(MAC,":MainAreaController");
+object(D,":Dispatcher");
+
+
+boxwid = 0.5;
+object(G,":Grid");
+object(ST,":Store");
+pobject(W,":Window");
+pobject(SVL,":Servlet");
+object(S,":Service");
+object(DU,":FileUtils");
+
+boxwid = 0.5;
+
+step();
+
+sync();
+active(U);
+message(U,MAV,"Export grid");
+active(MAV);
+inactive(U);
+
+async()
+message(MAV,U,"Saving changes...");
+sync();
+message(MAV,D,"forwardEvent()");
+inactive(MAV);
+
+active(D);
+message(D,MAC,"handleEvent()");
+inactive(D);
+
+active(MAC);
+message(MAC,G,"getStore()");
+active(G);
+rmessage(G,MAC,"");
+inactive(G);
+message(MAC,ST,"getRecords()");
+active(ST);
+rmessage(ST,MAC,"");
+inactive(ST);
+
+async();
+message(MAC,S,"exportStore()");
+active(S);
+rmessage(S,MAC,"");
+inactive(MAC);
+
+
+sync();
+message(S,DU,"createExport()");
+active(DU);
+
+message(DU,DU,"crateFile()");
+
+rmessage(DU,S,"filePath");
+inactive(DU);
+
+async();
+rmessage(S,MAC,"success()");
+inactive(S);
+
+active(MAC)
+message(MAC,MAV,"handleEvent()");
+inactive(MAC);
+
+active(MAV);
+cmessage(MAV,W,"Window");
+message(MAV,W,"Window.open()");
+inactive(MAV);
+
+active(W);
+cmessage(W,SVL,"Servlet");
+message(W,SVL,"download()");
+active(SVL)
+message(SVL,U,"Save file");
+
+active(U)
+rmessage(U,SVL,"Saved");
+inactive(U);
+
+rmessage(SVL,W,"");
+inactive(SVL);
+inactive(W);
+delete(W)
+delete(SVL);
+
+step();
+complete(U);
+complete(MAC);
+complete(MAV);
+complete(D);
+complete(G);
+complete(S);
+complete(ST);
+complete(DU);
+
+.PE
