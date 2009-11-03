@@ -7,6 +7,7 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.widget.HeaderArea;
@@ -110,7 +111,7 @@ public class JardinView extends View {
       if (event.getData() instanceof Integer) {
         gotValuesOfForeignKeys((Integer) event.getData());
       }
-    } else if (t == EventList.gotValuesOfForeignKeysIn) {
+    } else if (t == EventList.GotValuesOfForeignKeysIn) {
       if (event.getData() instanceof Integer) {
         gotForeignKeyInForATable((Integer) event.getData());
       }
@@ -289,14 +290,11 @@ public class JardinView extends View {
     ResultsetImproved resultset =
       controller.getUser().getResultsetFromId(resultsetId);
     
-    ArrayList<BaseModelData> foreignKeyIn = new ArrayList<BaseModelData>();
+    ArrayList<IncomingForeignKeyInformation> foreignKeyIn = new ArrayList<IncomingForeignKeyInformation>();
     foreignKeyIn = resultset.getForeignKeyIn();
     System.out.println("Foreign Key Entranti");
-    for (BaseModelData fk : foreignKeyIn) {
-      Map<String, Object> fkInProp = fk.getProperties();
-      String referenceTable = fkInProp.toString();
-      //ArrayList<String> referenceColumn = fk.get(referenceTable);
-      System.out.println(referenceTable);
+    for (IncomingForeignKeyInformation fk : foreignKeyIn) {
+      System.out.println(fk.getField()+"<-"+fk.getLinkedTable()+"."+fk.getLinkedField());
     }
   }
 

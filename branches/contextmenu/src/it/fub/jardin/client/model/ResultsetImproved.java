@@ -32,7 +32,7 @@ public class ResultsetImproved implements IsSerializable {
   /* Lista dei valori dei campi */
   private FieldsMatrix valuesList;
   /* Lista delle foreignKey entranti */
-  private ArrayList<BaseModelData> foreignKeyIn;
+  private ArrayList<IncomingForeignKeyInformation> foreignKeyIn;
 
   @SuppressWarnings("unused")
   private ResultsetImproved() {
@@ -117,7 +117,7 @@ public class ResultsetImproved implements IsSerializable {
     return foreignKeyList;
   }
   
-  public ArrayList<BaseModelData>  getForeignKeyIn() {
+  public ArrayList<IncomingForeignKeyInformation>  getForeignKeyIn() {
     return foreignKeyIn;
   }
 
@@ -173,7 +173,7 @@ public class ResultsetImproved implements IsSerializable {
     this.foreignKeyList = foreignKeyList;
   }
   
-  public void setForeignKeyIn(ArrayList<BaseModelData> foreignKeyIn) {
+  public void setForeignKeyIn(ArrayList<IncomingForeignKeyInformation> foreignKeyIn) {
     this.foreignKeyIn = foreignKeyIn;
   }
 

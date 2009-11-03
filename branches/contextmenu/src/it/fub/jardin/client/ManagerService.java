@@ -13,6 +13,7 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
@@ -87,7 +88,7 @@ public interface ManagerService extends RemoteService {
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
       throws HiddenException;
   
-  public  ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
+  public  ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(Integer resultsetId)
       throws HiddenException;
 
   public Integer removeObjects(Integer resultset,

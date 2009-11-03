@@ -7,6 +7,7 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
@@ -437,6 +438,23 @@ public class JardinController extends Controller {
        * presenti: sever per il binding dei campi del dettaglio e per il row
        * editor
        */
+      AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callbackForeignKeyInForATable =
+          new AsyncCallback<ArrayList<IncomingForeignKeyInformation>>() {
+            public void onFailure(Throwable caught) {
+              Dispatcher.forwardEvent(EventList.Error,
+                  caught.getLocalizedMessage());
+            }
+
+            public void onSuccess(ArrayList<IncomingForeignKeyInformation> ForeignKeyIn) {
+              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+              System.out.println(ForeignKeyIn);
+              rs.setForeignKeyIn(ForeignKeyIn);
+              forwardToView(view, EventList.GotValuesOfForeignKeysIn, resultsetId);
+            }
+          };
+
+      service.getForeignKeyInForATable(resultsetId, callbackForeignKeyInForATable);
+      
       AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
           new AsyncCallback<FieldsMatrix>() {
             public void onFailure(Throwable caught) {
@@ -453,21 +471,6 @@ public class JardinController extends Controller {
 
       service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
       
-      AsyncCallback<ArrayList<BaseModelData>> callbackForeignKeyInForATable =
-        new AsyncCallback<ArrayList<BaseModelData>>() {
-          public void onFailure(Throwable caught) {
-            Dispatcher.forwardEvent(EventList.Error,
-                caught.getLocalizedMessage());
-          }
-
-          public void onSuccess(ArrayList<BaseModelData> ForeignKeyIn) {
-            ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-            rs.setForeignKeyIn(ForeignKeyIn);
-            forwardToView(view, EventList.gotValuesOfForeignKeysIn, resultsetId);
-          }
-        };
-
-    service.getForeignKeyInForATable(resultsetId, callbackForeignKeyInForATable);
     }
 
   }
