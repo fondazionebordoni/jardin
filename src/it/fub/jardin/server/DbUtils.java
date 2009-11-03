@@ -769,12 +769,12 @@ public class DbUtils {
       if (tableName.length() <= 0) {
         return null;
       }
-      String db =
-        dbConnectionHandler.getDB();
+      String db = dbConnectionHandler.getDB();
       Connection connectionInformationSchema =
           dbConnectionHandler.getConnDbInformationSchema();
       String queryFKIn =
-          "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_COLUMN_NAME FROM KEY_COLUMN_USAGE where TABLE_SCHEMA = '"+ db +"' AND REFERENCED_TABLE_NAME = '" + tableName + "'";
+          "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_COLUMN_NAME FROM KEY_COLUMN_USAGE where TABLE_SCHEMA = '"
+              + db + "' AND REFERENCED_TABLE_NAME = '" + tableName + "'";
       ResultSet resultFKIn = doQuery(connectionInformationSchema, queryFKIn);
 
       while (resultFKIn.next()) {
@@ -1378,7 +1378,7 @@ public class DbUtils {
       ResultSetMetaData metadata =
           dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
-      //int columns = metadata.getColumnCount();
+      // int columns = metadata.getColumnCount();
 
       List<BaseModelData> PKs = dbProperties.getPrimaryKeys(tableName);
       String PKset = "";
@@ -1447,7 +1447,7 @@ public class DbUtils {
 
     String query =
         "SELECT address_statement, data_statement, link_id FROM " + T_NOTIFY
-            + " WHERE resultset_id = '" + resultsetId + "'";
+            + " WHERE id_resultset = '" + resultsetId + "'";
 
     Log.debug("query: " + query);
 
@@ -1523,7 +1523,8 @@ public class DbUtils {
       ps.setString(2, message.getBody());
       Log.debug(message.toString());
 
-      DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+      DateFormat df =
+          new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
       String date = df.format(message.getDate());
       ps.setString(3, date);
 
