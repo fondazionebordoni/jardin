@@ -307,7 +307,7 @@ public class JardinController extends Controller {
       public void onSuccess(List<Message> messages) {
         user.setMessages(messages);
         Info.display("Informazione", "Hai ricevuto un nuovo messaggio");
-        //forwardToView(view, EventList.NewMessage, null);
+        // forwardToView(view, EventList.NewMessage, null);
       }
     };
 
@@ -400,7 +400,7 @@ public class JardinController extends Controller {
         new AsyncCallback<List<EventTypeSerializable>>() {
 
           public void onSuccess(List<EventTypeSerializable> eventTypes) {
-            
+
             for (EventTypeSerializable eventType : eventTypes) {
               handleEvent(new AppEvent(eventType));
             }
@@ -452,22 +452,24 @@ public class JardinController extends Controller {
           };
 
       service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
-      
+
       AsyncCallback<ArrayList<BaseModelData>> callbackForeignKeyInForATable =
-        new AsyncCallback<ArrayList<BaseModelData>>() {
-          public void onFailure(Throwable caught) {
-            Dispatcher.forwardEvent(EventList.Error,
-                caught.getLocalizedMessage());
-          }
+          new AsyncCallback<ArrayList<BaseModelData>>() {
+            public void onFailure(Throwable caught) {
+              Dispatcher.forwardEvent(EventList.Error,
+                  caught.getLocalizedMessage());
+            }
 
-          public void onSuccess(ArrayList<BaseModelData> ForeignKeyIn) {
-            ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-            rs.setForeignKeyIn(ForeignKeyIn);
-            forwardToView(view, EventList.gotValuesOfForeignKeysIn, resultsetId);
-          }
-        };
+            public void onSuccess(ArrayList<BaseModelData> ForeignKeyIn) {
+              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+              rs.setForeignKeyIn(ForeignKeyIn);
+              forwardToView(view, EventList.gotValuesOfForeignKeysIn,
+                  resultsetId);
+            }
+          };
 
-    service.getForeignKeyInForATable(resultsetId, callbackForeignKeyInForATable);
+      service.getForeignKeyInForATable(resultsetId,
+          callbackForeignKeyInForATable);
     }
 
   }
