@@ -15,6 +15,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class ResultsetFieldGroupings extends BaseTreeModel implements
     IsSerializable {
 
+  // TODO non usare i BaseTreeModel, creare una classe semplice che implementi IsSerializable
+  
   private static final long serialVersionUID = 3101953646052145987L;
 
   public ResultsetFieldGroupings() {
