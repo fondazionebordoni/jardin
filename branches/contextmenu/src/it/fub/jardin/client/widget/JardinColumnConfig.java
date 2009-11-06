@@ -60,7 +60,7 @@ public class JardinColumnConfig extends ColumnConfig {
     /* Gestione modifica del campo */
     if (field.getModifyperm()) {
       // final Field f = FieldCreator.getField(field, values, true);
-      final Field f = FieldCreator.getField(field, values, 0);
+      final Field f = FieldCreator.getField(field, values, 0, false);
 
       CellEditor editor = null;
       if (f instanceof SimpleComboBox) {
