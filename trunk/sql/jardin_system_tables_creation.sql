@@ -77,6 +77,8 @@ CREATE TABLE IF NOT EXISTS `__system_grouping` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+INSERT INTO `__system_grouping` (`id` ,`name` ,`alias`) VALUES (NULL , 'basegrouping', 'raggruppamento base');
+
 -- --------------------------------------------------------
 
 --
