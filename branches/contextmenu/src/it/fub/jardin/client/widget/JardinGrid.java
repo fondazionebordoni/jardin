@@ -3,10 +3,13 @@
  */
 package it.fub.jardin.client.widget;
 
+import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
+import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.server.DbProperties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +24,7 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -29,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.menu.Item;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuBar;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.Window;
 
@@ -70,28 +75,58 @@ public class JardinGrid extends Grid<BaseModelData> {
 		// System.out.println("getForeignKeyIn "+this.resultset.getForeignKeyIn());
 
 		final Menu m = new Menu();
+		m.setMinWidth(200);
 		this.setContextMenu(m);
 
 		this.addListener(Events.ContextMenu, new Listener<GridEvent>() {
 			public void handleEvent(GridEvent be) {
 				m.removeAll();
+				m.setMinWidth(250);
+				final MenuBar sep = new MenuBar();
 				final ModelData selectedRow = (ModelData) be.getGrid()
 						.getSelectionModel().getSelection().get(0);
-
-				for (IncomingForeignKeyInformation fk : resultset
+				
+				for (final ResultsetField field : resultset.getFields()) {
+					if (field.getForeignKey().compareToIgnoreCase("") != 0) {
+		                
+		            	  MenuItem item = new MenuItem(field.getForeignKey());
+		                
+		              m.add(item);
+		              item.addListener(Events.Select, new Listener() {
+		                public void handleEvent(BaseEvent be) {
+		                  System.out.println(be.toString());
+		                  System.out.println(field.getResultsetid()+""+field.getId());
+		                }
+		              });
+		              }
+		            }
+		        
+				m.add(sep);
+				
+				for (final IncomingForeignKeyInformation fk : resultset
 						.getForeignKeyIn()) {
-					String referenceTable = fk.getLinkedTable();
-					MenuItem item = new MenuItem(referenceTable);
-					m.add(item);
-					final Collection<String> idMux = selectedRow
-							.getPropertyNames(); // get("protcatasto");
+					final String linkedTable = fk.getLinkedTable();
+					final String linkedField = fk.getLinkedField();
+					final String field = fk.getField();
+					fk.setFieldValue(""+selectedRow.get(field));
+					fk.setResultsetId(resultset.getId());
+					MenuItem mitem = new MenuItem("Visualizza entry in "
+							+ linkedTable + " associata");
+					m.add(mitem);
+					// final Collection<String> idMux =
+					// selectedRow.getPropertyNames(); // get("protcatasto");
 					// System.out.println(selectedRow.toString() + "-->" +
 					// idMux);
 
-					item.addListener(Events.Select, new Listener() {
+					mitem.addListener(Events.Select, new Listener() {
 						public void handleEvent(BaseEvent be) {
-							System.out.println(be.toString());
-							System.out.println(selectedRow.get("id_pratica"));
+							// JardinTabItem item =
+							// getItemByResultsetId(resultset.getId());
+
+							System.out.println(linkedTable + "." + linkedField
+									+ "->" + field + "="
+									+ selectedRow.get(field));
+							Dispatcher.forwardEvent(EventList.ViewLinkedTable, fk);
 						}
 					});
 				}

@@ -96,4 +96,6 @@ public class EventList {
 
   public static final EventTypeSerializable NewMessage = new EventTypeSerializable(95);
 
+  public static final EventType ViewLinkedTable = new EventType();
+
 }

@@ -7,6 +7,8 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 	private String linkedTable;
 	private String linkedField;
 	private String field;
+	private String fieldValue;
+	private Integer resultsetId;
 
 	@SuppressWarnings("unused")
 	private IncomingForeignKeyInformation() {
@@ -16,6 +18,8 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 		this.linkedTable = linkedTable;
 		this.linkedField = linkedField;
 		this.field = field;
+		this.fieldValue = null;
+		this.resultsetId = null;
 	}
 	
 	public String getLinkedTable() {
@@ -42,4 +46,19 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 		this.field = field;
 	}
 	
+	public String getFieldValue() {
+		return fieldValue;
+	}
+
+	public void setFieldValue(String fieldValue) {
+		this.fieldValue = fieldValue;
+	}
+	
+	public Integer getResultsetId() {
+		return resultsetId;
+	}
+
+	public void setResultsetId(Integer resultSetId) {
+		this.resultsetId = resultsetId;
+	}
 }

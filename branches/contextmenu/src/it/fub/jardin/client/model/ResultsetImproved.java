@@ -33,6 +33,7 @@ public class ResultsetImproved implements IsSerializable {
   private FieldsMatrix valuesList;
   /* Lista delle foreignKey entranti */
   private ArrayList<IncomingForeignKeyInformation> foreignKeyIn;
+  /* Lista delle delle foreignkey */
 
   @SuppressWarnings("unused")
   private ResultsetImproved() {

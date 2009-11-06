@@ -81,11 +81,12 @@ public class FieldCreator {
       TimeField f = new TimeField();
       f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
-    } else if ((fieldType.compareToIgnoreCase("BLOB") == 0)
+    /*} else if ((fieldType.compareToIgnoreCase("BLOB") == 0)
         || (fieldType.compareToIgnoreCase("TEXT") == 0)) {
       TextArea f = new TextArea();
+      f.setHeight(20);
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
-      result = f;
+      result = f;*/
     } else {
       if (combo) {
         if (values != null && values.size() > 0) {
@@ -139,11 +140,12 @@ public class FieldCreator {
       f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
       System.out.println(field.getName() + ": TIME");
-    } else if ((fieldType.compareToIgnoreCase("BLOB") == 0)
+    /*} else if ((fieldType.compareToIgnoreCase("BLOB") == 0)
         || (fieldType.compareToIgnoreCase("TEXT") == 0)) {
       TextArea f = new TextArea();
+      f.setHeight(20);
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
-      result = f;
+      result = f;*/
     } else {
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
         System.out.println(field.getName() + ": COMBO");

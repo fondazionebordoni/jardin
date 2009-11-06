@@ -101,6 +101,7 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.ShowBarChart);
     registerEventTypes(EventList.SendMessage);
     registerEventTypes(EventList.NewMessage);
+    registerEventTypes(EventList.ViewLinkedTable);
   }
 
   public void initialize() {
@@ -290,10 +291,12 @@ public class JardinController extends Controller {
       }
     } else if (t.getEventCode() == EventList.NewMessage.getEventCode()) {
       onNewMessage();
+    } else if (t == EventList.ViewLinkedTable){
+    	onViewLinkedTable((IncomingForeignKeyInformation) event.getData());
     }
   }
 
-  private void onNewMessage() {
+private void onNewMessage() {
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
@@ -854,5 +857,18 @@ public class JardinController extends Controller {
 
   private void onUpdateTemplates(int resultset) {
     // TODO Auto-generated method stub
+  }
+  
+  private void onViewLinkedTable(IncomingForeignKeyInformation ifki) {
+	  
+	  //lo prendo dal chiamante
+	  //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      SearchParams searchParams = new SearchParams(ifki.getResultsetId());  
+      List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+      //devo metterci dentro il campo da cercare
+      searchParams.setFieldsValuesList(queryFieldList);
+      Dispatcher.forwardEvent(EventList.Search, searchParams);
+      System.out.println("test");
+	  //forwardToView(view, EventList.ShowAllColumns, ifki);
   }
 }

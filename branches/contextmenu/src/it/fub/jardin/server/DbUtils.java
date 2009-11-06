@@ -748,6 +748,19 @@ public class DbUtils {
 
 		return foreignKey;
 	}
+	
+	/**
+	 * @param fieldName
+	 * @param result
+	 * @return ritorna la Foreign Key per il campo il cui nome è passato come
+	 *         parametro, se esiste. Se non esiste, ritorna una stringa vuota.
+	 * @throws SQLException
+	 */
+	private List<BaseModelData> getForeignKeyInfoForAResultset(String resultsetName)
+			throws SQLException {
+		return dbProperties.getForeignKeys(resultsetName);
+	}
+
 
 	public User getUser(Credentials credentials) throws VisibleException {
 
@@ -1097,6 +1110,10 @@ public class DbUtils {
 					ResultsetImproved res = new ResultsetImproved(id, name,
 							alias, statement, readperm, deleteperm, modifyperm,
 							insertperm, tools);
+					List<BaseModelData> bmd = getForeignKeyInfoForAResultset(name);
+					for (BaseModelData bmdsingolo : bmd){
+					System.out.println(bmdsingolo.getProperties());
+					}
 					resultSetList.add(res);
 
 					List<BaseModelData> groupings = getReGroupings(id);
@@ -1228,10 +1245,10 @@ public class DbUtils {
 		HeaderPreferenceList hp = new HeaderPreferenceList();
 		Connection connection = dbConnectionHandler.getConn();
 		String query = "SELECT hp.id as idpref, hp.name as namepref FROM "
-				+ "(`__SYSTEM_headerpreference` hp JOIN `__SYSTEM_fieldinpreference` fip "
-				+ "ON hp.id=fip.id_headerpreference) JOIN `__SYSTEM_field` f ON fip.id_field=f.id WHERE hp.id_user='"
-				+ idUser + "' AND f.id_resultset='" + idResultset
-				+ "' GROUP BY namepref";
+            + "("+T_HEADERPREFERENCE+" hp JOIN "+T_FIELDINPREFERENCE+" fip "
+            + "ON hp.id=fip.id_headerpreference) JOIN "+T_FIELD+" f ON fip.id_field=f.id WHERE hp.id_user='"
+            + idUser + "' AND f.id_resultset='" + idResultset
+            + "' GROUP BY namepref";
 
 		try {
 			ResultSet result = doQuery(connection, query);
@@ -1261,9 +1278,9 @@ public class DbUtils {
 		List<Integer> fieldInPref = new ArrayList<Integer>();
 		Connection connection = dbConnectionHandler.getConn();
 		String query = "SELECT fip.id_field as fieldid  "
-				+ "FROM `__SYSTEM_headerpreference` hp JOIN `__SYSTEM_fieldinpreference` fip "
-				+ "ON hp.id=fip.id_headerpreference WHERE hp.id = '"
-				+ userPreferenceHeaderId + "' AND hp.id_user='" + idUser + "'";
+			+ "FROM "+ T_HEADERPREFERENCE +" hp JOIN "+ T_FIELDINPREFERENCE +" fip "
+			+ "ON hp.id=fip.id_headerpreference WHERE hp.id = '"
+			+ userPreferenceHeaderId + "' AND hp.id_user='" + idUser + "'";
 
 		try {
 			ResultSet result = doQuery(connection, query);
