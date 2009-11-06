@@ -77,23 +77,7 @@ CREATE TABLE IF NOT EXISTS `__system_grouping` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `__system_groupwarnings`
---
-
-DROP TABLE IF EXISTS `__system_groupwarnings`;
-CREATE TABLE IF NOT EXISTS `__system_groupwarnings` (
-  `id` int(11) NOT NULL auto_increment,
-  `title` varchar(256) NOT NULL,
-  `body` text,
-  `date` datetime NOT NULL,
-  `type` varchar(5) NOT NULL,
-  `id_group` int(11) NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `id_group` (`id_group`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+INSERT INTO `__system_grouping` (`id` ,`name` ,`alias`) VALUES (NULL , 'basegrouping', 'raggruppamento base');
 
 -- --------------------------------------------------------
 
@@ -154,6 +138,43 @@ CREATE TABLE IF NOT EXISTS `__system_messages` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `__system_notify`
+--
+
+DROP TABLE IF EXISTS `__system_notify`;
+CREATE TABLE IF NOT EXISTS `__system_notify` (
+  `id` int(11) NOT NULL auto_increment,
+  `address_statement` text NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `id_resultset` int(11) NOT NULL,
+  `data_statement` text NOT NULL,
+  `xslt` text NOT NULL,
+  `link_id` varchar(50) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `id_resultset` (`id_resultset`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `__system_toolbar`
+--
+
+DROP TABLE IF EXISTS `__system_toolbar`;
+CREATE TABLE IF NOT EXISTS `__system_toolbar` (
+  `id` int(11) NOT NULL auto_increment,
+  `id_resultset` int(11) NOT NULL,
+  `id_group` int(11) NOT NULL,
+  `tools` text NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `id_resultset_group` (`id_resultset`,`id_group`),
+  KEY `id_resultset` (`id_resultset`),
+  KEY `id_group` (`id_group`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `__system_resource`
 --
 
@@ -208,74 +229,63 @@ CREATE TABLE IF NOT EXISTS `__system_user` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `__system_userwarnings`
---
-
-DROP TABLE IF EXISTS `__system_userwarnings`;
-CREATE TABLE IF NOT EXISTS `__system_userwarnings` (
-  `id` int(11) NOT NULL auto_increment,
-  `title` varchar(256) NOT NULL,
-  `body` text,
-  `date` datetime NOT NULL,
-  `type` varchar(5) NOT NULL,
-  `id_user` int(11) NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `id_user` (`id_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
 -- Constraints for table `__system_field`
 --
 ALTER TABLE `__system_field`
-  ADD CONSTRAINT `__system_field_ibfk_1` FOREIGN KEY (`id`) REFERENCES `__system_resource` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `__system_field_ibfk_2` FOREIGN KEY (`id_resultset`) REFERENCES `__system_resource` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `__system_field_ibfk_3` FOREIGN KEY (`id_grouping`) REFERENCES `__system_grouping` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD FOREIGN KEY (`id`) REFERENCES `__system_resource` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD FOREIGN KEY (`id_resultset`) REFERENCES `__system_resultset` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD FOREIGN KEY (`id_grouping`) REFERENCES `__system_grouping` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `__system_fieldinpreference`
 --
 ALTER TABLE `__system_fieldinpreference`
-  ADD CONSTRAINT `__system_fieldinpreference_ibfk_1` FOREIGN KEY (`id_headerpreference`) REFERENCES `__system_headerpreference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `__system_fieldinpreference_ibfk_2` FOREIGN KEY (`id_field`) REFERENCES `__system_field` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD FOREIGN KEY (`id_headerpreference`) REFERENCES `__system_headerpreference` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD FOREIGN KEY (`id_field`) REFERENCES `__system_field` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
---
--- Constraints for table `__system_groupwarnings`
---
-ALTER TABLE `__system_groupwarnings`
-  ADD CONSTRAINT `__system_groupwarnings_ibfk_1` FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-  
 --
 -- Constraints for table `__system_headerpreference`
 --
 ALTER TABLE `__system_headerpreference`
-  ADD CONSTRAINT `__system_headerpreference_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `__system_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD FOREIGN KEY (`id_user`) REFERENCES `__system_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `__system_management`
 --
 ALTER TABLE `__system_management`
-  ADD CONSTRAINT `__system_management_ibfk_1` FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `__system_management_ibfk_2` FOREIGN KEY (`id_resource`) REFERENCES `__system_resource` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD FOREIGN KEY (`id_resource`) REFERENCES `__system_resource` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `__system_groupwarnings`
+-- Constraints for table `__system_messages`
 --
 ALTER TABLE `__system_messages`
-  ADD CONSTRAINT `__system_messages_ibfk_1` FOREIGN KEY (`sender`) REFERENCES `__system_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD FOREIGN KEY (`sender`) REFERENCES `__system_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+--
+-- Constraints for table `__system_notify`
+--
+ALTER TABLE `__system_notify`
+  ADD FOREIGN KEY (`id_resultset`) REFERENCES `__system_resultset` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  
 --
 -- Constraints for table `__system_resultset`
 --
 ALTER TABLE `__system_resultset`
-  ADD CONSTRAINT `__system_resultset_ibfk_1` FOREIGN KEY (`id`) REFERENCES `__system_resource` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD FOREIGN KEY (`id`) REFERENCES `__system_resource` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `__system_toolbar`
+--
+ALTER TABLE `__system_toolbar`
+  ADD FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD FOREIGN KEY (`id_resultset`) REFERENCES `__system_resultset` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `__system_user`
 --
 ALTER TABLE `__system_user`
-  ADD CONSTRAINT `__system_user_ibfk_1` FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE SET NULL;
+  ADD FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE SET NULL;
 
 -- --------------------------------------------------------
   
