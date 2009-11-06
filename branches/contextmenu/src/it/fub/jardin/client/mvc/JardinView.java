@@ -277,11 +277,11 @@ public class JardinView extends View {
       /* Aggiungere il dettaglio al tabitem */
       item.addDetail(detail);
       
-      /* Eseguo una ricerca per riempire la il resultset*/
+      /* Eseguo una ricerca per riempire la il resultset
       SearchParams searchParams = new SearchParams(resultsetId);  
       List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
       searchParams.setFieldsValuesList(queryFieldList);
-      Dispatcher.forwardEvent(EventList.Search, searchParams); 
+      Dispatcher.forwardEvent(EventList.Search, searchParams);*/ 
     }
   }
   
