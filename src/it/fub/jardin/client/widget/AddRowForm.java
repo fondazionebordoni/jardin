@@ -133,7 +133,7 @@ public class AddRowForm extends Window {
         List<String> values =
             resultset.getForeignKeyList().getValues(field.getId());
 
-        Field PF = FieldCreator.getField(field, values, 0);
+        Field PF = FieldCreator.getField(field, values, 0, true);
         // ParametricField PF =
         // new ParametricField(grid.getResultset().getId(),
         // field.getForeignKey().split("\\.")[1], field.getName(),
