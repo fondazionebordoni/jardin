@@ -1230,8 +1230,8 @@ public class DbUtils {
     Connection connection = dbConnectionHandler.getConn();
     String query =
         "SELECT hp.id as idpref, hp.name as namepref FROM "
-            + "(`__SYSTEM_headerpreference` hp JOIN `__SYSTEM_fieldinpreference` fip "
-            + "ON hp.id=fip.id_headerpreference) JOIN `__SYSTEM_field` f ON fip.id_field=f.id WHERE hp.id_user='"
+            + "("+T_HEADERPREFERENCE+" hp JOIN "+T_FIELDINPREFERENCE+" fip "
+            + "ON hp.id=fip.id_headerpreference) JOIN "+T_FIELD+" f ON fip.id_field=f.id WHERE hp.id_user='"
             + idUser + "' AND f.id_resultset='" + idResultset
             + "' GROUP BY namepref";
 
@@ -1264,7 +1264,7 @@ public class DbUtils {
     Connection connection = dbConnectionHandler.getConn();
     String query =
         "SELECT fip.id_field as fieldid  "
-            + "FROM `__SYSTEM_headerpreference` hp JOIN `__SYSTEM_fieldinpreference` fip "
+            + "FROM "+T_HEADERPREFERENCE+" hp JOIN "+T_FIELDINPREFERENCE+" fip "
             + "ON hp.id=fip.id_headerpreference WHERE hp.id = '"
             + userPreferenceHeaderId + "' AND hp.id_user='" + idUser + "'";
 
