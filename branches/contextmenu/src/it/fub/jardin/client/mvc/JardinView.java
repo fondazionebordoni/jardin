@@ -332,7 +332,6 @@ public class JardinView extends View {
     PagingLoader<PagingLoadResult<BaseModelData>> loader =
         new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
     loader.setRemoteSort(true);
-
     ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
     return store;
   }

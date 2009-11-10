@@ -59,6 +59,6 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 	}
 
 	public void setResultsetId(Integer resultSetId) {
-		this.resultsetId = resultsetId;
+		this.resultsetId = resultSetId;
 	}
 }

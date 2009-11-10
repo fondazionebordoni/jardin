@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -85,38 +86,45 @@ public class JardinGrid extends Grid<BaseModelData> {
 				final MenuBar sep = new MenuBar();
 				final ModelData selectedRow = (ModelData) be.getGrid()
 						.getSelectionModel().getSelection().get(0);
-				
+
 				for (final ResultsetField field : resultset.getFields()) {
 					if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-		                
-		            	  MenuItem item = new MenuItem(field.getForeignKey());
-		                
-		              m.add(item);
-		              item.addListener(Events.Select, new Listener() {
-		                public void handleEvent(BaseEvent be) {
-		                  System.out.println(be.toString());
-		                  System.out.println(field.getResultsetid()+""+field.getId());
-		                }
-		              });
-		              }
-		            }
-		        
+						String fkinfo = field.getForeignKey();
+						BaseModelData fk = new BaseModelData();
+
+						String[] fksplitted = fkinfo.split("\\.");
+						fk.set("TABLE", fksplitted[0]);
+						fk.set("Fk", fksplitted[1]);
+
+						MenuItem item = new MenuItem(
+								"Visualizza corrispondeza in "
+										+ fk.get("TABLE").toString());
+
+						m.add(item);
+						item.addListener(Events.Select, new Listener() {
+							public void handleEvent(BaseEvent be) {
+								System.out.println(be.toString());
+								System.out.println(field.getResultsetid() + ""
+										+ field.getId());
+							}
+						});
+					}
+				}
+
 				m.add(sep);
-				
+
 				for (final IncomingForeignKeyInformation fk : resultset
 						.getForeignKeyIn()) {
 					final String linkedTable = fk.getLinkedTable();
 					final String linkedField = fk.getLinkedField();
 					final String field = fk.getField();
-					fk.setFieldValue(""+selectedRow.get(field));
+					fk.setFieldValue("" + selectedRow.get(field));
+					
 					fk.setResultsetId(resultset.getId());
-					MenuItem mitem = new MenuItem("Visualizza entry in "
-							+ linkedTable + " associata");
+
+					MenuItem mitem = new MenuItem(
+							"Visualizza corrispondeze in " + linkedTable);
 					m.add(mitem);
-					// final Collection<String> idMux =
-					// selectedRow.getPropertyNames(); // get("protcatasto");
-					// System.out.println(selectedRow.toString() + "-->" +
-					// idMux);
 
 					mitem.addListener(Events.Select, new Listener() {
 						public void handleEvent(BaseEvent be) {
@@ -126,7 +134,8 @@ public class JardinGrid extends Grid<BaseModelData> {
 							System.out.println(linkedTable + "." + linkedField
 									+ "->" + field + "="
 									+ selectedRow.get(field));
-							Dispatcher.forwardEvent(EventList.ViewLinkedTable, fk);
+							Dispatcher.forwardEvent(EventList.ViewLinkedTable,
+									fk);
 						}
 					});
 				}

@@ -1580,4 +1580,11 @@ public class DbUtils {
 			dbConnectionHandler.closeConn(connection);
 		}
 	}
+	
+	public int getResultsetIdFromName(String name) throws HiddenException{
+		Connection connection = dbConnectionHandler.getConn();
+		
+		dbConnectionHandler.closeConn(connection);
+		return 0;
+	}
 }

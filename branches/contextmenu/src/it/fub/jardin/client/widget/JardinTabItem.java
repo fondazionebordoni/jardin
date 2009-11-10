@@ -4,6 +4,7 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -197,12 +198,12 @@ public class JardinTabItem extends TabItem {
   }
 
   public void updateStore(final ListStore<BaseModelData> store) {
-
+	  
     /* Loading dello store */
     final PagingLoader<PagingLoadResult<BaseModelData>> loader =
         (PagingLoader<PagingLoadResult<BaseModelData>>) store.getLoader();
     loader.load(0, PAGESIZE);
-
+    
     /* Aggancio PaginToolbar */
     PagingToolBar bottomBar =
         (PagingToolBar) this.center_center.getBottomComponent();
@@ -210,6 +211,7 @@ public class JardinTabItem extends TabItem {
 
     /* Riconfigurazione della griglia col nuovo store */
     this.grid.reconfigure(store, this.grid.getColumnModel());
+
     ((JardinGridView) this.grid.getView()).setGridHeader();
 
     this.grid.getStore().addListener(Store.Update,
