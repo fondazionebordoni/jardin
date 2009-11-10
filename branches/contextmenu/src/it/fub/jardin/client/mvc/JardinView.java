@@ -303,7 +303,7 @@ public class JardinView extends View {
   }
 
   private void onSearch(SearchParams searchParams) {
-    JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
+		JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
 
     if (item != null) {
       if (item.getGrid() != null) {

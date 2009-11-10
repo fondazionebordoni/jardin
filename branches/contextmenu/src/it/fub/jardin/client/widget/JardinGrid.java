@@ -119,7 +119,7 @@ public class JardinGrid extends Grid<BaseModelData> {
 					final String linkedField = fk.getLinkedField();
 					final String field = fk.getField();
 					fk.setFieldValue("" + selectedRow.get(field));
-					
+
 					fk.setResultsetId(resultset.getId());
 
 					MenuItem mitem = new MenuItem(
