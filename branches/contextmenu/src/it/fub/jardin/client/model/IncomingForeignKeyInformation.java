@@ -1,5 +1,7 @@
 package it.fub.jardin.client.model;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class IncomingForeignKeyInformation implements IsSerializable{
@@ -9,6 +11,7 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 	private String field;
 	private String fieldValue;
 	private Integer resultsetId;
+	private List<ResultsetImproved> resultsets;
 
 	@SuppressWarnings("unused")
 	private IncomingForeignKeyInformation() {
@@ -60,5 +63,13 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 
 	public void setResultsetId(Integer resultSetId) {
 		this.resultsetId = resultSetId;
+	}
+
+	public List<ResultsetImproved> getResultsets() {
+		return resultsets;
+	}
+
+	public void setResultsets(List<ResultsetImproved> resultsets) {
+		this.resultsets = resultsets;
 	}
 }
