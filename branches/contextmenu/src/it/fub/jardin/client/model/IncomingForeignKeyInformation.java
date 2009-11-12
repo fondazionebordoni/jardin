@@ -6,39 +6,39 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class IncomingForeignKeyInformation implements IsSerializable{
 
-	private String linkedTable;
-	private String linkedField;
+	private String linkingTable;
+	private String linkingField;
 	private String field;
 	private String fieldValue;
 	private Integer resultsetId;
-	private List<ResultsetImproved> resultsets;
+	private ResultsetImproved interestedResultset;
 
 	@SuppressWarnings("unused")
 	private IncomingForeignKeyInformation() {
 	}
 	
-	public IncomingForeignKeyInformation(String linkedTable, String linkedField, String field) {
-		this.linkedTable = linkedTable;
-		this.linkedField = linkedField;
+	public IncomingForeignKeyInformation(String linkingTable, String linkingField, String field) {
+		this.linkingTable = linkingTable;
+		this.linkingField = linkingField;
 		this.field = field;
 		this.fieldValue = null;
 		this.resultsetId = null;
 	}
 	
-	public String getLinkedTable() {
-		return linkedTable;
+	public String getLinkingTable() {
+		return linkingTable;
 	}
 
-	public void setLinkedTable(String linkedTable) {
-		this.linkedTable = linkedTable;
+	public void setLinkingTable(String linkingTable) {
+		this.linkingTable = linkingTable;
 	}
 
-	public String getLinkedField() {
-		return linkedField;
+	public String getLinkingField() {
+		return linkingField;
 	}
 
-	public void setLinkedField(String linkedField) {
-		this.linkedField = linkedField;
+	public void setLinkingField(String linkingField) {
+		this.linkingField = linkingField;
 	}
 
 	public String getField() {
@@ -65,11 +65,11 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 		this.resultsetId = resultSetId;
 	}
 
-	public List<ResultsetImproved> getResultsets() {
-		return resultsets;
+	public ResultsetImproved getInterestedResultset() {
+		return interestedResultset;
 	}
 
-	public void setResultsets(List<ResultsetImproved> resultsets) {
-		this.resultsets = resultsets;
+	public void setInterestedResultset(ResultsetImproved interestedResultset) {
+		this.interestedResultset = interestedResultset;
 	}
 }

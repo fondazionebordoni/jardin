@@ -998,16 +998,16 @@ public class DbUtils {
 			listaIfki = new ArrayList<IncomingForeignKeyInformation>();
 			
 			while (resultFKIn.next()) {
-				String linkedTable = resultFKIn.getString("TABLE_NAME");
-				String linkedField = resultFKIn.getString("COLUMN_NAME");
+				String linkingTable = resultFKIn.getString("TABLE_NAME");
+				String linkingField = resultFKIn.getString("COLUMN_NAME");
 				String field = resultFKIn.getString("REFERENCED_COLUMN_NAME");
-				IncomingForeignKeyInformation ifki = new IncomingForeignKeyInformation(linkedTable, linkedField, field);
+				IncomingForeignKeyInformation ifki = new IncomingForeignKeyInformation(linkingTable, linkingField, field);
 				listaIfki.add(ifki);
 			}
 		} catch (SQLException e) {
 			Log.warn("Errore SQL", e);
 			throw new HiddenException(
-					"Errore durante il recupero delle preferenze utente");
+					"Errore durante il recupero delle foreign keys entranti");
 		} finally {
 			dbConnectionHandler.closeConn(connection);
 		}

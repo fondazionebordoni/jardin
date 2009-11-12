@@ -883,29 +883,25 @@ public class JardinController extends Controller {
 	}
 
 	private void onViewLinkedResultset(IncomingForeignKeyInformation ifki) {
-		String linkedTable = ifki.getLinkedTable();
-		List<ResultsetImproved> resultsets = ifki.getResultsets();
-		for (ResultsetImproved rs : resultsets) {
+		String linkedTable = ifki.getLinkingTable();
+		ResultsetImproved rs = ifki.getInterestedResultset();
+		SearchParams searchParams = new SearchParams(rs.getId());
+		searchParams.setAccurate(true);
+		List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
-			SearchParams searchParams = new SearchParams(rs.getId());
-			searchParams.setAccurate(true);
-			List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+		SearchStringParser parser = new SearchStringParser(ifki
+				.getLinkingField()
+				+ ":" + ifki.getFieldValue());
 
-			SearchStringParser parser = new SearchStringParser(ifki
-					.getLinkedField()
-					+ ":" + ifki.getFieldValue());
-
-			Map<String, String> searchMap = parser.getSearchMap();
-			for (String key : parser.getSearchMap().keySet()) {
-				// TODO migliorare la gestione per il case insensitive
-				key = key.toLowerCase();
-				BaseModelData m = new BaseModelData();
-				m.set(key, searchMap.get(key));
-				queryFieldList.add(m);
-			}
-			searchParams.setFieldsValuesList(queryFieldList);
-			Dispatcher.forwardEvent(EventList.Search, searchParams);
+		Map<String, String> searchMap = parser.getSearchMap();
+		for (String key : parser.getSearchMap().keySet()) {
+			// TODO migliorare la gestione per il case insensitive
+			key = key.toLowerCase();
+			BaseModelData m = new BaseModelData();
+			m.set(key, searchMap.get(key));
+			queryFieldList.add(m);
 		}
-		// forwardToView(view, EventList.ShowAllColumns, ifki);
+		searchParams.setFieldsValuesList(queryFieldList);
+		Dispatcher.forwardEvent(EventList.Search, searchParams);
 	}
 }

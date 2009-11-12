@@ -294,7 +294,7 @@ public class JardinView extends View {
     foreignKeyIn = resultset.getForeignKeyIn();
     System.out.println("Foreign Key Entranti");
     for (IncomingForeignKeyInformation fk : foreignKeyIn) {
-      System.out.println(fk.getField()+"<-"+fk.getLinkedTable()+"."+fk.getLinkedField());
+      System.out.println(fk.getField()+"<-"+fk.getLinkingTable()+"."+fk.getLinkingField());
     }
   }
 
