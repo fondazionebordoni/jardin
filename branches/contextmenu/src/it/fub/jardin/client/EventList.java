@@ -98,4 +98,6 @@ public class EventList {
 
   public static final EventType ViewLinkedTable = new EventType();
 
+  public static final EventType ViewPopUpDetail = new EventType();
+
 }

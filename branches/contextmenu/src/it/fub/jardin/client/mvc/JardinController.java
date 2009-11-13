@@ -33,6 +33,7 @@ import com.extjs.gxt.charts.client.model.charts.FilledBarChart;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -103,6 +104,7 @@ public class JardinController extends Controller {
 		registerEventTypes(EventList.SendMessage);
 		registerEventTypes(EventList.NewMessage);
 		registerEventTypes(EventList.ViewLinkedTable);
+		registerEventTypes(EventList.ViewPopUpDetail);
 	}
 
 	public void initialize() {
@@ -147,7 +149,7 @@ public class JardinController extends Controller {
 			onCreateUI();
 		} else if (t == EventList.Search) {
 			if (event.getData() instanceof SearchParams) {
-				System.out.println("evento search!!!");
+				//System.out.println("evento search!!!");
 				SearchParams searchParams = (SearchParams) event.getData();
 				onSearch(searchParams);
 			} else {
@@ -172,6 +174,13 @@ public class JardinController extends Controller {
 			} else {
 				// TODO Gestire errore nei dati di EventList.AddRow
 				Log.error("Errore nei dati di EventList.AddRow");
+			}
+		} else if (t == EventList.ViewPopUpDetail) {
+			if (event.getData() instanceof BaseModelData) {
+				onViewPopUpDetail((BaseModelData) event.getData());
+			} else {
+				// TODO Gestire errore nei dati di EventList.ViewPopUpDetail
+				Log.error("Errore nei dati di EventList.ViewPopUpDetail");
 			}
 		} else if (t == EventList.RemoveRows) {
 			if (event.getData() instanceof Integer) {
@@ -464,7 +473,7 @@ public class JardinController extends Controller {
 				public void onSuccess(
 						ArrayList<IncomingForeignKeyInformation> ForeignKeyIn) {
 					ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-					System.out.println(ForeignKeyIn);
+					// System.out.println(ForeignKeyIn);
 					rs.setForeignKeyIn(ForeignKeyIn);
 					forwardToView(view, EventList.GotValuesOfForeignKeysIn,
 							resultsetId);
@@ -558,6 +567,40 @@ public class JardinController extends Controller {
 		} else {
 			Dispatcher.forwardEvent(EventList.Error,
 					"L'utente non dispone dei permessi di inserimento");
+		}
+	}
+
+	private void onViewPopUpDetail(final BaseModelData data) {
+		if (((ResultsetImproved) data.get("RSLINKED")).isRead()) {
+
+			// restituisce il BaseModelData con la riga interessata
+
+			final ManagerServiceAsync service = (ManagerServiceAsync) Registry
+					.get(Jardin.SERVICE);
+
+			AsyncCallback<BaseModelData> callbackPopUpDetailEntry = new AsyncCallback<BaseModelData>() {
+				public void onFailure(Throwable caught) {
+					Dispatcher.forwardEvent(EventList.Error, caught
+							.getLocalizedMessage());
+				}
+
+				public void onSuccess(
+						BaseModelData entry) {
+					//ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+					// System.out.println(ForeignKeyIn);
+					
+					ArrayList<BaseModelData> infoToView = null;
+					infoToView.add(data);
+					infoToView.add(entry);
+					forwardToView(view, EventList.ViewPopUpDetail, infoToView);
+				}
+			};
+
+			service.getPopUpDetailEntry(data, callbackPopUpDetailEntry);
+
+		} else {
+			Dispatcher.forwardEvent(EventList.Error,
+					"L'utente non dispone dei permessi di visualizzazione");
 		}
 	}
 

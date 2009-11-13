@@ -1587,4 +1587,30 @@ public class DbUtils {
 		dbConnectionHandler.closeConn(connection);
 		return 0;
 	}
+
+	public BaseModelData getPopUpDetailEntry(BaseModelData data) throws HiddenException {
+		ResultsetImproved rs = data.get("RSLINKED");
+	    String linkingField = data.get("FK");
+		Integer linkingValuse = data.get("VALUE");
+		getStatementByResultsetId (rs.getId());
+		
+		
+		return null;
+	}
+	
+	public String getStatementByResultsetId (Integer rsid) throws HiddenException{
+		String query = "SELECT statement FROM "+T_RESULTSET+" WHERE id = "+rsid;
+		Connection connection = dbConnectionHandler.getConn();
+	    ResultSet result;
+	    String queryStatement = null;
+		try {
+			result = doQuery(connection, query);
+			result.next();
+			queryStatement = result.getString(1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		dbConnectionHandler.closeConn(connection);
+		return queryStatement;
+	}
 }

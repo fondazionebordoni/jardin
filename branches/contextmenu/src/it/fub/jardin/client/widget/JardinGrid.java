@@ -96,20 +96,20 @@ public class JardinGrid extends Grid<BaseModelData> {
 				for (final ResultsetField field : resultset.getFields()) {
 					if ((field.getForeignKey().compareToIgnoreCase("") != 0)) {
 						String fkinfo = field.getForeignKey();
-						final BaseModelData fk = new BaseModelData();
 						System.out.println(fkinfo);
 						String[] fksplitted = fkinfo.split("\\.");
 						for (final ResultsetImproved rs : resultsets) {
 							if (rs.getName().compareTo(fksplitted[0]) == 0) {
-								fk.set("TABLE", fksplitted[0]);
+								final BaseModelData fk = new BaseModelData();
+								fk.set("RSID", resultset.getId());
+								//fk.set("TABLE", fksplitted[0]);
 								fk.set("FK", fksplitted[1]);
-
 								fk.set("VALUE", selectedRow
 										.get(field.getName()));
-
+								fk.set("RSLINKED", rs);
 								MenuItem item = new MenuItem(
 										"Visualizza corrispondeza in "
-												+ fk.get("TABLE").toString());
+												+ rs.getAlias());
 
 								m.add(item);
 
@@ -120,7 +120,7 @@ public class JardinGrid extends Grid<BaseModelData> {
 												.getResultsetid()
 												+ "" + field.getId());
 										Dispatcher.forwardEvent(
-												EventList.AddRow, fk);
+												EventList.ViewPopUpDetail, fk);
 									}
 								});
 							}
@@ -249,6 +249,10 @@ public class JardinGrid extends Grid<BaseModelData> {
 
 	public void addRow() {
 		new AddRowForm(this);
+	}
+	
+	public void viewDetailPopUp(BaseModelData data) {
+		new JardinDetailPopUp(data);
 	}
 
 	public void showAllColumns() {
