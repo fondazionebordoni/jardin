@@ -295,7 +295,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     dbUtils.updateUserProperties(user);
   }
 
-	public BaseModelData getPopUpDetailEntry(BaseModelData data) throws HiddenException {
+	public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data) throws HiddenException {
 		return dbUtils.getPopUpDetailEntry(data);
 	}
 

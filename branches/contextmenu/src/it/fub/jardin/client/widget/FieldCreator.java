@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.LoadEvent;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -43,205 +44,212 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class FieldCreator {
 
-  public static Field getField(ResultsetField field, List<String> values,
-      boolean combo, boolean textarea) {
-    return getField(field, values, combo, 0, textarea);
-  }
+	public static Field getField(ResultsetField field, List<String> values,
+			boolean combo, boolean textarea) {
+		return getField(field, values, combo, 0, textarea);
+	}
 
-  /**
-   * Crea una widget per un campo a partire da un campo di un resultset.
-   * Restituisce un combo con in valori di values se combo = true.
-   * 
-   * @param field
-   *          il campo del resultset da disegnare
-   * @param values
-   *          i valori da inserire nel combo
-   * @param combo
-   *          settare a true se si vuole un combo, false altrimenti
-   * @param labelWidth
-   * @return una widget per la gestione del campo del resultset
-   */
-  public static Field getField(ResultsetField field, List<String> values,
-      boolean combo, int labelWidth, boolean textarea) {
-    Field result = null;
-    String fieldType = field.getType();
+	/**
+	 * Crea una widget per un campo a partire da un campo di un resultset.
+	 * Restituisce un combo con in valori di values se combo = true.
+	 * 
+	 * @param field
+	 *            il campo del resultset da disegnare
+	 * @param values
+	 *            i valori da inserire nel combo
+	 * @param combo
+	 *            settare a true se si vuole un combo, false altrimenti
+	 * @param labelWidth
+	 * @return una widget per la gestione del campo del resultset
+	 */
+	public static Field getField(ResultsetField field, List<String> values,
+			boolean combo, int labelWidth, boolean textarea) {
+		Field result = null;
+		String fieldType = field.getType();
 
-    /* Se il campo è una data non creo un combo */
-    if (fieldType.compareToIgnoreCase("DATE") == 0
-        || fieldType.compareToIgnoreCase("DATETIME") == 0) {
-      DateField f = new DateField();
-      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
-      result = f;
-      /*
-       * } else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
-       * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result =
-       * f;
-       */
-    } else if (fieldType.compareToIgnoreCase("TIME") == 0) {
-      TimeField f = new TimeField();
-      f.setFormat(DateTimeFormat.getFormat("HH:mm"));
-      result = f;
-    } else if (((fieldType.compareToIgnoreCase("BLOB") == 0)
-        || (fieldType.compareToIgnoreCase("TEXT") == 0)) && textarea) {
-      TextArea f = new TextArea();
-      //f.setHeight(5);
-      // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
-      result = f;
-    } else {
-      if (combo) {
-        if (values != null && values.size() > 0) {
-          SimpleComboBox<String> f = new SimpleComboBox<String>();
-          f.setTriggerAction(TriggerAction.ALL);
-          f.add(values);
-          result = f;
-        } else {
-          result = new TextField<String>();
-        }
-      } else {
-        result = new TextField<String>();
-      }
-    }
-    result.setName(field.getName());
-    if (labelWidth > 0 && field.getAlias().length() > labelWidth / 10) {
-      result.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
-          + "...");
-      result.setToolTip(field.getAlias());
-    } else {
-      result.setFieldLabel(field.getAlias());
-    }
+		/* Se il campo è una data non creo un combo */
+		if (fieldType.compareToIgnoreCase("DATE") == 0
+				|| fieldType.compareToIgnoreCase("DATETIME") == 0) {
+			DateField f = new DateField();
+			f.getPropertyEditor()
+					.setFormat(DateTimeFormat.getFormat("dd/MM/y"));
+			result = f;
 
-    return result;
-  }
+		} /*else if (fieldType.compareToIgnoreCase("INT") == 0) {
+			NumberField f = new NumberField();
+			f.setFormat(NumberFormat.getFormat("#"));
+			result = f;
 
-  public static Field getField(final ResultsetField field, List<String> values,
-      int labelWidth, boolean textarea) {
-    Field result = null;
-    String fieldType = field.getType();
+		}*/ else if (fieldType.compareToIgnoreCase("TIME") == 0) {
+			TimeField f = new TimeField();
+			f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+			result = f;
+		} else if (((fieldType.compareToIgnoreCase("BLOB") == 0) || (fieldType
+				.compareToIgnoreCase("TEXT") == 0))
+				&& textarea) {
+			TextArea f = new TextArea();
+			// f.setHeight(5);
+			// f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+			result = f;
+		} else {
+			if (combo) {
+				if (values != null && values.size() > 0) {
+					SimpleComboBox<String> f = new SimpleComboBox<String>();
+					f.setTriggerAction(TriggerAction.ALL);
+					f.add(values);
+					result = f;
+				} else {
+					result = new TextField<String>();
+				}
+			} else {
+				result = new TextField<String>();
+			}
+		}
+		result.setName(field.getName());
+		if (labelWidth > 0 && field.getAlias().length() > labelWidth / 10) {
+			result.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
+					+ "...");
+			result.setToolTip(field.getAlias());
+		} else {
+			result.setFieldLabel(field.getAlias());
+		}
+		return result;
+	}
 
-    /* Se il campo è una data non creo un combo */
-    if (fieldType.compareToIgnoreCase("DATE") == 0
-        || fieldType.compareToIgnoreCase("DATETIME") == 0) {
-      DateField f = new DateField();
-      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
+	public static Field getField(final ResultsetField field,
+			List<String> values, int labelWidth, boolean textarea) {
+		Field result = null;
+		String fieldType = field.getType();
 
-      // Calendar c = Calendar.getInstance();
-      // System.out.println(c.getTime());
-      // f.setValue(c.getTime());
-      System.out.println();
-      result = f;
-      System.out.println(field.getName() + ": DATE");
-      /*
-       * } else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
-       * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result =
-       * f;
-       */
-    } else if (fieldType.compareToIgnoreCase("TIME") == 0) {
-      TimeField f = new TimeField();
-      f.setFormat(DateTimeFormat.getFormat("HH:mm"));
-      result = f;
-      System.out.println(field.getName() + ": TIME");
-    } else if (((fieldType.compareToIgnoreCase("BLOB") == 0)
-        || (fieldType.compareToIgnoreCase("TEXT") == 0)) && textarea) {
-      TextArea f = new TextArea();
-      // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
-      result = f;
-    } else {
-      if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-        System.out.println(field.getName() + ": COMBO");
+		/* Se il campo è una data non creo un combo */
+		if (fieldType.compareToIgnoreCase("DATE") == 0
+				|| fieldType.compareToIgnoreCase("DATETIME") == 0) {
+			DateField f = new DateField();
+			f.getPropertyEditor()
+					.setFormat(DateTimeFormat.getFormat("dd/MM/y"));
 
-        // List<String> values = new ArrayList<String>();
+			// Calendar c = Calendar.getInstance();
+			// System.out.println(c.getTime());
+			// f.setValue(c.getTime());
+			System.out.println();
+			result = f;
+			System.out.println(field.getName() + ": DATE");
+		}/* else if (fieldType.compareToIgnoreCase("INT") == 0) {
+			NumberField f = new NumberField();
+			f.setFormat(NumberFormat.getFormat("#"));
+			result = f;
+		} */else if (fieldType.compareToIgnoreCase("TIME") == 0) {
+			TimeField f = new TimeField();
+			f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+			result = f;
+			System.out.println(field.getName() + ": TIME");
+		} else if (((fieldType.compareToIgnoreCase("BLOB") == 0) || (fieldType
+				.compareToIgnoreCase("TEXT") == 0))
+				&& textarea) {
+			TextArea f = new TextArea();
+			// f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+			result = f;
+		} else {
+			if (field.getForeignKey().compareToIgnoreCase("") != 0) {
+				System.out.println(field.getName() + ": COMBO");
 
-        final SimpleComboBox<String> f = new SimpleComboBox<String>();
-        f.setTriggerAction(TriggerAction.ALL);
-        f.add(values);
+				// List<String> values = new ArrayList<String>();
 
-        Listener<BaseEvent> l = new Listener<BaseEvent>() {
+				final SimpleComboBox<String> f = new SimpleComboBox<String>();
+				f.setTriggerAction(TriggerAction.ALL);
+				f.add(values);
 
-          public void handleEvent(BaseEvent be) {
+				Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
-            final MessageBox wait =
-                MessageBox.wait(
-                    "Attendere",
-                    "Recupero valori autocompletamento per " + field.getAlias(),
-                    "");
-            final ManagerServiceAsync service =
-                (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+					public void handleEvent(BaseEvent be) {
 
-            RpcProxy<List<BaseModelData>> proxy =
-                new RpcProxy<List<BaseModelData>>() {
+						final MessageBox wait = MessageBox.wait("Attendere",
+								"Recupero valori autocompletamento per "
+										+ field.getAlias(), "");
+						final ManagerServiceAsync service = (ManagerServiceAsync) Registry
+								.get(Jardin.SERVICE);
 
-                  protected void load(Object loadConfig,
-                      AsyncCallback<List<BaseModelData>> callback) {
-                    service.getValuesOfAFieldFromTableName(
-                        field.getForeignKey().split("\\.")[0],
-                        field.getForeignKey().split("\\.")[1], callback);
-                  }
-                };
+						RpcProxy<List<BaseModelData>> proxy = new RpcProxy<List<BaseModelData>>() {
 
-            final BaseListLoader loader = new BaseListLoader(proxy);
-            loader.setRemoteSort(false);
-            final ListStore<BaseModelData> fieldValuesStore =
-                new ListStore<BaseModelData>(loader);
+							protected void load(Object loadConfig,
+									AsyncCallback<List<BaseModelData>> callback) {
+								service.getValuesOfAFieldFromTableName(field
+										.getForeignKey().split("\\.")[0], field
+										.getForeignKey().split("\\.")[1],
+										callback);
+							}
+						};
 
-            loader.addLoadListener(new LoadListener() {
-              @Override
-              public void loaderLoad(LoadEvent le) {
+						final BaseListLoader loader = new BaseListLoader(proxy);
+						loader.setRemoteSort(false);
+						final ListStore<BaseModelData> fieldValuesStore = new ListStore<BaseModelData>(
+								loader);
 
-                f.removeAll();
-                List<BaseModelData> elementes = fieldValuesStore.getModels();
+						loader.addLoadListener(new LoadListener() {
+							@Override
+							public void loaderLoad(LoadEvent le) {
 
-                List<String> newValues = new ArrayList<String>();
-                for (BaseModelData bm : elementes) {
-                  newValues.add((String) bm.get(field.getForeignKey().split(
-                      "\\.")[1]));
-                }
+								f.removeAll();
+								List<BaseModelData> elementes = fieldValuesStore
+										.getModels();
 
-                f.add(newValues);
+								List<String> newValues = new ArrayList<String>();
+								for (BaseModelData bm : elementes) {
+									newValues.add((String) bm.get(field
+											.getForeignKey().split("\\.")[1]));
+								}
 
-                wait.close();
+								f.add(newValues);
 
-                if (!f.isExpanded()) {
-                  f.expand();
-                }
-              }
+								wait.close();
 
-              @Override
-              public void loaderLoadException(LoadEvent le) {
-                MessageBox.alert("Recupero store autocompletamento campo "
-                    + field.getForeignKey().split("\\.")[0]
-                    + " per foreign key: "
-                    + field.getForeignKey().split("\\.")[1],
-                    "loaderLoadException: "
-                        + le.exception.getLocalizedMessage(), null);
-                le.exception.printStackTrace();
-              }
+								if (!f.isExpanded()) {
+									f.expand();
+								}
+							}
 
-            });
+							@Override
+							public void loaderLoadException(LoadEvent le) {
+								MessageBox.alert(
+										"Recupero store autocompletamento campo "
+												+ field.getForeignKey().split(
+														"\\.")[0]
+												+ " per foreign key: "
+												+ field.getForeignKey().split(
+														"\\.")[1],
+										"loaderLoadException: "
+												+ le.exception
+														.getLocalizedMessage(),
+										null);
+								le.exception.printStackTrace();
+							}
 
-            loader.load();
-          }
+						});
 
-        };
+						loader.load();
+					}
 
-        f.addListener(Events.OnClick, l);
+				};
 
-        result = f;
+				f.addListener(Events.OnClick, l);
 
-      } else {
-        System.out.println(field.getName() + ": TEXT");
-        result = new TextField<String>();
-      }
-    }
-    result.setName(field.getName());
-    if (labelWidth > 0 && field.getAlias().length() > labelWidth / 10) {
-      result.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
-          + "...");
-      result.setToolTip(field.getAlias());
-    } else {
-      result.setFieldLabel(field.getAlias());
-    }
+				result = f;
 
-    return result;
-  }
+			} else {
+				System.out.println(field.getName() + ": TEXT");
+				result = new TextField<String>();
+			}
+		}
+		result.setName(field.getName());
+		if (labelWidth > 0 && field.getAlias().length() > labelWidth / 10) {
+			result.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
+					+ "...");
+			result.setToolTip(field.getAlias());
+		} else {
+			result.setFieldLabel(field.getAlias());
+		}
+		
+		return result;
+	}
 
 }

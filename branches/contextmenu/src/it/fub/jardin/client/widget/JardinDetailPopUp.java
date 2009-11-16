@@ -18,14 +18,17 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
@@ -34,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -51,189 +55,212 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class JardinDetailPopUp extends Window {
 
-  List<Field> fieldList = new ArrayList<Field>();
+	List<Field> fieldList = new ArrayList<Field>();
 
-  final FormPanel formPanel;
-  private static final int defaultWidth = 270; //width dei campi
-  private static final int labelWidth = 170;
-  private static final int padding = 0;
-  Button button;
-  // SearchParams searchData;
-  ResultsetImproved resultset;
-  HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
+	final FormPanel formPanel;
+	private static final int defaultWidth = 270; // width dei campi
+	private static final int labelWidth = 170;
+	private static final int padding = 0;
+	Button button;
+	// SearchParams searchData;
+	ResultsetImproved resultset;
+	HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
 
+	/**
+	 * Create a new Detail Area for Impianti printing all available fields
+	 */
+	public JardinDetailPopUp(ArrayList<BaseModelData> infoToView) {
 
+		/* Impostazione caratteristiche di Window */
+		this.setSize(650, 550);
+		this.setPlain(true);
 
-  /**
-   * Create a new Detail Area for Impianti printing all available fields
-   */
-  public JardinDetailPopUp(BaseModelData data) {
+		BaseModelData data = infoToView.get(0);
+		BaseModelData entry = infoToView.get(1);
 
-    /* Impostazione caratteristiche di Window */
-    this.setSize(650, 550);
-    this.setPlain(true);
-    
-    ResultsetImproved rs = data.get("RSLINKED");
-    String linkingField = data.get("FK");
-    
-    this.setHeading("Visualizzazione dati in " + rs.getAlias() +" ("+linkingField+"="+data.get("VALUE")+")");
-    this.setLayout(new FitLayout());
+		ResultsetImproved rs = data.get("RSLINKED");
+		String linkingField = data.get("FK");
 
-    this.resultset = rs;
+		this.setHeading("Visualizzazione dati in " + rs.getAlias() + " ("
+				+ linkingField + "=" + data.get("VALUE") + ")");
+		this.setLayout(new FitLayout());
 
-    /* Creazione FormPanel */
-    formPanel = new FormPanel();
-    formPanel.setBodyBorder(false);
-    formPanel.setLabelWidth(350);
-    formPanel.setHeaderVisible(false);
-    formPanel.setScrollMode(Scroll.AUTO);
-    
-    setAssistedFormPanel();
-    // for (final ResultsetField field : this.resultset.getFields()) {
+		this.resultset = rs;
 
-    add(formPanel);
-    setButtons();
+		/* Creazione FormPanel */
+		formPanel = new FormPanel();
+		formPanel.setBodyBorder(false);
+		formPanel.setLabelWidth(350);
+		formPanel.setHeaderVisible(false);
+		formPanel.setScrollMode(Scroll.AUTO);
 
-    show();
+		setFormPanel(data, entry);
 
-  }
+		add(formPanel);
+		setButtons();
+		
+		show();
 
-  private void setAssistedFormPanel() {
-	    for (ResultsetField field : this.resultset.getFields()) {
+	}
 
-	        if (field.getReadperm()) {
-	          /* Creo preventivamente un campo, poi ne gestisco la grafica */
+	private void setFormPanel(BaseModelData data, BaseModelData entry) {
+		// System.out.println(entry.getProperties());
 
-	          List<String> values =
-	              resultset.getForeignKeyList().getValues(field.getId());
-	          // Field f = FieldCreator.getField(field, values, true, labelWidth);
-	          // Field f = FieldCreator.getField(field,0);
-	          Field f = FieldCreator.getField(field, values, 0, true);
+		for (ResultsetField field : this.resultset.getFields()) {
 
-	          if (!field.getModifyperm()) {
-	            f.setEnabled(false);
-	          }
+			if (field.getReadperm()) {
+				/* Creo preventivamente un campo, poi ne gestisco la grafica */
 
-	          /* Esamino il raggruppamento a cui appartiene il campo */
-	          ResultsetFieldGroupings fieldGrouping =
-	              this.resultset.getFieldGrouping(field.getIdgrouping());
-	          /* Se il campo non ha raggruppamento l'aggancio a quello base */
-	          if (fieldGrouping == null) {
-	            formPanel.add(f);
-	          } else {
-	            String fieldSetName = fieldGrouping.getName();
+				List<String> values = resultset.getForeignKeyList().getValues(
+						field.getId());
+				// Field f = FieldCreator.getField(field, values, true,
+				// labelWidth);
+				// Field f = FieldCreator.getField(field,0);
+				Field f = FieldCreator.getField(field, values, 0, true);
 
-	            /*
-	             * Se il fieldset non esiste lo creo e l'aggancio a pannello
-	             */
-	            FieldSet fieldSet = fieldSetList.get(fieldSetName);
-	            if (fieldSet == null) {
-	              fieldSet =
-	                  new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
-	                      labelWidth, padding);
-	              fieldSetList.put(fieldSetName, fieldSet);
-	              formPanel.add(fieldSet);
-	            }
+				if (!field.getModifyperm()) {
+					f.setEnabled(false);
+				}
 
-	            /* Aggancio il campo al suo raggruppamento */
-	            fieldSet.add(f);
-	          }
-	        }
-	      }
-  }
+				//f.setValue(entry.get(field.getName()));
 
-  private void setButtons() {
-    ButtonBar buttonBar = new ButtonBar();
-    button = new Button("Salva", new SelectionListener<ButtonEvent>() {
+				if (f instanceof DateField){
+					java.util.Date date = new java.util.Date();
+					date = entry.get(field.getName());
+					f.setValue(date);
+				}else if ((f instanceof TextField) || (f instanceof TextArea)) {
+					//Literal value = entry.get(field.getName());
+					//f.setValue(""+entry.get(field.getName()));
+					ModelData bm = new BaseModelData();
+					bm.set(field.getName(), ""+entry.get(field.getName()));
+					f.setValue(bm);
+					//System.out.println(entry.get(field.getName()));
+					//System.out.println(f.getClass()+"->"+f.getName());
+				}
+				
+				/* Esamino il raggruppamento a cui appartiene il campo */
+				ResultsetFieldGroupings fieldGrouping = this.resultset
+						.getFieldGrouping(field.getIdgrouping());
+				/* Se il campo non ha raggruppamento l'aggancio a quello base */
+				if (fieldGrouping == null) {
+					formPanel.add(f);
+				} else {
+					String fieldSetName = fieldGrouping.getName();
 
-      @Override
-      public void componentSelected(ButtonEvent ce) {
+					/*
+					 * Se il fieldset non esiste lo creo e l'aggancio a pannello
+					 */
+					FieldSet fieldSet = fieldSetList.get(fieldSetName);
+					if (fieldSet == null) {
+						fieldSet = new SimpleFieldSet(fieldGrouping.getAlias(),
+								defaultWidth, labelWidth, padding);
+						fieldSetList.put(fieldSetName, fieldSet);
+						formPanel.add(fieldSet);
+					}
 
-        List<BaseModelData> newItemList = new ArrayList<BaseModelData>();
-        BaseModelData newItem = new BaseModelData();
-        for (Field field : fieldList) {
+					/* Aggancio il campo al suo raggruppamento */
+					fieldSet.add(f);
+				}
+			}
+		}
+	}
 
-          System.out.println(field.getValue());
-          String property = field.getName();
+	private void setButtons() {
+		ButtonBar buttonBar = new ButtonBar();
+		button = new Button("Salva", new SelectionListener<ButtonEvent>() {
 
-          Object value = null;
-          if (field instanceof SimpleComboBox) {
-            if (field.getValue() == null) {
-              value = "";
-            } else {
-              SimpleComboValue scv = (SimpleComboValue) field.getValue();
-              value = scv.getValue().toString();
-              // value = ((BaseModelData)
-              // field.getValue())
-              // .get(field.getName());
-            }
-          } else if (field instanceof ComboBox) {
-            if (field.getValue() == null) {
-              value = null;
-            } else {
-              value = ((BaseModelData) field.getValue()).get(field.getName());
-            }
-          } else {
-            value = field.getValue();
-          }
-          if (field.getValue() != null) {
-            newItem.set(property, value);
-            System.out.println("aggiunto item " + newItem.get(property));
-          }
-        }
-        newItemList.add(newItem);
-        commitChangesAsync(resultset.getId(), newItemList);
-      }
-    });
+			@Override
+			public void componentSelected(ButtonEvent ce) {
 
-    buttonBar.add(button);
-    formPanel.setBottomComponent(buttonBar);
-  }
+				List<BaseModelData> newItemList = new ArrayList<BaseModelData>();
+				BaseModelData newItem = new BaseModelData();
+				for (Field field : fieldList) {
 
-  /**
-   * @param resultset
-   * @param items
-   */
-  private void commitChangesAsync(final Integer resultset,
-      List<BaseModelData> items) {
+					System.out.println(field.getValue());
+					String property = field.getName();
 
-    final MessageBox waitbox =
-        MessageBox.wait("Attendere", "Salvataggio in corso...", "");
+					Object value = null;
+					if (field instanceof SimpleComboBox) {
+						if (field.getValue() == null) {
+							value = "";
+						} else {
+							SimpleComboValue scv = (SimpleComboValue) field
+									.getValue();
+							value = scv.getValue().toString();
+							// value = ((BaseModelData)
+							// field.getValue())
+							// .get(field.getName());
+						}
+					} else if (field instanceof ComboBox) {
+						if (field.getValue() == null) {
+							value = null;
+						} else {
+							value = ((BaseModelData) field.getValue())
+									.get(field.getName());
+						}
+					} else {
+						value = field.getValue();
+					}
+					if (field.getValue() != null) {
+						newItem.set(property, value);
+						System.out.println("aggiunto item "
+								+ newItem.get(property));
+					}
+				}
+				newItemList.add(newItem);
+				commitChangesAsync(resultset.getId(), newItemList);
+			}
+		});
 
-    /* Create the service proxy class */
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+		buttonBar.add(button);
+		formPanel.setBottomComponent(buttonBar);
+	}
 
-    /* Set up the callback */
-    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-      public void onFailure(Throwable caught) {
-        waitbox.close();
-        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
-      }
+	/**
+	 * @param resultset
+	 * @param items
+	 */
+	private void commitChangesAsync(final Integer resultset,
+			List<BaseModelData> items) {
 
-      public void onSuccess(Integer result) {
-        waitbox.close();
-        if (result.intValue() > 0) {
-          Info.display("Informazione", "Dati salvati", "");
-          SearchParams sp = new SearchParams(resultset);
-          List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-          BaseModelData bm = new BaseModelData();
+		final MessageBox waitbox = MessageBox.wait("Attendere",
+				"Salvataggio in corso...", "");
 
-          bm.set("searchField", "");
-          queryFieldList.add(bm);
-          sp.setFieldsValuesList(queryFieldList);
-          hide();
-          Dispatcher.forwardEvent(EventList.Search, sp);
+		/* Create the service proxy class */
+		final ManagerServiceAsync service = (ManagerServiceAsync) Registry
+				.get(Jardin.SERVICE);
 
-        } else {
-          Dispatcher.forwardEvent(EventList.Error,
-              "Impossibile salvare le modifiche");
-        }
-      }
-    };
+		/* Set up the callback */
+		AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+			public void onFailure(Throwable caught) {
+				waitbox.close();
+				Dispatcher.forwardEvent(EventList.Error, caught
+						.getLocalizedMessage());
+			}
 
-    /* Make the call */
-    service.setObjects(resultset, items, callback);
-  }
+			public void onSuccess(Integer result) {
+				waitbox.close();
+				if (result.intValue() > 0) {
+					Info.display("Informazione", "Dati salvati", "");
+					SearchParams sp = new SearchParams(resultset);
+					List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+					BaseModelData bm = new BaseModelData();
+
+					bm.set("searchField", "");
+					queryFieldList.add(bm);
+					sp.setFieldsValuesList(queryFieldList);
+					hide();
+					Dispatcher.forwardEvent(EventList.Search, sp);
+
+				} else {
+					Dispatcher.forwardEvent(EventList.Error,
+							"Impossibile salvare le modifiche");
+				}
+			}
+		};
+
+		/* Make the call */
+		service.setObjects(resultset, items, callback);
+	}
 
 }

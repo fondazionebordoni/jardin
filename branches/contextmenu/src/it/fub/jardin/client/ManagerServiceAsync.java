@@ -84,6 +84,6 @@ public interface ManagerServiceAsync {
   public void updateUserProperties(User user, AsyncCallback callback);
 
 public void getPopUpDetailEntry(BaseModelData data,
-		AsyncCallback<BaseModelData> callbackPopUpDetailEntry);
+		AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry);
 
 }

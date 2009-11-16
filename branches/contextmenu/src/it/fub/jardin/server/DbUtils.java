@@ -1588,14 +1588,35 @@ public class DbUtils {
 		return 0;
 	}
 
-	public BaseModelData getPopUpDetailEntry(BaseModelData data) throws HiddenException {
+	public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data) throws HiddenException {
 		ResultsetImproved rs = data.get("RSLINKED");
 	    String linkingField = data.get("FK");
-		Integer linkingValuse = data.get("VALUE");
-		getStatementByResultsetId (rs.getId());
-		
-		
-		return null;
+		Integer linkingValue = data.get("VALUE");
+		String queryStatement = getStatementByResultsetId (rs.getId());
+		String query = "SELECT * FROM ("+queryStatement+") AS entry WHERE "+linkingField+" = '"+linkingValue+"' LIMIT 1";
+		//System.out.println(query);
+		Connection connection = dbConnectionHandler.getConn();
+	    ResultSet result;
+	    BaseModelData row = new BaseModelData();
+	    try {
+			result = doQuery(connection, query);
+			int resultWidth = result.getMetaData().getColumnCount();
+			while (result.next()) {
+				// WARNING la prima colonna di una tabella ha indice 1 (non 0)
+				for (int i = 1; i <= resultWidth; i++) {
+					String key = result.getMetaData().getColumnLabel(i);
+					row.set(key, result.getObject(i));
+					System.out.println(key+"="+result.getObject(i));
+				}	
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		dbConnectionHandler.closeConn(connection);
+		ArrayList<BaseModelData> infoToView = new ArrayList<BaseModelData>();
+		infoToView.add(data);
+		infoToView.add(row);
+		return infoToView;
 	}
 	
 	public String getStatementByResultsetId (Integer rsid) throws HiddenException{

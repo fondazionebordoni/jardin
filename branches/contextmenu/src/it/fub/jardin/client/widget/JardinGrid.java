@@ -115,10 +115,10 @@ public class JardinGrid extends Grid<BaseModelData> {
 
 								item.addListener(Events.Select, new Listener() {
 									public void handleEvent(BaseEvent be) {
-										System.out.println(be.toString());
-										System.out.println(field
-												.getResultsetid()
-												+ "" + field.getId());
+										//System.out.println(be.toString());
+										//System.out.println(field
+										//		.getResultsetid()
+										//		+ "" + field.getId());
 										Dispatcher.forwardEvent(
 												EventList.ViewPopUpDetail, fk);
 									}
@@ -138,9 +138,9 @@ public class JardinGrid extends Grid<BaseModelData> {
 							.getForeignKeyIn()) {
 
 						if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
-							System.out.println(rs.getAlias() + "(" + rs.getId()
-									+ ")" + "->" + rs.getName() + "="
-									+ fk.getLinkingTable());
+							//System.out.println(rs.getAlias() + "(" + rs.getId()
+							//		+ ")" + "->" + rs.getName() + "="
+							//		+ fk.getLinkingTable());
 
 							final String linkedTable = fk.getLinkingTable();
 							final String linkedField = fk.getLinkingField();
@@ -251,7 +251,7 @@ public class JardinGrid extends Grid<BaseModelData> {
 		new AddRowForm(this);
 	}
 	
-	public void viewDetailPopUp(BaseModelData data) {
+	public void viewDetailPopUp(ArrayList<BaseModelData> data) {
 		new JardinDetailPopUp(data);
 	}
 

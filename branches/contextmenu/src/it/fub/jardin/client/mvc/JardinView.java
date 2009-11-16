@@ -130,8 +130,8 @@ public class JardinView extends View {
 				onAddRow((Integer) event.getData());
 			}
 		} else if (t == EventList.ViewPopUpDetail) {
-			if (event.getData() instanceof BaseModelData) {
-				onViewPopUpDetail((BaseModelData) event
+			if (event.getData() instanceof ArrayList) {
+				onViewPopUpDetail((ArrayList<BaseModelData>) event
 						.getData());
 			}
 		} else if (t == EventList.ShowAllColumns) {
@@ -163,13 +163,13 @@ public class JardinView extends View {
 		item.getGrid().addRow();
 	}
 
-	private void onViewPopUpDetail(BaseModelData data) {
+	private void onViewPopUpDetail(ArrayList<BaseModelData> infoToView) {
+		BaseModelData data = infoToView.get(0);
 		ResultsetImproved rsLinked = data.get("RSLINKED");
 		//System.out.println(rs.getAlias()+"->"+rs.getId());
 		Integer rsId = data.get("RSID");
 		JardinTabItem item = getItemByResultsetId(rsId);
-		item.getGrid().viewDetailPopUp(data);
-		
+		item.getGrid().viewDetailPopUp(infoToView);
 	}
 
 	private void initUI() {

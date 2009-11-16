@@ -572,26 +572,19 @@ public class JardinController extends Controller {
 
 	private void onViewPopUpDetail(final BaseModelData data) {
 		if (((ResultsetImproved) data.get("RSLINKED")).isRead()) {
-
 			// restituisce il BaseModelData con la riga interessata
 
 			final ManagerServiceAsync service = (ManagerServiceAsync) Registry
 					.get(Jardin.SERVICE);
 
-			AsyncCallback<BaseModelData> callbackPopUpDetailEntry = new AsyncCallback<BaseModelData>() {
+			AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry = new AsyncCallback<ArrayList<BaseModelData>>() {
 				public void onFailure(Throwable caught) {
 					Dispatcher.forwardEvent(EventList.Error, caught
 							.getLocalizedMessage());
 				}
 
 				public void onSuccess(
-						BaseModelData entry) {
-					//ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-					// System.out.println(ForeignKeyIn);
-					
-					ArrayList<BaseModelData> infoToView = null;
-					infoToView.add(data);
-					infoToView.add(entry);
+						ArrayList<BaseModelData> infoToView) {
 					forwardToView(view, EventList.ViewPopUpDetail, infoToView);
 				}
 			};

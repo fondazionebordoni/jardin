@@ -106,6 +106,6 @@ public interface ManagerService extends RemoteService {
 
   public void updateUserProperties(User user) throws HiddenException;
 
-  public BaseModelData getPopUpDetailEntry(BaseModelData data) throws HiddenException;
+  public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data) throws HiddenException;
 
 }
