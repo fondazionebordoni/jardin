@@ -117,7 +117,7 @@ public class JardinDetailPopUp extends Window {
 				// labelWidth);
 				// Field f = FieldCreator.getField(field,0);
 				Field f = FieldCreator.getField(field, values, 0, true);
-
+				fieldList.add(f);
 				if (!field.getModifyperm()) {
 					f.setEnabled(false);
 				}
@@ -128,12 +128,20 @@ public class JardinDetailPopUp extends Window {
 					java.util.Date date = new java.util.Date();
 					date = entry.get(field.getName());
 					f.setValue(date);
-				}else if ((f instanceof TextField) || (f instanceof TextArea)) {
-					//Literal value = entry.get(field.getName());
-					//f.setValue(""+entry.get(field.getName()));
+				}else if (f instanceof TimeField){
+					Time time = new Time();
+					time = entry.get(field.getName());
+					f.setValue(time);
+				}else if (f instanceof SimpleComboBox){ 
 					ModelData bm = new BaseModelData();
 					bm.set(field.getName(), ""+entry.get(field.getName()));
-					f.setValue(bm);
+					((SimpleComboBox) f).setSimpleValue(entry.get(field.getName())) ;
+				}else if ((f instanceof TextField) || (f instanceof TextArea)) {
+					//Text value = entry.get(field.getName());
+					f.setValue(entry.get(field.getName()));
+					//ModelData bm = new BaseModelData();
+					//bm.set(field.getName(), ""+entry.get(field.getName()));
+					//f.setValue(bm);
 					//System.out.println(entry.get(field.getName()));
 					//System.out.println(f.getClass()+"->"+f.getName());
 				}

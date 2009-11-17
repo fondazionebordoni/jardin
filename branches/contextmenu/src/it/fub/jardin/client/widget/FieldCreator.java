@@ -75,12 +75,13 @@ public class FieldCreator {
 					.setFormat(DateTimeFormat.getFormat("dd/MM/y"));
 			result = f;
 
-		} /*else if (fieldType.compareToIgnoreCase("INT") == 0) {
-			NumberField f = new NumberField();
-			f.setFormat(NumberFormat.getFormat("#"));
-			result = f;
-
-		}*/ else if (fieldType.compareToIgnoreCase("TIME") == 0) {
+		} /*
+		 * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
+		 * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result =
+		 * f;
+		 * 
+		 * }
+		 */else if (fieldType.compareToIgnoreCase("TIME") == 0) {
 			TimeField f = new TimeField();
 			f.setFormat(DateTimeFormat.getFormat("HH:mm"));
 			result = f;
@@ -94,9 +95,17 @@ public class FieldCreator {
 		} else {
 			if (combo) {
 				if (values != null && values.size() > 0) {
-					SimpleComboBox<String> f = new SimpleComboBox<String>();
-					f.setTriggerAction(TriggerAction.ALL);
-					f.add(values);
+					SimpleComboBox f;
+					if ((fieldType.compareToIgnoreCase("int") == 0)
+							|| (fieldType.compareToIgnoreCase("real") == 0)) {
+						f = new SimpleComboBox<Integer>();
+						f.setTriggerAction(TriggerAction.ALL);
+						f.add(values);
+					} else {
+						f = new SimpleComboBox<String>();
+						f.setTriggerAction(TriggerAction.ALL);
+						f.add(values);
+					}
 					result = f;
 				} else {
 					result = new TextField<String>();
@@ -116,8 +125,8 @@ public class FieldCreator {
 		return result;
 	}
 
-	public static Field getField(final ResultsetField field,
-			List<String> values, int labelWidth, boolean textarea) {
+	public static Field getField(final ResultsetField field, List values,
+			int labelWidth, boolean textarea) {
 		Field result = null;
 		String fieldType = field.getType();
 
@@ -134,11 +143,11 @@ public class FieldCreator {
 			System.out.println();
 			result = f;
 			System.out.println(field.getName() + ": DATE");
-		}/* else if (fieldType.compareToIgnoreCase("INT") == 0) {
-			NumberField f = new NumberField();
-			f.setFormat(NumberFormat.getFormat("#"));
-			result = f;
-		} */else if (fieldType.compareToIgnoreCase("TIME") == 0) {
+		}/*
+		 * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
+		 * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result =
+		 * f; }
+		 */else if (fieldType.compareToIgnoreCase("TIME") == 0) {
 			TimeField f = new TimeField();
 			f.setFormat(DateTimeFormat.getFormat("HH:mm"));
 			result = f;
@@ -153,11 +162,19 @@ public class FieldCreator {
 			if (field.getForeignKey().compareToIgnoreCase("") != 0) {
 				System.out.println(field.getName() + ": COMBO");
 
-				// List<String> values = new ArrayList<String>();
+				final SimpleComboBox f;
 
-				final SimpleComboBox<String> f = new SimpleComboBox<String>();
-				f.setTriggerAction(TriggerAction.ALL);
-				f.add(values);
+				// List<String> values = new ArrayList<String>();
+				if ((fieldType.compareToIgnoreCase("int") == 0)
+						|| (fieldType.compareToIgnoreCase("real") == 0)) {
+					f = new SimpleComboBox<Integer>();
+					f.setTriggerAction(TriggerAction.ALL);
+					f.add(values);
+				} else {
+					f = new SimpleComboBox<String>();
+					f.setTriggerAction(TriggerAction.ALL);
+					f.add(values);
+				}
 
 				Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
@@ -248,7 +265,7 @@ public class FieldCreator {
 		} else {
 			result.setFieldLabel(field.getAlias());
 		}
-		
+
 		return result;
 	}
 
