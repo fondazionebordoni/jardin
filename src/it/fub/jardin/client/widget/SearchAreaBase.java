@@ -156,21 +156,21 @@ public class SearchAreaBase extends HtmlContainer {
         queryFieldList.add(m);
       }
 
-      Map<String, String> searchMap = parser.getSearchMap();
-      for (String key : parser.getSearchMap().keySet()) {
-        // TODO migliorare la gestione per il case insensitive
-        //
-        //
-        //
-        //
-        //
-        //
-        key = key.toLowerCase();
-        if (this.fieldNames.contains(key)) {
-          BaseModelData m = new BaseModelData();
-          m.set(key, searchMap.get(key));
-          queryFieldList.add(m);
-        }
+			Map<String, String> searchMap = parser.getSearchMap();
+			for (String key : parser.getSearchMap().keySet()) {
+				// TODO migliorare la gestione per il case insensitive
+				//
+				//
+				//
+				//
+				//
+				//
+				key = key.toLowerCase();
+				if (this.fieldNames.contains(key)) {
+					BaseModelData m = new BaseModelData();
+					m.set(key, searchMap.get(key));
+					queryFieldList.add(m);
+				}
       }
     }
 

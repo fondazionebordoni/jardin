@@ -11,6 +11,7 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.ResultsetImproved;
@@ -210,7 +211,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return dbUtils.getValuesOfForeignKeys(resultsetId);
   }
 
-  public ArrayList<BaseModelData> getForeignKeyInForATable(Integer resultsetId)
+  public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(Integer resultsetId)
       throws HiddenException {
     return dbUtils.getForeignKeyInForATable(resultsetId);
   }
@@ -293,5 +294,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public void updateUserProperties(User user) throws HiddenException {
     dbUtils.updateUserProperties(user);
   }
+
+	public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data) throws HiddenException {
+		return dbUtils.getPopUpDetailEntry(data);
+	}
 
 }
