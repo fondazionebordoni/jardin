@@ -391,6 +391,7 @@ public class DbUtils {
 	 */
 	public List<BaseModelData> getReGroupings(int resultSetId)
 			throws HiddenException, SQLException {
+		// TODO modificare la funzione: creare un oggetto per i raggruppamenti
 		Connection connection = dbConnectionHandler.getConn();
 		String groupingQuery = "SELECT DISTINCT " + T_GROUPING + ".id as id, "
 				+ T_GROUPING + ".name as name, " + T_GROUPING
@@ -1058,11 +1059,11 @@ public class DbUtils {
 				+ uid
 				+ "' ORDER BY r.id ASC";
 		try {
-			ResultSet result = doQuery(connection, query);
-			List<ResultsetField> resultFieldList = new ArrayList<ResultsetField>();
 
+			List<ResultsetField> resultFieldList = new ArrayList<ResultsetField>();
 			List<BaseModelData> PKs = null;
 
+			ResultSet result = doQuery(connection, query);
 			while (result.next()) {
 				String statement = result.getString("statement");
 				Integer id = Integer.valueOf(result.getInt("resourceid"));
@@ -1081,39 +1082,15 @@ public class DbUtils {
 				boolean insertperm = result.getBoolean("insertperm");
 				Integer rsid = Integer.valueOf(result.getInt("rsid"));
 				Integer groupid = Integer.valueOf(result.getInt("groupid"));
-				// ResultSetMetaData rsmd = null;.
-				ArrayList<Tool> tools = new ArrayList<Tool>();
 
 				if (statement != null) {
-					String toolbar = null;
-					if (resultsetid == 0) {
-						// recupero le i tools associati al resultset e al
-						// gruppo di utenza
-						String querytoolbar = "SELECT tools FROM " + T_TOOLBAR
-								+ " WHERE " + " id_resultset = " + rsid
-								+ " AND id_group = " + groupid;
-						ResultSet resulttoolbar = doQuery(connection,
-								querytoolbar);
-						while (resulttoolbar.next()) {
-							toolbar = resulttoolbar.getString("tools");
-						}
+					/* Gestione di un RESULTSET */
 
-						if (toolbar != null) {
-							StringTokenizer st = new StringTokenizer(toolbar);
-							while (st.hasMoreTokens()) {
-								String t = st.nextToken();
-								tools.add(getTool(t));
-							}
-						}
-					}
+					ArrayList<Tool> tools = getToolbar(rsid, groupid);
 
 					ResultsetImproved res = new ResultsetImproved(id, name,
 							alias, statement, readperm, deleteperm, modifyperm,
 							insertperm, tools);
-					List<BaseModelData> bmd = getForeignKeyInfoForAResultset(name);
-					for (BaseModelData bmdsingolo : bmd){
-					System.out.println(bmdsingolo.getProperties());
-					}
 					resultSetList.add(res);
 
 					List<BaseModelData> groupings = getReGroupings(id);
@@ -1127,13 +1104,10 @@ public class DbUtils {
 
 					PKs = dbProperties.getPrimaryKeys(name);
 
-					// PKs = dbProperties.getResultsetPrimaryKeys(id);
-
 				} else {
-					boolean visible = true;
-					if (result.getInt("defaultheader") != 1) {
-						visible = false;
-					}
+					/* Gestione di un CAMPO di un resultset */
+
+					boolean visible = result.getInt("defaultheader") == 1;
 
 					ResultsetField resField = new ResultsetField(id, name,
 							alias, resultsetid, defaultheader, searchgrouping,
@@ -1161,11 +1135,9 @@ public class DbUtils {
 
 			for (int i = 0; i < resultSetList.size(); i++) {
 				for (int j = 0; j < resultFieldList.size(); j++) {
-					if (Integer
-							.valueOf(resultFieldList.get(j).getResultsetid())
-							.compareTo(
-									Integer.valueOf(resultSetList.get(i)
-											.getId())) == 0) {
+					if (resultFieldList.get(j).getResultsetid() == resultSetList
+							.get(i).getId()) {
+
 						/* aggiunta dell'eventuale foreignKEY */
 						resultFieldList.get(j).setForeignKey(
 								dbProperties.getForeignKey(resultSetList.get(i)
@@ -1184,6 +1156,43 @@ public class DbUtils {
 		}
 
 		return resultSetList;
+	}
+
+	/**
+	 * Restituisce i tool associati al resultset e al gruppo di utenza
+	 * 
+	 * @param rsid
+	 * @param groupid
+	 * @return un array vuoto se non ci sono tool associati
+	 * @throws HiddenException
+	 * @throws SQLException
+	 */
+	private ArrayList<Tool> getToolbar(Integer rsid, Integer groupid)
+			throws HiddenException, SQLException {
+
+		ArrayList<Tool> tools = new ArrayList<Tool>();
+		String toolbar = null;
+
+		Connection connection = dbConnectionHandler.getConn();
+		String querytoolbar = "SELECT tools FROM " + T_TOOLBAR + " WHERE "
+				+ " id_resultset = " + rsid + " AND id_group = " + groupid
+				+ " LIMIT 0,1";
+		ResultSet resulttoolbar = doQuery(connection, querytoolbar);
+
+		while (resulttoolbar.next()) {
+			toolbar = resulttoolbar.getString("tools");
+		}
+
+		if (toolbar != null) {
+			StringTokenizer st = new StringTokenizer(toolbar);
+			while (st.hasMoreTokens()) {
+				String t = st.nextToken();
+				tools.add(getTool(t));
+			}
+		}
+
+		return tools;
+
 	}
 
 	private Tool getTool(String t) {
@@ -1245,10 +1254,11 @@ public class DbUtils {
 		HeaderPreferenceList hp = new HeaderPreferenceList();
 		Connection connection = dbConnectionHandler.getConn();
 		String query = "SELECT hp.id as idpref, hp.name as namepref FROM "
-            + "("+T_HEADERPREFERENCE+" hp JOIN "+T_FIELDINPREFERENCE+" fip "
-            + "ON hp.id=fip.id_headerpreference) JOIN "+T_FIELD+" f ON fip.id_field=f.id WHERE hp.id_user='"
-            + idUser + "' AND f.id_resultset='" + idResultset
-            + "' GROUP BY namepref";
+				+ "(" + T_HEADERPREFERENCE + " hp JOIN " + T_FIELDINPREFERENCE
+				+ " fip " + "ON hp.id=fip.id_headerpreference) JOIN " + T_FIELD
+				+ " f ON fip.id_field=f.id WHERE hp.id_user='" + idUser
+				+ "' AND f.id_resultset='" + idResultset
+				+ "' GROUP BY namepref";
 
 		try {
 			ResultSet result = doQuery(connection, query);
@@ -1277,10 +1287,10 @@ public class DbUtils {
 			Integer userPreferenceHeaderId) throws HiddenException {
 		List<Integer> fieldInPref = new ArrayList<Integer>();
 		Connection connection = dbConnectionHandler.getConn();
-		String query = "SELECT fip.id_field as fieldid  "
-			+ "FROM "+ T_HEADERPREFERENCE +" hp JOIN "+ T_FIELDINPREFERENCE +" fip "
-			+ "ON hp.id=fip.id_headerpreference WHERE hp.id = '"
-			+ userPreferenceHeaderId + "' AND hp.id_user='" + idUser + "'";
+		String query = "SELECT fip.id_field as fieldid  " + "FROM "
+				+ T_HEADERPREFERENCE + " hp JOIN " + T_FIELDINPREFERENCE
+				+ " fip " + "ON hp.id=fip.id_headerpreference WHERE hp.id = '"
+				+ userPreferenceHeaderId + "' AND hp.id_user='" + idUser + "'";
 
 		try {
 			ResultSet result = doQuery(connection, query);
@@ -1418,7 +1428,6 @@ public class DbUtils {
 			ResultSetMetaData metadata = dbProperties.getResultsetMetadata(
 					connection, resultsetId);
 			String tableName = metadata.getTableName(1);
-			// int columns = metadata.getColumnCount();
 
 			List<BaseModelData> PKs = dbProperties.getPrimaryKeys(tableName);
 			String PKset = "";
@@ -1487,7 +1496,7 @@ public class DbUtils {
 		Connection connection = dbConnectionHandler.getConn();
 
 		String query = "SELECT address_statement, data_statement, link_id FROM "
-				+ T_NOTIFY + " WHERE resultset_id = '" + resultsetId + "'";
+				+ T_NOTIFY + " WHERE id_resultset = '" + resultsetId + "'";
 
 		Log.debug("query: " + query);
 
