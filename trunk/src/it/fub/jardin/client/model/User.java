@@ -157,7 +157,7 @@ public class User implements IsSerializable {
     return res;
   }
 
-  public List<ResultsetImproved> getResultsets() {
+	public List<ResultsetImproved> getResultsets() {
     return resultsets;
   }
 

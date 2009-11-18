@@ -3,7 +3,7 @@
 	<!-- Hint: compile with "ant -Dlib.sdk=</home/user/libraries> war" -->
 	<property name="lib.sdk"      location="foo/bar" />
 	<property name="gwt.sdk"      location="${lib.sdk}/gwt" />
-	<property name="gxt.sdk"      location="${lib.sdk}/gxt" />
+	<property name="gxt.sdk"      location="${lib.sdk}/gxt"   />
 	<property name="smartgwt.sdk" location="${lib.sdk}/smartgwt" />
 
 	<path id="project.class.path">

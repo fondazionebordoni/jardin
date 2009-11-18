@@ -62,7 +62,7 @@ public class EventList {
 
   public static final EventType ResultSetsSearch = new EventType();
   
-  public static final EventType gotValuesOfForeignKeysIn = new EventType();
+  public static final EventType GotValuesOfForeignKeysIn = new EventType();
 
   public static final EventType SaveChangesCommit = new EventType();
 
@@ -95,5 +95,9 @@ public class EventList {
   public static final EventType UploadTemplate = new EventType();
 
   public static final EventTypeSerializable NewMessage = new EventTypeSerializable(95);
+
+  public static final EventType ViewLinkedTable = new EventType();
+
+  public static final EventType ViewPopUpDetail = new EventType();
 
 }
