@@ -541,7 +541,7 @@ public class DbUtils {
 		final String sep = ",";
 
 		String tableName = null;
-		String set = "";
+		//String set = "";
 		try {
 			ResultSetMetaData metadata = dbProperties.getResultsetMetadata(
 					connection, resultsetId);
@@ -550,7 +550,7 @@ public class DbUtils {
 			// int columns = records.size();
 			// System.out.println("numero colonne: "+columns);
 			for (BaseModelData record : records) {
-
+				String set = "";
 				int columns = record.getPropertyNames().size();
 				for (String property : record.getPropertyNames()) {
 					set += "`" + property + "`=?" + sep;

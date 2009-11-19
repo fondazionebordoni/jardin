@@ -3,7 +3,10 @@ package it.fub.jardin.client.model;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-
+/**
+ * @author mavellino
+ * 
+ */
 public class IncomingForeignKeyInformation implements IsSerializable{
 
 	private String linkingTable;
