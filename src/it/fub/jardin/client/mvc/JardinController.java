@@ -663,7 +663,7 @@ public class JardinController extends Controller {
 	private void onExport(int resultset, boolean allStore, boolean allColumns) {
 
 		/* Nome del file da creare */
-		String filename = user.getResultsetFromId(resultset).getAlias();
+		String filename = user.getResultsetFromId(resultset).getAlias().replace(" ", "_");
 
 		/*
 		 * Prendi il tabItem per recuperare la toolbar (formato d'esportazione)
@@ -783,7 +783,7 @@ public class JardinController extends Controller {
 	private void onJungle(final int resultset) {
 
 		/* Nome del file da creare */
-		String filename = user.getResultsetFromId(resultset).getAlias();
+		String filename = user.getResultsetFromId(resultset).getAlias().replace(" ", "_");
 
 		/*
 		 * Prendi il tabItem per recuperare la toolbar (formato d'esportazione)

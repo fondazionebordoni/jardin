@@ -51,7 +51,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * @author acozzolino
+ * @author mavellino
  */
 public class JardinDetailPopUp extends Window {
 
