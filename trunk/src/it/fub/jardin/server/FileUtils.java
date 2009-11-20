@@ -61,7 +61,8 @@ public class FileUtils {
   public static final char CSV_REPLACER = '?';
 
   public static String createReport(String file, String xsl, Template template,
-      List<BaseModelData> records, List<String> columns) throws VisibleException {
+      List<BaseModelData> records, List<String> columns)
+      throws VisibleException {
     try {
       // TODO Possibile che non ci sia un modo migliore? Vedi EventList
       File f = createTempFile(file, template.getExt());
@@ -123,7 +124,9 @@ public class FileUtils {
     BufferedWriter out = new BufferedWriter(new FileWriter(f));
 
     try {
-      /* Take records' labels and put them on the first row of the CSV file */
+      /*
+       * Take records' labels and put them on the first row of the CSV file
+       */
       out.write(collection2Csv(columns, separator, wrapper, replacer));
 
       /* Put records' data on file */
@@ -202,9 +205,10 @@ public class FileUtils {
         Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
         // Setup XSLT
         TransformerFactory factory = TransformerFactory.newInstance();
-        Transformer transformer =
-            factory.newTransformer(new StreamSource(new BufferedReader(
-                new FileReader(xsl))));
+        FileReader fr = new FileReader(xsl);
+        BufferedReader br = new BufferedReader(fr);
+        StreamSource sr = new StreamSource(br);
+        Transformer transformer = factory.newTransformer(sr);
 
         // Set the value of a <param> in the stylesheet
         transformer.setParameter("versionParam", "2.0");
@@ -254,9 +258,9 @@ public class FileUtils {
     }
 
     /*
-     * -------------------------------------------------------------------------
-     * Creazione del template di default
-     * -------------------------------------------------------------------------
+     * ----------------------------------------------------------------------
+     * --- Creazione del template di default --------------------------------
+     * -----------------------------------------
      */
 
     /* Prendi lo scheletro dell'XSL di default */
@@ -289,10 +293,14 @@ public class FileUtils {
         out.write(tmp);
         tmp = row;
       }
-      i++;
+      i = i++%4;
     }
 
     if (--i % 4 != 0) {
+      for (int j = i; j <= 4; j++) {
+        tmp = tmp.replaceFirst(Matcher.quoteReplacement(LABEL + j + "$$"), "");
+        tmp = tmp.replaceFirst(Matcher.quoteReplacement(VALUE + j + "$$"), "@");
+      }
       out.write(tmp);
     }
     out.write(footer);
