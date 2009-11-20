@@ -1600,7 +1600,7 @@ public class DbUtils {
 	public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data) throws HiddenException {
 		ResultsetImproved rs = data.get("RSLINKED");
 	    String linkingField = data.get("FK");
-		Integer linkingValue = data.get("VALUE");
+		String linkingValue = ""+data.get("VALUE");
 		String queryStatement = getStatementByResultsetId (rs.getId());
 		String query = "SELECT * FROM ("+queryStatement+") AS entry WHERE "+linkingField+" = '"+linkingValue+"' LIMIT 1";
 		//System.out.println(query);
