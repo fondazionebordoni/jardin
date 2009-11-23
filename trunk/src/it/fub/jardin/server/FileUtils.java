@@ -292,8 +292,9 @@ public class FileUtils {
       if (i % 4 == 0) {
         out.write(tmp);
         tmp = row;
+        i = 0;
       }
-      i = i++%4;
+     i++;
     }
 
     if (--i % 4 != 0) {
