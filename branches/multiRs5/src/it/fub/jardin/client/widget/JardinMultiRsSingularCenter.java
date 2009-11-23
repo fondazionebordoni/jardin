@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.Record.RecordUpdate;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.util.Size;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -32,12 +33,13 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
-public class JardinMultiRsSingularCenter {
+public class JardinMultiRsSingularCenter extends ContentPanel{
 	private static final int PAGESIZE = 20;
 	private static final int MARGIN = 2;
+
 	//private ContentPanel singularRsContentPanel;
-	private LayoutContainer fatherOfChildren;
-	private ContentPanel main;
+	//private LayoutContainer fatherOfChildren;
+	//private ContentPanel main;
 	private ContentPanel north;
 	private ContentPanel west;
 	private ContentPanel center;
@@ -54,48 +56,42 @@ public class JardinMultiRsSingularCenter {
 	
 
 	public JardinMultiRsSingularCenter(ResultsetImproved resultSet,
-			LayoutContainer fatherOfChildren, IncomingForeignKeyInformation foreignKey) {
+			 IncomingForeignKeyInformation foreignKey) {
 		// todo creare titolo
-		this.fatherOfChildren = fatherOfChildren;
+//		this.fatherOfChildren = fatherOfChildren;
 		this.resultSet = resultSet;
 		this.foreignKey = foreignKey;
-		main = new ContentPanel(new BorderLayout());
-		main.setVisible(true);
-		main.setHeaderVisible(true);
+//		main = new ContentPanel(new BorderLayout());
+		this.setVisible(true);
+		this.setHeaderVisible(true);
 		//main.setClosable(false);
+		//this.adjustSize(new Size(800, 400) );
 		
-		BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER, 40);
-	    data.setCollapsible(true);
-	    data.setSplit(true);
-	    data.setFloatable(false);
-	    data.setMargins(new Margins(MARGIN, MARGIN, MARGIN, MARGIN));
-	    
-	    fatherOfChildren.add(main, data);	
-	    fatherOfChildren.layout();
-	    fatherOfChildren.repaint();
-		//main.setHeading("pluto : " + resultSet.getId() );
+//	    fatherOfChildren.layout();
+//	    fatherOfChildren.repaint();
+		this.setHeading("pluto : " + resultSet.getId() );
 
 		// super(resultset.getAlias());
 		// singularRsContentPanel = cp;
 		// this.setClosable(false);
-		// singularRsContentPanel.setLayout(new BorderLayout());
+		//this.setLayout(new BorderLayout());
 		// this.setLayoutOnChange(true);
 
 		this.createNorth();
 		this.createWest();
 		this.createCenter();
 
-		main.layout();
+		this.layout();
 
 	}
 	
-	public void expand(){
-		this.main.expand();
-	}
-
-	public void collapse(){
-		this.main.collapse();
-	}
+//	public void expand(){
+//		this.main.expand();
+//	}
+//
+//	public void collapse(){
+//		this.main.collapse();
+//	}
 
 	
 	private void createNorth() {
@@ -110,7 +106,7 @@ public class JardinMultiRsSingularCenter {
 		data.setFloatable(false);
 		data.setMargins(new Margins(MARGIN, MARGIN, 0, MARGIN));
 
-		main.add(this.north, data);
+		this.add(this.north, data);
 	}
 
 	private void createWest() {
@@ -125,7 +121,7 @@ public class JardinMultiRsSingularCenter {
 		data.setFloatable(false);
 		data.setMargins(new Margins(MARGIN, 0, MARGIN, MARGIN));
 
-		main.add(this.west, data);
+		this.add(this.west, data);
 	}
 
 	private void createCenter() {
@@ -140,7 +136,7 @@ public class JardinMultiRsSingularCenter {
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setMargins(new Margins(MARGIN));
 
-		main.add(this.center, centerData);
+		this.add(this.center, centerData);
 	}
 
 	private void createGrid() {

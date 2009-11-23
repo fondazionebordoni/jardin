@@ -18,24 +18,34 @@ import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 public class JardinTabItem extends TabItem {
 	private ArrayList<JardinMultiRsSingularCenter> childrenList;
 	ResultsetImproved resultset;
+	private static final int MARGIN = 2;
 
 	public JardinTabItem(ResultsetImproved resultset) {
 		super(resultset.getAlias());
+
 		childrenList = new ArrayList<JardinMultiRsSingularCenter>();
 		//System.out.println("no break no");
 		this.setClosable(false);
 		this.setLayout(new FlowLayout());
 		this.resultset = resultset;
-		this.createFirstChild(resultset);
 	    this.setVisible(true);
-
-		//createAllOtherChildren();
+		this.createFirstChild(resultset);
+		//createAllOtherChildren();		
 		
 	}
 
 	private void createFirstChild(ResultsetImproved resultset) {
 		JardinMultiRsSingularCenter firstChild = new JardinMultiRsSingularCenter(
-				resultset, this, null);
+				resultset, null);
+//		BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER, 40);
+//	    data.setCollapsible(true);
+//	    data.setSplit(true);
+//	    data.setFloatable(false);
+//	    data.setMargins(new Margins(MARGIN, MARGIN, MARGIN, MARGIN));
+	    
+	    this.add(firstChild);	
+
+		
 		//firstChild.collapse();
 		childrenList.add(firstChild);
 	}
@@ -48,8 +58,9 @@ public class JardinTabItem extends TabItem {
 			for (IncomingForeignKeyInformation foreignKey : foreignKeyBMD) {
 				ResultsetImproved rsLinked_i = foreignKey.getInterestedResultset();
 				JardinMultiRsSingularCenter newChild = new JardinMultiRsSingularCenter(
-						rsLinked_i, this, foreignKey);
+						rsLinked_i, foreignKey);
 				//newChild.collapse();
+				this.add(newChild);				
 				childrenList.add(newChild);				
 			}
 		}
