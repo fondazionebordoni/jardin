@@ -48,28 +48,28 @@ $$ROW_BEGIN$$
 	<fo:table-body>
 		<fo:table-row>
 			<fo:table-cell padding-bottom="2mm" padding-left="4mm" padding-right="4mm">
-				<fo:block font-size="9pt">$$LABEL_1$$:</fo:block>
+				<fo:block font-size="9pt">$$LABEL_1$$</fo:block>
 				<fo:block background-color="#ffffff"
 					font-weight="bold" padding-top="1mm" padding-right="1mm" padding-left="1mm">
 					<xsl:value-of select="$$VALUE_1$$"/>
 				</fo:block>
 			</fo:table-cell>
 			<fo:table-cell padding-bottom="2mm" padding-left="4mm" padding-right="4mm">
-				<fo:block font-size="9pt">$$LABEL_2$$:</fo:block>
+				<fo:block font-size="9pt">$$LABEL_2$$</fo:block>
 				<fo:block background-color="#ffffff"
 					font-weight="bold" padding-top="1mm" padding-right="1mm" padding-left="1mm">
 					<xsl:value-of select="$$VALUE_2$$"/>
 				</fo:block>
 			</fo:table-cell>
 			<fo:table-cell padding-bottom="2mm" padding-left="4mm" padding-right="4mm">
-				<fo:block font-size="9pt">$$LABEL_3$$:</fo:block>
+				<fo:block font-size="9pt">$$LABEL_3$$</fo:block>
 				<fo:block background-color="#ffffff"
 					font-weight="bold" padding-top="1mm" padding-right="1mm" padding-left="1mm">
 					<xsl:value-of select="$$VALUE_3$$"/>
 				</fo:block>
 			</fo:table-cell>
 			<fo:table-cell padding-bottom="2mm" padding-left="4mm" padding-right="4mm">
-				<fo:block font-size="9pt">$$LABEL_4$$:</fo:block>
+				<fo:block font-size="9pt">$$LABEL_4$$</fo:block>
 				<fo:block background-color="#ffffff"
 					font-weight="bold" padding-top="1mm" padding-right="1mm" padding-left="1mm">
 					<xsl:value-of select="$$VALUE_4$$"/>
