@@ -501,6 +501,7 @@ public class JardinController extends Controller {
 					callbackValuesOfForeignKeys);
 
 		}
+		//forwardToView(view, EventList.CreateAllChildsOfResultSetWithIncomingForeignKeys, 0);
 
 	}
 

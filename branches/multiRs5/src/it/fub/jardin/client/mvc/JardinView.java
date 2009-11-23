@@ -115,6 +115,8 @@ public class JardinView extends View {
 			if (event.getData() instanceof Integer) {
 				gotForeignKeyInForATable((Integer) event.getData());
 			}
+		} else if (t == EventList.CreateAllChildsOfResultSetWithIncomingForeignKeys) {
+				CreateAllChildsOfResultSetWithIncomingForeignKeys();
 		} else if (t == EventList.Search) {
 			if (event.getData() instanceof SearchParams) {
 				onSearch((SearchParams) event.getData());
@@ -131,8 +133,7 @@ public class JardinView extends View {
 			}
 		} else if (t == EventList.ViewPopUpDetail) {
 			if (event.getData() instanceof ArrayList) {
-				onViewPopUpDetail((ArrayList<BaseModelData>) event
-						.getData());
+				onViewPopUpDetail((ArrayList<BaseModelData>) event.getData());
 			}
 		} else if (t == EventList.ShowAllColumns) {
 			if (event.getData() instanceof Integer) {
@@ -166,7 +167,7 @@ public class JardinView extends View {
 	private void onViewPopUpDetail(ArrayList<BaseModelData> infoToView) {
 		BaseModelData data = infoToView.get(0);
 		ResultsetImproved rsLinked = data.get("RSLINKED");
-		//System.out.println(rs.getAlias()+"->"+rs.getId());
+		// System.out.println(rs.getAlias()+"->"+rs.getId());
 		Integer rsId = data.get("RSID");
 		JardinTabItem item = getItemByResultsetId(rsId);
 		item.getGrid().viewDetailPopUp(infoToView);
@@ -294,13 +295,12 @@ public class JardinView extends View {
 			/* Aggiungere il dettaglio al tabitem */
 			item.addDetail(detail);
 
-			/*
-			 * Eseguo una ricerca per riempire la il resultset SearchParams
-			 * searchParams = new SearchParams(resultsetId); List<BaseModelData>
-			 * queryFieldList = new ArrayList<BaseModelData>();
-			 * searchParams.setFieldsValuesList(queryFieldList);
-			 * Dispatcher.forwardEvent(EventList.Search, searchParams);
-			 */
+			// Eseguo una ricerca per riempire la il resultset
+//			SearchParams searchParams = new SearchParams(resultsetId);
+//			List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+//			searchParams.setFieldsValuesList(queryFieldList);
+//			Dispatcher.forwardEvent(EventList.Search, searchParams);
+
 		}
 	}
 
@@ -316,8 +316,20 @@ public class JardinView extends View {
 			System.out.println(fk.getField() + "<-" + fk.getLinkingTable()
 					+ "." + fk.getLinkingField());
 		}
+		JardinTabItem item = getItemByResultsetId(resultset.getId());
+		item.createAllOtherChildren();
+
 	}
 
+	private void CreateAllChildsOfResultSetWithIncomingForeignKeys () {
+		List <ResultsetImproved> ResultsetImprovedList = controller.getUser().getResultsets();
+			for (ResultsetImproved resultset : ResultsetImprovedList){
+				JardinTabItem item = getItemByResultsetId(resultset.getId());
+				item.createAllOtherChildren();
+			}
+	}
+
+	
 	private void onGotExport(String url) {
 		Window.open(url, "Download", null);
 	}
@@ -331,7 +343,9 @@ public class JardinView extends View {
 				item.updateStore(this.getStore(searchParams));
 				item.getGrid().setSearchparams(searchParams);
 			}
+			item.createAllOtherChildren();
 		}
+		
 	}
 
 	private ListStore<BaseModelData> getStore(final SearchParams searchParams) {
