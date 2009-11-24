@@ -318,10 +318,6 @@ public class JardinView extends View {
 		}
 	}
 
-	private void onGotExport(String url) {
-		Window.open(url, "Download", null);
-	}
-
 	private void onSearch(SearchParams searchParams) {
 		JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
 
