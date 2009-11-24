@@ -601,7 +601,7 @@ public class JardinController extends Controller {
 	private void onRemoveRows(int resultset) {
 		if (user.getResultsetFromId(resultset).isDelete()) {
 			final JardinGrid grid = view.getItemByResultsetId(resultset)
-					.getGrid();
+					.getGrid(resultset);
 
 			final List<BaseModelData> selectedRows = grid.getSelectionModel()
 					.getSelection();
@@ -674,10 +674,10 @@ public class JardinController extends Controller {
 		JardinTabItem item = view.getItemByResultsetId(resultset);
 
 		/* Prendi il formato di esportazione */
-		Template template = item.getToolbar().getTemplate();
+		Template template = item.getToolbar(resultset).getTemplate();
 
 		/* Prendi la griglia */
-		JardinGrid grid = item.getGrid();
+		JardinGrid grid = item.getGrid(resultset);
 
 		/* Config dei record da esportare (tutti se allStore = true) */
 		PagingLoadConfig config = null;
@@ -794,7 +794,7 @@ public class JardinController extends Controller {
 		JardinTabItem item = view.getItemByResultsetId(resultset);
 
 		/* Prendi la griglia */
-		JardinGrid grid = item.getGrid();
+		JardinGrid grid = item.getGrid(resultset);
 
 		/* Colonne */
 		ColumnModel cm = grid.getColumnModel();
@@ -850,7 +850,7 @@ public class JardinController extends Controller {
 		JardinTabItem item = view.getItemByResultsetId(resultset);
 
 		/* Prendi la griglia */
-		JardinGrid grid = item.getGrid();
+		JardinGrid grid = item.getGrid(resultset);
 
 		/* Prendi gli ID delle prime due colonne visibili */
 		ColumnModel columnModel = grid.getColumnModel();

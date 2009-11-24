@@ -111,13 +111,13 @@ public class JardinView extends View {
 			if (event.getData() instanceof Integer) {
 				gotValuesOfForeignKeys((Integer) event.getData());
 			}
-		} else if (t == EventList.GotValuesOfForeignKeysIn) {
+		}  else if (t == EventList.GotValuesOfForeignKeysIn) {
 			if (event.getData() instanceof Integer) {
 				gotForeignKeyInForATable((Integer) event.getData());
-			}
-		} else if (t == EventList.CreateAllChildsOfResultSetWithIncomingForeignKeys) {
+			} 
+		} /* else if (t == EventList.CreateAllChildsOfResultSetWithIncomingForeignKeys) {
 				CreateAllChildsOfResultSetWithIncomingForeignKeys();
-		} else if (t == EventList.Search) {
+		} */ else if (t == EventList.Search) {
 			if (event.getData() instanceof SearchParams) {
 				onSearch((SearchParams) event.getData());
 			}
@@ -156,12 +156,12 @@ public class JardinView extends View {
 
 	private void onShowAllColumns(int resultset) {
 		JardinTabItem item = getItemByResultsetId(resultset);
-		item.getGrid().showAllColumns();
+		item.getGrid(resultset).showAllColumns();
 	}
 
 	private void onAddRow(int resultset) {
 		JardinTabItem item = getItemByResultsetId(resultset);
-		item.getGrid().addRow();
+		item.getGrid(resultset).addRow();
 	}
 
 	private void onViewPopUpDetail(ArrayList<BaseModelData> infoToView) {
@@ -170,7 +170,7 @@ public class JardinView extends View {
 		// System.out.println(rs.getAlias()+"->"+rs.getId());
 		Integer rsId = data.get("RSID");
 		JardinTabItem item = getItemByResultsetId(rsId);
-		item.getGrid().viewDetailPopUp(infoToView);
+		item.getGrid(rsId).viewDetailPopUp(infoToView);
 	}
 
 	private void initUI() {
@@ -265,7 +265,7 @@ public class JardinView extends View {
 		JardinTabItem item = getItemByResultsetId(resultsetId);
 		if (item != null) {
 			/* Aggiungere la ricerca avanzata al tabitem */
-			item.addSearchAreaAdvanced(searchAreaAdvanced);
+			item.addSearchAreaAdvanced(searchAreaAdvanced, resultsetId);
 		}
 	}
 
@@ -287,20 +287,19 @@ public class JardinView extends View {
 		JardinTabItem item = getItemByResultsetId(resultsetId);
 		if (item != null) {
 			/* Aggiungere la griglia al tabItem */
-			item.setGrid(grid);
+			item.setGrid(grid, resultsetId);
 
 			/* Aggiungere la ricerca semplice al tabItem */
-			item.addSearchAreaBase(searchAreaBase);
+			item.addSearchAreaBase(searchAreaBase, resultsetId);
 
 			/* Aggiungere il dettaglio al tabitem */
-			item.addDetail(detail);
+			item.addDetail(detail, resultsetId);
 
 			// Eseguo una ricerca per riempire la il resultset
 //			SearchParams searchParams = new SearchParams(resultsetId);
 //			List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 //			searchParams.setFieldsValuesList(queryFieldList);
 //			Dispatcher.forwardEvent(EventList.Search, searchParams);
-
 		}
 	}
 
@@ -318,16 +317,15 @@ public class JardinView extends View {
 		}
 		JardinTabItem item = getItemByResultsetId(resultset.getId());
 		item.createAllOtherChildren();
-
 	}
 
-	private void CreateAllChildsOfResultSetWithIncomingForeignKeys () {
-		List <ResultsetImproved> ResultsetImprovedList = controller.getUser().getResultsets();
-			for (ResultsetImproved resultset : ResultsetImprovedList){
-				JardinTabItem item = getItemByResultsetId(resultset.getId());
-				item.createAllOtherChildren();
-			}
-	}
+//	private void CreateAllChildsOfResultSetWithIncomingForeignKeys () {
+//		List <ResultsetImproved> ResultsetImprovedList = controller.getUser().getResultsets();
+//			for (ResultsetImproved resultset : ResultsetImprovedList){
+//				JardinTabItem item = getItemByResultsetId(resultset.getId());
+//				item.createAllOtherChildren();
+//			}
+//	}
 
 	
 	private void onGotExport(String url) {
@@ -335,15 +333,16 @@ public class JardinView extends View {
 	}
 
 	private void onSearch(SearchParams searchParams) {
-		JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
+		int resultSetId = searchParams.getResultsetId();
+		JardinTabItem item = getItemByResultsetId(resultSetId);
 
 		if (item != null) {
-			if (item.getGrid() != null) {
+			if (item.getGrid(resultSetId) != null) {
 				/* Aggiornamento dello store della griglia del tabItem */
-				item.updateStore(this.getStore(searchParams));
-				item.getGrid().setSearchparams(searchParams);
+				item.updateStore(this.getStore(searchParams), resultSetId);
+				item.getGrid(resultSetId).setSearchparams(searchParams);
 			}
-			item.createAllOtherChildren();
+			//item.createAllOtherChildren();
 		}
 		
 	}
@@ -370,7 +369,7 @@ public class JardinView extends View {
 	}
 
 	private void onSaveGridView(int resultset) {
-		final JardinGrid grid = getItemByResultsetId(resultset).getGrid();
+		final JardinGrid grid = getItemByResultsetId(resultset).getGrid(resultset);
 		final MessageBox box = MessageBox.prompt("Nome",
 				"Salva visualizzazione");
 		box.addCallback(new Listener<MessageBoxEvent>() {
@@ -381,10 +380,11 @@ public class JardinView extends View {
 	}
 
 	private void updatePreferenceListMenu(HeaderPreferenceList data) {
-		JardinTabItem item = getItemByResultsetId(data.getResultsetId());
+		Integer resultSetId = data.getResultsetId();
+		JardinTabItem item = getItemByResultsetId(resultSetId);
 		if (item != null) {
 			/* Aggiungere la ricerca avanzata al tabitem */
-			item.updatePreference(data);
+			item.updatePreference(data, resultSetId);
 		}
 	}
 }
