@@ -78,7 +78,6 @@ public class JardinGrid extends Grid<BaseModelData> {
 		// System.out.println("getForeignKeyIn "+this.resultset.getForeignKeyIn());
 
 		final Menu m = new Menu();
-		m.setMinWidth(200);
 		this.setContextMenu(m);
 
 		this.addListener(Events.ContextMenu, new Listener<GridEvent>() {

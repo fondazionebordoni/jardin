@@ -757,10 +757,10 @@ public class DbUtils {
 	 *         parametro, se esiste. Se non esiste, ritorna una stringa vuota.
 	 * @throws SQLException
 	 */
-	private List<BaseModelData> getForeignKeyInfoForAResultset(String resultsetName)
-			throws SQLException {
-		return dbProperties.getForeignKeys(resultsetName);
-	}
+//	private List<BaseModelData> getForeignKeyInfoForAResultset(String resultsetName)
+//			throws SQLException {
+//		return dbProperties.getForeignKeys(resultsetName);
+//	}
 
 
 	public User getUser(Credentials credentials) throws VisibleException {

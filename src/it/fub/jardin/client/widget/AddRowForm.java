@@ -171,7 +171,8 @@ public class AddRowForm extends Window {
           DateField textField = new DateField();
           textField.setName((String) field.getName());
           textField.setFieldLabel((String) field.getAlias());
-          textField.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
+          textField.getPropertyEditor().setFormat(
+              DateTimeFormat.getFormat("dd/MM/y"));
           java.util.Date date = new java.util.Date();
           textField.setValue(date);
 
@@ -217,8 +218,8 @@ public class AddRowForm extends Window {
     for (ResultsetField field : this.resultset.getFields()) {
 
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-        List<String> values =
-            resultset.getForeignKeyList().getValues(field.getId());
+        // List<String> values =
+        // resultset.getForeignKeyList().getValues(field.getId());
 
         // Field PF = FieldCreator.getField(field, values, 0);
         ParametricField PF =
