@@ -20,9 +20,6 @@ import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -45,7 +42,6 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -130,7 +126,7 @@ public class JardinView extends View {
 				onAddRow((Integer) event.getData());
 			}
 		} else if (t == EventList.ViewPopUpDetail) {
-			if (event.getData() instanceof ArrayList) {
+			if (event.getData() instanceof ArrayList<?>) {
 				onViewPopUpDetail((ArrayList<BaseModelData>) event
 						.getData());
 			}
@@ -165,7 +161,7 @@ public class JardinView extends View {
 
 	private void onViewPopUpDetail(ArrayList<BaseModelData> infoToView) {
 		BaseModelData data = infoToView.get(0);
-		ResultsetImproved rsLinked = data.get("RSLINKED");
+		//ResultsetImproved rsLinked = data.get("RSLINKED");
 		//System.out.println(rs.getAlias()+"->"+rs.getId());
 		Integer rsId = data.get("RSID");
 		JardinTabItem item = getItemByResultsetId(rsId);

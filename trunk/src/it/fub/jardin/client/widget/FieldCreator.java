@@ -37,7 +37,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class FieldCreator {
 
-	public static Field getField(ResultsetField field, List<String> values,
+	public static Field<?> getField(ResultsetField field, List<String> values,
 			boolean combo, boolean textarea) {
 		return getField(field, values, combo, 0, textarea);
 	}
@@ -55,9 +55,9 @@ public class FieldCreator {
 	 * @param labelWidth
 	 * @return una widget per la gestione del campo del resultset
 	 */
-	public static Field getField(ResultsetField field, List<String> values,
+	public static /* TODO deve restituire <T extends Field> al posto di Field*/ Field<?> getField(ResultsetField field, List<String> values,
 			boolean combo, int labelWidth, boolean textarea) {
-		Field result = null;
+		Field<?> result = null;
 		String fieldType = field.getType();
 
 		/* Se il campo è una data non creo un combo */
@@ -118,9 +118,9 @@ public class FieldCreator {
 		return result;
 	}
 
-	public static Field getField(final ResultsetField field, List values,
+	public static Field<?> getField(final ResultsetField field, List<?> values,
 			int labelWidth, boolean textarea) {
-		Field result = null;
+		Field<?> result = null;
 		String fieldType = field.getType();
 
 		/* Se il campo è una data non creo un combo */
@@ -156,7 +156,6 @@ public class FieldCreator {
 				System.out.println(field.getName() + ": COMBO");
 
 				final SimpleComboBox f;
-
 				// List<String> values = new ArrayList<String>();
 				if ((fieldType.compareToIgnoreCase("int") == 0)
 						|| (fieldType.compareToIgnoreCase("real") == 0)) {
