@@ -501,8 +501,6 @@ public class JardinController extends Controller {
 					callbackValuesOfForeignKeys);
 
 		}
-		//forwardToView(view, EventList.CreateAllChildsOfResultSetWithIncomingForeignKeys, 0);
-
 	}
 
 	private void onSearch(SearchParams searchParams) {
@@ -600,48 +598,50 @@ public class JardinController extends Controller {
 
 	private void onRemoveRows(int resultset) {
 		if (user.getResultsetFromId(resultset).isDelete()) {
-			final JardinGrid grid = view.getItemByResultsetId(resultset)
-					.getGrid(resultset);
-
-			final List<BaseModelData> selectedRows = grid.getSelectionModel()
-					.getSelection();
-
-			if (selectedRows.size() > 0) {
-				final MessageBox waitbox = MessageBox.wait("Attendere",
-						"Eliminazione righe in corso...", "");
-
-				/* Create the service proxy class */
-				final ManagerServiceAsync service = (ManagerServiceAsync) Registry
-						.get(Jardin.SERVICE);
-
-				/* Set up the callback */
-				AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-					public void onFailure(Throwable caught) {
-						waitbox.close();
-						Dispatcher.forwardEvent(EventList.Error, caught
-								.getLocalizedMessage());
-					}
-
-					public void onSuccess(Integer result) {
-						waitbox.close();
-						if (result.intValue() <= 0) {
-							Dispatcher.forwardEvent(EventList.Error,
-									"Nessuna riga eliminata");
-						} else {
-							ListStore<BaseModelData> store = grid.getStore();
-							for (BaseModelData row : selectedRows) {
-								store.remove(row);
-							}
-							store.commitChanges();
-							Info.display("Informazione", "Dati cancellati", "");
+			for (final JardinGrid grid : view.getGridListByResultSetId(resultset)){
+	//			final JardinGrid grid = view.getItemByResultsetId(resultset)
+	//					.getGrid(resultset);
+				final List<BaseModelData> selectedRows = grid.getSelectionModel()
+						.getSelection();
+	
+				if (selectedRows.size() > 0) {
+					final MessageBox waitbox = MessageBox.wait("Attendere",
+							"Eliminazione righe in corso...", "");
+	
+					/* Create the service proxy class */
+					final ManagerServiceAsync service = (ManagerServiceAsync) Registry
+							.get(Jardin.SERVICE);
+	
+					/* Set up the callback */
+					AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+						public void onFailure(Throwable caught) {
+							waitbox.close();
+							Dispatcher.forwardEvent(EventList.Error, caught
+									.getLocalizedMessage());
 						}
-					}
-				};
-
-				/* Make the call */
-				service.removeObjects(resultset, selectedRows, callback);
-			} else {
-				Info.display("Informazione", "Selezionare almeno una riga", "");
+	
+						public void onSuccess(Integer result) {
+							waitbox.close();
+							if (result.intValue() <= 0) {
+								Dispatcher.forwardEvent(EventList.Error,
+										"Nessuna riga eliminata");
+							} else {
+								ListStore<BaseModelData> store = grid.getStore();
+								for (BaseModelData row : selectedRows) {
+									store.remove(row);
+								}
+								store.commitChanges();
+								Info.display("Informazione", "Dati cancellati", "");
+							}
+						}
+					};
+	
+					/* Make the call */
+					service.removeObjects(resultset, selectedRows, callback);
+					
+				} else {
+					Info.display("Informazione", "Selezionare almeno una riga", "");
+				}
 			}
 		} else {
 			Dispatcher.forwardEvent(EventList.Error,
@@ -792,20 +792,19 @@ public class JardinController extends Controller {
 		 * di ricerca)
 		 */
 		JardinTabItem item = view.getItemByResultsetId(resultset);
-
+		
 		/* Prendi la griglia */
-		JardinGrid grid = item.getGrid(resultset);
-
-		/* Colonne */
+		JardinGrid grid = item.getGrid(resultset);		
+			/* Colonne */
 		ColumnModel cm = grid.getColumnModel();
 		List<String> columns = new ArrayList<String>();
 		for (int i = 0; i < cm.getColumnCount(); i++) {
 			columns.add(cm.getColumn(i).getId());
-		}
+		}	
 
 		/* Criteri di ricerca */
 		SearchParams searchParams = grid.getSearchparams();
-
+				
 		/* Effettua la chiamata RPC */
 		final ManagerServiceAsync service = (ManagerServiceAsync) Registry
 				.get(Jardin.SERVICE);

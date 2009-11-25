@@ -112,11 +112,6 @@ public class JardinTabItem extends TabItem {
 		currChild.updateStore(store);
 	}
 	
-//	public JardinGrid getGrid() {
-//		///// DA CAMBIARE !!!!!!!!!!!!!!!!!!!!
-//		return childrenList.get(0).getGrid();
-//	}
-
 	public JardinGrid getGrid( Integer resultsetId) {
 		///// DA CAMBIARE !!!!!!!!!!!!!!!!!!!!
 		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
@@ -137,5 +132,25 @@ public class JardinTabItem extends TabItem {
 		return currChild.getToolbar();
 	}
 	
+	public JardinGrid getGridFromResultSetId (int resultSetId) {
+		for (JardinMultiRsSingularCenter currChild : childrenList){
+			int currentResultsetId = currChild.getResultSetId();			
+			if (currentResultsetId == resultSetId) {
+				return currChild.getGrid();				
+			}			
+		}
+		return null;
+	}
+	
+	public JardinMultiRsSingularCenter getJardinMultiRsSingularCenterFromResultSetId (int resultSetId) {
+		for (JardinMultiRsSingularCenter currChild : childrenList){
+			int currentResultsetId = currChild.getResultSetId();			
+			if (currentResultsetId == resultSetId) {
+				return currChild;		
+			}			
+		}
+		return null;
+	}
+
 	
 }

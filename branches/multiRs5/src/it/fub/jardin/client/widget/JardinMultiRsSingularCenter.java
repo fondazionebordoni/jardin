@@ -6,6 +6,8 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.ResultsetImproved; //import it.fub.jardin.client.widget.JardinTabItem.WaitPanel;
+import it.fub.jardin.client.model.SearchParams;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -265,5 +267,10 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 	public void updatePreference(HeaderPreferenceList data) {
 		toolbar.updatePreferenceButton(data);
 	}
+	
+	public void setSearchparams(SearchParams searchparams) {
+		grid.setSearchparams(searchparams);
+	}
+	
 
 }
