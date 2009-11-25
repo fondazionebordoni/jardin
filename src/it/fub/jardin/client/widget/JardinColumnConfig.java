@@ -45,12 +45,12 @@ public class JardinColumnConfig extends ColumnConfig {
     /* Gestione modifica del campo */
     if (field.getModifyperm()) {
       // final Field f = FieldCreator.getField(field, values, true);
-      final Field f = FieldCreator.getField(field, values, 0, false);
+      final Field<?> f = FieldCreator.getField(field, values, 0, false);
 
       CellEditor editor = null;
-      if (f instanceof SimpleComboBox) {
-        ((SimpleComboBox) f).setEditable(false);
-        editor = new CellEditor((SimpleComboBox) f) {
+      if (f instanceof SimpleComboBox<?>) {
+        ((SimpleComboBox<?>) f).setEditable(false);
+        editor = new CellEditor((SimpleComboBox<?>) f) {
           @Override
           public Object preProcessValue(Object value) {
             if (value == null) {

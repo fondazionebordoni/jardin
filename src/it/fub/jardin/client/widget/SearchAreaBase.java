@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.extjs.gxt.charts.client.model.axis.Label;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -24,12 +23,10 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.user.client.ui.Widget;
 
 public class SearchAreaBase extends HtmlContainer {
 
   private static final String SPECIAL_FIELD = "searchField";
-  private static final String ACCURATE_STRING = "accurateSearchCheck";
   private TextField<String> field;
   private CheckBox accurate = new CheckBox();
   private List<String> fieldNames;
@@ -158,7 +155,6 @@ public class SearchAreaBase extends HtmlContainer {
 
       Map<String, String> searchMap = parser.getSearchMap();
       for (String key : parser.getSearchMap().keySet()) {
-
         for (String k : fieldNames) {
           if (k.equalsIgnoreCase(key)) {
             BaseModelData m = new BaseModelData();

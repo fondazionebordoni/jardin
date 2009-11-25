@@ -185,11 +185,11 @@ public class JardinTabItem extends TabItem {
 
 		/* Binding con l'area di dettaglio */
 		this.formbinding = new FormBinding(this.detail, false);
-		for (Field field : this.detail.getFields()) {
-			if (field instanceof SimpleComboBox) {
+		for (Field<?> field : this.detail.getFields()) {
+			if (field instanceof SimpleComboBox<?>) {
 				this.formbinding
 						.addFieldBinding(new SimpleComboBoxFieldBinding(
-								(SimpleComboBox) field, field.getName()));
+								(SimpleComboBox<?>) field, field.getName()));
 			} else {
 				this.formbinding.addFieldBinding(new FieldBinding(field, field
 						.getName()));
