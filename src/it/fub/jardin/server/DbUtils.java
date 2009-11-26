@@ -17,6 +17,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.mvc.JardinController;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,7 +45,9 @@ import javax.mail.MessagingException;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+import com.mysql.jdbc.interceptors.ResultSetScannerInterceptor;
 
 /**
  * @author acozzolino
@@ -958,6 +961,7 @@ public class DbUtils {
   }
 
   /**
+   * @param resultSetList 
    * @param userId
    * @return resultSetList
    * 
@@ -966,7 +970,7 @@ public class DbUtils {
    */
 
   public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(
-      Integer resultsetId) throws HiddenException {
+      Integer resultsetId, List<ResultsetImproved> resultSetList) throws HiddenException {
     ArrayList<IncomingForeignKeyInformation> listaIfki;
     String tableName = null;
     Connection connection = dbConnectionHandler.getConn();
@@ -1002,6 +1006,15 @@ public class DbUtils {
         String field = resultFKIn.getString("REFERENCED_COLUMN_NAME");
         IncomingForeignKeyInformation ifki =
             new IncomingForeignKeyInformation(linkingTable, linkingField, field);
+        //trasformare la linkingTable in un rsimproved
+        //dal nome recupero l'id e dall'id recupero l'rs
+        int rsInterstedId = this.getResultsetIdFromName(linkingTable);;
+        for (final ResultsetImproved rs : resultSetList) {
+          if (rs.getId()==rsInterstedId){
+            ifki.setInterestedResultset(rs);
+            break;
+          }
+        }
         listaIfki.add(ifki);
       }
     } catch (SQLException e) {
@@ -1142,7 +1155,7 @@ public class DbUtils {
 
           }
         }
-        resultSetList.get(i).setForeignKeyIn(this.getForeignKeyInForATable(resultSetList.get(i).getId()));
+        resultSetList.get(i).setForeignKeyIn(this.getForeignKeyInForATable(resultSetList.get(i).getId(), resultSetList));
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
