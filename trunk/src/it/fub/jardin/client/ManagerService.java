@@ -87,9 +87,6 @@ public interface ManagerService extends RemoteService {
 
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
       throws HiddenException;
-  
-  public  ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(Integer resultsetId)
-      throws HiddenException;
 
   public Integer removeObjects(Integer resultset,
       List<BaseModelData> selectedRows) throws HiddenException;
