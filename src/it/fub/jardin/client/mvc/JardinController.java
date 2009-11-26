@@ -456,25 +456,6 @@ public class JardinController extends Controller {
        * presenti: sever per il binding dei campi del dettaglio e per il row
        * editor
        */
-      AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callbackForeignKeyInForATable =
-          new AsyncCallback<ArrayList<IncomingForeignKeyInformation>>() {
-            public void onFailure(Throwable caught) {
-              Dispatcher.forwardEvent(EventList.Error,
-                  caught.getLocalizedMessage());
-            }
-
-            public void onSuccess(
-                ArrayList<IncomingForeignKeyInformation> ForeignKeyIn) {
-              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-              // System.out.println(ForeignKeyIn);
-              rs.setForeignKeyIn(ForeignKeyIn);
-              forwardToView(view, EventList.GotValuesOfForeignKeysIn,
-                  resultsetId);
-            }
-          };
-
-      service.getForeignKeyInForATable(resultsetId,
-          callbackForeignKeyInForATable);
 
       AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
           new AsyncCallback<FieldsMatrix>() {
@@ -773,7 +754,7 @@ public class JardinController extends Controller {
 
     /* Nome del file da creare */
     String filename =
-        user.getResultsetFromId(resultset).getAlias().replace(" ", "_");
+        user.getResultsetFromId(resultset).getAlias();
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
@@ -807,6 +788,7 @@ public class JardinController extends Controller {
       public void onSuccess(String result) {
         if (result != null && result.length() > 0) {
           Jungle j = new Jungle(user.getResultsetFromId(resultset), result);
+          System.out.println("ok");
           j.show();
         } else {
           Log.warn("File d'esportazione vuoto");
