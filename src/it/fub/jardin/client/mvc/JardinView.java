@@ -107,11 +107,11 @@ public class JardinView extends View {
 			if (event.getData() instanceof Integer) {
 				gotValuesOfForeignKeys((Integer) event.getData());
 			}
-		} else if (t == EventList.GotValuesOfForeignKeysIn) {
+		}/* else if (t == EventList.GotValuesOfForeignKeysIn) {
 			if (event.getData() instanceof Integer) {
 				gotForeignKeyInForATable((Integer) event.getData());
 			}
-		} else if (t == EventList.Search) {
+		}*/ else if (t == EventList.Search) {
 			if (event.getData() instanceof SearchParams) {
 				onSearch((SearchParams) event.getData());
 			}
@@ -300,7 +300,7 @@ public class JardinView extends View {
 		}
 	}
 
-	private synchronized void gotForeignKeyInForATable(Integer resultsetId) {
+/*	private synchronized void gotForeignKeyInForATable(Integer resultsetId) {
 		// recuperiamo le fk entranti del resultset attuale
 		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
 				resultsetId);
@@ -312,7 +312,7 @@ public class JardinView extends View {
 			System.out.println(fk.getField() + "<-" + fk.getLinkingTable()
 					+ "." + fk.getLinkingField());
 		}
-	}
+	}*/
 
 	private void onSearch(SearchParams searchParams) {
 		JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
@@ -320,7 +320,7 @@ public class JardinView extends View {
 		if (item != null) {
 			if (item.getGrid() != null) {
 				/* Aggiornamento dello store della griglia del tabItem */
-				item.updateStore(this.getStore(searchParams));
+        item.updateStore(this.getStore(searchParams));
 				item.getGrid().setSearchparams(searchParams);
 			}
 		}
