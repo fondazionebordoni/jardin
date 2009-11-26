@@ -123,11 +123,9 @@ public class JardinGrid extends Grid<BaseModelData> {
 				m.add(sep);
 
 				// foreign keys entranti
-				// TODO da migliorare il controllo di appartenenza delle foreign
-				// key delle tabelle ai resultsets
+				// TODO da migliorare il controllo di appartenenza delle foreignkey delle tabelle ai resultsets
 				for (final ResultsetImproved rs : resultsets) {
-					for (final IncomingForeignKeyInformation fk : resultset
-							.getForeignKeyIn()) {
+					for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
 
 						if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
 							//System.out.println(rs.getAlias() + "(" + rs.getId()
