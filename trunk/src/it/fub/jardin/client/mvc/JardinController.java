@@ -753,8 +753,7 @@ public class JardinController extends Controller {
   private void onJungle(final int resultset) {
 
     /* Nome del file da creare */
-    String filename =
-        user.getResultsetFromId(resultset).getAlias();
+    String filename = user.getResultsetFromId(resultset).getAlias();
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
@@ -893,15 +892,15 @@ public class JardinController extends Controller {
     SearchParams searchParams = new SearchParams(rs.getId());
     searchParams.setAccurate(true);
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-    System.out.println(ifki.getLinkingField()+"->"+ifki.getFieldValue());
     SearchStringParser parser =
-        new SearchStringParser(ifki.getLinkingField() + ":"
-            + ifki.getFieldValue());
+        new SearchStringParser(ifki.getLinkingField() + ":\""
+            + ifki.getFieldValue() + "\"");
 
     Map<String, String> searchMap = parser.getSearchMap();
     for (String key : parser.getSearchMap().keySet()) {
       BaseModelData m = new BaseModelData();
       m.set(key, searchMap.get(key));
+      System.out.println(key + "->" + searchMap.get(key));
       queryFieldList.add(m);
     }
     searchParams.setFieldsValuesList(queryFieldList);
