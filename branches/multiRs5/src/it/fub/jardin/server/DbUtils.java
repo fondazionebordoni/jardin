@@ -1146,6 +1146,7 @@ public class DbUtils {
 						resultSetList.get(i).addField(resultFieldList.get(j));
 					}
 				}
+			resultSetList.get(i).setForeignKeyIn(this.getForeignKeyInForATable(resultSetList.get(i).getId()));
 			}
 		} catch (SQLException e) {
 			Log.warn("Errore SQL", e);

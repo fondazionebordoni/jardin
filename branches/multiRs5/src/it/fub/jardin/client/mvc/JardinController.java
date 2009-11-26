@@ -435,7 +435,7 @@ public class JardinController extends Controller {
 
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
-
+				System.out.println( "JardinView onInit onFailure");
 			}
 		};
 
@@ -446,12 +446,16 @@ public class JardinController extends Controller {
 
 	private void onCreateUI() {
 		/* Vedi sequence diagram init_sd.pic */
-
 		/* Per ogni resultset carica da service le sue proprietà */
 		for (ResultsetImproved resultset : this.user.getResultsets()) {
 			final Integer resultsetId = resultset.getId();
-			/* Avvisa la view che si sta creando un nuovo resultset */
 			forwardToView(view, EventList.NewResultset, resultsetId);
+		}
+
+		for (ResultsetImproved resultset : this.user.getResultsets()) {
+			final Integer resultsetId = resultset.getId();
+			/* Avvisa la view che si sta creando un nuovo resultset */
+//			forwardToView(view, EventList.NewResultset, resultsetId);
 			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
 			// forwardToView(view, EventList.gotValuesOfForeignKeys,
 			// resultsetId);
@@ -464,24 +468,24 @@ public class JardinController extends Controller {
 			 * presenti: sever per il binding dei campi del dettaglio e per il
 			 * row editor
 			 */
-			AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callbackForeignKeyInForATable = new AsyncCallback<ArrayList<IncomingForeignKeyInformation>>() {
-				public void onFailure(Throwable caught) {
-					Dispatcher.forwardEvent(EventList.Error, caught
-							.getLocalizedMessage());
-				}
-
-				public void onSuccess(
-						ArrayList<IncomingForeignKeyInformation> ForeignKeyIn) {
-					ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-					// System.out.println(ForeignKeyIn);
-					rs.setForeignKeyIn(ForeignKeyIn);
-					forwardToView(view, EventList.GotValuesOfForeignKeysIn,
-							resultsetId);
-				}
-			};
-
-			service.getForeignKeyInForATable(resultsetId,
-					callbackForeignKeyInForATable);
+//			AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callbackForeignKeyInForATable = new AsyncCallback<ArrayList<IncomingForeignKeyInformation>>() {
+//				public void onFailure(Throwable caught) {
+//					Dispatcher.forwardEvent(EventList.Error, caught
+//							.getLocalizedMessage());
+//				}
+//
+//				public void onSuccess(
+//						ArrayList<IncomingForeignKeyInformation> ForeignKeyIn) {
+//					ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+//					// System.out.println(ForeignKeyIn);
+//					rs.setForeignKeyIn(ForeignKeyIn);
+//					forwardToView(view, EventList.GotValuesOfForeignKeysIn,
+//							resultsetId);
+//				}
+//			};
+//
+//			service.getForeignKeyInForATable(resultsetId,
+//					callbackForeignKeyInForATable);
 
 			AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys = new AsyncCallback<FieldsMatrix>() {
 				public void onFailure(Throwable caught) {

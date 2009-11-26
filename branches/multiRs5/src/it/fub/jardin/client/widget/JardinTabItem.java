@@ -38,6 +38,7 @@ public class JardinTabItem extends TabItem {
 		rowContentPanel.setHeaderVisible(false);
 		this.add(rowContentPanel, new BorderLayoutData(LayoutRegion.CENTER));
 		createFirstChild(resultset);
+		createAllOtherChildren();
 		//this.layout();		
 	}
 
@@ -50,7 +51,7 @@ public class JardinTabItem extends TabItem {
 		childrenList.add(firstChild);
 	}
 
-	public void createAllOtherChildren() {
+	private void createAllOtherChildren() {
 		ArrayList<IncomingForeignKeyInformation> foreignKeyBMD = resultset.getForeignKeyIn();
 		if (foreignKeyBMD != null) {
 			for (IncomingForeignKeyInformation foreignKey : foreignKeyBMD) {

@@ -113,13 +113,7 @@ public class JardinView extends View {
 			if (event.getData() instanceof Integer) {
 				gotValuesOfForeignKeys((Integer) event.getData());
 			}
-		}  else if (t == EventList.GotValuesOfForeignKeysIn) {
-			if (event.getData() instanceof Integer) {
-				gotForeignKeyInForATable((Integer) event.getData());
-			} 
-		} /* else if (t == EventList.CreateAllChildsOfResultSetWithIncomingForeignKeys) {
-				CreateAllChildsOfResultSetWithIncomingForeignKeys();
-		} */ else if (t == EventList.Search) {
+		}   else if (t == EventList.Search) {
 			if (event.getData() instanceof SearchParams) {
 				onSearch((SearchParams) event.getData());
 			}
@@ -261,6 +255,7 @@ public class JardinView extends View {
 		item.setId(ITEM_PREFIX + resultsetId);
 
 		this.main.add(item);
+		//item.createAllOtherChildren();
 	}
 
 	private synchronized void gotValuesOfFields(Integer resultsetId) {
@@ -293,40 +288,44 @@ public class JardinView extends View {
 		/* Creazione del dettaglio */
 		JardinDetail detail = new JardinDetail(resultset);
 
-		JardinTabItem item = getItemByResultsetId(resultsetId);
-		if (item != null) {
-			/* Aggiungere la griglia al tabItem */
-			item.setGrid(grid, resultsetId);
-
-			/* Aggiungere la ricerca semplice al tabItem */
-			item.addSearchAreaBase(searchAreaBase, resultsetId);
-
-			/* Aggiungere il dettaglio al tabitem */
-			item.addDetail(detail, resultsetId);
-
-			// Eseguo una ricerca per riempire la il resultset
-//			SearchParams searchParams = new SearchParams(resultsetId);
-//			List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-//			searchParams.setFieldsValuesList(queryFieldList);
-//			Dispatcher.forwardEvent(EventList.Search, searchParams);
+		ArrayList<JardinMultiRsSingularCenter> jardinMultiRsSingularCenterListByResultSetId = this.getJardinMultiRsSingularCenterListByResultSetId(resultsetId); 
+		for (JardinMultiRsSingularCenter item : jardinMultiRsSingularCenterListByResultSetId){
+			
+		//JardinTabItem item = getItemByResultsetId(resultsetId);
+			if (item != null) {
+				/* Aggiungere la griglia al tabItem */
+				item.setGrid(grid);
+	
+				/* Aggiungere la ricerca semplice al tabItem */
+				item.addSearchAreaBase(searchAreaBase);
+	
+				/* Aggiungere il dettaglio al tabitem */
+				item.addDetail(detail);
+	
+				// Eseguo una ricerca per riempire la il resultset
+	//			SearchParams searchParams = new SearchParams(resultsetId);
+	//			List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+	//			searchParams.setFieldsValuesList(queryFieldList);
+	//			Dispatcher.forwardEvent(EventList.Search, searchParams);
+			}
 		}
 	}
 
-	private synchronized void gotForeignKeyInForATable(Integer resultsetId) {
-		// recuperiamo le fk entranti del resultset attuale
-		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
-				resultsetId);
-
-		ArrayList<IncomingForeignKeyInformation> foreignKeyIn = new ArrayList<IncomingForeignKeyInformation>();
-		foreignKeyIn = resultset.getForeignKeyIn();
-		System.out.println("Foreign Key Entranti");
-		for (IncomingForeignKeyInformation fk : foreignKeyIn) {
-			System.out.println(fk.getField() + "<-" + fk.getLinkingTable()
-					+ "." + fk.getLinkingField());
-		}
-		JardinTabItem item = getItemByResultsetId(resultset.getId());
-		item.createAllOtherChildren();
-	}
+//	private synchronized void gotForeignKeyInForATable(Integer resultsetId) {
+//		// recuperiamo le fk entranti del resultset attuale
+//		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
+//				resultsetId);
+//
+//		ArrayList<IncomingForeignKeyInformation> foreignKeyIn = new ArrayList<IncomingForeignKeyInformation>();
+//		foreignKeyIn = resultset.getForeignKeyIn();
+//		System.out.println("Foreign Key Entranti");
+//		for (IncomingForeignKeyInformation fk : foreignKeyIn) {
+//			System.out.println(fk.getField() + "<-" + fk.getLinkingTable()
+//					+ "." + fk.getLinkingField());
+//		}
+//		JardinTabItem item = getItemByResultsetId(resultset.getId());
+//		//item.createAllOtherChildren();
+//	}
 	
 	private void onGotExport(String url) {
 		Window.open(url, "Download", null);
@@ -335,8 +334,8 @@ public class JardinView extends View {
 	private void onSearch(SearchParams searchParams) {
 		int resultSetId = searchParams.getResultsetId();
 		JardinTabItem item = getItemByResultsetId(resultSetId);
-
-		for (JardinMultiRsSingularCenter currJardinMultiRsSingularCenter : this.getJardinMultiRsSingularCenterByResultSetId(resultSetId)){
+		ArrayList<JardinMultiRsSingularCenter> jardinMultiRsSingularCenterListByResultSetId = this.getJardinMultiRsSingularCenterListByResultSetId(resultSetId); 
+		for (JardinMultiRsSingularCenter currJardinMultiRsSingularCenter : jardinMultiRsSingularCenterListByResultSetId){
 			currJardinMultiRsSingularCenter.updateStore(this.getStore(searchParams));
 			currJardinMultiRsSingularCenter.setSearchparams(searchParams);			
 		}						
@@ -393,12 +392,14 @@ public class JardinView extends View {
 		return gridList;
 	}
 	
-	private ArrayList<JardinMultiRsSingularCenter> getJardinMultiRsSingularCenterByResultSetId (int resultSetId){
+	private ArrayList<JardinMultiRsSingularCenter> getJardinMultiRsSingularCenterListByResultSetId (int resultSetId){
 		ArrayList<JardinMultiRsSingularCenter> JardinMultiRsSingularCenterList = new ArrayList<JardinMultiRsSingularCenter>() ;
 		for (TabItem currentTabItem : main.getItems() ){
 			JardinTabItem currJardinTabItem = (JardinTabItem) currentTabItem;
 			JardinMultiRsSingularCenter foundJardinMultiRsSingularCenter = currJardinTabItem.getJardinMultiRsSingularCenterFromResultSetId(resultSetId);
-			JardinMultiRsSingularCenterList.add(foundJardinMultiRsSingularCenter);
+			if (foundJardinMultiRsSingularCenter != null) {
+				JardinMultiRsSingularCenterList.add(foundJardinMultiRsSingularCenter);				
+			}	
 		}
 		return JardinMultiRsSingularCenterList;
 	}

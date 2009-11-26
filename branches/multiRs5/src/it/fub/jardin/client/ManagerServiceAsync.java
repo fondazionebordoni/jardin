@@ -65,8 +65,8 @@ public interface ManagerServiceAsync {
   public void getValuesOfForeignKeys(Integer resultsetId,
       AsyncCallback<FieldsMatrix> callback);
   
-  void getForeignKeyInForATable(Integer resultsetId,
-      AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callback);
+//  void getForeignKeyInForATable(Integer resultsetId,
+//      AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callback);
 
   public void removeObjects(Integer resultset,
       List<BaseModelData> selectedRows, AsyncCallback<Integer> asyncCallback);
