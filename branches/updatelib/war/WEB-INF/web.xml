@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4"
+  xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+  <display-name>JARDiN Manager</display-name>
+
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>Jardin.html</welcome-file>
+  </welcome-file-list>
+  
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>Manager</servlet-name>
+    <servlet-class>it.fub.jardin.server.ManagerServiceImpl</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Manager</servlet-name>
+    <url-pattern>/jardin/service</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>Download</servlet-name>
+    <servlet-class>it.fub.jardin.server.Download</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>Download</servlet-name>
+    <url-pattern>/jardin/download</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>Upload</servlet-name>
+    <servlet-class>it.fub.jardin.server.Upload</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Upload</servlet-name>
+    <url-pattern>/jardin/upload</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>remoteLoggerServiceImpl</servlet-name>
+    <servlet-class>com.allen_sauer.gwt.log.server.RemoteLoggerServiceImpl</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>remoteLoggerServiceImpl</servlet-name>
+    <url-pattern>/jardin/gwt-log</url-pattern>
+  </servlet-mapping>
+  
+</web-app>
