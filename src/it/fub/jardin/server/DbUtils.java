@@ -1008,14 +1008,14 @@ public class DbUtils {
             new IncomingForeignKeyInformation(linkingTable, linkingField, field);
         //trasformare la linkingTable in un rsimproved
         //dal nome recupero l'id e dall'id recupero l'rs
-        int rsInterstedId = this.getResultsetIdFromName(linkingTable);;
         for (final ResultsetImproved rs : resultSetList) {
-          if (rs.getId()==rsInterstedId){
+          if (rs.getName().compareTo(ifki.getLinkingTable()) == 0){
             ifki.setInterestedResultset(rs);
+            listaIfki.add(ifki);
             break;
           }
         }
-        listaIfki.add(ifki);
+        
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
