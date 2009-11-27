@@ -168,7 +168,7 @@ public class JardinView extends View {
 		// System.out.println(rs.getAlias()+"->"+rs.getId());
 		Integer rsId = data.get("RSID");
 		JardinTabItem item = getItemByResultsetId(rsId);
-		item.getGrid(rsId).viewDetailPopUp(infoToView); 
+		item.getGridFromResultSetId(rsId).viewDetailPopUp(infoToView); 
 	}
 
 	private void initUI() {
@@ -355,7 +355,7 @@ public class JardinView extends View {
 	}
 
 	private void onSaveGridView(int resultset) {
-		final JardinGrid grid = getItemByResultsetId(resultset).getGrid(resultset);
+		final JardinGrid grid = getItemByResultsetId(resultset).getGridFromResultSetId(resultset);
 		final MessageBox box = MessageBox.prompt("Nome",
 				"Salva visualizzazione");
 		box.addCallback(new Listener<MessageBoxEvent>() {

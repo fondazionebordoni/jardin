@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
@@ -37,33 +38,41 @@ public class JardinTabItem extends TabItem {
 		rowContentPanel.setScrollMode(Scroll.AUTO);	
 		//rowContentPanel.setWidth("100%");
 
-		createFirstChild(resultset);
-		createAllOtherChildren();
+		createFirstAndAllOtherChildren();
 		//this.layout();		
 	}
 
-	private void createFirstChild(ResultsetImproved resultset) {
+
+	private void createFirstAndAllOtherChildren() {
+		ArrayList<IncomingForeignKeyInformation> foreignKeyBMD = resultset.getForeignKeyIn();
+		int numFigli = foreignKeyBMD.size();
+
+		double percFirstChild = 1;
+		double percOtherChildren = 0;
+		if (numFigli >= 1 ) {
+			percFirstChild = 50D / 100D ;
+			percOtherChildren = ((50D) / numFigli) / 100D;
+		} 
+
+		// First Child
 		JardinMultiRsSingularCenter firstChild = new JardinMultiRsSingularCenter(
 				resultset, null);
-		rowContentPanel.add(firstChild, new RowData (1,300) );	
+		rowContentPanel.add(firstChild, new RowData (1, percFirstChild) );	
 	    //this.add(firstChild, new BorderLayoutData(LayoutRegion.CENTER));	
 	    //this.add(firstChild, new FlowData (MARGIN,MARGIN,MARGIN,MARGIN));	
 		childrenList.add(firstChild);
-	}
 
-	private void createAllOtherChildren() {
-		ArrayList<IncomingForeignKeyInformation> foreignKeyBMD = resultset.getForeignKeyIn();
-		if (foreignKeyBMD != null) {
-			for (IncomingForeignKeyInformation foreignKey : foreignKeyBMD) {
-				ResultsetImproved rsLinked_i = foreignKey.getInterestedResultset();
-				JardinMultiRsSingularCenter newChild = new JardinMultiRsSingularCenter(
-						rsLinked_i, foreignKey);
-				rowContentPanel.add(newChild , new RowData (1,200));				
-				//rowContentPanel.add(newChild, new RowData (1,-1) );				
-				childrenList.add(newChild);
-				//this.layout();
-			}
+		// otherChild
+		for (IncomingForeignKeyInformation foreignKey : foreignKeyBMD) {
+			ResultsetImproved rsLinked_i = foreignKey.getInterestedResultset();
+			JardinMultiRsSingularCenter newChild = new JardinMultiRsSingularCenter(
+					rsLinked_i, foreignKey);
+			rowContentPanel.add(newChild , new RowData (1, percOtherChildren));				
+			//rowContentPanel.add(newChild, new RowData (1,-1) );				
+			childrenList.add(newChild);
+			this.layout();
 		}
+		
 		
 //		for (JardinMultiRsSingularCenter currChild : childrenList){
 //			currChild.expand();
@@ -113,11 +122,11 @@ public class JardinTabItem extends TabItem {
 		currChild.updateStore(store);
 	}
 	
-	public JardinGrid getGrid( Integer resultsetId) {
-		///// DA CAMBIARE !!!!!!!!!!!!!!!!!!!!
-		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
-		return currChild.getGrid();
-	}
+//	public JardinGrid getGrid( Integer resultsetId) {
+//		///// DA CAMBIARE !!!!!!!!!!!!!!!!!!!!
+//		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
+//		return currChild.getGrid();
+//	}
 	
 	
 //	public FormPanel getDetail() {

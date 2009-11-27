@@ -444,23 +444,21 @@ public class JardinController extends Controller {
 	}
 
 	private void onCreateUI() {
-		final ManagerServiceAsync service = (ManagerServiceAsync) Registry
-		.get(Jardin.SERVICE);
 		/* Vedi sequence diagram init_sd.pic */
 		/* Per ogni resultset carica da service le sue proprietà */
 		for (ResultsetImproved resultset : this.user.getResultsets()) {
 			final Integer resultsetId = resultset.getId();
 			forwardToView(view, EventList.NewResultset, resultsetId);
 		}
-		for (ResultsetImproved resultset : this.user.getResultsets()) {
-			final Integer resultsetId = resultset.getId();
-			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
-		}
+//		for (ResultsetImproved resultset : this.user.getResultsets()) {
+//			final Integer resultsetId = resultset.getId();
+//			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+//		}
 		for (ResultsetImproved resultset : this.user.getResultsets()) {
 			final Integer resultsetId = resultset.getId();
 			/* Avvisa la view che si sta creando un nuovo resultset */
 //			forwardToView(view, EventList.NewResultset, resultsetId);
-			//forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
 			// forwardToView(view, EventList.gotValuesOfForeignKeys,
 			// resultsetId);
 			/*
@@ -468,6 +466,9 @@ public class JardinController extends Controller {
 			 * presenti: sever per il binding dei campi del dettaglio e per il
 			 * row editor
 			 */
+			final ManagerServiceAsync service = (ManagerServiceAsync) Registry
+			.get(Jardin.SERVICE);
+
 			AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys = new AsyncCallback<FieldsMatrix>() {
 				public void onFailure(Throwable caught) {
 					Dispatcher.forwardEvent(EventList.Error, caught
@@ -659,7 +660,7 @@ public class JardinController extends Controller {
 		Template template = item.getToolbar(resultset).getTemplate();
 
 		/* Prendi la griglia */
-		JardinGrid grid = item.getGrid(resultset);
+		JardinGrid grid = item.getGridFromResultSetId(resultset);
 
 		/* Config dei record da esportare (tutti se allStore = true) */
 		PagingLoadConfig config = null;
@@ -776,7 +777,7 @@ public class JardinController extends Controller {
 		JardinTabItem item = view.getItemByResultsetId(resultset);
 		
 		/* Prendi la griglia */
-		JardinGrid grid = item.getGrid(resultset);		
+		JardinGrid grid = item.getGridFromResultSetId(resultset);		
 			/* Colonne */
 		ColumnModel cm = grid.getColumnModel();
 		List<String> columns = new ArrayList<String>();
@@ -831,7 +832,7 @@ public class JardinController extends Controller {
 		JardinTabItem item = view.getItemByResultsetId(resultset);
 
 		/* Prendi la griglia */
-		JardinGrid grid = item.getGrid(resultset);
+		JardinGrid grid = item.getGridFromResultSetId(resultset);
 
 		/* Prendi gli ID delle prime due colonne visibili */
 		ColumnModel columnModel = grid.getColumnModel();
