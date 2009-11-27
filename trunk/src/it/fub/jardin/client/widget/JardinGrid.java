@@ -124,10 +124,10 @@ public class JardinGrid extends Grid<BaseModelData> {
 
 				// foreign keys entranti
 				// TODO da migliorare il controllo di appartenenza delle foreignkey delle tabelle ai resultsets
-				for (final ResultsetImproved rs : resultsets) {
+				//for (final ResultsetImproved rs : resultsets) {
 					for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
 
-						if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
+						//if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
 							//System.out.println(rs.getAlias() + "(" + rs.getId()
 							//		+ ")" + "->" + rs.getName() + "="
 							//		+ fk.getLinkingTable());
@@ -135,17 +135,16 @@ public class JardinGrid extends Grid<BaseModelData> {
 							final String linkedTable = fk.getLinkingTable();
 							final String linkedField = fk.getLinkingField();
 							final String field = fk.getField();
-
+							//TODO sarebbe meglio spedire direttamente fk e non ricreare un nuovo IncomingForeignKeyInformation
 							final IncomingForeignKeyInformation fkIN = new IncomingForeignKeyInformation(
 									linkedTable, linkedField, field);
 							fkIN.setFieldValue("" + selectedRow.get(field));
-							fkIN.setInterestedResultset(rs);
-
-							fkIN.setResultsetId(resultset.getId());
+							fkIN.setInterestedResultset(fk.getInterestedResultset());
+							fkIN.setResultsetId(fk.getResultsetId());
 
 							MenuItem mitem = new MenuItem(
 									"Visualizza corrispondeze in "
-											+ rs.getAlias()/* linkedTable */);
+											+ fk.getInterestedResultset().getAlias());
 
 							mitem.addListener(Events.Select, new Listener() {
 								public void handleEvent(BaseEvent be) {
@@ -160,11 +159,11 @@ public class JardinGrid extends Grid<BaseModelData> {
 							});
 
 							m.add(mitem);
-						}
-
+						//}
+//
 					}
-				}
-
+			//	}
+//
 			}
 		});
 
