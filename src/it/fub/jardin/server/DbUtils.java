@@ -1596,13 +1596,6 @@ public class DbUtils {
     }
   }
 
-  public int getResultsetIdFromName(String name) throws HiddenException {
-    Connection connection = dbConnectionHandler.getConn();
-
-    dbConnectionHandler.closeConn(connection);
-    return 0;
-  }
-
   public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data)
       throws HiddenException {
     ResultsetImproved rs = data.get("RSLINKED");
