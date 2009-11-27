@@ -1004,15 +1004,15 @@ public class DbUtils {
         String linkingTable = resultFKIn.getString("TABLE_NAME");
         String linkingField = resultFKIn.getString("COLUMN_NAME");
         String field = resultFKIn.getString("REFERENCED_COLUMN_NAME");
-        IncomingForeignKeyInformation ifki =
-            new IncomingForeignKeyInformation(linkingTable, linkingField, field);
         //trasformare la linkingTable in un rsimproved
         //dal nome recupero l'id e dall'id recupero l'rs
         for (final ResultsetImproved rs : resultSetList) {
+          IncomingForeignKeyInformation ifki =
+            new IncomingForeignKeyInformation(linkingTable, linkingField, field);
           if (rs.getName().compareTo(ifki.getLinkingTable()) == 0){
             ifki.setInterestedResultset(rs);
+            ifki.setResultsetId(rs.getId());
             listaIfki.add(ifki);
-            break;
           }
         }
         
