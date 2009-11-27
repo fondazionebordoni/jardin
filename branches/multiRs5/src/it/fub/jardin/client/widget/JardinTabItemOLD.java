@@ -4,7 +4,6 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -186,11 +185,11 @@ public class JardinTabItemOLD extends TabItem {
 
 		/* Binding con l'area di dettaglio */
 		this.formbinding = new FormBinding(this.detail, false);
-		for (Field field : this.detail.getFields()) {
-			if (field instanceof SimpleComboBox) {
+		for (Field<?> field : this.detail.getFields()) {
+			if (field instanceof SimpleComboBox<?>) {
 				this.formbinding
 						.addFieldBinding(new SimpleComboBoxFieldBinding(
-								(SimpleComboBox) field, field.getName()));
+								(SimpleComboBox<?>) field, field.getName()));
 			} else {
 				this.formbinding.addFieldBinding(new FieldBinding(field, field
 						.getName()));

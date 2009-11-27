@@ -3,32 +3,16 @@
  */
 package it.fub.jardin.client.widget;
 
-import it.fub.jardin.client.Jardin;
-import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.ResultsetField;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.LoadEvent;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.LoadListener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author acozzolino
@@ -38,7 +22,7 @@ public class JardinColumnConfig extends ColumnConfig {
   private int groupingId;
   private int fieldId;
   private boolean isKey;
-  private String foreignKey;
+  //private String foreignKey;
 
   /**
    * Creazione di un ColumnConfig che rispecchia le caratteristiche del campo

@@ -7,8 +7,6 @@ import it.fub.jardin.client.exception.HiddenException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
-
 import com.allen_sauer.gwt.log.client.Log;
 
 /**

@@ -6,23 +6,20 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import java.util.ArrayList;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 public class JardinTabItem extends TabItem {
 	private ArrayList<JardinMultiRsSingularCenter> childrenList;
 	ResultsetImproved resultset;
-	private static final int MARGIN = 2;
+	//private static final int MARGIN = 2;
 	private ContentPanel rowContentPanel;
 
 	public JardinTabItem(ResultsetImproved resultset) {
@@ -37,6 +34,9 @@ public class JardinTabItem extends TabItem {
 		rowContentPanel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
 		rowContentPanel.setHeaderVisible(false);
 		this.add(rowContentPanel, new BorderLayoutData(LayoutRegion.CENTER));
+		rowContentPanel.setScrollMode(Scroll.AUTO);	
+		//rowContentPanel.setWidth("100%");
+
 		createFirstChild(resultset);
 		createAllOtherChildren();
 		//this.layout();		
@@ -58,7 +58,7 @@ public class JardinTabItem extends TabItem {
 				ResultsetImproved rsLinked_i = foreignKey.getInterestedResultset();
 				JardinMultiRsSingularCenter newChild = new JardinMultiRsSingularCenter(
 						rsLinked_i, foreignKey);
-				rowContentPanel.add(newChild , new RowData (1,300));				
+				rowContentPanel.add(newChild , new RowData (1,200));				
 				//rowContentPanel.add(newChild, new RowData (1,-1) );				
 				childrenList.add(newChild);
 				//this.layout();

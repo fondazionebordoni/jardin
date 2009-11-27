@@ -3,7 +3,6 @@ package it.fub.jardin.client.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**

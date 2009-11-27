@@ -1,7 +1,5 @@
 package it.fub.jardin.client.model;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class IncomingForeignKeyInformation implements IsSerializable{

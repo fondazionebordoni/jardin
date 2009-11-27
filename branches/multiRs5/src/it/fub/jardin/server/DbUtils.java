@@ -757,10 +757,10 @@ public class DbUtils {
 	 *         parametro, se esiste. Se non esiste, ritorna una stringa vuota.
 	 * @throws SQLException
 	 */
-	private List<BaseModelData> getForeignKeyInfoForAResultset(String resultsetName)
-			throws SQLException {
-		return dbProperties.getForeignKeys(resultsetName);
-	}
+//	private List<BaseModelData> getForeignKeyInfoForAResultset(String resultsetName)
+//			throws SQLException {
+//		return dbProperties.getForeignKeys(resultsetName);
+//	}
 
 
 	public User getUser(Credentials credentials) throws VisibleException {
@@ -968,7 +968,7 @@ public class DbUtils {
 	 * @throws HiddenException
 	 */
 	
-	public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(Integer resultsetId)
+	public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(Integer resultsetId, List<ResultsetImproved> resultSetList)
 			throws HiddenException {
 		ArrayList<IncomingForeignKeyInformation> listaIfki;
 		String tableName = null;
@@ -1003,7 +1003,14 @@ public class DbUtils {
 				String linkingField = resultFKIn.getString("COLUMN_NAME");
 				String field = resultFKIn.getString("REFERENCED_COLUMN_NAME");
 				IncomingForeignKeyInformation ifki = new IncomingForeignKeyInformation(linkingTable, linkingField, field);
-				listaIfki.add(ifki);
+		        //trasformare la linkingTable in un rsimproved
+		        //dal nome recupero l'id e dall'id recupero l'rs
+		        for (final ResultsetImproved rs : resultSetList) {
+		          if (rs.getName().compareTo(ifki.getLinkingTable()) == 0){
+		            ifki.setInterestedResultset(rs);
+		            listaIfki.add(ifki);
+		          }
+		        }
 			}
 		} catch (SQLException e) {
 			Log.warn("Errore SQL", e);
@@ -1146,7 +1153,7 @@ public class DbUtils {
 						resultSetList.get(i).addField(resultFieldList.get(j));
 					}
 				}
-			resultSetList.get(i).setForeignKeyIn(this.getForeignKeyInForATable(resultSetList.get(i).getId()));
+			resultSetList.get(i).setForeignKeyIn(this.getForeignKeyInForATable(resultSetList.get(i).getId(), resultSetList));
 			}
 		} catch (SQLException e) {
 			Log.warn("Errore SQL", e);

@@ -1,7 +1,5 @@
 package it.fub.jardin.client.widget;
 
-import org.apache.batik.ext.awt.image.spi.JDKRegistryEntry.MyImgObs;
-
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
@@ -9,6 +7,7 @@ import it.fub.jardin.client.model.ResultsetImproved; //import it.fub.jardin.clie
 import it.fub.jardin.client.model.SearchParams;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
@@ -24,9 +23,7 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.Record.RecordUpdate;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.util.Size;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -61,7 +58,10 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 		this.setHeaderVisible(false);
 		//this.setHeading("pluto : " + resultSet.getId() );
 		//this.setLayout();
-
+		
+		//this.setScrollMode(Scroll.AUTO);	
+		//this.setWidth("100%");
+		
 		this.createNorth();
 		this.createWest();
 		this.createCenter();
@@ -197,11 +197,11 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 
 		/* Binding con l'area di dettaglio */
 		this.formbinding = new FormBinding(this.detail, false);
-		for (Field field : this.detail.getFields()) {
-			if (field instanceof SimpleComboBox) {
+		for (Field<?> field : this.detail.getFields()) {
+			if (field instanceof SimpleComboBox<?>) {
 				this.formbinding
 						.addFieldBinding(new SimpleComboBoxFieldBinding(
-								(SimpleComboBox) field, field.getName()));
+								(SimpleComboBox<?>) field, field.getName()));
 			} else {
 				this.formbinding.addFieldBinding(new FieldBinding(field, field
 						.getName()));

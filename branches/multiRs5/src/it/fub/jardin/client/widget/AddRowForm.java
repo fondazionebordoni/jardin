@@ -133,7 +133,7 @@ public class AddRowForm extends Window {
         List<String> values =
             resultset.getForeignKeyList().getValues(field.getId());
 
-        Field PF = FieldCreator.getField(field, values, 0, true);
+        Field<?> PF = FieldCreator.getField(field, values, 0, true);
         // ParametricField PF =
         // new ParametricField(grid.getResultset().getId(),
         // field.getForeignKey().split("\\.")[1], field.getName(),
@@ -217,8 +217,8 @@ public class AddRowForm extends Window {
     for (ResultsetField field : this.resultset.getFields()) {
 
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-        List<String> values =
-            resultset.getForeignKeyList().getValues(field.getId());
+//        List<String> values =
+  //          resultset.getForeignKeyList().getValues(field.getId());
 
         // Field PF = FieldCreator.getField(field, values, 0);
         ParametricField PF =
@@ -296,7 +296,7 @@ public class AddRowForm extends Window {
 
         List<BaseModelData> newItemList = new ArrayList<BaseModelData>();
         BaseModelData newItem = new BaseModelData();
-        for (Field field : fieldList) {
+        for (Field<?> field : fieldList) {
 
           System.out.println(field.getValue());
           String property = field.getName();
@@ -310,17 +310,17 @@ public class AddRowForm extends Window {
                   ((Time) field.getValue()).getHour() + ":"
                       + ((Time) field.getValue()).getMinutes();
             }
-          } else if (field instanceof SimpleComboBox) {
+          } else if (field instanceof SimpleComboBox<?>) {
             if (field.getValue() == null) {
               value = "";
             } else {
-              SimpleComboValue scv = (SimpleComboValue) field.getValue();
+              SimpleComboValue<?> scv = (SimpleComboValue<?>) field.getValue();
               value = scv.getValue().toString();
               // value = ((BaseModelData)
               // field.getValue())
               // .get(field.getName());
             }
-          } else if (field instanceof ComboBox) {
+          } else if (field instanceof ComboBox<?>) {
             if (field.getValue() == null) {
               value = null;
             } else {

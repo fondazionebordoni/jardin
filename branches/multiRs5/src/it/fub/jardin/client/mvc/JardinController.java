@@ -33,7 +33,6 @@ import com.extjs.gxt.charts.client.model.charts.FilledBarChart;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -351,7 +350,7 @@ public class JardinController extends Controller {
 				.get(Jardin.SERVICE);
 
 		/* Set up the callback */
-		AsyncCallback callback = new AsyncCallback() {
+		AsyncCallback<?> callback = new AsyncCallback<Object>() {
 
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
@@ -445,54 +444,35 @@ public class JardinController extends Controller {
 	}
 
 	private void onCreateUI() {
+		final ManagerServiceAsync service = (ManagerServiceAsync) Registry
+		.get(Jardin.SERVICE);
 		/* Vedi sequence diagram init_sd.pic */
 		/* Per ogni resultset carica da service le sue proprietà */
 		for (ResultsetImproved resultset : this.user.getResultsets()) {
 			final Integer resultsetId = resultset.getId();
 			forwardToView(view, EventList.NewResultset, resultsetId);
 		}
-
+		for (ResultsetImproved resultset : this.user.getResultsets()) {
+			final Integer resultsetId = resultset.getId();
+			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+		}
 		for (ResultsetImproved resultset : this.user.getResultsets()) {
 			final Integer resultsetId = resultset.getId();
 			/* Avvisa la view che si sta creando un nuovo resultset */
 //			forwardToView(view, EventList.NewResultset, resultsetId);
-			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+			//forwardToView(view, EventList.GotValuesOfFields, resultsetId);
 			// forwardToView(view, EventList.gotValuesOfForeignKeys,
 			// resultsetId);
-
-			final ManagerServiceAsync service = (ManagerServiceAsync) Registry
-					.get(Jardin.SERVICE);
-
 			/*
 			 * Carica i valori dei vincoli di integrità referenziale attualmente
 			 * presenti: sever per il binding dei campi del dettaglio e per il
 			 * row editor
 			 */
-//			AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callbackForeignKeyInForATable = new AsyncCallback<ArrayList<IncomingForeignKeyInformation>>() {
-//				public void onFailure(Throwable caught) {
-//					Dispatcher.forwardEvent(EventList.Error, caught
-//							.getLocalizedMessage());
-//				}
-//
-//				public void onSuccess(
-//						ArrayList<IncomingForeignKeyInformation> ForeignKeyIn) {
-//					ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-//					// System.out.println(ForeignKeyIn);
-//					rs.setForeignKeyIn(ForeignKeyIn);
-//					forwardToView(view, EventList.GotValuesOfForeignKeysIn,
-//							resultsetId);
-//				}
-//			};
-//
-//			service.getForeignKeyInForATable(resultsetId,
-//					callbackForeignKeyInForATable);
-
 			AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys = new AsyncCallback<FieldsMatrix>() {
 				public void onFailure(Throwable caught) {
 					Dispatcher.forwardEvent(EventList.Error, caught
 							.getLocalizedMessage());
 				}
-
 				public void onSuccess(FieldsMatrix fieldsMatrix) {
 					ResultsetImproved rs = user.getResultsetFromId(resultsetId);
 					rs.setForeignKeyList(fieldsMatrix);
@@ -500,10 +480,8 @@ public class JardinController extends Controller {
 							resultsetId);
 				}
 			};
-
 			service.getValuesOfForeignKeys(resultsetId,
 					callbackValuesOfForeignKeys);
-
 		}
 	}
 
@@ -923,7 +901,7 @@ public class JardinController extends Controller {
 	}
 
 	private void onViewLinkedResultset(IncomingForeignKeyInformation ifki) {
-		String linkedTable = ifki.getLinkingTable();
+		//String linkedTable = ifki.getLinkingTable();
 		ResultsetImproved rs = ifki.getInterestedResultset();
 		SearchParams searchParams = new SearchParams(rs.getId());
 		searchParams.setAccurate(true);

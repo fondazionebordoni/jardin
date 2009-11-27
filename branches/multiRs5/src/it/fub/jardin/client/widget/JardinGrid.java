@@ -10,23 +10,15 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.mvc.JardinController;
-import it.fub.jardin.server.DbProperties;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -34,11 +26,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
-import com.extjs.gxt.ui.client.widget.menu.Item;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuBar;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.user.client.Window;
 
 /**
  * @author gpantanetti
