@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
@@ -41,15 +42,17 @@ public class JardinGrid extends Grid<BaseModelData> {
 	private RowEditor<BaseModelData> editor;
 	private SearchParams searchparams;
 	private Integer userPreferenceHeaderId;
+	private JardinTabItem jardinTabItem;
 
 	// private ListStore<BaseModelData> store;
 
 	public JardinGrid(final ListStore<BaseModelData> store,
-			JardinColumnModel cm, final ResultsetImproved resultset) {
+			JardinColumnModel cm, final ResultsetImproved resultset, JardinTabItem jardinTabItem) {
 		super(store, cm);
 
 		// this.store = store;
 		this.resultset = resultset;
+		this.jardinTabItem = jardinTabItem;
 
 		this.setBorders(false);
 		this.setStripeRows(true);
@@ -180,6 +183,9 @@ public class JardinGrid extends Grid<BaseModelData> {
 						} else
 							be.getGrid().getSelectionModel().select(
 									be.getRowIndex(), false);
+						//recuperare LaPrimariKey della Riga
+						//SearchParams searchParams = new SearchParams(resultsetId);
+						//jardinTabItem.setSearchOfOtherChildren(searchparams);
 					}
 				});
 

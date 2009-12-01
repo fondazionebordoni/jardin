@@ -443,22 +443,40 @@ public class JardinController extends Controller {
 		forwardToView(view, EventList.Init, user);
 	}
 
+		
+	
 	private void onCreateUI() {
 		/* Vedi sequence diagram init_sd.pic */
 		/* Per ogni resultset carica da service le sue proprietà */
-		for (ResultsetImproved resultset : this.user.getResultsets()) {
-			final Integer resultsetId = resultset.getId();
-			forwardToView(view, EventList.NewResultset, resultsetId);
-		}
+		//view.createUI(user);
+		//GotValuesOfFields();
+		gotValuesOfForeignKeys();
+	}
+
+//	private void allNewResultset() {
+//		/* Vedi sequence diagram init_sd.pic */
+//		/* Per ogni resultset carica da service le sue proprietà */
 //		for (ResultsetImproved resultset : this.user.getResultsets()) {
 //			final Integer resultsetId = resultset.getId();
+//			forwardToView(view, EventList.NewResultset, resultsetId);
+//		}
+//	}
+
+//	private void GotValuesOfFields(){
+//		for (ResultsetImproved resultset : this.user.getResultsets()) {
+//			final Integer resultsetId = resultset.getId();
+//			/* Avvisa la view che si sta creando un nuovo resultset */
+////			forwardToView(view, EventList.NewResultset, resultsetId);
 //			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
 //		}
+//	}
+	
+	private void gotValuesOfForeignKeys(){
 		for (ResultsetImproved resultset : this.user.getResultsets()) {
 			final Integer resultsetId = resultset.getId();
 			/* Avvisa la view che si sta creando un nuovo resultset */
 //			forwardToView(view, EventList.NewResultset, resultsetId);
-			forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+			//forwardToView(view, EventList.GotValuesOfFields, resultsetId);
 			// forwardToView(view, EventList.gotValuesOfForeignKeys,
 			// resultsetId);
 			/*

@@ -46,6 +46,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 	private FormBinding formbinding;
 	ResultsetImproved resultSet;
 	IncomingForeignKeyInformation foreignKey;
+	private FormPanel searchAreaAdvanced;
 
 	public JardinMultiRsSingularCenter(ResultsetImproved resultSet,
 			IncomingForeignKeyInformation foreignKey) {
@@ -65,7 +66,6 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 		this.createNorth();
 		this.createWest();
 		this.createCenter();
-
 		//this.layout();
 	}
 
@@ -86,7 +86,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 
 	private void createWest() {
 		this.west = new ContentPanel(new FitLayout());
-		this.west.setHeaderVisible(false);
+		this.west.setHeaderVisible(true);
 		// this.west.setLayoutOnChange(true);
 		this.west.add(new WaitPanel());
 
@@ -156,10 +156,11 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 	}
 
 	public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
+		this.searchAreaAdvanced = searchAreaAdvanced;
 		this.west.expand();
 		this.west.removeAll();
 		this.west.add(searchAreaAdvanced);
-		this.west.collapse();
+		//this.west.collapse();
 	}
 
 	public JardinGridToolBar getToolbar() {
@@ -192,7 +193,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 		this.center_south.expand();
 		this.center_south.removeAll();
 		this.center_south.add(detail);
-		this.center_south.collapse();
+		//this.center_south.collapse();
 		// this.center_south.layout();
 
 		/* Binding con l'area di dettaglio */
@@ -209,6 +210,11 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 		}
 	}
 
+//	void setSearchParams (SearchParams searchParams){
+//		this.searchAreaAdvanced.
+//	}
+	
+	
 	public void updateStore(final ListStore<BaseModelData> store) {
 
 		/* Loading dello store */
@@ -223,7 +229,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 
 		/* Riconfigurazione della griglia col nuovo store */
 		this.grid.reconfigure(store, this.grid.getColumnModel());
-		((JardinGridView) this.grid.getView()).setGridHeader();
+		//((JardinGridView) this.grid.getView()).setGridHeader();
 
 		this.grid.getStore().addListener(Store.Update,
 				new Listener<StoreEvent<BaseModelData>>() {
@@ -271,6 +277,15 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 	public void setSearchparams(SearchParams searchparams) {
 		grid.setSearchparams(searchparams);
 	}
-	
 
+	public void collapseAdvSearchAndDetailArea(){
+		((BorderLayout)this.getLayout()).collapse(LayoutRegion.WEST);
+		((BorderLayout)this.center.getLayout()).collapse(LayoutRegion.SOUTH);
+
+//		searchAreaAdvanced.collapse();
+//			detail.collapse();
+	}
+
+	
+	
 }

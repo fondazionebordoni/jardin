@@ -43,12 +43,12 @@ public class JardinDetail extends FormPanel {
           + " opzioni di sicurezza del browser", null);
     }
 
-    this.setBodyBorder(false);
+    this.setBodyBorder(true);
     this.setWidth("100%");
     this.setFieldWidth(defaultWidth);
     this.setLabelWidth(labelWidth);
     this.setLabelAlign(LabelAlign.RIGHT);
-    this.setHeaderVisible(false);
+    this.setHeaderVisible(true);
     this.setScrollMode(Scroll.AUTO);
 
     HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();

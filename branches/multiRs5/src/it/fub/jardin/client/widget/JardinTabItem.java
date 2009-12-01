@@ -3,12 +3,18 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.SearchParams;
+
 import java.util.ArrayList;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -21,7 +27,7 @@ public class JardinTabItem extends TabItem {
 	private ArrayList<JardinMultiRsSingularCenter> childrenList;
 	ResultsetImproved resultset;
 	//private static final int MARGIN = 2;
-	private ContentPanel rowContentPanel;
+	private ContentPanel otherChildrenRowContentPanel;
 
 	public JardinTabItem(ResultsetImproved resultset) {
 		super(resultset.getAlias());
@@ -32,18 +38,8 @@ public class JardinTabItem extends TabItem {
 		// this.setLayout(new RowLayout(Orientation.HORIZONTAL));
 		this.setLayout(new BorderLayout());
 		// this.setLayout(new FlowLayout());
-		rowContentPanel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
-		rowContentPanel.setHeaderVisible(false);
-		this.add(rowContentPanel, new BorderLayoutData(LayoutRegion.CENTER));
-		rowContentPanel.setScrollMode(Scroll.AUTO);	
 		//rowContentPanel.setWidth("100%");
 
-		createFirstAndAllOtherChildren();
-		//this.layout();		
-	}
-
-
-	private void createFirstAndAllOtherChildren() {
 		ArrayList<IncomingForeignKeyInformation> foreignKeyBMD = resultset.getForeignKeyIn();
 		int numFigli = foreignKeyBMD.size();
 
@@ -57,70 +53,87 @@ public class JardinTabItem extends TabItem {
 		// First Child
 		JardinMultiRsSingularCenter firstChild = new JardinMultiRsSingularCenter(
 				resultset, null);
-		rowContentPanel.add(firstChild, new RowData (1, percFirstChild) );	
-	    //this.add(firstChild, new BorderLayoutData(LayoutRegion.CENTER));	
+		//rowContentPanel.add(firstChild, new RowData (1, percFirstChild) );	
+		BorderLayoutData borderLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
+		borderLayoutData.setSplit(true);
+		borderLayoutData.setCollapsible(true);
+		borderLayoutData.setMargins(new Margins(5));
+
+		this.add(firstChild, borderLayoutData);	
 	    //this.add(firstChild, new FlowData (MARGIN,MARGIN,MARGIN,MARGIN));	
 		childrenList.add(firstChild);
-
-		// otherChild
-		for (IncomingForeignKeyInformation foreignKey : foreignKeyBMD) {
-			ResultsetImproved rsLinked_i = foreignKey.getInterestedResultset();
-			JardinMultiRsSingularCenter newChild = new JardinMultiRsSingularCenter(
-					rsLinked_i, foreignKey);
-			rowContentPanel.add(newChild , new RowData (1, percOtherChildren));				
-			//rowContentPanel.add(newChild, new RowData (1,-1) );				
-			childrenList.add(newChild);
-			this.layout();
-		}
 		
+		if (numFigli >= 1 ) {
+			otherChildrenRowContentPanel = new ContentPanel(new RowLayout(Orientation.VERTICAL));
+			otherChildrenRowContentPanel.setHeaderVisible(false);
+			otherChildrenRowContentPanel.setScrollMode(Scroll.AUTO);	
+			BorderLayoutData borderLayoutData2 = new BorderLayoutData(LayoutRegion.SOUTH);
+			borderLayoutData2.setSplit(true);
+			borderLayoutData2.setCollapsible(true);
+			borderLayoutData2.setMargins(new Margins(5));
+			this.add(otherChildrenRowContentPanel, borderLayoutData2);	
+			// otherChild
+			for (IncomingForeignKeyInformation foreignKey : foreignKeyBMD) {
+				ResultsetImproved rsLinked_i = foreignKey.getInterestedResultset();
+				JardinMultiRsSingularCenter newChild = new JardinMultiRsSingularCenter(
+						rsLinked_i, foreignKey);
+				otherChildrenRowContentPanel.add(newChild , new RowData (1, 1));				
+				//rowContentPanel.add(newChild, new RowData (1,-1) );				
+				childrenList.add(newChild);
+				//this.layout();
+			}
+		}
 		
 //		for (JardinMultiRsSingularCenter currChild : childrenList){
 //			currChild.expand();
 //		}
 //		this.layout();
+		this.addListener( Events.Select ,
+				new Listener<TabPanelEvent>() {
+					public void handleEvent(TabPanelEvent tpe) {
+						collapseAdvSearchAndDetailArea();
+					}
+		});
 	}
 
-	public void addDetail(JardinDetail detail, Integer resultsetId) {
-		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
-		currChild.addDetail(detail);
-	}
+//	public void addDetail(JardinDetail detail, Integer resultsetId) {
+//		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
+//		currChild.addDetail(detail);
+//	}
 
-	private JardinMultiRsSingularCenter findInterestedJardinMultiRsSingularCenter (Integer resultsetId){
-		for (JardinMultiRsSingularCenter currChild : childrenList){
-			int currentResultsetId = currChild.getResultSetId();			
-			if (currentResultsetId == resultsetId.intValue()) {
-				return currChild;				
-			}			
-		}
-		return null;
-	}
 	
-	public void addSearchAreaBase(SearchAreaBase searchAreaBase, Integer resultsetId) {
-		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
-		currChild.addSearchAreaBase(searchAreaBase);
-	}
+//	public void addSearchAreaBase(SearchAreaBase searchAreaBase, Integer resultsetId) {
+//		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
+//		currChild.addSearchAreaBase(searchAreaBase);
+//	}
 
-	public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced, Integer resultsetId) {
-		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
-		currChild.addSearchAreaAdvanced(searchAreaAdvanced);
-	}
+//	public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced, Integer resultsetId) {
+//		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
+//		currChild.addSearchAreaAdvanced(searchAreaAdvanced);
+//	}
 
-	public void setGrid(JardinGrid grid, Integer resultsetId) {
-		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
-		currChild.setGrid(grid);
-		//createAllOtherChildren();
-	}
+//	public void setGrid(JardinGrid grid, Integer resultsetId) {
+//		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
+//		currChild.setGrid(grid);
+//		//createAllOtherChildren();
+//	}
 
+	public void collapseAdvSearchAndDetailArea(){
+		for (JardinMultiRsSingularCenter currChild : childrenList){
+			currChild.collapseAdvSearchAndDetailArea();									
+		}
+
+	}
 
 	public void updatePreference(HeaderPreferenceList data, Integer resultsetId) {
 		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
 		currChild.updatePreference(data);
 	}
 
-	public void updateStore(final ListStore<BaseModelData> store, Integer resultsetId) {
-		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
-		currChild.updateStore(store);
-	}
+//	public void updateStore(final ListStore<BaseModelData> store, Integer resultsetId) {
+//		JardinMultiRsSingularCenter currChild  = findInterestedJardinMultiRsSingularCenter (resultsetId) ;	
+//		currChild.updateStore(store);
+//	}
 	
 //	public JardinGrid getGrid( Integer resultsetId) {
 //		///// DA CAMBIARE !!!!!!!!!!!!!!!!!!!!
@@ -152,15 +165,42 @@ public class JardinTabItem extends TabItem {
 		return null;
 	}
 	
-	public JardinMultiRsSingularCenter getJardinMultiRsSingularCenterFromResultSetId (int resultSetId) {
+//	public JardinMultiRsSingularCenter getJardinMultiRsSingularCenterFromResultSetId (int resultSetId) {
+//		for (JardinMultiRsSingularCenter currChild : childrenList){
+//			int currentResultsetId = currChild.getResultSetId();			
+//			if (currentResultsetId == resultSetId) {
+//				return currChild;		
+//			}			
+//		}
+//		return null;
+//	}
+
+	public JardinMultiRsSingularCenter findInterestedJardinMultiRsSingularCenter (Integer resultsetId){
 		for (JardinMultiRsSingularCenter currChild : childrenList){
 			int currentResultsetId = currChild.getResultSetId();			
-			if (currentResultsetId == resultSetId) {
-				return currChild;		
+			if (currentResultsetId == resultsetId.intValue()) {
+				return currChild;				
 			}			
 		}
 		return null;
 	}
-
 	
+	public void setSearchOfOtherChildren (SearchParams searchParams){
+		int i=0;
+		for (JardinMultiRsSingularCenter currChild : childrenList){
+			if (i>0) {
+				currChild.setSearchparams(searchParams);
+			}
+			i++;
+		}
+	}
+
+	public boolean isFather (JardinMultiRsSingularCenter jardinMultiRsSingularCenter){
+		for (JardinMultiRsSingularCenter currChild : childrenList){
+			if (currChild == jardinMultiRsSingularCenter){
+				return true;
+			}
+		}			
+		return false;
+	}
 }

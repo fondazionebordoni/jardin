@@ -9,6 +9,7 @@ import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.widget.HeaderArea;
 import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
@@ -69,7 +70,7 @@ public class JardinView extends View {
 		super(controller);
 		if (controller instanceof JardinController) {
 			this.controller = (JardinController) controller;
-		}
+		}		
 	}
 
 	@Override
@@ -96,14 +97,14 @@ public class JardinView extends View {
 				message = "Errore durante l'accesso";
 			}
 			loginError(message);
-		} else if (t == EventList.NewResultset) {
-			if (event.getData() instanceof Integer) {
-				newResultset((Integer) event.getData());
-			}
-		} else if (t == EventList.GotValuesOfFields) {
-			if (event.getData() instanceof Integer) {
-				gotValuesOfFields((Integer) event.getData());
-			}
+//		} else if (t == EventList.NewResultset) {
+//			if (event.getData() instanceof Integer) {
+//				newResultset((Integer) event.getData());
+//			}
+//		} else if (t == EventList.GotValuesOfFields) {
+//			if (event.getData() instanceof Integer) {
+//				gotValuesOfFields((Integer) event.getData());
+//			}
 		} else if (t == EventList.GotValuesOfForeignKeys) {
 			if (event.getData() instanceof Integer) {
 				gotValuesOfForeignKeys((Integer) event.getData());
@@ -159,7 +160,6 @@ public class JardinView extends View {
 		for (JardinGrid currGrid : this.getGridListByResultSetId(resultset)){
 			currGrid.addRow();
 		}		
-
 	}
 
 	private void onViewPopUpDetail(ArrayList<BaseModelData> infoToView) {
@@ -171,6 +171,17 @@ public class JardinView extends View {
 		item.getGridFromResultSetId(rsId).viewDetailPopUp(infoToView); 
 	}
 
+//	private void initUI() {
+//		viewport = new Viewport();
+//		viewport.setLayout(new RowLayout(Orientation.VERTICAL));
+//
+//		createHeader();
+//		createMain();
+//
+//		RootPanel.get().add(viewport);
+//		Dispatcher.forwardEvent(EventList.CreateUI);
+//	}
+
 	private void initUI() {
 		viewport = new Viewport();
 		viewport.setLayout(new RowLayout(Orientation.VERTICAL));
@@ -179,9 +190,10 @@ public class JardinView extends View {
 		createMain();
 
 		RootPanel.get().add(viewport);
-		Dispatcher.forwardEvent(EventList.CreateUI);
+		this.createUI();
 	}
 
+	
 	private void createHeader() {
 		this.header = new HeaderArea(this.controller.getUser());
 		this.header.setId(JardinView.HEADER_AREA);
@@ -242,43 +254,82 @@ public class JardinView extends View {
 		MessageBox.alert("Errore", message, l);
 	}
 
-	private void newResultset(Integer resultsetId) {
-		/* Prendi le proprietà del resultset in base all'id dall'utente */
-		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
-				resultsetId);
-		JardinTabItem item = new JardinTabItem(resultset);
-		item.setId(ITEM_PREFIX + resultsetId);
+//	private void newResultset(Integer resultsetId) {
+//		/* Prendi le proprietà del resultset in base all'id dall'utente */
+//		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
+//				resultsetId);
+//		JardinTabItem item = new JardinTabItem(resultset);
+//		item.setId(ITEM_PREFIX + resultsetId);
+//
+//		this.main.add(item);
+//		//item.createAllOtherChildren();
+//	}
 
-		this.main.add(item);
-		//item.createAllOtherChildren();
+	void createUI (){	
+		User user = this.controller.getUser();
+		createAllTabItemsEmpty (user);
+		createAllAdvancedSearchAreas(user);
+		Dispatcher.forwardEvent(EventList.CreateUI);
+	}
+	
+	void createAllTabItemsEmpty (User user){
+		for (ResultsetImproved resultset : user.getResultsets()) {
+			final Integer resultsetId = resultset.getId();
+//			if ( (resultsetId == 9629299) || (resultsetId == 9629302) || (resultsetId == 9629306)) {// SOLO PER TEST DA ELIMINARE
+				JardinTabItem item = new JardinTabItem(resultset);
+				item.setId(ITEM_PREFIX + resultsetId);
+				this.main.add(item);
+			}
+//		}
 	}
 
-	private synchronized void gotValuesOfFields(Integer resultsetId) {
-		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
-				resultsetId);
-		ArrayList<JardinMultiRsSingularCenter> jardinMultiRsSingularCenterListByResultSetId = this.getJardinMultiRsSingularCenterListByResultSetId(resultsetId); 
-		for (JardinMultiRsSingularCenter item : jardinMultiRsSingularCenterListByResultSetId){				
-			/* Creazione dell'area di ricerca avanzata */
-			SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(
-					resultset);
-			//JardinTabItem item = getItemByResultsetId(resultsetId);
-			if (item != null) {
-				/* Aggiungere la ricerca avanzata al tabitem */
-				item.addSearchAreaAdvanced(searchAreaAdvanced);
-			}
+	void createAllAdvancedSearchAreas (User user){
+		for (ResultsetImproved resultset : user.getResultsets()) {
+			final Integer resultsetId = resultset.getId();
+//			if ( (resultsetId == 9629299) || (resultsetId == 9629302) || (resultsetId == 9629306)){ // SOLO PER TEST DA ELIMINARE 				
+			//if ( (resultsetId == 9629299) || (resultsetId == 9629302) ){ // SOLO PER TEST DA ELIMINARE 				
+				ArrayList<JardinMultiRsSingularCenter> jardinMultiRsSingularCenterListByResultSetId = this.getJardinMultiRsSingularCenterListByResultSetId(resultsetId); 
+				for (JardinMultiRsSingularCenter jardinMultiRsSingularCenter : jardinMultiRsSingularCenterListByResultSetId){				
+					/* Creazione dell'area di ricerca avanzata */
+					SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(
+							resultset);
+					//JardinTabItem item = getItemByResultsetId(resultsetId);
+					//if (item != null) {
+						/* Aggiungere la ricerca avanzata al tabitem */
+					jardinMultiRsSingularCenter.addSearchAreaAdvanced(searchAreaAdvanced);
+					//} 
+				}
+//			}
 		}
 	}
+
+	
+//	private synchronized void gotValuesOfFields(Integer resultsetId) {
+//		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
+//				resultsetId);
+//		ArrayList<JardinMultiRsSingularCenter> jardinMultiRsSingularCenterListByResultSetId = this.getJardinMultiRsSingularCenterListByResultSetId(resultsetId); 
+//		for (JardinMultiRsSingularCenter item : jardinMultiRsSingularCenterListByResultSetId){				
+//			/* Creazione dell'area di ricerca avanzata */
+//			SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(
+//					resultset);
+//			//JardinTabItem item = getItemByResultsetId(resultsetId);
+//			if (item != null) {
+//				/* Aggiungere la ricerca avanzata al tabitem */
+//				item.addSearchAreaAdvanced(searchAreaAdvanced);
+//			}
+//		}
+//	}
 
 	private synchronized void gotValuesOfForeignKeys(Integer resultsetId) {
 		ResultsetImproved resultset = controller.getUser().getResultsetFromId(
 				resultsetId);
 
 		ArrayList<JardinMultiRsSingularCenter> jardinMultiRsSingularCenterListByResultSetId = this.getJardinMultiRsSingularCenterListByResultSetId(resultsetId); 
-		for (JardinMultiRsSingularCenter item : jardinMultiRsSingularCenterListByResultSetId){			
+		for (JardinMultiRsSingularCenter jardinMultiRsSingularCenter : jardinMultiRsSingularCenterListByResultSetId){			
 			/* Creazione della griglia */
 			ListStore<BaseModelData> store = new ListStore<BaseModelData>();
 			JardinColumnModel cm = new JardinColumnModel(resultset);
-			JardinGrid grid = new JardinGrid(store, cm, resultset);
+			JardinGrid grid = new JardinGrid(store, cm, resultset,this.getJardinTabItemOfAJardinMultiRsSingularCenter (jardinMultiRsSingularCenter));
 	
 			/* Creazione dell'area di ricerca semplice */
 			SearchAreaBase searchAreaBase = new SearchAreaBase(resultset);
@@ -287,13 +338,17 @@ public class JardinView extends View {
 			JardinDetail detail = new JardinDetail(resultset);
 	
 			/* Aggiungere la griglia al tabItem */
-			item.setGrid(grid);
+			jardinMultiRsSingularCenter.setGrid(grid);
 	
 			/* Aggiungere la ricerca semplice al tabItem */
-			item.addSearchAreaBase(searchAreaBase);
+			jardinMultiRsSingularCenter.addSearchAreaBase(searchAreaBase);
 	
 			/* Aggiungere il dettaglio al tabitem */
-			item.addDetail(detail);
+			jardinMultiRsSingularCenter.addDetail(detail);
+			
+			jardinMultiRsSingularCenter.layout();
+			//item.collapseAdvSearchAndDetailArea();
+			//item.layout();
 	
 			// Eseguo una ricerca per riempire la il resultset
 	//		SearchParams searchParams = new SearchParams(resultsetId);
@@ -388,13 +443,23 @@ public class JardinView extends View {
 		ArrayList<JardinMultiRsSingularCenter> JardinMultiRsSingularCenterList = new ArrayList<JardinMultiRsSingularCenter>() ;
 		for (TabItem currentTabItem : main.getItems() ){
 			JardinTabItem currJardinTabItem = (JardinTabItem) currentTabItem;
-			JardinMultiRsSingularCenter foundJardinMultiRsSingularCenter = currJardinTabItem.getJardinMultiRsSingularCenterFromResultSetId(resultSetId);
+			JardinMultiRsSingularCenter foundJardinMultiRsSingularCenter = currJardinTabItem.findInterestedJardinMultiRsSingularCenter(resultSetId);
 			if (foundJardinMultiRsSingularCenter != null) {
 				JardinMultiRsSingularCenterList.add(foundJardinMultiRsSingularCenter);				
 			}	
 		}
 		return JardinMultiRsSingularCenterList;
 	}
-	
+
+	private JardinTabItem getJardinTabItemOfAJardinMultiRsSingularCenter (JardinMultiRsSingularCenter jardinMultiRsSingularCenter){
+		for (TabItem currentTabItem : main.getItems() ){
+			JardinTabItem currJardinTabItem = (JardinTabItem) currentTabItem;
+			if (currJardinTabItem.isFather (jardinMultiRsSingularCenter)){
+				return currJardinTabItem;
+			}	
+		}
+		return null;
+	}
+
 	
 }
