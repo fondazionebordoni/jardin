@@ -770,6 +770,7 @@ public class JardinController extends Controller {
     List<String> columns = new ArrayList<String>();
     for (int i = 0; i < cm.getColumnCount(); i++) {
       columns.add(cm.getColumn(i).getId());
+      //System.out.println("expCol->"+cm.getColumn(i).getId());
     }
 
     /* Criteri di ricerca */

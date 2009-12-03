@@ -66,9 +66,6 @@ public class JardinGrid extends Grid<BaseModelData> {
 
     this.setLoadMask(true);
 
-    // System.out.println("getForeignKeyList "+resultset.getForeignKeyList());
-    // System.out.println("getForeignKeyIn "+this.resultset.getForeignKeyIn());
-
     final Menu m = new Menu();
     this.setContextMenu(m);
 
@@ -88,7 +85,6 @@ public class JardinGrid extends Grid<BaseModelData> {
         for (final ResultsetField field : resultset.getFields()) {
           if ((field.getForeignKey().compareToIgnoreCase("") != 0)) {
             String fkinfo = field.getForeignKey();
-            System.out.println(fkinfo);
             String[] fksplitted = fkinfo.split("\\.");
             for (final ResultsetImproved rs : resultsets) {
               if (rs.getName().compareTo(fksplitted[0]) == 0) {
