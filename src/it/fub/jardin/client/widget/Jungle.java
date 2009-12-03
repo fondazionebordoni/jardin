@@ -78,9 +78,7 @@ public class Jungle extends Dialog {
 
     int i = 0;
     for (ResultsetField field : resultset.getFields()) {
-      if (field.getReadperm()) {
-        list[i++] = new ListGridField(field.getName(), field.getAlias());
-      }
+      list[i++] = new ListGridField(field.getName(), field.getAlias());
     }
 
     grid.setFields(list);

@@ -34,24 +34,33 @@ public class SearchAreaAdvanced extends FormPanel {
 
   private ResultsetImproved resultset;
   private SearchParams searchParams;
-  private List<Field<?>> fieldList;
+
+private List<Field> fieldList;
 
   public SearchAreaAdvanced(final ResultsetImproved resultset) {
 
     this.resultset = resultset;
     this.searchParams = new SearchParams(resultset.getId());
-    this.fieldList = new ArrayList<Field<?>>();
+    this.fieldList = new ArrayList<Field>();
     this.addStyleName("search-area-advanced");
 
-    this.setBodyBorder(false);
+    this.setBodyBorder(true);
     this.setScrollMode(Scroll.AUTO);
-    this.setHeaderVisible(false);
+    this.setHeaderVisible(true);
     this.setWidth("100%");
     this.setLayout(new FlowLayout());
 
     createSearchSet();
+//    TextField<String>  textField = new TextField<String>();   
+//    textField.setEmptyText("PROVA");
+//    this.add(textField);
     setButtons();
   }
+
+  
+  public void setSearchParams(SearchParams searchParams) {
+		this.searchParams = searchParams;
+	}
 
   private void createSearchSet() {
     HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
@@ -85,7 +94,7 @@ public class SearchAreaAdvanced extends FormPanel {
         // List<String> values =
         // resultset.getValuesList().getValues(field.getId());
         // Field f = FieldCreator.getField(field, values, combo);
-        Field<?> f;
+        Field f;
         if (combo) {
           f =
               new ParametricField(resultset.getId(), field.getName(),
@@ -140,7 +149,7 @@ public class SearchAreaAdvanced extends FormPanel {
       public void componentSelected(ButtonEvent ce) {
         List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
-        for (Field<?> field : fieldList) {
+        for (Field field : fieldList) {
           String value = field.getRawValue();
           if (value != null && value.length() > 0) {
             BaseModelData m = new BaseModelData();
@@ -157,7 +166,7 @@ public class SearchAreaAdvanced extends FormPanel {
     this.addButton(new Button("Cancella", new SelectionListener<ButtonEvent>() {
       @Override
       public void componentSelected(ButtonEvent ce) {
-        for (Field<?> field : fieldList) {
+        for (Field field : fieldList) {
           field.reset();
         }
       }

@@ -18,6 +18,8 @@ public class EventList {
 
   public static final EventType CreateUI = new EventType();
 
+  public static final EventType CreateAllChildsOfResultSetWithIncomingForeignKeys = new EventType();
+
   public static final EventType Error = new EventType();
 
   public static final EventType ExportAllStoreAllColumns = new EventType();
@@ -99,5 +101,10 @@ public class EventList {
   public static final EventType ViewLinkedTable = new EventType();
 
   public static final EventType ViewPopUpDetail = new EventType();
+
+  public static final EventType UpdateCorrelatedResultset = new EventType();
+
+  public static final EventType SearchAllCorrelatedResultSet = new EventType();
+
 
 }

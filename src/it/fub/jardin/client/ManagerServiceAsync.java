@@ -11,7 +11,6 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
-import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
@@ -64,6 +63,9 @@ public interface ManagerServiceAsync {
 
   public void getValuesOfForeignKeys(Integer resultsetId,
       AsyncCallback<FieldsMatrix> callback);
+  
+//  void getForeignKeyInForATable(Integer resultsetId,
+//      AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callback);
 
   public void removeObjects(Integer resultset,
       List<BaseModelData> selectedRows, AsyncCallback<Integer> asyncCallback);

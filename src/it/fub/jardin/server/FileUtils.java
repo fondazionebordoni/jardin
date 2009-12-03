@@ -61,33 +61,16 @@ public class FileUtils {
   public static final char CSV_REPLACER = '?';
 
   public static String createReport(String file, String xsl, Template template,
-      List<BaseModelData> records, List<String> columns)
-      throws VisibleException {
+      List<BaseModelData> records, List<String> columns) throws VisibleException {
     try {
       // TODO Possibile che non ci sia un modo migliore? Vedi EventList
       File f = createTempFile(file, template.getExt());
-      ArrayList<BaseModelData> recordsToExport = new ArrayList<BaseModelData>();
-
-      for (BaseModelData record : records) {
-        /*
-         * Create a collection of record data. Getting values from properties
-         * ensures that values are correctly matched with corresponding property
-         */
-        BaseModelData bmd = new BaseModelData();
-        for (String property : columns) {
-          // String value = String.valueOf(record.get(property));
-          String value = String.valueOf(record.get(property));
-          bmd.set(property, value);
-          System.out.println("colonna->" + property);
-        }
-        recordsToExport.add(bmd);
-      }
       if (template.getInfo().compareTo(Template.CSV.getInfo()) == 0) {
-        writeCsvReport(f, recordsToExport, columns);
+        writeCsvReport(f, records, columns);
       } else if (template.getInfo().compareTo(Template.XML.getInfo()) == 0) {
-        writeXmlReport(f, recordsToExport, columns);
+        writeXmlReport(f, records, columns);
       } else {
-        writePdfReport(f, recordsToExport, new File(xsl));
+        writePdfReport(f, records, new File(xsl));
       }
       return f.getPath();
     } catch (Exception e) {
@@ -140,9 +123,7 @@ public class FileUtils {
     BufferedWriter out = new BufferedWriter(new FileWriter(f));
 
     try {
-      /*
-       * Take records' labels and put them on the first row of the CSV file
-       */
+      /* Take records' labels and put them on the first row of the CSV file */
       out.write(collection2Csv(columns, separator, wrapper, replacer));
 
       /* Put records' data on file */
@@ -193,6 +174,7 @@ public class FileUtils {
     Source src =
         new SAXSource(new BaseModelDataXMLReader(),
             new BaseModelDataInputSource(records));
+
     // Setup output
     Result res = new StreamResult(f);
 
@@ -220,10 +202,9 @@ public class FileUtils {
         Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out);
         // Setup XSLT
         TransformerFactory factory = TransformerFactory.newInstance();
-        FileReader fr = new FileReader(xsl);
-        BufferedReader br = new BufferedReader(fr);
-        StreamSource sr = new StreamSource(br);
-        Transformer transformer = factory.newTransformer(sr);
+        Transformer transformer =
+            factory.newTransformer(new StreamSource(new BufferedReader(
+                new FileReader(xsl))));
 
         // Set the value of a <param> in the stylesheet
         transformer.setParameter("versionParam", "2.0");
@@ -267,15 +248,15 @@ public class FileUtils {
      */
     Log.debug("XSL file: " + xsl);
     File f = new File(xsl);
-    /*
-     * if (f.exists() && f.canRead()) { Log.debug("XSL file " + xsl +
-     * " already exists. I do not create it."); return; }
-     */
+    if (f.exists() && f.canRead()) {
+      Log.debug("XSL file " + xsl + " already exists. I do not create it.");
+      return;
+    }
 
     /*
-     * ----------------------------------------------------------------------
-     * --- Creazione del template di default --------------------------------
-     * -----------------------------------------
+     * -------------------------------------------------------------------------
+     * Creazione del template di default
+     * -------------------------------------------------------------------------
      */
 
     /* Prendi lo scheletro dell'XSL di default */
@@ -298,27 +279,20 @@ public class FileUtils {
     int i = 1;
     String tmp = row;
     for (ResultsetField field : resultset.getFields()) {
-      if (field.getReadperm()) {
-        tmp =
-            tmp.replaceFirst(Matcher.quoteReplacement(LABEL + i + "$$"),
-                field.getAlias());
-        tmp =
-            tmp.replaceFirst(Matcher.quoteReplacement(VALUE + i + "$$"),
-                field.getName());
-        if (i % 4 == 0) {
-          out.write(tmp);
-          tmp = row;
-          i = 0;
-        }
-        i++;
+      tmp =
+          tmp.replaceFirst(Matcher.quoteReplacement(LABEL + i + "$$"),
+              field.getAlias());
+      tmp =
+          tmp.replaceFirst(Matcher.quoteReplacement(VALUE + i + "$$"),
+              field.getName());
+      if (i % 4 == 0) {
+        out.write(tmp);
+        tmp = row;
       }
+      i++;
     }
 
     if (--i % 4 != 0) {
-      for (int j = i; j <= 4; j++) {
-        tmp = tmp.replaceFirst(Matcher.quoteReplacement(LABEL + j + "$$"), "");
-        tmp = tmp.replaceFirst(Matcher.quoteReplacement(VALUE + j + "$$"), "@");
-      }
       out.write(tmp);
     }
     out.write(footer);

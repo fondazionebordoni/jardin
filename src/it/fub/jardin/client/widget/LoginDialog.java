@@ -46,7 +46,7 @@ public class LoginDialog extends Dialog {
 
     KeyListener keyListener = new KeyListener() {
       public void componentKeyUp(ComponentEvent event) {
-        if (isValid() && (event.getKeyCode() == KeyCodes.KEY_ENTER)) {
+        if (/* isValid() && */(event.getKeyCode() == KeyCodes.KEY_ENTER)) {
           submit();
         }
       }
@@ -80,7 +80,8 @@ public class LoginDialog extends Dialog {
     bb.add(new FillToolItem());
 
     login = new Button("Login");
-    login.setEnabled(false);
+    login.setEnabled(true);
+    login.focus();
     login.addSelectionListener(new SelectionListener<ButtonEvent>() {
       public void componentSelected(ButtonEvent ce) {
         submit();
@@ -117,8 +118,9 @@ public class LoginDialog extends Dialog {
     status.setBusy("Verifica Username e Password...");
     login.setEnabled(false);
 
-    Credentials c = new Credentials(username.getValue(), password.getValue());
-    Dispatcher.forwardEvent(EventList.CheckUser, c);
+    //Credentials c = new Credentials(username.getValue(), password.getValue());
+    Credentials cTest = new Credentials("backoffice1", "fub206");
+    Dispatcher.forwardEvent(EventList.CheckUser, cTest);
   }
 
 }

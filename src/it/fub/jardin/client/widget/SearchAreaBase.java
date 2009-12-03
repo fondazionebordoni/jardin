@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 public class SearchAreaBase extends HtmlContainer {
 
   private static final String SPECIAL_FIELD = "searchField";
+  //private static final String ACCURATE_STRING = "accurateSearchCheck";
   private TextField<String> field;
   private CheckBox accurate = new CheckBox();
   private List<String> fieldNames;
@@ -153,15 +154,21 @@ public class SearchAreaBase extends HtmlContainer {
         queryFieldList.add(m);
       }
 
-      Map<String, String> searchMap = parser.getSearchMap();
-      for (String key : parser.getSearchMap().keySet()) {
-        for (String k : fieldNames) {
-          if (k.equalsIgnoreCase(key)) {
-            BaseModelData m = new BaseModelData();
-            m.set(key, searchMap.get(key));
-            queryFieldList.add(m);
-          }
-        }
+			Map<String, String> searchMap = parser.getSearchMap();
+			for (String key : parser.getSearchMap().keySet()) {
+				// TODO migliorare la gestione per il case insensitive
+				//
+				//
+				//
+				//
+				//
+				//
+				key = key.toLowerCase();
+				if (this.fieldNames.contains(key)) {
+					BaseModelData m = new BaseModelData();
+					m.set(key, searchMap.get(key));
+					queryFieldList.add(m);
+				}
       }
     }
 

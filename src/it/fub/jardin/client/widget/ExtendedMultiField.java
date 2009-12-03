@@ -25,7 +25,7 @@ import com.google.gwt.user.client.Event;
 /**
  * @author gpantanetti
  */
-public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSequence>
+public abstract class ExtendedMultiField<F extends Field, D extends CharSequence>
     extends Field<D> {
 
   protected List<F> fields;
@@ -88,7 +88,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
   @Override
   public void disable() {
     super.disable();
-    for (Field<?> field : fields) {
+    for (Field field : fields) {
       field.disable();
     }
   }
@@ -96,7 +96,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
   @Override
   public void enable() {
     super.enable();
-    for (Field<?> field : fields) {
+    for (Field field : fields) {
       field.enable();
     }
   }
@@ -164,7 +164,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
   @Override
   public boolean isValid() {
     boolean ret = super.isValid();
-    for (Field<?> f : fields) {
+    for (Field f : fields) {
       if (!f.isValid()) {
         return false;
       }
@@ -184,7 +184,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
 
   @Override
   public void reset() {
-    for (Field<?> f : fields) {
+    for (Field f : fields) {
       f.reset();
     }
   }
@@ -202,7 +202,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
 
   @Override
   public void setReadOnly(boolean readOnly) {
-    for (Field<?> field : fields) {
+    for (Field field : fields) {
       field.setReadOnly(readOnly);
     }
   }
@@ -272,7 +272,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
       lc.setStyleAttribute("position", "relative");
 
     for (int i = 0, len = fields.size(); i < len; i++) {
-      Field<?> f = fields.get(i);
+      Field f = fields.get(i);
       boolean last = i == (fields.size() - 1);
       TableData data = (TableData) ComponentHelper.getLayoutData(f);
       if (data == null) {
@@ -311,11 +311,11 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
       if (orientation == Orientation.HORIZONTAL) {
         int w = width / fields.size();
         w -= (fields.size() * spacing);
-        for (Field<?> f : fields) {
+        for (Field f : fields) {
           f.setWidth(w);
         }
       } else {
-        for (Field<?> f : fields) {
+        for (Field f : fields) {
           f.setWidth(width);
         }
       }
