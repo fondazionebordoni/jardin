@@ -10,10 +10,8 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.mvc.JardinController;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -24,6 +22,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
@@ -38,264 +37,325 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
  */
 public class JardinGrid extends Grid<BaseModelData> {
 
-  private ResultsetImproved resultset;
-  // private JardinRowEditor<BaseModelData> editor;
-  private RowEditor<BaseModelData> editor;
-  private SearchParams searchparams;
-  private Integer userPreferenceHeaderId;
+	private ResultsetImproved resultset;
+	// private JardinRowEditor<BaseModelData> editor;
+	private RowEditor<BaseModelData> editor;
+	private SearchParams searchparams;
+	private Integer userPreferenceHeaderId;
+	private JardinTabItem jardinTabItem;
 
-  // private ListStore<BaseModelData> store;
+	// private ListStore<BaseModelData> store;
 
-  public JardinGrid(final ListStore<BaseModelData> store, JardinColumnModel cm,
-      final ResultsetImproved resultset) {
-    super(store, cm);
+	public JardinGrid(final ListStore<BaseModelData> store,
+			JardinColumnModel cm, final ResultsetImproved resultset, JardinTabItem jardinTabItem) {
+		super(store, cm);
 
-    // this.store = store;
-    this.resultset = resultset;
+		// this.store = store;
+		this.resultset = resultset;
+		this.jardinTabItem = jardinTabItem;
 
-    this.setBorders(false);
-    this.setStripeRows(true);
-    // this.setClicksToEdit(ClicksToEdit.TWO);
-    this.setTrackMouseOver(true);
-    if (GXT.isChrome) {
-      this.setAutoWidth(true);
-    }
+		this.setBorders(false);
+		this.setStripeRows(true);
+		// this.setClicksToEdit(ClicksToEdit.TWO);
+		this.setTrackMouseOver(true);
+		if (GXT.isChrome) {
+			this.setAutoWidth(true);
+		}
 
-    JardinGridView gw = new JardinGridView(resultset, cm);
-    this.setView(gw);
+		JardinGridView gw = new JardinGridView(resultset, cm);
+		this.setView(gw);
 
-    this.setLoadMask(true);
+		this.setLoadMask(true);
 
-    final Menu m = new Menu();
-    this.setContextMenu(m);
+		// System.out.println("getForeignKeyList "+resultset.getForeignKeyList());
+		// System.out.println("getForeignKeyIn "+this.resultset.getForeignKeyIn());
 
-    this.addListener(Events.ContextMenu, new Listener<GridEvent>() {
-      public void handleEvent(GridEvent be) {
-        m.removeAll();
-        m.setWidth(300);
+		final Menu m = new Menu();
+		m.setMinWidth(200);
+		this.setContextMenu(m);
 
-        final MenuBar sep = new MenuBar();
-        final ModelData selectedRow =
-            (ModelData) be.getGrid().getSelectionModel().getSelection().get(0);
+		this.addListener(Events.ContextMenu, new Listener<GridEvent>() {
+			public void handleEvent(GridEvent be) {
+				m.removeAll();
+				m.setMinWidth(250);
+				final MenuBar sep = new MenuBar();
+				final ModelData selectedRow = (ModelData) be.getGrid()
+						.getSelectionModel().getSelection().get(0);
 
-        User user =
-            ((JardinController) Dispatcher.get().getControllers().get(0)).getUser();
-        List<ResultsetImproved> resultsets = user.getResultsets();
+				User user = ((JardinController) Dispatcher.get()
+						.getControllers().get(0)).getUser();
+				List<ResultsetImproved> resultsets = user.getResultsets();
 
-        for (final ResultsetField field : resultset.getFields()) {
-          if ((field.getForeignKey().compareToIgnoreCase("") != 0)) {
-            String fkinfo = field.getForeignKey();
-            String[] fksplitted = fkinfo.split("\\.");
-            for (final ResultsetImproved rs : resultsets) {
-              if (rs.getName().compareTo(fksplitted[0]) == 0) {
-                final BaseModelData fk = new BaseModelData();
-                fk.set("RSID", resultset.getId());
-                // fk.set("TABLE", fksplitted[0]);
-                fk.set("FK", fksplitted[1]);
-                fk.set("VALUE", selectedRow.get(field.getName()));
-                fk.set("RSLINKED", rs);
-                MenuItem item =
-                    new MenuItem("Visualizza record corrispondente in "
-                        + rs.getAlias());
+				for (final ResultsetField field : resultset.getFields()) {
+					if ((field.getForeignKey().compareToIgnoreCase("") != 0)) {
+						String fkinfo = field.getForeignKey();
+						System.out.println(fkinfo);
+						String[] fksplitted = fkinfo.split("\\.");
+						for (final ResultsetImproved rs : resultsets) {
+							if (rs.getName().compareTo(fksplitted[0]) == 0) {
+								final BaseModelData fk = new BaseModelData();
+								fk.set("RSID", resultset.getId());
+								//fk.set("TABLE", fksplitted[0]);
+								fk.set("FK", fksplitted[1]);
+								fk.set("VALUE", selectedRow
+										.get(field.getName()));
+								fk.set("RSLINKED", rs);
+								MenuItem item = new MenuItem(
+										"Visualizza corrispondeza in "
+												+ rs.getAlias());
 
-                m.add(item);
+								m.add(item);
 
-                item.addListener(Events.Select, new Listener<BaseEvent>() {
-                  public void handleEvent(BaseEvent be) {
-                    // System.out.println(be.toString());
-                    // System.out.println(field
-                    // .getResultsetid()
-                    // + "" + field.getId());
-                    Dispatcher.forwardEvent(EventList.ViewPopUpDetail, fk);
-                  }
-                });
-              }
-            }
-          }
-        }
+								item.addListener(Events.Select, new Listener() {
+									public void handleEvent(BaseEvent be) {
+										//System.out.println(be.toString());
+										//System.out.println(field
+										//		.getResultsetid()
+										//		+ "" + field.getId());
+										Dispatcher.forwardEvent(
+												EventList.ViewPopUpDetail, fk);
+									}
+								});
+							}
+						}
+					}
+				}
 
-        m.add(sep);
+				m.add(sep);
 
-        // foreign keys entranti
+				// foreign keys entranti
+				// TODO da migliorare il controllo di appartenenza delle foreign
+				// key delle tabelle ai resultsets
+				for (final ResultsetImproved rs : resultsets) {
+					for (final IncomingForeignKeyInformation fk : resultset
+							.getForeignKeyIn()) {
 
-        for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
+						if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
+							//System.out.println(rs.getAlias() + "(" + rs.getId()
+							//		+ ")" + "->" + rs.getName() + "="
+							//		+ fk.getLinkingTable());
 
-          final String linkedTable = fk.getLinkingTable();
-          final String linkedField = fk.getLinkingField();
-          final String field = fk.getField();
-          // TODO sarebbe meglio spedire direttamente fk e non ricreare un nuovo
-          // IncomingForeignKeyInformation
-          final IncomingForeignKeyInformation fkIN =
-              new IncomingForeignKeyInformation(linkedTable, linkedField, field);
-          fkIN.setFieldValue("" + selectedRow.get(field));
-          fkIN.setInterestedResultset(fk.getInterestedResultset());
-          fkIN.setResultsetId(fk.getResultsetId());
+							final String linkedTable = fk.getLinkingTable();
+							final String linkedField = fk.getLinkingField();
+							final String field = fk.getField();
 
-          MenuItem mitem =
-              new MenuItem("Visualizza corrispondeze in "
-                  + fk.getInterestedResultset().getAlias());
+							final IncomingForeignKeyInformation fkIN = new IncomingForeignKeyInformation(
+									linkedTable, linkedField, field);
+							fkIN.setFieldValue("" + selectedRow.get(field));
+							fkIN.setInterestedResultset(rs);
 
-          mitem.addListener(Events.Select, new Listener() {
-            public void handleEvent(BaseEvent be) {
+							fkIN.setResultsetId(resultset.getId());
 
-              System.out.println(linkedTable + "." + linkedField + "->" + field
-                  + "=" + selectedRow.get(field));
-              Dispatcher.forwardEvent(EventList.ViewLinkedTable, fkIN);
+							MenuItem mitem = new MenuItem(
+									"Visualizza corrispondeze in "
+											+ rs.getAlias()/* linkedTable */);
 
-            }
-          });
-          m.add(mitem);
-        }
-      }
-    });
+							mitem.addListener(Events.Select, new Listener() {
+								public void handleEvent(BaseEvent be) {
 
-    this.addListener(Events.CellClick,
-        new Listener<GridEvent<BaseModelData>>() {
-          public void handleEvent(GridEvent<BaseModelData> be) {
-            if (be.isControlKey()) {
-              List<BaseModelData> selected =
-                  be.getGrid().getSelectionModel().getSelectedItems();
-              selected.add(store.getAt(be.getRowIndex()));
-              be.getGrid().getSelectionModel().select(selected, true);
-            } else
-              be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
-          }
-        });
+									System.out.println(linkedTable + "."
+											+ linkedField + "->" + field + "="
+											+ selectedRow.get(field));
+									Dispatcher.forwardEvent(
+											EventList.ViewLinkedTable, fkIN);
 
-    this.addListener(Events.Render, new Listener<GridEvent<BaseModelData>>() {
+								}
+							});
 
-      public void handleEvent(GridEvent<BaseModelData> be) {
-        // TODO Auto-generated method stub
-        ((JardinGridView) getView()).setGridHeader();
-        ((JardinGridView) getView()).getHeader().setToolTip(
-            "La colonna in grassetto sottolineato è la chiave primaria della tabella");
-      }
+							m.add(mitem);
+						}
 
-    });
+					}
+				}
 
-    this.editor = new RowEditor<BaseModelData>();
-    this.editor.setClicksToEdit(ClicksToEdit.TWO);
-    this.addPlugin(editor);
+			}
+		});
 
-  }
+		this.addListener(Events.CellClick,
+				new Listener<GridEvent<BaseModelData>>() {
+					public void handleEvent(GridEvent<BaseModelData> be) {
+						if (be.isControlKey()) {
+							List<BaseModelData> selected = be.getGrid()
+									.getSelectionModel().getSelectedItems();
+							selected.add(store.getAt(be.getRowIndex()));
+							be.getGrid().getSelectionModel().select(selected,
+									true);
+						} else
+							be.getGrid().getSelectionModel().select(
+									be.getRowIndex(), false);
+						// result Set Correlati
+						//recuperare LaPrimariKey della Riga
+						final ModelData selectedRow = (ModelData) be.getGrid()
+						.getSelectionModel().getSelection().get(0);
 
-  public ResultsetImproved getResultset() {
-    return this.resultset;
-  }
+						User user = ((JardinController) Dispatcher.get()
+						.getControllers().get(0)).getUser();
+						List<ResultsetImproved> resultsets = user.getResultsets();
+						for (final ResultsetImproved rs : resultsets) {
+							for (final IncomingForeignKeyInformation fk : resultset
+									.getForeignKeyIn()) {
 
-  public void setResultsetImproved(ResultsetImproved rs) {
-    this.resultset = rs;
-  }
+								if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
+									//System.out.println(rs.getAlias() + "(" + rs.getId()
+									//		+ ")" + "->" + rs.getName() + "="
+									//		+ fk.getLinkingTable());
 
-  // public void addRow() {
-  //
-  // JardinColumnModel cm = (JardinColumnModel) this.getColumnModel();
-  // ResultsetImproved resultset = this.getResultset();
-  //
-  // BaseModelData item = new BaseModelData();
-  //
-  // List<ResultsetField> fl = resultset.getFields();
-  //
-  // for (int i = 0; i < cm.getColumnCount(); i++) {
-  // ResultsetField f = fl.get(i);
-  // if (f.getType().compareToIgnoreCase("timestamp") == 0
-  // || f.getType().compareToIgnoreCase("datetime") == 0
-  // || f.getType().compareToIgnoreCase("date") == 0 || f.getDefaultVAlue() ==
-  // null) {
-  // item.set(cm.getColumnId(i), null);
-  // } else {
-  // item.set(cm.getColumnId(i), f.getDefaultVAlue());
-  // }
-  // }
-  //
-  // editor.stopEditing(true);
-  // this.store.insert(item, 0);
-  // editor.startEditing(store.indexOf(item), false);
-  // }
+									final String linkedTable = fk.getLinkingTable();
+									final String linkedField = fk.getLinkingField();
+									final String field = fk.getField();
 
-  public void addRow() {
-    new AddRowForm(this);
-  }
+									final IncomingForeignKeyInformation fkIN = new IncomingForeignKeyInformation(
+											linkedTable, linkedField, field);
+									fkIN.setFieldValue("" + selectedRow.get(field));
+									fkIN.setInterestedResultset(rs);
 
-  public void viewDetailPopUp(ArrayList<BaseModelData> data) {
-    new JardinDetailPopUp(data);
-  }
+									fkIN.setResultsetId(resultset.getId());
+									Dispatcher.forwardEvent( EventList.UpdateCorrelatedResultset, fkIN);
+								}
+							}						
+						}
+						//SearchParams searchParams = new SearchParams(resultsetId);
+						//jardinTabItem.setSearchOfOtherChildren(searchparams);
+					}
+				});
 
-  public void showAllColumns() {
-    ColumnModel cm = this.getColumnModel();
-    for (int i = 0; i < cm.getColumnCount(); i++) {
-      cm.setHidden(i, false);
-    }
-  }
+		this.addListener(Events.Render,
+				new Listener<GridEvent<BaseModelData>>() {
 
-  /**
-   * @param searchparams
-   *          the searchparams to set
-   */
-  public void setSearchparams(SearchParams searchparams) {
-    this.searchparams = searchparams;
-  }
+					public void handleEvent(GridEvent<BaseModelData> be) {
+						// TODO Auto-generated method stub
+						((JardinGridView) getView()).setGridHeader();
+						((JardinGridView) getView())
+								.getHeader()
+								.setToolTip(
+										"La colonna in grassetto sottolineato è la chiave primaria della tabella");
+					}
 
-  /**
-   * @return the searchparams
-   */
-  public SearchParams getSearchparams() {
-    return searchparams;
-  }
+				});
 
-  public void saveGridView(User user, String value) {
-    JardinColumnModel columnModel = (JardinColumnModel) getColumnModel();
-    ArrayList<Integer> headerFields = new ArrayList<Integer>();
-    for (int i = 0; i < columnModel.getColumnCount(); i++) {
-      if (!columnModel.getColumn(i).isHidden()) {
-        headerFields.add(columnModel.getColumn(i).getFieldId());
-      }
-    }
+		this.editor = new RowEditor<BaseModelData>();
+		this.editor.setClicksToEdit(ClicksToEdit.TWO);
+		this.addPlugin(editor);
 
-    user.setResultsetHeaderPreferencesNoDefault(resultset.getId(),
-        headerFields, value);
-  }
+	}
 
-  /**
-   * @param userPreferenceHeaderId
-   *          the userPreferenceHeaderId to set
-   */
-  public void setUserPreferenceHeaderId(Integer userPreferenceHeaderId) {
-    this.userPreferenceHeaderId = userPreferenceHeaderId;
-  }
+	public ResultsetImproved getResultset() {
+		return this.resultset;
+	}
 
-  /**
-   * @return the userPreferenceHeaderId
-   */
-  public Integer getUserPreferenceHeaderId() {
-    return userPreferenceHeaderId;
-  }
+	public void setResultsetImproved(ResultsetImproved rs) {
+		this.resultset = rs;
+	}
 
-  public void updateGridHeader(List<Integer> result) {
-    JardinColumnModel cm = (JardinColumnModel) this.getColumnModel();
+	// public void addRow() {
+	//
+	// JardinColumnModel cm = (JardinColumnModel) this.getColumnModel();
+	// ResultsetImproved resultset = this.getResultset();
+	//
+	// BaseModelData item = new BaseModelData();
+	//
+	// List<ResultsetField> fl = resultset.getFields();
+	//
+	// for (int i = 0; i < cm.getColumnCount(); i++) {
+	// ResultsetField f = fl.get(i);
+	// if (f.getType().compareToIgnoreCase("timestamp") == 0
+	// || f.getType().compareToIgnoreCase("datetime") == 0
+	// || f.getType().compareToIgnoreCase("date") == 0 || f.getDefaultVAlue() ==
+	// null) {
+	// item.set(cm.getColumnId(i), null);
+	// } else {
+	// item.set(cm.getColumnId(i), f.getDefaultVAlue());
+	// }
+	// }
+	//
+	// editor.stopEditing(true);
+	// this.store.insert(item, 0);
+	// editor.startEditing(store.indexOf(item), false);
+	// }
 
-    for (int i = 0; i < cm.getColumnCount(); i++) {
-      if (isInList(cm.getColumn(i).getFieldId(), result)) {
-        cm.setHidden(i, false);
-      } else {
-        cm.setHidden(i, true);
-      }
-    }
+	public void addRow() {
+		new AddRowForm(this);
+	}
+	
+	public void viewDetailPopUp(ArrayList<BaseModelData> data) {
+		new JardinDetailPopUp(data);
+	}
 
-    ((JardinGridView) this.getView()).setGridHeader();
+	public void showAllColumns() {
+		ColumnModel cm = this.getColumnModel();
+		for (int i = 0; i < cm.getColumnCount(); i++) {
+			cm.setHidden(i, false);
+		}
+	}
 
-    Info.display("Informazione", "Impostata visualizzazione richiesta");
-  }
+	/**
+	 * @param searchparams
+	 *            the searchparams to set
+	 */
+	public void setSearchparams(SearchParams searchparams) {
+		this.searchparams = searchparams;
+	}
 
-  private Boolean isInList(Integer searched, List<Integer> list) {
-    // boolean found = false;
-    for (Integer i : list) {
-      if (i.compareTo(searched) == 0) {
-        return true;
-      }
-    }
+	/**
+	 * @return the searchparams
+	 */
+	public SearchParams getSearchparams() {
+		return searchparams;
+	}
 
-    return false;
-  }
+	public void saveGridView(User user, String value) {
+		JardinColumnModel columnModel = (JardinColumnModel) getColumnModel();
+		ArrayList<Integer> headerFields = new ArrayList<Integer>();
+		for (int i = 0; i < columnModel.getColumnCount(); i++) {
+			if (!columnModel.getColumn(i).isHidden()) {
+				headerFields.add(columnModel.getColumn(i).getFieldId());
+			}
+		}
+
+		user.setResultsetHeaderPreferencesNoDefault(resultset.getId(),
+				headerFields, value);
+	}
+
+	/**
+	 * @param userPreferenceHeaderId
+	 *            the userPreferenceHeaderId to set
+	 */
+	public void setUserPreferenceHeaderId(Integer userPreferenceHeaderId) {
+		this.userPreferenceHeaderId = userPreferenceHeaderId;
+	}
+
+	/**
+	 * @return the userPreferenceHeaderId
+	 */
+	public Integer getUserPreferenceHeaderId() {
+		return userPreferenceHeaderId;
+	}
+
+	public void updateGridHeader(List<Integer> result) {
+		JardinColumnModel cm = (JardinColumnModel) this.getColumnModel();
+
+		for (int i = 0; i < cm.getColumnCount(); i++) {
+			if (isInList(cm.getColumn(i).getFieldId(), result)) {
+				cm.setHidden(i, false);
+			} else {
+				cm.setHidden(i, true);
+			}
+		}
+
+		((JardinGridView) this.getView()).setGridHeader();
+
+		Info.display("Informazione", "Impostata visualizzazione richiesta");
+	}
+
+	private Boolean isInList(Integer searched, List<Integer> list) {
+		// boolean found = false;
+		for (Integer i : list) {
+			if (i.compareTo(searched) == 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 }

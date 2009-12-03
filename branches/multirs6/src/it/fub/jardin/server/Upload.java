@@ -50,7 +50,7 @@ public class Upload extends HttpServlet {
     try {
 
       // Parse the request
-      List<?> /* FileItem */items = upload.parseRequest(request);
+      List /* FileItem */<?>items = upload.parseRequest(request);
 
       // Process the uploaded items
       Iterator<?> iter = items.iterator();

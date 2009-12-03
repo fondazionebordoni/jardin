@@ -42,11 +42,11 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * @author mavellino
+ * @author acozzolino
  */
 public class JardinDetailPopUp extends Window {
 
-	List<Field<?>> fieldList = new ArrayList<Field<?>>();
+	List<Field> fieldList = new ArrayList<Field>();
 
 	final FormPanel formPanel;
 	private static final int defaultWidth = 270; // width dei campi
@@ -123,11 +123,11 @@ public class JardinDetailPopUp extends Window {
 					Time time = new Time();
 					time = entry.get(field.getName());
 					f.setValue(time);
-				}else if (f instanceof SimpleComboBox<?>){ 
+				}else if (f instanceof SimpleComboBox){ 
 					ModelData bm = new BaseModelData();
 					bm.set(field.getName(), ""+entry.get(field.getName()));
 					((SimpleComboBox) f).setSimpleValue(entry.get(field.getName())) ;
-				}else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
+				}else if ((f instanceof TextField) || (f instanceof TextArea)) {
 					//Text value = entry.get(field.getName());
 					f.setValue(entry.get(field.getName()));
 					//ModelData bm = new BaseModelData();
@@ -173,24 +173,24 @@ public class JardinDetailPopUp extends Window {
 
 				List<BaseModelData> newItemList = new ArrayList<BaseModelData>();
 				BaseModelData newItem = new BaseModelData();
-				for (Field<?> field : fieldList) {
+				for (Field field : fieldList) {
 
 					System.out.println(field.getValue());
 					String property = field.getName();
 
 					Object value = null;
-					if (field instanceof SimpleComboBox<?>) {
+					if (field instanceof SimpleComboBox) {
 						if (field.getValue() == null) {
 							value = "";
 						} else {
-							SimpleComboValue<?> scv = (SimpleComboValue<?>) field
+							SimpleComboValue scv = (SimpleComboValue) field
 									.getValue();
 							value = scv.getValue().toString();
 							// value = ((BaseModelData)
 							// field.getValue())
 							// .get(field.getName());
 						}
-					} else if (field instanceof ComboBox<?>) {
+					} else if (field instanceof ComboBox) {
 						if (field.getValue() == null) {
 							value = null;
 						} else {

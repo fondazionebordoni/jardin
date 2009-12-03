@@ -43,12 +43,12 @@ public class JardinDetail extends FormPanel {
           + " opzioni di sicurezza del browser", null);
     }
 
-    this.setBodyBorder(false);
+    this.setBodyBorder(true);
     this.setWidth("100%");
     this.setFieldWidth(defaultWidth);
     this.setLabelWidth(labelWidth);
     this.setLabelAlign(LabelAlign.RIGHT);
-    this.setHeaderVisible(false);
+    this.setHeaderVisible(true);
     this.setScrollMode(Scroll.AUTO);
 
     HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
@@ -63,7 +63,7 @@ public class JardinDetail extends FormPanel {
             resultset.getForeignKeyList().getValues(field.getId());
         // Field f = FieldCreator.getField(field, values, true, labelWidth);
         // Field f = FieldCreator.getField(field,0);
-        Field<?> f = FieldCreator.getField(field, values, 0, true);
+        Field f = FieldCreator.getField(field, values, 0, true);
 
         if (!field.getModifyperm()) {
           f.setEnabled(false);
