@@ -253,7 +253,7 @@ public class FileUtils {
   }
 
   public static void prepareDefaultTemplate(ResultsetImproved resultset,
-      String xsl) throws IOException {
+      String xsl, List<String> columns) throws IOException {
 
     final String TITLE = "$$TITLE$$";
     final String ROW_BEGIN = "$$ROW_BEGIN$$";
@@ -298,7 +298,7 @@ public class FileUtils {
     int i = 1;
     String tmp = row;
     for (ResultsetField field : resultset.getFields()) {
-      if (field.getReadperm()) {
+      if (field.getReadperm() && columns.contains(field.getName())) {
         tmp =
             tmp.replaceFirst(Matcher.quoteReplacement(LABEL + i + "$$"),
                 field.getAlias());
