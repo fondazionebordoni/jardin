@@ -29,7 +29,6 @@ public class JardinColumnModel extends ColumnModel {
         ColumnConfig column = new JardinColumnConfig(field, values);
         // ColumnConfig column = new JardinColumnConfig(field);
 
-        // System.out.println("visibile");
         column.setHidden(!(boolean) field.getVisible());
         this.configs.add(column);
       }

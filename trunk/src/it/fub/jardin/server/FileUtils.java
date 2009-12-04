@@ -75,10 +75,8 @@ public class FileUtils {
          */
         BaseModelData bmd = new BaseModelData();
         for (String property : columns) {
-          // String value = String.valueOf(record.get(property));
           String value = String.valueOf(record.get(property));
           bmd.set(property, value);
-          System.out.println("colonna->" + property);
         }
         recordsToExport.add(bmd);
       }

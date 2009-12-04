@@ -770,7 +770,6 @@ public class JardinController extends Controller {
     List<String> columns = new ArrayList<String>();
     for (int i = 0; i < cm.getColumnCount(); i++) {
       columns.add(cm.getColumn(i).getId());
-      // System.out.println("expCol->"+cm.getColumn(i).getId());
     }
 
     /* Criteri di ricerca */
@@ -788,14 +787,13 @@ public class JardinController extends Controller {
       public void onSuccess(String result) {
         if (result != null && result.length() > 0) {
           Jungle j = new Jungle(user.getResultsetFromId(resultset), result);
-          System.out.println("ok");
           j.show();
         } else {
           Log.warn("File d'esportazione vuoto");
         }
       }
     };
-
+    
     service.createReport("/tmp/" + filename, Template.XML, null, columns,
         searchParams, callback);
 
