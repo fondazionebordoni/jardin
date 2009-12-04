@@ -1070,7 +1070,8 @@ public class DbUtils {
             + " f ON  (r.id=f.id))"
             + " WHERE u.id = '"
             + uid
-            + "' ORDER BY r.id ASC";
+            + "' AND readperm = '1' "
+            + " ORDER BY r.id ASC";
     try {
 
       List<ResultsetField> resultFieldList = new ArrayList<ResultsetField>();
