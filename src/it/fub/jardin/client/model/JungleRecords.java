@@ -31,9 +31,9 @@ public class JungleRecords extends DataSource {
         ft = FieldType.INTEGER;
       } else if (field.getType().compareToIgnoreCase("date") == 0) {
         ft = FieldType.DATE;
-      } /*else if (field.getType().compareToIgnoreCase("datetime") == 0) {
-        ft = FieldType.DATE;
-      }*/ else if (field.getType().compareToIgnoreCase("real") == 0) {
+      } else if (field.getType().compareToIgnoreCase("datetime") == 0) {
+        ft = FieldType.DATETIME;
+      } else if (field.getType().compareToIgnoreCase("real") == 0) {
         ft = FieldType.FLOAT;
       } else if (field.getType().compareToIgnoreCase("link") == 0) {
         ft = FieldType.LINK;
