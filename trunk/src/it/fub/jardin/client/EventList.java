@@ -100,4 +100,6 @@ public class EventList {
 
   public static final EventType ViewPopUpDetail = new EventType();
 
+  public static final EventType ShowChart = new EventType();
+
 }
