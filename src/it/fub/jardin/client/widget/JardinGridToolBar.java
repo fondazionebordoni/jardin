@@ -99,6 +99,17 @@ public class JardinGridToolBar extends ToolBar {
     }
   }
 
+//  private void addViewActions() {
+//	      this.add(new Button("Dettaglio", IconHelper.createStyle("icon-add"),
+//	    		new SelectionListener() {
+//			          public void componentSelected(ComponentEvent e) {
+//			        	  Dispatcher.forwardEvent(EventList.UpdateColumnModel, resultset);
+//			          }
+//	      		}
+//	      ));
+//  }
+
+  
   @SuppressWarnings("unchecked")
   private void addExportActions() {
 

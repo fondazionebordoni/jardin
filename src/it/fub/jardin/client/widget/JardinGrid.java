@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
@@ -42,17 +41,17 @@ public class JardinGrid extends Grid<BaseModelData> {
 	private RowEditor<BaseModelData> editor;
 	private SearchParams searchparams;
 	private Integer userPreferenceHeaderId;
-	private JardinTabItem jardinTabItem;
+	//private JardinTabItem jardinTabItem;
 
 	// private ListStore<BaseModelData> store;
 
 	public JardinGrid(final ListStore<BaseModelData> store,
-			JardinColumnModel cm, final ResultsetImproved resultset, JardinTabItem jardinTabItem) {
+			JardinColumnModel cm, final ResultsetImproved resultset) {
 		super(store, cm);
 
 		// this.store = store;
 		this.resultset = resultset;
-		this.jardinTabItem = jardinTabItem;
+		//this.jardinTabItem = jardinTabItem;
 
 		this.setBorders(false);
 		this.setStripeRows(true);
