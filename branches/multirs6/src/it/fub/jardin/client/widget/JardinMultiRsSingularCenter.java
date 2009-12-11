@@ -7,7 +7,6 @@ import it.fub.jardin.client.model.ResultsetImproved; //import it.fub.jardin.clie
 import it.fub.jardin.client.model.SearchParams;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
@@ -46,7 +45,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 	private FormBinding formbinding;
 	ResultsetImproved resultSet;
 	IncomingForeignKeyInformation foreignKey;
-	private FormPanel searchAreaAdvanced;
+	//private FormPanel searchAreaAdvanced;
 
 	public JardinMultiRsSingularCenter(ResultsetImproved resultSet,
 			IncomingForeignKeyInformation foreignKey) {
@@ -66,6 +65,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 		this.createNorth();
 		this.createWest();
 		this.createCenter();
+
 		//this.layout();
 	}
 
@@ -156,7 +156,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 	}
 
 	public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
-		this.searchAreaAdvanced = searchAreaAdvanced;
+		//this.searchAreaAdvanced = searchAreaAdvanced;
 		this.west.expand();
 		this.west.removeAll();
 		this.west.add(searchAreaAdvanced);
