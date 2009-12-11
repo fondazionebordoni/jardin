@@ -15,6 +15,7 @@ import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.widget.JardinGrid;
+import it.fub.jardin.client.widget.JardinSelectColumnsForChartPopUp;
 import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.Jungle;
 import it.fub.jardin.client.widget.UploadDialog;
@@ -33,6 +34,7 @@ import com.extjs.gxt.charts.client.model.charts.FilledBarChart;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -44,6 +46,7 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -101,6 +104,7 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.Jungle);
     registerEventTypes(EventList.ShowPieChart);
     registerEventTypes(EventList.ShowBarChart);
+    registerEventTypes(EventList.ShowChart);
     registerEventTypes(EventList.SendMessage);
     registerEventTypes(EventList.NewMessage);
     registerEventTypes(EventList.ViewLinkedTable);
@@ -270,16 +274,25 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.Jungle
         Log.error("Errore nei dati di EventList.Jungle");
       }
+    } else if (t == EventList.ShowChart) {
+      if (event.getData() instanceof ArrayList) {
+        onShowChart((ArrayList<String>) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.SelectColumnsForChart
+        Log.error("Errore nei dati di EventList.SelectColumnsForChart");
+      }
     } else if (t == EventList.ShowPieChart) {
       if (event.getData() instanceof Integer) {
-        onShowChart(ChartType.PIE, (Integer) event.getData());
+        onSelectColumnsForChart(ChartType.PIE, (Integer) event.getData());
+        // onShowChart(ChartType.PIE, (Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowPieChart
         Log.error("Errore nei dati di EventList.ShowPieChart");
       }
     } else if (t == EventList.ShowBarChart) {
       if (event.getData() instanceof Integer) {
-        onShowChart(ChartType.BAR, (Integer) event.getData());
+        onSelectColumnsForChart(ChartType.BAR, (Integer) event.getData());
+        // onShowChart(ChartType.BAR, (Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowBarChart
         Log.error("Errore nei dati di EventList.ShowBarChart");
@@ -456,25 +469,6 @@ public class JardinController extends Controller {
        * presenti: sever per il binding dei campi del dettaglio e per il row
        * editor
        */
-      AsyncCallback<ArrayList<IncomingForeignKeyInformation>> callbackForeignKeyInForATable =
-          new AsyncCallback<ArrayList<IncomingForeignKeyInformation>>() {
-            public void onFailure(Throwable caught) {
-              Dispatcher.forwardEvent(EventList.Error,
-                  caught.getLocalizedMessage());
-            }
-
-            public void onSuccess(
-                ArrayList<IncomingForeignKeyInformation> ForeignKeyIn) {
-              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-              // System.out.println(ForeignKeyIn);
-              rs.setForeignKeyIn(ForeignKeyIn);
-              forwardToView(view, EventList.GotValuesOfForeignKeysIn,
-                  resultsetId);
-            }
-          };
-
-      service.getForeignKeyInForATable(resultsetId,
-          callbackForeignKeyInForATable);
 
       AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
           new AsyncCallback<FieldsMatrix>() {
@@ -770,10 +764,8 @@ public class JardinController extends Controller {
   }
 
   private void onJungle(final int resultset) {
-
     /* Nome del file da creare */
-    String filename =
-        user.getResultsetFromId(resultset).getAlias().replace(" ", "_");
+    String filename = user.getResultsetFromId(resultset).getAlias();
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
@@ -787,9 +779,11 @@ public class JardinController extends Controller {
 
     /* Colonne */
     ColumnModel cm = grid.getColumnModel();
-    List<String> columns = new ArrayList<String>();
+    final List<String> columns = new ArrayList<String>();
     for (int i = 0; i < cm.getColumnCount(); i++) {
-      columns.add(cm.getColumn(i).getId());
+      if (!(cm.getColumn(i).isHidden())) {
+        columns.add(cm.getColumn(i).getId());
+      }
     }
 
     /* Criteri di ricerca */
@@ -806,7 +800,8 @@ public class JardinController extends Controller {
 
       public void onSuccess(String result) {
         if (result != null && result.length() > 0) {
-          Jungle j = new Jungle(user.getResultsetFromId(resultset), result);
+          Jungle j =
+              new Jungle(user.getResultsetFromId(resultset), columns, result);
           j.show();
         } else {
           Log.warn("File d'esportazione vuoto");
@@ -820,6 +815,25 @@ public class JardinController extends Controller {
   }
 
   /**
+   * Recupera i 2 campi da utilizzare come testo - valore nel grafico
+   * 
+   * @param ct
+   * 
+   * @param type
+   * @param resultset
+   */
+  private void onSelectColumnsForChart(ChartType ct, Integer resultset) {
+    JardinTabItem item = view.getItemByResultsetId(resultset);
+    JardinGrid grid = item.getGrid();
+
+    JardinSelectColumnsForChartPopUp popup =
+        new JardinSelectColumnsForChartPopUp(grid, ct.toString());
+    
+    popup.show();
+
+  }
+
+  /**
    * Genera un grafico prendendo le prime due colonne visibili della griglia. La
    * prima deve essere di tipo stringa o numerico, la seconda deve essere di
    * tipo numerico
@@ -827,13 +841,18 @@ public class JardinController extends Controller {
    * @param type
    * @param resultset
    */
-  private void onShowChart(ChartType type, Integer resultset) {
+  private void onShowChart(ArrayList<String> dataToChart) {
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
      * grid (config dei record da esportare, colonne visibili e criteri di
      * ricerca)
      */
+    Integer resultset = Integer.valueOf(dataToChart.get(1));
+    String title = dataToChart.get(2);
+    String value = dataToChart.get(3);
+    ChartType type = ChartType.valueOf(dataToChart.get(0));
+
     JardinTabItem item = view.getItemByResultsetId(resultset);
 
     /* Prendi la griglia */
@@ -841,19 +860,8 @@ public class JardinController extends Controller {
 
     /* Prendi gli ID delle prime due colonne visibili */
     ColumnModel columnModel = grid.getColumnModel();
-    String cx = null;
-    String cy = null;
-    for (int i = 0; i < columnModel.getColumnCount(); i++) {
-      ColumnConfig cf = columnModel.getColumn(i);
-      if (!cf.isHidden()) {
-        if (cx == null) {
-          cx = cf.getId();
-        } else {
-          cy = cf.getId();
-          break;
-        }
-      }
-    }
+    String cx = title;
+    String cy = value;
 
     String url = "resources/chart/open-flash-chart.swf";
 
@@ -911,15 +919,15 @@ public class JardinController extends Controller {
     SearchParams searchParams = new SearchParams(rs.getId());
     searchParams.setAccurate(true);
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-    System.out.println(ifki.getLinkingField()+"->"+ifki.getFieldValue());
     SearchStringParser parser =
-        new SearchStringParser(ifki.getLinkingField() + ":"
-            + ifki.getFieldValue());
+        new SearchStringParser(ifki.getLinkingField() + ":\""
+            + ifki.getFieldValue() + "\"");
 
     Map<String, String> searchMap = parser.getSearchMap();
     for (String key : parser.getSearchMap().keySet()) {
       BaseModelData m = new BaseModelData();
       m.set(key, searchMap.get(key));
+      System.out.println(key + "->" + searchMap.get(key));
       queryFieldList.add(m);
     }
     searchParams.setFieldsValuesList(queryFieldList);

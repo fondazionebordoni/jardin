@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS `cittadino` (
 --
 
 INSERT INTO `cittadino` (`nome_cittadino`, `cognome_cittadino`, `telefono_cittadino`, `email_cittadino`, `codice_fiscale`, `cod_cittadino`, `id_cittadino`) VALUES
-('tyutyututututuy', 'ghjhghjk', '343434', 'mavellino@fub.it', '98989898989899', 'tyutyututututuy-ghjhghjk-98989898989899', 1),
-('daniele', 'carbone', '47474747474', 'dcarbone@fub.it', 'rrrrrrrrrrrr', 'daniele-carbone-rrrrrrrrrrrr', 4);
+('tyutyututututuy', 'ghjhghjk', '343434', 'mavellino@example.com', '98989898989899', 'tyutyututututuy-ghjhghjk-98989898989899', 1),
+('daniele', 'carbone', '47474747474', 'dcarbone@example.com', 'rrrrrrrrrrrr', 'daniele-carbone-rrrrrrrrrrrr', 4);
 
 -- --------------------------------------------------------
 
@@ -209,9 +209,9 @@ CREATE TABLE IF NOT EXISTS `settore` (
 
 INSERT INTO `settore` (`id_settore`, `nome_settore`, `mail_settore`) VALUES
 (1, '', ''),
-(2, 'ufficio_legislativo', 'ufficiolegislativodpc@fub.it'),
-(3, 'ufficio_logistico', 'ufficiologisticadpc@fub.it'),
-(4, 'backoffice', 'backoffice1@fub.it');
+(2, 'ufficio_legislativo', 'ufficiolegislativodpc@example.com'),
+(3, 'ufficio_logistico', 'ufficiologisticadpc@example.com'),
+(4, 'backoffice', 'backoffice1@example.com');
 
 -- --------------------------------------------------------
 
@@ -901,16 +901,14 @@ CREATE TABLE IF NOT EXISTS `__system_user` (
 
 INSERT INTO `__system_user` (`id`, `username`, `password`, `name`, `surname`, `email`, `office`, `telephone`, `status`, `lastlogintime`, `logincount`, `id_group`) VALUES
 (1, 'sysadmin', '', '', '', '', '', '', 1, '0000-00-00 00:00:00', 0, 1),
-(2, 'demo', '*C142FB215B6E05B7C134B1A653AD4B455157FD79', 'demo', 'demo', 'sysadmin@fub.it', 'null', '45764576457', 1, '2009-10-01 18:02:39', 550, 3),
+(2, 'demo', '*C142FB215B6E05B7C134B1A653AD4B455157FD79', 'demo', 'demo', 'sysadmin@example.com', 'null', '45764576457', 1, '2009-10-01 18:02:39', 550, 3),
 (3, 'readonly', '*922A4B420903CAD4E7FC56A23122AB927E051FE3', 'read only user', '', '', '', '', 1, NULL, 0, 4),
 (4, 'sportello1', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'sportello', 'uno', 'test@test.it', 'null', 'null', 1, '2009-11-16 15:49:53', 373, 6),
 (5, 'sportello2', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'sportello', '', '', '', '', 1, NULL, 0, 6),
-(6, 'ufficiolegislativodpc', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'ufficio', 'legislativo', 'ufficiolegislativodpc@fub.it', '', '', 1, '2009-10-07 15:55:45', 7, 5),
-(7, 'ufficiologisticadpc', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'ufficio', 'logstico', 'ufficiologisticadpc@fub.it', '', '', 1, '2009-10-20 11:12:00', 19, 8),
+(6, 'ufficiolegislativodpc', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'ufficio', 'legislativo', 'ufficiolegislativodpc@example.com', '', '', 1, '2009-10-07 15:55:45', 7, 5),
+(7, 'ufficiologisticadpc', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'ufficio', 'logstico', 'ufficiologisticadpc@example.com', '', '', 1, '2009-10-20 11:12:00', 19, 8),
 (8, 'backOffice2', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'backOffice', '2', '', '', '', 1, NULL, 0, 7),
 (9, 'backOffice1', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'back', 'office', '', '', '', 1, '2009-11-10 11:46:29', 115, 7),
-(10, 'barbara.altomonte', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'Barbara', 'Altomonte', 'Barbara.Altomonte@protezionecivile.it', '', '', 1, '2009-10-01 19:40:11', 28, 5),
-(11, 'daniele.perucchini', '*34FE89252BE32A81639E0A2953BBB20AC9456EF1', 'Daniele', 'Perucchini', 'chini@fub.it', '', '', 1, NULL, 0, 5);
 
 -- --------------------------------------------------------
 

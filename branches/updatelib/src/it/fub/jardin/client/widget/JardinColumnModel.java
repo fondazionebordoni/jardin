@@ -22,14 +22,17 @@ public class JardinColumnModel extends ColumnModel {
 
     /* Crea un ColumnConfig per ogni campo del resultset */
     for (ResultsetField field : resultset.getFields()) {
+      if (field.getReadperm()) {
+        List<String> values =
+            resultset.getForeignKeyList().getValues(field.getId());
 
-      List<String> values =
-          resultset.getForeignKeyList().getValues(field.getId());
+        ColumnConfig column = new JardinColumnConfig(field, values);
+        // ColumnConfig column = new JardinColumnConfig(field);
 
-      ColumnConfig column = new JardinColumnConfig(field, values);
-      // ColumnConfig column = new JardinColumnConfig(field);
-      column.setHidden(!(boolean) field.getVisible());
-      this.configs.add(column);
+        column.setHidden(!(boolean) field.getVisible());
+        this.configs.add(column);
+      }
+
     }
   }
 

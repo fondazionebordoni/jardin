@@ -66,12 +66,26 @@ public class FileUtils {
     try {
       // TODO Possibile che non ci sia un modo migliore? Vedi EventList
       File f = createTempFile(file, template.getExt());
+      ArrayList<BaseModelData> recordsToExport = new ArrayList<BaseModelData>();
+
+      for (BaseModelData record : records) {
+        /*
+         * Create a collection of record data. Getting values from properties
+         * ensures that values are correctly matched with corresponding property
+         */
+        BaseModelData bmd = new BaseModelData();
+        for (String property : columns) {
+          String value = String.valueOf(record.get(property));
+          bmd.set(property, value);
+        }
+        recordsToExport.add(bmd);
+      }
       if (template.getInfo().compareTo(Template.CSV.getInfo()) == 0) {
-        writeCsvReport(f, records, columns);
+        writeCsvReport(f, recordsToExport, columns);
       } else if (template.getInfo().compareTo(Template.XML.getInfo()) == 0) {
-        writeXmlReport(f, records, columns);
+        writeXmlReport(f, recordsToExport, columns);
       } else {
-        writePdfReport(f, records, new File(xsl));
+        writePdfReport(f, recordsToExport, new File(xsl));
       }
       return f.getPath();
     } catch (Exception e) {
@@ -177,7 +191,6 @@ public class FileUtils {
     Source src =
         new SAXSource(new BaseModelDataXMLReader(),
             new BaseModelDataInputSource(records));
-
     // Setup output
     Result res = new StreamResult(f);
 
@@ -238,7 +251,7 @@ public class FileUtils {
   }
 
   public static void prepareDefaultTemplate(ResultsetImproved resultset,
-      String xsl) throws IOException {
+      String xsl, List<String> columns) throws IOException {
 
     final String TITLE = "$$TITLE$$";
     final String ROW_BEGIN = "$$ROW_BEGIN$$";
@@ -252,10 +265,10 @@ public class FileUtils {
      */
     Log.debug("XSL file: " + xsl);
     File f = new File(xsl);
-    if (f.exists() && f.canRead()) {
-      Log.debug("XSL file " + xsl + " already exists. I do not create it.");
-      return;
-    }
+    /*
+     * if (f.exists() && f.canRead()) { Log.debug("XSL file " + xsl +
+     * " already exists. I do not create it."); return; }
+     */
 
     /*
      * ----------------------------------------------------------------------
@@ -283,18 +296,20 @@ public class FileUtils {
     int i = 1;
     String tmp = row;
     for (ResultsetField field : resultset.getFields()) {
-      tmp =
-          tmp.replaceFirst(Matcher.quoteReplacement(LABEL + i + "$$"),
-              field.getAlias());
-      tmp =
-          tmp.replaceFirst(Matcher.quoteReplacement(VALUE + i + "$$"),
-              field.getName());
-      if (i % 4 == 0) {
-        out.write(tmp);
-        tmp = row;
-        i = 0;
+      if (field.getReadperm() && columns.contains(field.getName())) {
+        tmp =
+            tmp.replaceFirst(Matcher.quoteReplacement(LABEL + i + "$$"),
+                field.getAlias());
+        tmp =
+            tmp.replaceFirst(Matcher.quoteReplacement(VALUE + i + "$$"),
+                field.getName());
+        if (i % 4 == 0) {
+          out.write(tmp);
+          tmp = row;
+          i = 0;
+        }
+        i++;
       }
-     i++;
     }
 
     if (--i % 4 != 0) {

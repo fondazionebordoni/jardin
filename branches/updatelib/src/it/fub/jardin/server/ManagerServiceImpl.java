@@ -77,7 +77,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       ResultsetImproved resultset =
           user.getResultsetFromId(searchParams.getResultsetId());
       try {
-        FileUtils.prepareDefaultTemplate(resultset, xsl);
+        FileUtils.prepareDefaultTemplate(resultset, xsl, columns);
       } catch (IOException e) {
         Log.error("Impossibile ottenere il template di default", e);
         throw new VisibleException("Impossibile ottenere il template di default");
@@ -209,11 +209,6 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
       throws HiddenException {
     return dbUtils.getValuesOfForeignKeys(resultsetId);
-  }
-
-  public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(Integer resultsetId)
-      throws HiddenException {
-    return dbUtils.getForeignKeyInForATable(resultsetId);
   }
   
   public Integer removeObjects(Integer resultset,

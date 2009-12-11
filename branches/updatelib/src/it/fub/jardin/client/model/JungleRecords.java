@@ -42,7 +42,7 @@ public class JungleRecords extends DataSource {
       } else if (field.getType().compareToIgnoreCase("blob") == 0) {
         ft = FieldType.BINARY;
       }
-
+      
       DataSourceField f =
           new DataSourceField(field.getName(), ft, field.getAlias());
       if (field.getIsPK()) {
