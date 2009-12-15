@@ -95,6 +95,8 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.ExportAllStoreSomeColumns);
     registerEventTypes(EventList.ExportSomeStoreAllColumns);
     registerEventTypes(EventList.ExportSomeStoreSomeColumns);
+    registerEventTypes(EventList.ExportSomeRowsAllColumns);
+    registerEventTypes(EventList.ExportSomeRowsSomeColumns);
     registerEventTypes(EventList.ShowAllColumns);
     registerEventTypes(EventList.SaveGridView);
     registerEventTypes(EventList.GetGridViews);
@@ -193,7 +195,7 @@ public class JardinController extends Controller {
       }
     } else if (t == EventList.ExportAllStoreAllColumns) {
       if (event.getData() instanceof Integer) {
-        onExport((Integer) event.getData(), true, true);
+        onExport((Integer) event.getData(), false, true, true);
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreAllColumns
@@ -201,7 +203,7 @@ public class JardinController extends Controller {
       }
     } else if (t == EventList.ExportAllStoreSomeColumns) {
       if (event.getData() instanceof Integer) {
-        onExport((Integer) event.getData(), true, false);
+        onExport((Integer) event.getData(), false, true, false);
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreSomeColumns
@@ -209,7 +211,7 @@ public class JardinController extends Controller {
       }
     } else if (t == EventList.ExportSomeStoreAllColumns) {
       if (event.getData() instanceof Integer) {
-        onExport((Integer) event.getData(), false, true);
+        onExport((Integer) event.getData(), false, false, true);
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreAllColumns
@@ -217,11 +219,27 @@ public class JardinController extends Controller {
       }
     } else if (t == EventList.ExportSomeStoreSomeColumns) {
       if (event.getData() instanceof Integer) {
-        onExport((Integer) event.getData(), false, false);
+        onExport((Integer) event.getData(), false, false, false);
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportSomeStoreSomeColumns
         Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
+      }
+    } else if (t == EventList.ExportSomeRowsAllColumns) {
+      if (event.getData() instanceof Integer) {
+        onExport((Integer) event.getData(), true, true, true);
+      } else {
+        // TODO Gestire errore nei dati di
+        // EventList.ExportAllStoreAllColumns
+        Log.error("Errore nei dati di EventList.ExportSomeRowAllColumns");
+      }
+    } else if (t == EventList.ExportSomeRowsSomeColumns) {
+      if (event.getData() instanceof Integer) {
+        onExport((Integer) event.getData(), true, true, false);
+      } else {
+        // TODO Gestire errore nei dati di
+        // EventList.ExportSomeStoreSomeColumns
+        Log.error("Errore nei dati di EventList.ExportSomeRowSomeColumns");
       }
     } else if (t == EventList.ShowAllColumns) {
       if (event.getData() instanceof Integer) {
@@ -641,7 +659,8 @@ public class JardinController extends Controller {
    *          se esportare o no tutte le colonne dello store o solo quelle
    *          visualizate nella griglia
    */
-  private void onExport(int resultset, boolean allStore, boolean allColumns) {
+  private void onExport(int resultset, boolean allRows, boolean allStore,
+      boolean allColumns) {
 
     /* Nome del file da creare */
     String filename =
@@ -662,8 +681,11 @@ public class JardinController extends Controller {
 
     /* Config dei record da esportare (tutti se allStore = true) */
     PagingLoadConfig config = null;
+    List<BaseModelData> selectedRows = null;
     if (!allStore) {
       config = (PagingLoadConfig) grid.getStore().getLoadConfig();
+    } else if (allRows) {
+      selectedRows = grid.getSelectionModel().getSelection();
     }
 
     /* Colonne visibili (tutte se allColumns = true) */
@@ -698,7 +720,7 @@ public class JardinController extends Controller {
       }
     };
 
-    service.createReport("/tmp/" + filename, template, config, columns,
+    service.createReport("/tmp/" + filename, template, config, selectedRows, columns,
         searchParams, callback);
   }
 
@@ -806,7 +828,7 @@ public class JardinController extends Controller {
       }
     };
 
-    service.createReport("/tmp/" + filename, Template.XML, null, columns,
+    service.createReport("/tmp/" + filename, Template.XML, null, null, columns,
         searchParams, callback);
 
   }
@@ -825,7 +847,7 @@ public class JardinController extends Controller {
 
     JardinSelectColumnsForChartPopUp popup =
         new JardinSelectColumnsForChartPopUp(grid, ct.toString());
-    
+
     popup.show();
 
   }

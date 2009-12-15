@@ -28,7 +28,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface ManagerServiceAsync {
 
   public void createReport(String file, Template template,
-      PagingLoadConfig config, List<String> columns, SearchParams searchParams,
+      PagingLoadConfig config, List<BaseModelData> selectedRows, List<String> columns, SearchParams searchParams,
       AsyncCallback<String> callback);
 
   void getEvents(AsyncCallback<List<EventTypeSerializable>> callback);

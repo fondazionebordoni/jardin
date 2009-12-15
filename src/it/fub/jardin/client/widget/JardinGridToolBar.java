@@ -114,6 +114,7 @@ public class JardinGridToolBar extends ToolBar {
     this.comboTemplate.add(Template.XML);
     this.comboTemplate.add(defaultTemplate);
     this.comboTemplate.setSimpleValue(Template.CSV);
+    
     this.add(this.comboTemplate);
 
     Menu menu = new Menu();
@@ -134,6 +135,14 @@ public class JardinGridToolBar extends ToolBar {
         IconHelper.createStyle("icon-table-save"),
         getListenerWithGrid(EventList.ExportSomeStoreSomeColumns)));
 
+    menu.add(new MenuItem("Le righe selezionate, tutte le colonne",
+        IconHelper.createStyle("icon-table-save"),
+        getListenerWithGrid(EventList.ExportSomeRowsSomeColumns)));
+    
+    menu.add(new MenuItem("Le righe selezionate, le colonne visibili",
+        IconHelper.createStyle("icon-table-save"),
+        getListenerWithGrid(EventList.ExportSomeRowsAllColumns)));
+    
     menu.add(new SeparatorMenuItem());
 
     menu.add(new MenuItem("Aggiungi template (file XSL)",
@@ -188,6 +197,7 @@ public class JardinGridToolBar extends ToolBar {
 
   private SelectionListener getListenerWithGrid(final EventType e) {
     SelectionListener listener = new SelectionListener() {
+
       @Override
       public void componentSelected(ComponentEvent ce) {
         Dispatcher.forwardEvent(e, resultset);

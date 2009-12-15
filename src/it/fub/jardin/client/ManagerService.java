@@ -34,7 +34,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 public interface ManagerService extends RemoteService {
 
   public String createReport(String file, Template template,
-      PagingLoadConfig config, List<String> columns, SearchParams searchParams)
+      PagingLoadConfig config, List<BaseModelData> selectedRows, List<String> columns, SearchParams searchParams)
       throws VisibleException;
 
   /**

@@ -58,15 +58,18 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public String createReport(String file, Template template,
-      PagingLoadConfig config, List<String> columns, SearchParams searchParams)
-      throws VisibleException {
-
+      PagingLoadConfig config, List<BaseModelData> selectedRows,
+      List<String> columns, SearchParams searchParams) throws VisibleException {
+System.out.println("ok");
     if (searchParams == null) {
       throw new VisibleException("Effettuare prima una ricerca");
     }
-
-    List<BaseModelData> records = dbUtils.getObjects(config, searchParams);
-
+    List<BaseModelData> records = null;
+    if (selectedRows == null) {
+      records = dbUtils.getObjects(config, searchParams);
+    } else {
+      records = selectedRows;
+    }
     String xsl =
         this.getServletContext().getRealPath(
             Template.TEMPLATE_DIR + template.getXsl());
@@ -80,7 +83,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
         FileUtils.prepareDefaultTemplate(resultset, xsl, columns);
       } catch (IOException e) {
         Log.error("Impossibile ottenere il template di default", e);
-        throw new VisibleException("Impossibile ottenere il template di default");
+        throw new VisibleException(
+            "Impossibile ottenere il template di default");
       }
     }
 
@@ -126,7 +130,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
           ;
         }
       }
-      
+
       synchronized (user) {
         Log.debug("User " + user.getUsername() + " got events!");
         events = user.getEvents();
@@ -161,7 +165,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     }
   }
 
-  public List<BaseModelData> getReGroupings(int resultSetId) throws HiddenException {
+  public List<BaseModelData> getReGroupings(int resultSetId)
+      throws HiddenException {
     try {
       return dbUtils.getReGroupings(resultSetId);
     } catch (SQLException e) {
@@ -202,7 +207,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return dbUtils.getValuesOfAFieldFromTableName(table, field);
   }
 
-  public FieldsMatrix getValuesOfFields(Integer resultsetId) throws HiddenException {
+  public FieldsMatrix getValuesOfFields(Integer resultsetId)
+      throws HiddenException {
     return dbUtils.getValuesOfFields(resultsetId);
   }
 
@@ -210,7 +216,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       throws HiddenException {
     return dbUtils.getValuesOfForeignKeys(resultsetId);
   }
-  
+
   public Integer removeObjects(Integer resultset,
       List<BaseModelData> selectedRows) throws HiddenException {
     log("Removing records...");
@@ -227,13 +233,14 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   // TODO implement USER direct messages
-  public void sendMessage(Message message) throws HiddenException, VisibleException {
+  public void sendMessage(Message message) throws HiddenException,
+      VisibleException {
 
     MessageType type = message.getType();
     User sender = getUserByUid(message.getSender());
     dbUtils.sendMessage(message);
     Collection<User> users = null;
-    
+
     switch (type) {
     case GROUP:
       users = getGroupUsers(sender.getGid());
@@ -250,7 +257,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
     for (User user : users) {
       synchronized (user) {
-        // TODO throws java.lang.IllegalMonitorStateException: current thread not owner 
+        // TODO throws java.lang.IllegalMonitorStateException: current thread
+        // not owner
         user.addEvent(EventList.NewMessage);
         user.notifyAll();
       }
@@ -290,8 +298,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     dbUtils.updateUserProperties(user);
   }
 
-	public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data) throws HiddenException {
-		return dbUtils.getPopUpDetailEntry(data);
-	}
+  public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data)
+      throws HiddenException {
+    return dbUtils.getPopUpDetailEntry(data);
+  }
 
 }
