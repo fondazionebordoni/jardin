@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
 
 /**
- * @author acozzolino
+ * @author mavellino
  */
 public class JardinSelectColumnsForChartPopUp extends Window {
 

@@ -27,6 +27,10 @@ public class EventList {
   public static final EventType ExportSomeStoreAllColumns = new EventType();
 
   public static final EventType ExportSomeStoreSomeColumns = new EventType();
+  
+  public static final EventType ExportSomeRowsAllColumns = new EventType();
+
+  public static final EventType ExportSomeRowsSomeColumns = new EventType();
 
   public static final EventType Get = new EventType();
 
