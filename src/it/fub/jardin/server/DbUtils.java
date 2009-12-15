@@ -17,7 +17,6 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.mvc.JardinController;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,9 +44,7 @@ import javax.mail.MessagingException;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
-import com.mysql.jdbc.interceptors.ResultSetScannerInterceptor;
 
 /**
  * @author acozzolino
@@ -329,6 +326,8 @@ public class DbUtils {
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
+          // TODO Inserire un controllo di compatibilità di conversione dati SQL->JDBC
+          // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene sollevata un'eccezione e la query non prosegue
           map.set(key, result.getObject(i));
         }
         records.add(map);
@@ -550,9 +549,6 @@ public class DbUtils {
       ResultSetMetaData metadata =
           dbProperties.getResultsetMetadata(connection, resultsetId);
       tableName = metadata.getTableName(1);
-      // int columns = metadata.getColumnCount();
-      // int columns = records.size();
-      // System.out.println("numero colonne: "+columns);
       for (BaseModelData record : records) {
         String set = "";
         int columns = record.getPropertyNames().size();
@@ -583,10 +579,7 @@ public class DbUtils {
       }
     } catch (MySQLIntegrityConstraintViolationException ex) {
       String message = ex.getLocalizedMessage();
-      // int startNewMess = message.indexOf("FOREIGN KEY");
-      // int endNewMess = message.indexOf("ON");
       String newMess = "";
-      // System.out.println(newMess);
       Log.warn("Errore SQL", ex);
       if (ex.getErrorCode() == 1062) {
 
@@ -739,7 +732,7 @@ public class DbUtils {
       }
     }
 
-    if (tableName.length() <= 0) {
+    if (tableName == null || tableName.length() <= 0) {
       return null;
     }
 
@@ -1355,7 +1348,7 @@ public class DbUtils {
       recordLine = in.readLine();
 
       while (recordLine != null) {
-        System.out.println(recordLine);
+        Log.debug(recordLine);
         if (validateLine(rsmd, recordLine)) {
           recordList.add(createRecord(rsmd, recordLine));
         } else
@@ -1386,9 +1379,6 @@ public class DbUtils {
         if (value.compareToIgnoreCase("") == 0) {
           value = null;
         }
-        // System.out.println("record: " + rsmd.getColumnName(i) +
-        // " --> '"
-        // + value + "'");
         bm.set(rsmd.getColumnName(i), value);
       }
     } catch (SQLException e) {
@@ -1449,8 +1439,6 @@ public class DbUtils {
         }
 
         PKset = PKset.substring(0, PKset.length() - 5);
-
-        // System.out.println("PKs: " + PKset);
 
         String set = "";
 
@@ -1530,7 +1518,7 @@ public class DbUtils {
               testo +=
                   md.getColumnLabel(i) + ": " + resultData.getString(i) + "\n";
             }
-            System.out.println("\nmessaggio:\n" + testo);
+            Log.debug("\nmessaggio:\n" + testo);
             testo += "\n";
           }
 
@@ -1539,7 +1527,7 @@ public class DbUtils {
           ps.setInt(1, id_table);
           ResultSet resultAddress = ps.executeQuery();
           while (resultAddress.next()) {
-            System.out.println("mailto: " + resultAddress.getString(1));
+            Log.debug("mailto: " + resultAddress.getString(1));
             if (!(resultAddress.getString(1) == null)) {
               try {
                 MailUtility.sendMail(resultAddress.getString(1), mitt, oggetto,
@@ -1606,7 +1594,6 @@ public class DbUtils {
     String query =
         "SELECT * FROM (" + queryStatement + ") AS entry WHERE " + linkingField
             + " = '" + linkingValue + "' LIMIT 1";
-    // System.out.println(query);
     Connection connection = dbConnectionHandler.getConn();
     ResultSet result;
     BaseModelData row = new BaseModelData();
@@ -1618,7 +1605,7 @@ public class DbUtils {
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
           row.set(key, result.getObject(i));
-          System.out.println(key + "=" + result.getObject(i));
+          Log.debug(key + "=" + result.getObject(i));
         }
       }
     } catch (SQLException e) {

@@ -14,12 +14,13 @@ import it.fub.jardin.client.mvc.JardinController;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -102,10 +103,6 @@ public class JardinGrid extends Grid<BaseModelData> {
 
                 item.addListener(Events.Select, new Listener<BaseEvent>() {
                   public void handleEvent(BaseEvent be) {
-                    // System.out.println(be.toString());
-                    // System.out.println(field
-                    // .getResultsetid()
-                    // + "" + field.getId());
                     Dispatcher.forwardEvent(EventList.ViewPopUpDetail, fk);
                   }
                 });
@@ -138,7 +135,7 @@ public class JardinGrid extends Grid<BaseModelData> {
           mitem.addListener(Events.Select, new Listener() {
             public void handleEvent(BaseEvent be) {
 
-              System.out.println(linkedTable + "." + linkedField + "->" + field
+              Log.debug(linkedTable + "." + linkedField + "->" + field
                   + "=" + selectedRow.get(field));
               Dispatcher.forwardEvent(EventList.ViewLinkedTable, fkIN);
 

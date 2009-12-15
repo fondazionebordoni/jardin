@@ -10,6 +10,7 @@ import it.fub.jardin.client.model.ResultsetField;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -130,12 +131,8 @@ public class FieldCreator {
 			f.getPropertyEditor()
 					.setFormat(DateTimeFormat.getFormat("dd/MM/y"));
 
-			// Calendar c = Calendar.getInstance();
-			// System.out.println(c.getTime());
-			// f.setValue(c.getTime());
-			System.out.println();
 			result = f;
-			System.out.println(field.getName() + ": DATE");
+			Log.debug(field.getName() + ": DATE");
 		}/*
 		 * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
 		 * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result =
@@ -144,7 +141,7 @@ public class FieldCreator {
 			TimeField f = new TimeField();
 			f.setFormat(DateTimeFormat.getFormat("HH:mm"));
 			result = f;
-			System.out.println(field.getName() + ": TIME");
+			Log.debug(field.getName() + ": TIME");
 		} else if (((fieldType.compareToIgnoreCase("BLOB") == 0) || (fieldType
 				.compareToIgnoreCase("TEXT") == 0))
 				&& textarea) {
@@ -153,7 +150,7 @@ public class FieldCreator {
 			result = f;
 		} else {
 			if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-				System.out.println(field.getName() + ": COMBO");
+			  Log.debug(field.getName() + ": COMBO");
 
 				final SimpleComboBox f;
 				// List<String> values = new ArrayList<String>();
@@ -245,7 +242,7 @@ public class FieldCreator {
 				result = f;
 
 			} else {
-				System.out.println(field.getName() + ": TEXT");
+			  Log.debug(field.getName() + ": TEXT");
 				result = new TextField<String>();
 			}
 		}

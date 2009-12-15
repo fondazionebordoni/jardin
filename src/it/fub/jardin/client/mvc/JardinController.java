@@ -153,7 +153,6 @@ public class JardinController extends Controller {
       onCreateUI();
     } else if (t == EventList.Search) {
       if (event.getData() instanceof SearchParams) {
-        // System.out.println("evento search!!!");
         SearchParams searchParams = (SearchParams) event.getData();
         onSearch(searchParams);
       } else {
@@ -485,9 +484,7 @@ public class JardinController extends Controller {
           };
 
       service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
-
     }
-
   }
 
   private void onSearch(SearchParams searchParams) {
@@ -927,7 +924,6 @@ public class JardinController extends Controller {
     for (String key : parser.getSearchMap().keySet()) {
       BaseModelData m = new BaseModelData();
       m.set(key, searchMap.get(key));
-      System.out.println(key + "->" + searchMap.get(key));
       queryFieldList.add(m);
     }
     searchParams.setFieldsValuesList(queryFieldList);
