@@ -299,7 +299,6 @@ public class AddRowForm extends Window {
         BaseModelData newItem = new BaseModelData();
         for (Field<?> field : fieldList) {
 
-          System.out.println(field.getValue());
           String property = field.getName();
 
           Object value = null;
@@ -332,7 +331,6 @@ public class AddRowForm extends Window {
           }
           if (field.getValue() != null) {
             newItem.set(property, value);
-            System.out.println("aggiunto item " + newItem.get(property));
           }
         }
         newItemList.add(newItem);
