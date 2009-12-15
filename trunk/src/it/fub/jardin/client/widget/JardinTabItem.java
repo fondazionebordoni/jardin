@@ -37,6 +37,7 @@ public class JardinTabItem extends TabItem {
 
 	private static final int PAGESIZE = 20;
 	private static final int MARGIN = 2;
+	private ContentPanel main;
 	private ContentPanel north;
 	private ContentPanel west;
 	private ContentPanel center;
@@ -49,22 +50,27 @@ public class JardinTabItem extends TabItem {
 
 	public JardinTabItem(ResultsetImproved resultset) {
 		super(resultset.getAlias());
-
+	
 		this.setClosable(false);
-		this.setLayout(new BorderLayout());
-		// this.setLayoutOnChange(true);
+		this.setLayout(new FitLayout());
+		
+		this.main = new ContentPanel(new BorderLayout());
+		this.main.setHeaderVisible(false);
+		this.main.setBorders(false);
+		this.main.setFrame(false);
+		this.main.setBodyBorder(false);
+		this.add(this.main);
 
 		this.createNorth();
 		this.createWest();
 		this.createCenter();
 
-		this.layout();
+		this.setPosition(0, 100);
 	}
 
 	private void createNorth() {
 		this.north = new ContentPanel(new FitLayout());
 		this.north.setHeaderVisible(false);
-		// this.north.setLayoutOnChange(true);
 		this.north.add(new WaitPanel());
 
 		BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 40);
@@ -73,13 +79,12 @@ public class JardinTabItem extends TabItem {
 		data.setFloatable(false);
 		data.setMargins(new Margins(MARGIN, MARGIN, 0, MARGIN));
 
-		this.add(this.north, data);
+		this.main.add(this.north, data);
 	}
 
 	private void createWest() {
 		this.west = new ContentPanel(new FitLayout());
 		this.west.setHeaderVisible(true);
-		// this.west.setLayoutOnChange(true);
 		this.west.add(new WaitPanel());
 
 		BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 340);
@@ -88,13 +93,12 @@ public class JardinTabItem extends TabItem {
 		data.setFloatable(false);
 		data.setMargins(new Margins(MARGIN, 0, MARGIN, MARGIN));
 
-		this.add(this.west, data);
+		this.main.add(this.west, data);
 	}
 
 	private void createCenter() {
 		this.center = new ContentPanel(new BorderLayout());
 		this.center.setBodyBorder(false);
-		// this.center.setLayoutOnChange(true);
 		this.center.setHeaderVisible(false);
 
 		this.createDetail();
@@ -103,7 +107,7 @@ public class JardinTabItem extends TabItem {
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setMargins(new Margins(MARGIN));
 
-		this.add(this.center, centerData);
+		this.main.add(this.center, centerData);
 	}
 
 	private void createGrid() {

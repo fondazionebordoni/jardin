@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -95,7 +96,6 @@ public class JardinDetailPopUp extends Window {
 	}
 
 	private void setFormPanel(BaseModelData data, BaseModelData entry) {
-		// System.out.println(entry.getProperties());
 
 		for (ResultsetField field : this.resultset.getFields()) {
 
@@ -104,16 +104,11 @@ public class JardinDetailPopUp extends Window {
 
 				List<String> values = resultset.getForeignKeyList().getValues(
 						field.getId());
-				// Field f = FieldCreator.getField(field, values, true,
-				// labelWidth);
-				// Field f = FieldCreator.getField(field,0);
 				Field f = FieldCreator.getField(field, values, 0, true);
 				fieldList.add(f);
 				if (!field.getModifyperm()) {
 					f.setEnabled(false);
 				}
-
-				//f.setValue(entry.get(field.getName()));
 
 				if (f instanceof DateField){
 					java.util.Date date = new java.util.Date();
@@ -128,13 +123,7 @@ public class JardinDetailPopUp extends Window {
 					bm.set(field.getName(), ""+entry.get(field.getName()));
 					((SimpleComboBox) f).setSimpleValue(entry.get(field.getName())) ;
 				}else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
-					//Text value = entry.get(field.getName());
 					f.setValue(entry.get(field.getName()));
-					//ModelData bm = new BaseModelData();
-					//bm.set(field.getName(), ""+entry.get(field.getName()));
-					//f.setValue(bm);
-					//System.out.println(entry.get(field.getName()));
-					//System.out.println(f.getClass()+"->"+f.getName());
 				}
 				
 				/* Esamino il raggruppamento a cui appartiene il campo */
@@ -175,7 +164,6 @@ public class JardinDetailPopUp extends Window {
 				BaseModelData newItem = new BaseModelData();
 				for (Field<?> field : fieldList) {
 
-					System.out.println(field.getValue());
 					String property = field.getName();
 
 					Object value = null;
@@ -186,9 +174,6 @@ public class JardinDetailPopUp extends Window {
 							SimpleComboValue<?> scv = (SimpleComboValue<?>) field
 									.getValue();
 							value = scv.getValue().toString();
-							// value = ((BaseModelData)
-							// field.getValue())
-							// .get(field.getName());
 						}
 					} else if (field instanceof ComboBox<?>) {
 						if (field.getValue() == null) {
@@ -202,7 +187,7 @@ public class JardinDetailPopUp extends Window {
 					}
 					if (field.getValue() != null) {
 						newItem.set(property, value);
-						System.out.println("aggiunto item "
+						Log.debug("aggiunto item "
 								+ newItem.get(property));
 					}
 				}

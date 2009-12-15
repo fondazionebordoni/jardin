@@ -167,10 +167,8 @@ public class SearchAreaBase extends HtmlContainer {
 
     searchParams.setFieldsValuesList(queryFieldList);
     if (accurate.getValue() == true) {
-      System.out.println("accurate");
       searchParams.setAccurate(true);
     } else {
-      System.out.println("not accurate");
       searchParams.setAccurate(false);
     }
     Dispatcher.forwardEvent(EventList.Search, searchParams);
