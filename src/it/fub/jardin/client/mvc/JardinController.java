@@ -17,6 +17,7 @@ import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinSelectColumnsForChartPopUp;
 import it.fub.jardin.client.widget.JardinTabItem;
+import it.fub.jardin.client.widget.JardinUI;
 import it.fub.jardin.client.widget.Jungle;
 import it.fub.jardin.client.widget.UploadDialog;
 
@@ -80,6 +81,7 @@ public class JardinController extends Controller {
    * gli eventi che saranno gestiti da questo controller.
    */
   public JardinController() {
+    registerEventTypes(EventList.TestUI);
     registerEventTypes(EventList.Login);
     registerEventTypes(EventList.Error);
     registerEventTypes(EventList.CheckUser);
@@ -127,6 +129,8 @@ public class JardinController extends Controller {
 
     if (t == EventList.Login) {
       forwardToView(view, EventList.Login, loginMessage());
+    } else if (t == EventList.TestUI) {
+        onTestUI();
     } else if (t == EventList.CheckUser) {
       if (event.getData() instanceof Credentials) {
         Credentials credentials = (Credentials) event.getData();
@@ -338,6 +342,11 @@ public class JardinController extends Controller {
     } else if (t == EventList.ViewLinkedTable) {
       onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
     }
+  }
+
+  private void onTestUI() {
+    Log.debug("JardinController...");
+    JardinUI ui = new JardinUI();
   }
 
   private void onNewMessage() {

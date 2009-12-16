@@ -47,6 +47,7 @@ public class Jardin implements EntryPoint {
      * Fire dell'evento Login. il dipatcher passa l'evento ai suoi controller
      * che l'agganciano se si sono registrati per gestirlo.
      */
-    dispatcher.dispatch(EventList.Login);
+    //dispatcher.dispatch(EventList.Login);
+    dispatcher.dispatch(EventList.TestUI);
   }
 }

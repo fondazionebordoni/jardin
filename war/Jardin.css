@@ -1,12 +1,12 @@
 /** Add css rules here for your application. */
-
 * {
 	margin: 0px;
 	padding: 0px;
+	font-family: arial, sans-serif;
 }
 
 .x-form-empty-field {
-	color: #aaa;	
+	color: #aaa;
 }
 
 #loading {
@@ -34,62 +34,18 @@
 }
 
 #loading .loading-indicator img {
-	margin-right:8px;
-	float:left;
-	vertical-align:top;
+	margin-right: 8px;
+	float: left;
+	vertical-align: top;
 }
 
 #loading-msg {
 	font: normal 10px;
 }
 
-#header-area {
+.header-area {
+	padding-top: 1em;
 	background: #555753;
-	border: 0pt none;
-	color: white;
-	font-size: 16px;
-	font-size-adjust: none;
-	font-stretch: normal;
-	font-style: normal;
-	font-variant: normal;
-	font-weight: normal;
-	line-height: 32px;
-	padding: 0;
-	height: 32px;
-}
-
-#header-area-toolbar {
-	height: 26px;
-	padding: 6px 0 0 0;
-}
-
-#header-area-toolbar .x-btn *,
-.search-button .x-btn * {
-	font-weight: bold;
-	white-space: nowrap;
-	border: 0;
-	color: white;
-	background: transparent;
-}
-
-#header-area-toolbar table table,
-.search-button table table {
-	padding: 0 4px;	
-}
-
-#header-area-toolbar table td .x-btn-center,
-.search-button table td .x-btn-center {
-	padding: 0 4px;	
-}
-
-#header-area-toolbar button,
-.search-button button {
-	color: white;
-}
-
-#header-area-toolbar .x-btn-over button {
-	background-image: none;
-	color: #b8cfee;
 }
 
 .search-button .x-btn-over button {
@@ -97,24 +53,8 @@
 	color: #555753;
 }
 
-#header-area-left {
-	height: 32px;
-	line-height: 32px;
-	float: left;
-	padding: 0 12px;
-	color: white;
-}
-
-#header-area-right {
-	float: right;
-	text-align: right;
-	font-size: 11px;
-}
-
-.search-area-advanced .x-panel-bwrap,
-.user-area,
-.results-area .x-panel-body,
-.detail-area .x-panel-body {
+.search-area-advanced .x-panel-bwrap,.user-area,.results-area .x-panel-body,.detail-area .x-panel-body
+	{
 	background: #f1f1f1 !important;
 	/* background: #b8cfee; */
 }
@@ -125,7 +65,8 @@
 }
 
 .wait .x-panel-body {
-	background: #b8cfee url(images/wait_blue.gif) no-repeat center center !important;	
+	background: #b8cfee url(images/wait_blue.gif) no-repeat center center
+		!important;
 }
 
 #search-area form {
@@ -137,15 +78,18 @@
 }
 
 .icon-book {
-	background: url(images/icons/book_open.png) no-repeat center left !important;
+	background: url(images/icons/book_open.png) no-repeat center left
+		!important;
 }
 
 .icon-printer {
-	background: url(images/icons/printer.png) no-repeat center left !important;
+	background: url(images/icons/printer.png) no-repeat center left
+		!important;
 }
 
 .icon-import {
-	background: url(images/icons/folder_table.png) no-repeat center left !important;
+	background: url(images/icons/folder_table.png) no-repeat center left
+		!important;
 }
 
 .icon-export {
@@ -157,24 +101,28 @@
 }
 
 .icon-add-disabled {
-	background: url(images/icons/addDisabled.png) no-repeat center left !important;
+	background: url(images/icons/addDisabled.png) no-repeat center left
+		!important;
 }
 
 .icon-delete {
-	background: url(images/icons/delete.png) no-repeat center left !important;
+	background: url(images/icons/delete.png) no-repeat center left
+		!important;
 }
 
 .icon-delete-disabled {
-	background: url(images/icons/deleteDisabled.png) no-repeat center left !important;
+	background: url(images/icons/deleteDisabled.png) no-repeat center left
+		!important;
 }
 
-.icon-chart,
-.icon-chart-pie {
-	background: url(images/icons/chart_pie.png) no-repeat center left !important;
+.icon-chart,.icon-chart-pie {
+	background: url(images/icons/chart_pie.png) no-repeat center left
+		!important;
 }
 
 .icon-chart-bar {
-	background: url(images/icons/chart_bar.png) no-repeat center left !important;
+	background: url(images/icons/chart_bar.png) no-repeat center left
+		!important;
 }
 
 .icon-formula {
@@ -182,33 +130,38 @@
 }
 
 .icon-summary {
-	background: url(images/icons/sitemap_color.png) no-repeat center left !important;
+	background: url(images/icons/sitemap_color.png) no-repeat center left
+		!important;
 }
 
-.icon-table-show-all,
-.icon-grid {
-	background: url(images/icons/table.png) no-repeat center left !important;
+.icon-table-show-all,.icon-grid {
+	background: url(images/icons/table.png) no-repeat center left !important
+		;
 }
 
 .icon-table-preference {
-	background: url(images/icons/table_edit.png) no-repeat center left !important;
+	background: url(images/icons/table_edit.png) no-repeat center left
+		!important;
 }
 
 .icon-table-user {
-	background: url(images/icons/table_user.png) no-repeat center left !important;
+	background: url(images/icons/table_user.png) no-repeat center left
+		!important;
 }
 
-.icon-table-save,
-.icon-table-save-view {
-	background: url(images/icons/table_save.png) no-repeat center left !important;
+.icon-table-save,.icon-table-save-view {
+	background: url(images/icons/table_save.png) no-repeat center left
+		!important;
 }
 
 .icon-upload-file {
-	background: url(images/icons/folder_page.png) no-repeat center left !important;
+	background: url(images/icons/folder_page.png) no-repeat center left
+		!important;
 }
+
 .icon-button-google {
 	height: 75px;
-	width:	28px;
+	width: 28px;
 	background: url(images/GoogleMaps.gif) no-repeat center left !important;
 }
 
@@ -234,32 +187,30 @@
 	padding: 4px;
 }
 
-.search-text, .search-button {
+.search-text,.search-button {
 	float: left;
 	padding: 0 2px;
 }
 
-.search-text input.x-form-field,
-.search-button .x-btn-text {
+.search-text input.x-form-field,.search-button .x-btn-text {
 	font-size: 170%;
 	/* //font-size: 160%; */
 	font-weight: bold;
 }
 
-.search-text input.x-form-field {
-	//padding-top: 0px;
-	line-height: 28px; 
+.search-text input.x-form-field { //
+	padding-top: 0px;
+	line-height: 28px;
 	height: 30px !important;
 }
 
 .search-button .x-btn-text {
-	line-height: 22px; 
+	line-height: 22px;
 	height: 24px !important;
 }
 
 .detail-area .x-form-item {
 	display: inline;
 	float: left;
-	/* width: 250px; */
-	/* border: 1px solid #eeeeec; */
+	/* width: 250px; */ /* border: 1px solid #eeeeec; */
 }

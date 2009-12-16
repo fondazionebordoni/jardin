@@ -64,8 +64,6 @@ public class JardinTabItem extends TabItem {
 		this.createNorth();
 		this.createWest();
 		this.createCenter();
-
-		this.setPosition(0, 100);
 	}
 
 	private void createNorth() {
