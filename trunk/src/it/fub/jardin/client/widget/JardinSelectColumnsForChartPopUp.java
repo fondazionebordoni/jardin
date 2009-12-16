@@ -6,6 +6,7 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
+import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 
@@ -72,27 +73,6 @@ public class JardinSelectColumnsForChartPopUp extends Window {
     formPanel.setHeaderVisible(false);
     formPanel.setScrollMode(Scroll.AUTO);
 
-    // group.addListener(Events.Change, new Listener<ComponentEvent>() {
-    //
-    // public void handleEvent(ComponentEvent be) {
-    // Radio selected = group.getValue();
-    // // MessageBox.alert("selezione", "selezionato: "
-    // // + selected.getData("valore"), null);
-    //
-    // if (((String) selected.getData("valore")).compareToIgnoreCase("yes") ==
-    // 0) {
-    // formPanel.removeAll();
-    // setAssistedFormPanel();
-    // layout();
-    // } else {
-    // formPanel.removeAll();
-    // setUnAssistedFormPanel();
-    // layout();
-    // }
-    // }
-    //
-    // });
-
     final ListBox lbTitle = new ListBox();
     lbTitle.setVisibleItemCount(1);
     lbTitle.setName("title");
@@ -103,14 +83,25 @@ public class JardinSelectColumnsForChartPopUp extends Window {
     lbValue.setName("value");
     lbValue.setTitle("Colonna valore");
 
+    /* Recupero le informazioni sui campi */
+    BaseModelData fieldsInfo = new BaseModelData();
+    for (ResultsetField field : resultset.getFields()) {
+      fieldsInfo.set(field.getName(), field.getType());
+      // System.out.println(field.getType());
+    }
+
     ColumnModel cm = this.grid.getColumnModel();
     for (int i = 0; i < cm.getColumnCount(); i++) {
       if (!(cm.getColumn(i).isHidden())) {
         lbTitle.addItem(cm.getColumn(i).getId());
-        lbValue.addItem(cm.getColumn(i).getId());
+        if (fieldsInfo.get(cm.getColumn(i).getId()).toString().compareToIgnoreCase(
+            "int") == 0
+            || fieldsInfo.get(cm.getColumn(i).getId()).toString().compareToIgnoreCase(
+                "real") == 0) {
+          lbValue.addItem(cm.getColumn(i).getId());
+        }
       }
     }
-    // for (final ResultsetField field : this.resultset.getFields()) {
     formPanel.addText("Colonna titolo:<br />");
     formPanel.add(lbTitle);
     formPanel.addText("<br />Colonna valore:<br />");
@@ -125,7 +116,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
       public void onClick(ClickEvent event) {
         ArrayList<String> dataToChart = new ArrayList<String>();
         dataToChart.add(ct);
-        dataToChart.add(""+resultset.getId());
+        dataToChart.add("" + resultset.getId());
         dataToChart.add(lbTitle.getValue(lbTitle.getSelectedIndex()));
         dataToChart.add(lbValue.getValue(lbValue.getSelectedIndex()));
         Dispatcher.forwardEvent(EventList.ShowChart, dataToChart);
