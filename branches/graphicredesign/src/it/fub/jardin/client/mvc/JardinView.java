@@ -167,7 +167,7 @@ public class JardinView extends View {
 
   private void createHeader() {
     this.header = new HeaderArea(this.controller.getUser());
-    this.header.setId(JardinView.HEADER_AREA);
+    //this.header.setId(JardinView.HEADER_AREA);
 
     RowData rd = new RowData(1, 32);
     rd.setMargins(new Margins(0));

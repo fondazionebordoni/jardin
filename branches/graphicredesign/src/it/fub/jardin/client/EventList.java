@@ -106,4 +106,6 @@ public class EventList {
 
   public static final EventType ShowChart = new EventType();
 
+  public static final EventType TestUI = new EventType();
+
 }

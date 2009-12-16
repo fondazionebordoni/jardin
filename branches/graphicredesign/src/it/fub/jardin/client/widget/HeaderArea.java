@@ -12,113 +12,90 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.HtmlContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.SpanElement;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author gpantanetti
  * 
  */
-public class HeaderArea extends HtmlContainer {
-
-  private final String aboutMessage =
-      "<b>Fondazione Ugo Bordoni<br>" + "JARDiN Manager<br></b>"
-          + "Versione 0.9.7.3";
-
+public class HeaderArea extends Composite {
+  
   private User user;
 
+  interface Binder extends UiBinder<Widget, HeaderArea> {}
+  private static final Binder binder = GWT.create(Binder.class);
+
+  @UiField
+  Anchor about;
+  @UiField
+  Anchor help;
+  @UiField
+  Anchor faq;
+  @UiField
+  Anchor calculator;
+  @UiField
+  Anchor calendar;
+  @UiField
+  Anchor settings;
+  @UiField
+  Anchor exit;
+  @UiField
+  SpanElement username;
+  
+  
   public HeaderArea(User user) {
+    initWidget(binder.createAndBindUi(this));
+    
     this.user = user;
-    String header =
-        "<div id='" + JardinView.HEADER_AREA + "'>" + "<div id='"
-            + JardinView.HEADER_AREA + "-left'>"
-            + "<b>JARDiN</b> Manager</div>" + "<div id='"
-            + JardinView.HEADER_AREA + "-right'></div></div>";
-    this.setHtml(header);
-    this.createButtons();
+    this.username.setInnerText(user.getFullName());
+   
+    addStyleName("header-area");
   }
 
-  private void createButtons() {
+  @UiHandler("about")
+  void onAboutClicked(ClickEvent event) {
+    AboutDialog dlg = new AboutDialog();
+    dlg.show();
+    dlg.center();
+  }
 
-    final HorizontalPanel toolbar = new HorizontalPanel();
-    toolbar.setId(JardinView.HEADER_AREA + "-toolbar");
-    this.add(toolbar, "#" + JardinView.HEADER_AREA + "-right");
+  @UiHandler("help")
+  void onHelpClicked(ClickEvent event) {
+    Window w = new Window();
+    w.setIconStyle("icon-book");
+    w.setHeading("Aiuto");
+    w.setModal(false);
+    w.setSize(460, 410);
+    w.setMaximizable(true);
+    w.setUrl("help/help.html");
+    w.show();
+  }
 
-    Button about = new Button("Info");
-    about.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        MessageBox m = new MessageBox();
-        m.setMinWidth(400);
-        m.setTitle("Info");
-        m.setMessage(aboutMessage);
-        m.setIcon(MessageBox.INFO);
-        m.show();
-      }
-    });
-    toolbar.add(about);
+  @UiHandler("faq")
+  void onFaqClicked(ClickEvent event) {
+    Window w = new Window();
+    w.setIconStyle("icon-book");
+    w.setHeading("FAQ");
+    w.setModal(false);
+    w.setSize(460, 410);
+    w.setMaximizable(true);
+    w.setUrl("help/faq.html");
+    w.show();
+  }
 
-    Button help = new Button("Aiuto");
-    help.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        Window w = new Window();
-        w.setIconStyle("icon-book");
-        w.setHeading("Aiuto");
-        w.setModal(false);
-        w.setSize(460, 410);
-        w.setMaximizable(true);
-        w.setUrl("help/help.html");
-        w.show();
-      }
-    });
-    toolbar.add(help);
-
-    Button faq = new Button("FAQ");
-    faq.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        Window w = new Window();
-        w.setIconStyle("icon-book");
-        w.setHeading("FAQ");
-        w.setModal(false);
-        w.setSize(460, 410);
-        w.setMaximizable(true);
-        w.setUrl("help/faq.html");
-        w.show();
-      }
-    });
-    toolbar.add(faq);
-
-    Button calc = new Button("Calcolatrice");
-    calc.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        Window w = new Window();
-        w.setHeading("Calcolatrice");
-        w.setModal(false);
-        w.setSize(340, 410);
-        w.setMaximizable(false);
-        w.setResizable(false);
-        w.setUrl("calculator.html");
-        w.show();
-      }
-    });
-    toolbar.add(calc);
-
-    Button calendar = new Button("Calendario");
-    calendar.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        Window w = new Window();
-        w.setHeading("Calendario");
-        w.setModal(false);
-        w.setSize(460, 250);
-        w.setMaximizable(false);
-        w.setResizable(false);
-        w.setUrl("calendar.html");
-        w.show();
-      }
-    });
-    toolbar.add(calendar);
+  @UiHandler("exit")
+  void onExitClicked(ClickEvent event) {
 
     final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
       public void handleEvent(MessageBoxEvent ce) {
@@ -129,23 +106,37 @@ public class HeaderArea extends HtmlContainer {
       }
     };
 
-    Button exit = new Button("Uscita");
-    exit.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        MessageBox.confirm("Uscita", "Sei sicuro?", l);
-      }
-    });
-    toolbar.add(exit);
+    MessageBox.confirm("Uscita", "Sei sicuro?", l);
+  }
 
-    final Window window = new UserWindow(user);
-    final Button welcome = new Button(user.getUsername());
-    welcome.setId(JardinView.HEADER_AREA + "-welcome");
-    welcome.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        window.show();
-      }
-    });
-    toolbar.add(welcome);
+  @UiHandler("calculator")
+  void onCalculatorClicked(ClickEvent event) {
+    Window w = new Window();
+    w.setHeading("Calcolatrice");
+    w.setModal(false);
+    w.setSize(340, 410);
+    w.setMaximizable(false);
+    w.setResizable(false);
+    w.setUrl("calculator.html");
+    w.show();
+  }
+
+  @UiHandler("calendar")
+  void onCalClicked(ClickEvent event) {
+    Window w = new Window();
+    w.setHeading("Calendario");
+    w.setModal(false);
+    w.setSize(460, 250);
+    w.setMaximizable(false);
+    w.setResizable(false);
+    w.setUrl("calendar.html");
+    w.show();
+  }
+
+  @UiHandler("settings")
+  void onSettingsClicked(ClickEvent event) {
+    Window window = new UserWindow(user);
+    window.show();
   }
 
 }
