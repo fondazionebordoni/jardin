@@ -18,6 +18,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -107,6 +108,7 @@ public class JardinGridToolBar extends ToolBar {
 
     /* Combo box per la selezione del formato di esportazione */
     this.comboTemplate = new SimpleComboBox<Template>();
+    this.comboTemplate.setTriggerAction(TriggerAction.ALL);
     this.comboTemplate.setForceSelection(true);
     this.comboTemplate.setEditable(false);
     this.comboTemplate.setWidth(80);
@@ -114,7 +116,6 @@ public class JardinGridToolBar extends ToolBar {
     this.comboTemplate.add(Template.XML);
     this.comboTemplate.add(defaultTemplate);
     this.comboTemplate.setSimpleValue(Template.CSV);
-    
     this.add(this.comboTemplate);
 
     Menu menu = new Menu();
@@ -197,7 +198,6 @@ public class JardinGridToolBar extends ToolBar {
 
   private SelectionListener getListenerWithGrid(final EventType e) {
     SelectionListener listener = new SelectionListener() {
-
       @Override
       public void componentSelected(ComponentEvent ce) {
         Dispatcher.forwardEvent(e, resultset);
