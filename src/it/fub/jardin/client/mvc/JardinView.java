@@ -19,6 +19,7 @@ import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
 import java.util.ArrayList;
+
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -276,8 +277,8 @@ public class JardinView extends View {
       /*
        * Eseguo una ricerca per riempire il resultset
        * 
-       * SearchParams searchParams = new SearchParams(resultsetId); List<BaseModelData>
-       * queryFieldList = new ArrayList<BaseModelData>();
+       * SearchParams searchParams = new SearchParams(resultsetId);
+       * List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
        * searchParams.setFieldsValuesList(queryFieldList);
        * Dispatcher.forwardEvent(EventList.Search, searchParams);
        */
