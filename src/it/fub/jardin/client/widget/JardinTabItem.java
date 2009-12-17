@@ -4,6 +4,7 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -64,8 +65,6 @@ public class JardinTabItem extends TabItem {
 		this.createNorth();
 		this.createWest();
 		this.createCenter();
-
-		this.setPosition(0, 100);
 	}
 
 	private void createNorth() {
@@ -155,6 +154,7 @@ public class JardinTabItem extends TabItem {
 		this.west.expand();
 		this.west.removeAll();
 		this.west.add(searchAreaAdvanced);
+		this.west.layout();
 		this.west.collapse();
 	}
 
@@ -184,8 +184,8 @@ public class JardinTabItem extends TabItem {
 		this.center_south.expand();
 		this.center_south.removeAll();
 		this.center_south.add(detail);
+		this.center_south.layout();
 		this.center_south.collapse();
-		// this.center_south.layout();
 
 		/* Binding con l'area di dettaglio */
 		this.formbinding = new FormBinding(this.detail, false);
