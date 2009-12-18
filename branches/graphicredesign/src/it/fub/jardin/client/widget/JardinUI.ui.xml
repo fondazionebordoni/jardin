@@ -17,9 +17,9 @@
 		</g:north>
 
 		<g:center>
-			<g:TabLayoutPanel barUnit='EM' barHeight='1'>
+			<g:TabLayoutPanel barUnit='EM' barHeight='2'>
 				<g:tab>
-					<g:header size='70'>
+					<g:header size='1'>
 						<b>HTML </b>
 						header
 					</g:header>
