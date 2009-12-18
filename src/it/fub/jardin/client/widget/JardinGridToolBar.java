@@ -249,9 +249,9 @@ public class JardinGridToolBar extends ToolBar {
     menu.add(new MenuItem("Torta", IconHelper.createStyle("icon-chart-pie"),
         getListenerWithGrid(EventList.ShowPieChart)));
 
-    menu.add(new MenuItem("Istogramma",
+    /*menu.add(new MenuItem("Istogramma",
         IconHelper.createStyle("icon-chart-bar"),
-        getListenerWithGrid(EventList.ShowBarChart)));
+        getListenerWithGrid(EventList.ShowBarChart)));*/
 
     button.setMenu(menu);
     this.add(button);

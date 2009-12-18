@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -303,6 +304,8 @@ public class DbUtils {
    * di List<BaseModelData>. Le proprietà del ModelData sono inviate tramite
    * BaseModelData vedi: http://extjs.com/deploy/gxtdocs/com/extjs/gxt/ui/client
    * /data/BaseModelData.html#BaseModelData(java.util.Map)
+   * se config == null -> restituisce l'intero store, 
+   * altrimenti rispetta la paginazione
    * 
    * @param config
    * @param searchParams
@@ -320,7 +323,6 @@ public class DbUtils {
       ResultSet result = doQuery(connection, query);
 
       int resultWidth = result.getMetaData().getColumnCount();
-
       while (result.next()) {
         BaseModelData map = new BaseModelData();
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
@@ -328,7 +330,11 @@ public class DbUtils {
           String key = result.getMetaData().getColumnLabel(i);
           // TODO Inserire un controllo di compatibilità di conversione dati SQL->JDBC
           // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene sollevata un'eccezione e la query non prosegue
-          map.set(key, result.getObject(i));
+          Object value = result.getObject(i);
+          if (value instanceof BigDecimal){
+            value = ((BigDecimal) value).floatValue();   
+          }
+          map.set(key, value);
         }
         records.add(map);
       }
@@ -337,7 +343,6 @@ public class DbUtils {
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
-
     return records;
   }
 

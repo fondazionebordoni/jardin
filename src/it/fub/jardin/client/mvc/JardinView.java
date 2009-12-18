@@ -297,7 +297,7 @@ public class JardinView extends View {
     }
   }
 
-  private ListStore<BaseModelData> getStore(final SearchParams searchParams) {
+  public ListStore<BaseModelData> getStore(final SearchParams searchParams) {
 
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -316,6 +316,7 @@ public class JardinView extends View {
         new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
     loader.setRemoteSort(true);
     ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+
     return store;
   }
 

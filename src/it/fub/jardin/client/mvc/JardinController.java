@@ -35,7 +35,11 @@ import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -887,14 +891,18 @@ public class JardinController extends Controller {
     String resultsetAlias = user.getResultsetFromId(resultset).getAlias();
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
-
+    
+    SearchParams searchParams = grid.getSearchparams();
+    ListStore<BaseModelData> store = view.getStore(searchParams);
+    store.getLoader().load();
     switch (type) {
     case BAR:
       FilledBarChart bar = new FilledBarChart();
       bar.setAnimateOnShow(true);
       bar.setTooltip("#val#");
       BarDataProvider bdp = new BarDataProvider(cy, cx);
-      bdp.bind(grid.getStore());
+      bdp.bind(store);
+      System.out.println(store);
       bar.setDataProvider(bdp);
       cm.setScaleProvider(ScaleProvider.ROUNDED_NEAREST_SCALE_PROVIDER);
       cm.addChartConfig(bar);
@@ -908,7 +916,7 @@ public class JardinController extends Controller {
       pie.setGradientFill(true);
       pie.setColours(chartColors);
       PieDataProvider pdp = new PieDataProvider(cy, cx);
-      pdp.bind(grid.getStore());
+      pdp.bind(store);
       pie.setDataProvider(pdp);
       cm.addChartConfig(pie);
       break;
