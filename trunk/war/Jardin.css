@@ -9,6 +9,10 @@
 	color: #aaa;	
 }
 
+.x-item-disabled input {
+        color: #333 !important;
+}
+
 #loading {
 	position: absolute;
 	left: 45%;
