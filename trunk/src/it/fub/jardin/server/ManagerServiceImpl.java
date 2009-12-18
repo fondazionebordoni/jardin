@@ -60,7 +60,6 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public String createReport(String file, Template template,
       PagingLoadConfig config, List<BaseModelData> selectedRows,
       List<String> columns, SearchParams searchParams) throws VisibleException {
-System.out.println("ok");
     if (searchParams == null) {
       throw new VisibleException("Effettuare prima una ricerca");
     }
@@ -155,9 +154,9 @@ System.out.println("ok");
   public PagingLoadResult<BaseModelData> getRecords(PagingLoadConfig config,
       SearchParams searchParams) throws HiddenException {
     List<BaseModelData> records = dbUtils.getObjects(config, searchParams);
-    int recordSize = dbUtils.countObjects(searchParams);
 
     if (config != null) {
+      int recordSize = dbUtils.countObjects(searchParams);
       return new BasePagingLoadResult<BaseModelData>(records,
           config.getOffset(), recordSize);
     } else {
