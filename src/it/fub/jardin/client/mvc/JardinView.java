@@ -19,8 +19,6 @@ import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.LoginDialog;
 import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
-
-
 import java.util.ArrayList;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -38,14 +36,10 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
-import com.extjs.gxt.ui.client.widget.layout.MarginData;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -61,15 +55,18 @@ public class JardinView extends View {
 	public static final String SEARCH_AREA = "search-area";
 	public static final String SEARCH_AREA_ADVANCED = "search-area-advanced";
 	private static final String ITEM_PREFIX = "item-id-";
+	private static final int MARGIN = 2;
 
 	private JardinController controller;
 	private Viewport viewport;
-	ContentPanel viewPortContentPanel;
+	// ContentPanel viewPortContentPanel;
 	// private ContentPanel search;
 	private TabPanel main;
 	private HeaderArea header;
 	private LoginDialog dialog;
-
+	//int rootPanelWidth ;
+	//int rootPanelHeight;
+	
 	public JardinView(Controller controller) {
 		super(controller);
 		if (controller instanceof JardinController) {
@@ -189,18 +186,26 @@ public class JardinView extends View {
 	private void initUI() {
 		viewport = new Viewport();
 		//viewport.setLayout(new BorderLayout());
-		viewPortContentPanel = new ContentPanel();
-		viewPortContentPanel.setBorders(true);
-		viewPortContentPanel.setHeight(700);
+		viewport.setLayout(new RowLayout(Orientation.VERTICAL));
+//		viewPortContentPanel = new ContentPanel();
+//		viewPortContentPanel.setBorders(false);
+		//viewPortContentPanel.setHeight(700);
+		//RootPanel.get(). 
+//		viewPortContentPanel.setHeaderVisible(false);
+//		viewport.setAutoHeight(true);
+//		viewport.setAutoWidth(true);
+//		viewport.setHeight(700);
+		//viewPortContentPanel.expand();
+		//rootPanelHeight = viewPortContentPanel.getHeight();
+//		viewPortContentPanel.setLayout(new BorderLayout());
 		
-		viewport.add(viewPortContentPanel, new MarginData(10));
-		viewPortContentPanel.setLayout(new RowLayout(Orientation.VERTICAL));
-
 		createHeader();
 		createMain();
-
-		RootPanel.get().add(viewport);
+		//rootPanelWidth = RootPanel.get().getOffsetWidth();
+		//rootPanelHeight = RootPanel.get().getOffsetHeight();
 		//viewPortContentPanel.layout(); 	
+//		viewport.add(viewPortContentPanel, new MarginData(0));
+		RootPanel.get().add(viewport);
 		this.createUI();
 	}
 
@@ -208,14 +213,30 @@ public class JardinView extends View {
 	private void createHeader() {
 		this.header = new HeaderArea(this.controller.getUser());
 		this.header.setId(JardinView.HEADER_AREA);
-
-		RowData rd = new RowData(1, 32);
-		rd.setMargins(new Margins(4));
+		this.header.setHeight(32);
+		//this.header.setWidth("100%");
+		// this.header.setAutoHeight(true);
+		this.header.setAutoWidth(true);
+		
+		// this.header.setIntStyleAttribute("height", 32);
+		this.header.setStyleAttribute("height", "32px");
+//		RowData rd = new RowData(1, 32);
+//		rd.setMargins(new Margins(0));
 		//this.viewport.add(this.header, rd);
-		ContentPanel cp1 = new ContentPanel();
-		cp1.add(this.header);
-		cp1.setBorders(true);
-		this.viewPortContentPanel.add(cp1, rd);
+//		ContentPanel cp1 = new ContentPanel();
+//		cp1.add(this.header);
+//		cp1.setHeaderVisible(false);
+//		cp1.setBorders(true);		
+		//this.viewPortContentPanel.add(cp1, rd);
+
+//		BorderLayoutData borderLayoutData = new BorderLayoutData(LayoutRegion.NORTH);
+//		borderLayoutData.setSplit(true);
+		//borderLayoutData.setCollapsible(true);
+//		borderLayoutData.setMargins(new Margins(MARGIN));
+		//borderLayoutData.setMaxSize(32);
+		//this.viewPortContentPanel.add(this.header, borderLayoutData);
+//		this.viewport.add(this.header, borderLayoutData);
+		this.viewport.add(this.header);
 	}
 
 	private void createMain() {
@@ -223,17 +244,29 @@ public class JardinView extends View {
 		this.main.setId(JardinView.MAIN_AREA);
 		this.main.setAnimScroll(true);
 		this.main.setTabScroll(true);
-		this.main.setHeight(500);
-		//this.main.setAutoHeight(true);
+//		this.main.setWidth("100%");
+		//this.main.setHeight(500);
+		//this.main.setHeight("100%");
+		this.header.setAutoHeight(true);
+		this.header.setAutoWidth(true);
 		
-
-		RowData rd = new RowData(1, 1);
-		rd.setMargins(new Margins(4));
-		//rd.setHeight(600);
-		ContentPanel cp2 = new ContentPanel();
-		cp2.add(this.main);
-		cp2.setBorders(true);
-		this.viewPortContentPanel.add(cp2, rd);
+		//this.main.setAutoHeight(true);		
+//		ContentPanel cp2 = new ContentPanel();
+//		cp2.add(this.main);
+//		cp2.setHeaderVisible(false);
+//		cp2.setBorders(true);
+		//cp2.setHeight("100%");
+		//cp2.expand();
+//		RowData rd = new RowData(1, -1);
+//		rd.setMargins(new Margins(1));
+//		//rd.setHeight(600);
+//		this.viewPortContentPanel.add(this.main, rd);
+		
+//		BorderLayoutData borderLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
+//		borderLayoutData.setSplit(false);
+		//this.viewPortContentPanel.add(this.main, borderLayoutData);
+//		this.viewport.add(this.main, borderLayoutData);
+		this.viewport.add(this.main);
 	}
 
 	/**

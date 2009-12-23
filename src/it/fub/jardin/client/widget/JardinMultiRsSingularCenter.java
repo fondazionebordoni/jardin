@@ -55,16 +55,25 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 		this.foreignKey = foreignKey;
 
 		//this.setVisible(true);
-		this.setHeaderVisible(false);
+		this.setHeaderVisible(true);
 		//this.setHeading("pluto : " + resultSet.getId() );
 		//this.setLayout();
+		this.setBorders(true);
+		//this.setAutoHeight(true);
+		//this.setAutoWidth(true);
 		
 		//this.setScrollMode(Scroll.AUTO);	
 		//this.setWidth("100%");
-		
+		//this.setHeight("100%");
+		//this.setHeight(500);
+		//this.expand();
+//		TextField<String> testTextField = new TextField<String>();
+//		testTextField.setEmptyText("testmain\nbla\nblaaasfgasegwe");
 		this.createNorth();
 		this.createWest();
-		this.createCenter();
+		this.createCenter();		
+		//this.expand();
+		//this.setHeight("100%");
 
 		//this.layout();
 	}
@@ -91,6 +100,7 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 		this.west.add(new WaitPanel());
 
 		BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 340);
+		//BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST);
 		data.setCollapsible(true);
 		data.setSplit(false);
 		data.setFloatable(false);
@@ -281,9 +291,8 @@ public class JardinMultiRsSingularCenter extends ContentPanel {
 	public void collapseAdvSearchAndDetailArea(){
 		((BorderLayout)this.getLayout()).collapse(LayoutRegion.WEST);
 		((BorderLayout)this.center.getLayout()).collapse(LayoutRegion.SOUTH);
-
-//		searchAreaAdvanced.collapse();
-//			detail.collapse();
+		//		searchAreaAdvanced.collapse();
+		//			detail.collapse();
 	}
 
 	
