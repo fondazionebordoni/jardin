@@ -29,9 +29,13 @@ import com.extjs.gxt.charts.client.Chart;
 import com.extjs.gxt.charts.client.model.BarDataProvider;
 import com.extjs.gxt.charts.client.model.ChartModel;
 import com.extjs.gxt.charts.client.model.PieDataProvider;
+import com.extjs.gxt.charts.client.model.Scale;
 import com.extjs.gxt.charts.client.model.ScaleProvider;
+import com.extjs.gxt.charts.client.model.charts.BarChart;
 import com.extjs.gxt.charts.client.model.charts.FilledBarChart;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
+import com.extjs.gxt.charts.client.model.charts.StackedBarChart;
+import com.extjs.gxt.charts.client.model.charts.BarChart.BarStyle;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -895,9 +899,10 @@ public class JardinController extends Controller {
     SearchParams searchParams = grid.getSearchparams();
     ListStore<BaseModelData> store = view.getStore(searchParams);
     store.getLoader().load();
+    
     switch (type) {
     case BAR:
-      FilledBarChart bar = new FilledBarChart();
+      BarChart bar = new BarChart(BarStyle.GLASS);
       bar.setAnimateOnShow(true);
       bar.setTooltip("#val#");
       BarDataProvider bdp = new BarDataProvider(cy, cx);
