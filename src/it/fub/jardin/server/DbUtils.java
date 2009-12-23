@@ -303,9 +303,8 @@ public class DbUtils {
    * Esegue una query su database e restituisce la lista dei record sotto forma
    * di List<BaseModelData>. Le proprietà del ModelData sono inviate tramite
    * BaseModelData vedi: http://extjs.com/deploy/gxtdocs/com/extjs/gxt/ui/client
-   * /data/BaseModelData.html#BaseModelData(java.util.Map)
-   * se config == null -> restituisce l'intero store, 
-   * altrimenti rispetta la paginazione
+   * /data/BaseModelData.html#BaseModelData(java.util.Map) se config == null ->
+   * restituisce l'intero store, altrimenti rispetta la paginazione
    * 
    * @param config
    * @param searchParams
@@ -328,11 +327,13 @@ public class DbUtils {
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
-          // TODO Inserire un controllo di compatibilità di conversione dati SQL->JDBC
-          // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene sollevata un'eccezione e la query non prosegue
+          // TODO Inserire un controllo di compatibilità di conversione dati
+          // SQL->JDBC
+          // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene
+          // sollevata un'eccezione e la query non prosegue
           Object value = result.getObject(i);
-          if (value instanceof BigDecimal){
-            value = ((BigDecimal) value).floatValue();   
+          if (value instanceof BigDecimal) {
+            value = ((BigDecimal) value).floatValue();
           }
           map.set(key, value);
         }
@@ -959,7 +960,7 @@ public class DbUtils {
   }
 
   /**
-   * @param resultSetList 
+   * @param resultSetList
    * @param userId
    * @return resultSetList
    * 
@@ -968,7 +969,8 @@ public class DbUtils {
    */
 
   public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(
-      Integer resultsetId, List<ResultsetImproved> resultSetList) throws HiddenException {
+      Integer resultsetId, List<ResultsetImproved> resultSetList)
+      throws HiddenException {
     ArrayList<IncomingForeignKeyInformation> listaIfki;
     String tableName = null;
     Connection connection = dbConnectionHandler.getConn();
@@ -1002,18 +1004,19 @@ public class DbUtils {
         String linkingTable = resultFKIn.getString("TABLE_NAME");
         String linkingField = resultFKIn.getString("COLUMN_NAME");
         String field = resultFKIn.getString("REFERENCED_COLUMN_NAME");
-        //trasformare la linkingTable in un rsimproved
-        //dal nome recupero l'id e dall'id recupero l'rs
+        // trasformare la linkingTable in un rsimproved
+        // dal nome recupero l'id e dall'id recupero l'rs
         for (final ResultsetImproved rs : resultSetList) {
           IncomingForeignKeyInformation ifki =
-            new IncomingForeignKeyInformation(linkingTable, linkingField, field);
-          if (rs.getName().compareTo(ifki.getLinkingTable()) == 0){
+              new IncomingForeignKeyInformation(linkingTable, linkingField,
+                  field);
+          if (rs.getName().compareTo(ifki.getLinkingTable()) == 0) {
             ifki.setInterestedResultset(rs);
             ifki.setResultsetId(rs.getId());
             listaIfki.add(ifki);
           }
         }
-        
+
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
@@ -1068,8 +1071,7 @@ public class DbUtils {
             + " f ON  (r.id=f.id))"
             + " WHERE u.id = '"
             + uid
-            + "' AND readperm = '1' "
-            + " ORDER BY r.id ASC";
+            + "' AND readperm = '1' " + " ORDER BY r.id ASC";
     try {
 
       List<ResultsetField> resultFieldList = new ArrayList<ResultsetField>();
@@ -1154,7 +1156,9 @@ public class DbUtils {
 
           }
         }
-        resultSetList.get(i).setForeignKeyIn(this.getForeignKeyInForATable(resultSetList.get(i).getId(), resultSetList));
+        resultSetList.get(i).setForeignKeyIn(
+            this.getForeignKeyInForATable(resultSetList.get(i).getId(),
+                resultSetList));
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
@@ -1320,7 +1324,7 @@ public class DbUtils {
   }
 
   public int importFile(Credentials credentials, int resultsetId,
-      File importFile) throws HiddenException, VisibleException {
+      File importFile) throws HiddenException, VisibleException, SQLException {
 
     getUser(credentials);
 
@@ -1347,19 +1351,39 @@ public class DbUtils {
     }
 
     String recordLine;
+    String[] columns;
     List<BaseModelData> recordList = new ArrayList<BaseModelData>();
 
     try {
       recordLine = in.readLine();
-
-      while (recordLine != null) {
-        Log.debug(recordLine);
-        if (validateLine(rsmd, recordLine)) {
-          recordList.add(createRecord(rsmd, recordLine));
-        } else
-          throw new HiddenException("record: " + recordLine + " non valido!");
-        recordLine = in.readLine();
+      columns = recordLine.replaceAll("\"", "").split("\\|");
+      /* check nomi ddei campi corretti
+       * 
+       * ArrayList<Boolean> colsCheck = new ArrayList<Boolean>();
+      for (String col : columns) {
+        boolean present = false;
+        for (int i = 0; i < rsmd.getColumnCount(); i++) {
+          if (col.compareToIgnoreCase(rsmd.getColumnName(i)) == 0) {
+            present = true;
+          }
+        }
+        colsCheck.add(present);
       }
+
+      if (colsCheck.contains(false)) {
+        recordLine = null;
+        Log.debug("Una delle colonne non è stata riconosciuta!");
+      }*/
+        recordLine = in.readLine();
+        while (recordLine != null) {
+          Log.debug(recordLine);
+          // if (validateLine(rsmd, recordLine)) {
+          recordList.add(createRecord(rsmd, recordLine, columns));
+          // } else
+          // throw new HiddenException("record: " + recordLine +
+          // " non valido!");
+          recordLine = in.readLine();
+        }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -1372,47 +1396,36 @@ public class DbUtils {
     return opCode;
   }
 
-  private BaseModelData createRecord(ResultSetMetaData rsmd, String recordLine)
-      throws HiddenException {
+  private BaseModelData createRecord(ResultSetMetaData rsmd, String recordLine,
+      String[] columns) throws HiddenException {
 
     BaseModelData bm = new BaseModelData();
-    try {
-      for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-        int j = i - 1;
-        String value = null;
-        value = recordLine.split("\\|")[j].replaceAll("^\"|\"$", "");
-        if (value.compareToIgnoreCase("") == 0) {
-          value = null;
-        }
-        bm.set(rsmd.getColumnName(i), value);
+    for (int i = 0; i < columns.length; i++) {
+      if (i < recordLine.split("\\|").length) {
+        String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
+        bm.set(columns[i], value);
       }
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      throw new HiddenException(
-          "il seguente record è valido, ma non riesco a crearlo: " + recordLine);
     }
-
     return bm;
   }
 
-  private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
-      throws HiddenException {
-
-    boolean valid = false;
-    try {
-
-      if (recordLine.split("\\|").length == rsmd.getColumnCount()) {
-        valid = true;
-      }
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      throw new HiddenException("problemi nella lettura dei metadata per il rs");
-    }
-
-    return valid;
-  }
+  // private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
+  // throws HiddenException {
+  //
+  // boolean valid = false;
+  // try {
+  //
+  // if (recordLine.split("\\|").length == rsmd.getColumnCount()) {
+  // valid = true;
+  // }
+  // } catch (SQLException e) {
+  // // TODO Auto-generated catch block
+  // e.printStackTrace();
+  // throw new HiddenException("problemi nella lettura dei metadata per il rs");
+  // }
+  //
+  // return true;
+  // }
 
   /*
    * invocata solo in caso di duplicate key entry per la setObject: si suppone
