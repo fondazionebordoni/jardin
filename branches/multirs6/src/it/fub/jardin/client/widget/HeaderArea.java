@@ -33,11 +33,11 @@ public class HeaderArea extends HtmlContainer {
   public HeaderArea(User user) {
     this.user = user;
     String header =
-        "<div id='" + JardinView.HEADER_AREA + "'>" + "<div id='"
-            + JardinView.HEADER_AREA + "-left'>"
-            + "<b>JARDiN</b> Manager</div>" + "<div id='"
-            + JardinView.HEADER_AREA + "-right'></div></div>";
+        /*"<div id='" + JardinView.HEADER_AREA + "-int" + "'>" + */ 
+    	"<div id='" + JardinView.HEADER_AREA + "-int" + "-left'>" + "<b>JARDiN</b> Manager</div>" + 
+        "<div id='" + JardinView.HEADER_AREA + "-int" + "-right'> </div>" 	/* + "</div>" */ ;
     this.setHtml(header);
+    // this.setHeight(32);
     this.createButtons();
   }
 
@@ -45,13 +45,13 @@ public class HeaderArea extends HtmlContainer {
 
     final HorizontalPanel toolbar = new HorizontalPanel();
     toolbar.setId(JardinView.HEADER_AREA + "-toolbar");
-    this.add(toolbar, "#" + JardinView.HEADER_AREA + "-right");
+    this.add(toolbar, "#" + JardinView.HEADER_AREA + "-int" + "-right");
 
     Button about = new Button("Info");
     about.addSelectionListener(new SelectionListener<ButtonEvent>() {
       public void componentSelected(ButtonEvent ce) {
         MessageBox m = new MessageBox();
-        m.setMinWidth(400);
+        m.setMinWidth(320);
         m.setTitle("Info");
         m.setMessage(aboutMessage);
         m.setIcon(MessageBox.INFO);
