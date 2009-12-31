@@ -291,13 +291,13 @@ public class JardinView extends View {
     if (item != null) {
       if (item.getGrid() != null) {
         /* Aggiornamento dello store della griglia del tabItem */
-        item.updateStore(this.getStore(searchParams));
+        item.updateStore(this.getStore(searchParams, true));
         item.getGrid().setSearchparams(searchParams);
       }
     }
   }
 
-  public ListStore<BaseModelData> getStore(final SearchParams searchParams) {
+  public ListStore<BaseModelData> getStore(final SearchParams searchParams, final boolean limit) {
 
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -307,7 +307,7 @@ public class JardinView extends View {
           @Override
           public void load(Object loadConfig,
               AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
-            service.getRecords((PagingLoadConfig) loadConfig, searchParams,
+            service.getRecords((PagingLoadConfig) loadConfig, searchParams, limit,
                 callback);
           }
         };

@@ -102,7 +102,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
         }
       }
     }
-    formPanel.addText("Verranno visualizzate solo le prime 50 righe.<br /><br />");
+    //formPanel.addText("Verranno visualizzate solo le prime 50 righe.<br /><br />");
     formPanel.addText("Colonna titolo:<br />");
     formPanel.add(lbTitle);
     formPanel.addText("<br />Colonna valore:<br />");

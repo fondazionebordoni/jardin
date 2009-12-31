@@ -301,7 +301,7 @@ public class JardinController extends Controller {
         onShowChart((ArrayList<String>) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SelectColumnsForChart
-        Log.error("Errore nei dati di EventList.SelectColumnsForChart");
+        Log.error("Errore nei dati di EventList.ShowChart");
       }
     } else if (t == EventList.ShowPieChart) {
       if (event.getData() instanceof Integer) {
@@ -897,7 +897,7 @@ public class JardinController extends Controller {
     cm.setBackgroundColour("#ffffff");
     
     SearchParams searchParams = grid.getSearchparams();
-    ListStore<BaseModelData> store = view.getStore(searchParams);
+    ListStore<BaseModelData> store = view.getStore(searchParams, false);
     store.getLoader().load();
     
     switch (type) {
@@ -909,7 +909,7 @@ public class JardinController extends Controller {
       bdp.bind(store);
       System.out.println(store);
       bar.setDataProvider(bdp);
-      cm.setScaleProvider(ScaleProvider.ROUNDED_NEAREST_SCALE_PROVIDER);
+      //cm.setScaleProvider(ScaleProvider.ROUNDED_NEAREST_SCALE_PROVIDER);
       cm.addChartConfig(bar);
       break;
     case PIE:

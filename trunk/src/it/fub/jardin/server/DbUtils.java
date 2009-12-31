@@ -194,6 +194,7 @@ public class DbUtils {
       SearchParams searchParams) throws SQLException {
 
     // TODO like può essere recuperato, se necessario, da searchParams;
+    
     boolean like = !(searchParams.getAccurate());
 
     Integer id = searchParams.getResultsetId();
@@ -247,9 +248,12 @@ public class DbUtils {
             " ORDER BY `" + config.getSortInfo().getSortField() + "` "
                 + config.getSortInfo().getSortDir();
       }
-      query +=
+      if (config.getLimit() != 0){
+      System.out.println("asd");
+        query +=
           " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
               + ((PagingLoadConfig) config).getLimit();
+      }
     }
 
     Log.debug("Search Query: " + query);
