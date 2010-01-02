@@ -4,6 +4,7 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.SearchStringParser;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
@@ -849,7 +850,7 @@ public class JardinController extends Controller {
   private void onSelectColumnsForChart(ChartType ct, Integer resultset) {
     JardinTabItem item = view.getItemByResultsetId(resultset);
     JardinGrid grid = item.getGrid();
-
+    
     JardinSelectColumnsForChartPopUp popup =
         new JardinSelectColumnsForChartPopUp(grid, ct.toString());
 
@@ -883,7 +884,7 @@ public class JardinController extends Controller {
     JardinGrid grid = item.getGrid();
 
     /* Prendi gli ID delle prime due colonne visibili */
-    ColumnModel columnModel = grid.getColumnModel();
+    //ColumnModel columnModel = grid.getColumnModel();
     String cx = title;
     String cy = value;
 
@@ -895,11 +896,11 @@ public class JardinController extends Controller {
     String resultsetAlias = user.getResultsetFromId(resultset).getAlias();
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
-    
+
     SearchParams searchParams = grid.getSearchparams();
     ListStore<BaseModelData> store = view.getStore(searchParams, false);
     store.getLoader().load();
-    
+
     switch (type) {
     case BAR:
       BarChart bar = new BarChart(BarStyle.GLASS);
@@ -909,7 +910,7 @@ public class JardinController extends Controller {
       bdp.bind(store);
       System.out.println(store);
       bar.setDataProvider(bdp);
-      //cm.setScaleProvider(ScaleProvider.ROUNDED_NEAREST_SCALE_PROVIDER);
+      // cm.setScaleProvider(ScaleProvider.ROUNDED_NEAREST_SCALE_PROVIDER);
       cm.addChartConfig(bar);
       break;
     case PIE:

@@ -54,7 +54,7 @@ public interface ManagerService extends RemoteService {
    * (configurazione di paginazione).
    */
   public PagingLoadResult<BaseModelData> getRecords(PagingLoadConfig config,
-      SearchParams searchParams, boolean limit) throws HiddenException;
+      SearchParams searchParams) throws HiddenException;
 
   public List<BaseModelData> getReGroupings(int resultSetId)
       throws HiddenException;

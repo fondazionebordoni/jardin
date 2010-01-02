@@ -42,7 +42,7 @@ public interface ManagerServiceAsync {
 
   public void getRecords(PagingLoadConfig loadConfig,
       SearchParams searchParams,
-      boolean limit, AsyncCallback<PagingLoadResult<BaseModelData>> callback);
+      AsyncCallback<PagingLoadResult<BaseModelData>> callback);
 
   public void getReGroupings(int resultSetId,
       AsyncCallback<List<BaseModelData>> callback);
