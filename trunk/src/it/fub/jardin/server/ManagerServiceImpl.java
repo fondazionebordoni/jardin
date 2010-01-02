@@ -152,14 +152,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public PagingLoadResult<BaseModelData> getRecords(PagingLoadConfig config,
-      SearchParams searchParams, boolean limit) throws HiddenException {
+      SearchParams searchParams) throws HiddenException {
     List<BaseModelData> records = dbUtils.getObjects(config, searchParams);
 
     if (config != null) {
       int recordSize = dbUtils.countObjects(searchParams);
-      if (!limit){
-        config.setLimit(0);
-      }
       return new BasePagingLoadResult<BaseModelData>(records,
           config.getOffset(), recordSize);
     } else {

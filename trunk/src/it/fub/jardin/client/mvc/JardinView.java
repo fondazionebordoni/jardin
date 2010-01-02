@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -297,7 +298,8 @@ public class JardinView extends View {
     }
   }
 
-  public ListStore<BaseModelData> getStore(final SearchParams searchParams, final boolean limit) {
+  public ListStore<BaseModelData> getStore(final SearchParams searchParams,
+      final boolean limit) {
 
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -307,8 +309,11 @@ public class JardinView extends View {
           @Override
           public void load(Object loadConfig,
               AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
-            service.getRecords((PagingLoadConfig) loadConfig, searchParams, limit,
-                callback);
+            PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
+            if (!limit) {
+              plc.setLimit(-1);
+            }
+            service.getRecords((PagingLoadConfig) plc, searchParams, callback);
           }
         };
 

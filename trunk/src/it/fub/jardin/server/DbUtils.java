@@ -194,7 +194,7 @@ public class DbUtils {
       SearchParams searchParams) throws SQLException {
 
     // TODO like può essere recuperato, se necessario, da searchParams;
-    
+
     boolean like = !(searchParams.getAccurate());
 
     Integer id = searchParams.getResultsetId();
@@ -248,11 +248,11 @@ public class DbUtils {
             " ORDER BY `" + config.getSortInfo().getSortField() + "` "
                 + config.getSortInfo().getSortDir();
       }
-      if (config.getLimit() != 0){
-      System.out.println("asd");
+
+      if (config.getLimit() != -1) {
         query +=
-          " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
-              + ((PagingLoadConfig) config).getLimit();
+            " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
+                + ((PagingLoadConfig) config).getLimit();
       }
     }
 
@@ -1361,33 +1361,28 @@ public class DbUtils {
     try {
       recordLine = in.readLine();
       columns = recordLine.replaceAll("\"", "").split("\\|");
-      /* check nomi ddei campi corretti
+      /*
+       * check nomi dei campi corretti
        * 
-       * ArrayList<Boolean> colsCheck = new ArrayList<Boolean>();
-      for (String col : columns) {
-        boolean present = false;
-        for (int i = 0; i < rsmd.getColumnCount(); i++) {
-          if (col.compareToIgnoreCase(rsmd.getColumnName(i)) == 0) {
-            present = true;
-          }
-        }
-        colsCheck.add(present);
-      }
-
-      if (colsCheck.contains(false)) {
-        recordLine = null;
-        Log.debug("Una delle colonne non è stata riconosciuta!");
-      }*/
+       * ArrayList<Boolean> colsCheck = new ArrayList<Boolean>(); for (String
+       * col : columns) { boolean present = false; for (int i = 0; i <
+       * rsmd.getColumnCount(); i++) { if
+       * (col.compareToIgnoreCase(rsmd.getColumnName(i)) == 0) { present = true;
+       * } } colsCheck.add(present); }
+       * 
+       * if (colsCheck.contains(false)) { recordLine = null;
+       * Log.debug("Una delle colonne non è stata riconosciuta!"); }
+       */
+      recordLine = in.readLine();
+      while (recordLine != null) {
+        Log.debug(recordLine);
+        // if (validateLine(rsmd, recordLine)) {
+        recordList.add(createRecord(rsmd, recordLine, columns));
+        // } else
+        // throw new HiddenException("record: " + recordLine +
+        // " non valido!");
         recordLine = in.readLine();
-        while (recordLine != null) {
-          Log.debug(recordLine);
-          // if (validateLine(rsmd, recordLine)) {
-          recordList.add(createRecord(rsmd, recordLine, columns));
-          // } else
-          // throw new HiddenException("record: " + recordLine +
-          // " non valido!");
-          recordLine = in.readLine();
-        }
+      }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
