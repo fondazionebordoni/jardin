@@ -159,6 +159,7 @@ public class UploadDialog extends Window {
     this.setWidth(300);
     this.setResizable(false);
     this.add(panel);
+    this.addText("<BR />Attenzione: la prima riga del file da importare deve contenere i nomi delle colonne!");
     this.setFocusWidget(file);
   }
 
