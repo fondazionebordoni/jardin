@@ -14,6 +14,7 @@ import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinTabItem;
+import it.fub.jardin.client.widget.JardinUI;
 import it.fub.jardin.client.widget.LoginDialog;
 import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
@@ -58,6 +59,7 @@ public class JardinView extends View {
   private static final String ITEM_PREFIX = "item-id-";
 
   private JardinController controller;
+  private JardinUI ui;
   private Viewport viewport;
   // private ContentPanel search;
   private TabPanel main;
@@ -156,13 +158,7 @@ public class JardinView extends View {
   }
 
   private void initUI() {
-    viewport = new Viewport();
-    viewport.setLayout(new RowLayout(Orientation.VERTICAL));
-
-    createHeader();
-    createMain();
-
-    RootPanel.get().add(viewport);
+    ui = new JardinUI(this.controller.getUser());
     Dispatcher.forwardEvent(EventList.CreateUI);
   }
 
@@ -229,9 +225,8 @@ public class JardinView extends View {
     /* Prendi le proprietà del resultset in base all'id dall'utente */
     ResultsetImproved resultset =
         controller.getUser().getResultsetFromId(resultsetId);
-    JardinTabItem item = new JardinTabItem(resultset);
-    item.setId(ITEM_PREFIX + resultsetId);
-    this.main.add(item);
+    
+    ui.addTab(resultset);
   }
 
   private synchronized void gotValuesOfFields(Integer resultsetId) {

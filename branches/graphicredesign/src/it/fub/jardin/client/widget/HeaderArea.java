@@ -5,12 +5,9 @@ package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.mvc.JardinView;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -59,7 +56,7 @@ public class HeaderArea extends Composite {
     
     this.user = user;
     this.username.setInnerText(user.getFullName());
-   
+    
     addStyleName("header-area");
   }
 

@@ -29,11 +29,10 @@
 			line-height: 20px;
 		}
 		
-		.header {
-			background: #555753;
-			color: white;
+    .header {
 			padding: 0 1em;
-		}
+			color: white;
+    }
 	</ui:style>
 
 	<g:HTMLPanel>

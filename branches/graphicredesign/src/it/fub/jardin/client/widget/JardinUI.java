@@ -1,9 +1,5 @@
 package it.fub.jardin.client.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.User;
 
@@ -17,34 +13,27 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.UIObject;
 
 public class JardinUI extends UIObject {
+  
+  private User user;
 
-  interface Binder extends UiBinder<DockLayoutPanel, JardinUI> {
-  }
-
-  // interface GlobalResources extends ClientBundle {
-  // @NotStrict
-  // @Source("global.css")
-  // CssResource css();
-  // }
-
+  interface Binder extends UiBinder<DockLayoutPanel, JardinUI> {}
   private static final Binder binder = GWT.create(Binder.class);
 
   @UiField
   HeaderArea header;
-  //@UiField SearchAreaAdvanced advancedsearch;
-  // @UiField JardinGrid grid;
-  // @UiField JardinDetail detail;
+  @UiField
+  TabLayoutPanel main;
 
   /**
    * This method constructs the application user interface by instantiating
    * controls and hooking up event handler.
    */
-  public JardinUI() {
-    // Inject global styles.
-    // GWT.<GlobalResources>create(GlobalResources.class).css().ensureInjected();
+  public JardinUI(User user) {
+    this.user = user;
 
     // Create the UI defined in JardinUI.ui.xml.
     DockLayoutPanel outer = binder.createAndBindUi(this);
@@ -68,32 +57,10 @@ public class JardinUI extends UIObject {
 
   @UiFactory
   HeaderArea makeHeaderArea() {
-    List<ResultsetImproved> l = new ArrayList<ResultsetImproved>();
-    l.add(new ResultsetImproved(1, "Test", "Test", "SELECT * FROM user", true,
-        true, true, true, null));
-    return new HeaderArea(new User(1, 1, new Credentials("Test", "test"),
-        "Mario", "Rossi", "Test", "test@test.com", null, null, 1, 1, null, l,
-        null));
+    return new HeaderArea(this.user);
   }
 
-  @UiFactory
-  SearchAreaAdvanced makeSearchAreaAdvanced() {
-    ResultsetImproved r =
-        new ResultsetImproved(1, "Mario", "Rossi", "SELECT * FROM user", true,
-            true, true, true, null);
-    return new SearchAreaAdvanced(r);
-  }
-
-  @UiFactory
-  JardinGrid makeJardinGrid() {
-    return new JardinGrid(null, null, null);
-  }
-
-  @UiFactory
-  JardinDetail makeJardinDetail() {
-    ResultsetImproved r =
-      new ResultsetImproved(1, "Test", "Test", "SELECT * FROM user", true,
-          true, true, true, null);
-    return new JardinDetail(r);
+  public void addTab(ResultsetImproved resultset) {
+    main.add(new JardinTab(resultset), resultset.getAlias());
   }
 }
