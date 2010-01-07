@@ -43,9 +43,11 @@
 	font: normal 10px;
 }
 
+ /* Remember to control TabLayoutPanel.css */
 .header-area {
-	padding-top: 1em;
-	background: #555753;
+  /* background: #4E96EC; */
+  background: #555753;
+  padding: .4em 0;
 }
 
 .search-button .x-btn-over button {
