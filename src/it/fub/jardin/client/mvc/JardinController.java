@@ -343,7 +343,14 @@ public class JardinController extends Controller {
 
   private void onTestUI() {
     Log.debug("JardinController...");
-    JardinUI ui = new JardinUI();
+    
+    List<ResultsetImproved> l = new ArrayList<ResultsetImproved>();
+    l.add(new ResultsetImproved(1, "Test", "Test", "SELECT * FROM user", true,
+        true, true, true, null));
+    
+    JardinUI ui = new JardinUI(new User(1, 1, new Credentials("Test", "test"),
+        "Mario", "Rossi", "Test", "test@test.com", null, null, 1, 1, null, l,
+        null));
   }
 
   private void onNewMessage() {
@@ -481,8 +488,6 @@ public class JardinController extends Controller {
       /* Avvisa la view che si sta creando un nuovo resultset */
       forwardToView(view, EventList.NewResultset, resultsetId);
       forwardToView(view, EventList.GotValuesOfFields, resultsetId);
-      // forwardToView(view, EventList.gotValuesOfForeignKeys,
-      // resultsetId);
 
       final ManagerServiceAsync service =
           (ManagerServiceAsync) Registry.get(Jardin.SERVICE);

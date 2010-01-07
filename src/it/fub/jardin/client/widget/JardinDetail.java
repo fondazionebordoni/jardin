@@ -61,8 +61,6 @@ public class JardinDetail extends FormPanel {
 
         List<String> values =
             resultset.getForeignKeyList().getValues(field.getId());
-        // Field f = FieldCreator.getField(field, values, true, labelWidth);
-        // Field f = FieldCreator.getField(field,0);
         Field<?> f = FieldCreator.getField(field, values, 0, true);
 
         if (!field.getModifyperm()) {
