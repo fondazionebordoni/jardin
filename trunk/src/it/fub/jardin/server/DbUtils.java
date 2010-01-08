@@ -576,8 +576,14 @@ public class DbUtils {
             (PreparedStatement) connection.prepareStatement(query);
         int i = 1;
         for (String property : record.getPropertyNames()) {
-          ps.setObject(i, record.get(property));
-          ps.setObject(i + columns, record.get(property));
+          Object value = record.get(property);
+          if (value != null && String.valueOf(value).length()>0 ) {
+            ps.setObject(i, record.get(property));
+            ps.setObject(i + columns, record.get(property));
+          } else {
+            ps.setNull(i, java.sql.Types.NULL);
+            ps.setNull(i + columns, java.sql.Types.NULL);
+          }
           i++;
         }
 
