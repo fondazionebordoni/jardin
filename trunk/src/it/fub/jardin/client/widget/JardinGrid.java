@@ -129,7 +129,7 @@ public class JardinGrid extends Grid<BaseModelData> {
           fkIN.setResultsetId(fk.getResultsetId());
 
           MenuItem mitem =
-              new MenuItem("Visualizza corrispondeze in "
+              new MenuItem("Visualizza corrispondenze in "
                   + fk.getInterestedResultset().getAlias());
 
           mitem.addListener(Events.Select, new Listener() {
