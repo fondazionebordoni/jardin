@@ -8,6 +8,7 @@ import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.mvc.JardinView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
