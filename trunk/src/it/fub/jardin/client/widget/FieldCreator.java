@@ -8,6 +8,7 @@ import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.ResultsetField;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -29,7 +30,6 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.google.gwt.dev.js.rhino.ObjToIntMap.Iterator;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -165,9 +165,18 @@ public class FieldCreator {
           // Trasforno la List<String> in List<Integer>
           //
           List<Integer> intVals = new ArrayList<Integer>();
+          // Iterator itr = values.iterator();
+          // while(itr.hasNext()){
+          // Integer intVal = Integer.valueOf((String) itr.next());
+          // intVals.add(intVal);
+          // }
           for (int i = 0; i < values.size(); i++) {
-            Integer intVal = Integer.parseInt(values.get(i));
-            intVals.add(i, intVal);
+            if (values.get(i) != null) {
+              Integer intVal = Integer.valueOf((String) values.get(i));
+              intVals.add(i, intVal);
+            } else {
+              intVals.add(null);
+            }
           }
           f.add(intVals);
         } else {

@@ -3,7 +3,6 @@
  */
 package it.fub.jardin.client.widget;
 
-
 import it.fub.jardin.client.model.ResultsetField;
 
 import java.util.List;
@@ -12,6 +11,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TriggerField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
@@ -23,7 +23,8 @@ public class JardinColumnConfig extends ColumnConfig {
   private int groupingId;
   private int fieldId;
   private boolean isKey;
-  //private String foreignKey;
+
+  // private String foreignKey;
 
   /**
    * Creazione di un ColumnConfig che rispecchia le caratteristiche del campo
@@ -45,28 +46,50 @@ public class JardinColumnConfig extends ColumnConfig {
     /* Gestione modifica del campo */
     if (field.getModifyperm()) {
       // final Field f = FieldCreator.getField(field, values, true);
-      final Field<?> f = FieldCreator.getField(field, values, 0, false);
+      final Field f = FieldCreator.getField(field, values, 0, false);
 
       CellEditor editor = null;
-      if (f instanceof SimpleComboBox<?>) {
-        ((SimpleComboBox<?>) f).setEditable(false);
-        editor = new CellEditor((SimpleComboBox<?>) f) {
-          @Override
-          public Object preProcessValue(Object value) {
-            if (value == null) {
-              return value;
-            }
-            return ((SimpleComboBox) f).findModel(value.toString());
-          }
 
-          @Override
-          public Object postProcessValue(Object value) {
-            if (value == null) {
-              return value;
+      if (f instanceof SimpleComboBox) {
+        if (field.getType().compareToIgnoreCase("int") == 0) {
+          ((SimpleComboBox) f).setEditable(false);
+          editor = new CellEditor((SimpleComboBox<Integer>) f) {
+            @Override
+            public Object preProcessValue(Object value) {
+              if (value == null) {
+                return value;
+              }
+              return ((SimpleComboBox<Integer>) f).findModel((Integer) value);
             }
-            return ((BaseModelData) value).get("value");
-          }
-        };
+
+            @Override
+            public Object postProcessValue(Object value) {
+              if (value == null) {
+                return value;
+              }
+              return ((BaseModelData) value).get("value");
+            }
+          };
+        } else {
+          ((SimpleComboBox) f).setEditable(false);
+          editor = new CellEditor((SimpleComboBox) f) {
+            @Override
+            public Object preProcessValue(Object value) {
+              if (value == null) {
+                return value;
+              }
+              return ((SimpleComboBox) f).findModel(value.toString());
+            }
+
+            @Override
+            public Object postProcessValue(Object value) {
+              if (value == null) {
+                return value;
+              }
+              return ((BaseModelData) value).get("value");
+            }
+          };
+        }
       } else {
         editor = new CellEditor(f);
       }
