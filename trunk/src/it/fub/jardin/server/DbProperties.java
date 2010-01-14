@@ -138,6 +138,36 @@ public class DbProperties {
 
   }
 
+  public ArrayList<String> getUniqueKeys(String table) {
+    Connection connection = null;
+    ArrayList<String> uniqueKeys = new ArrayList<String>();
+    try {
+      
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
+
+    DatabaseMetaData dbmt;
+    try {
+      dbmt = connection.getMetaData();
+
+      ResultSet infoUniqueKeys =
+          dbmt.getIndexInfo(null, null, table, true, false);
+      while (infoUniqueKeys.next()) {
+          uniqueKeys.add(infoUniqueKeys.getString("COLUMN_NAME"));
+      }
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      dbConnectionHandler.closeConn(connection);
+      e.printStackTrace();
+    }
+    dbConnectionHandler.closeConn(connection);
+    return uniqueKeys;
+
+  }
+  
   public List<String> getFieldList(int resultset) {
 
     Connection connection = null;

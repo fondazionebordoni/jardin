@@ -23,6 +23,7 @@ public class JardinColumnConfig extends ColumnConfig {
   private int groupingId;
   private int fieldId;
   private boolean isKey;
+  private boolean isUnique;
 
   // private String foreignKey;
 
@@ -42,6 +43,7 @@ public class JardinColumnConfig extends ColumnConfig {
     this.groupingId = field.getIdgrouping();
     this.fieldId = field.getId();
     this.setKey(field.getIsPK());
+    this.setUnique(field.isUnique());
 
     /* Gestione modifica del campo */
     if (field.getModifyperm()) {
@@ -150,6 +152,21 @@ public class JardinColumnConfig extends ColumnConfig {
    */
   public boolean isKey() {
     return isKey;
+  }
+  
+  /**
+   * @param isKey
+   *          the isKey to set
+   */
+  public void setUnique(boolean isUnique) {
+    this.isUnique = isUnique;
+  }
+
+  /**
+   * @return the isUnique
+   */
+  public boolean isUnique() {
+    return isUnique;
   }
 
 }

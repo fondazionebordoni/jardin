@@ -172,5 +172,13 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
   public boolean getIsPK() {
     return Boolean.parseBoolean(get("ispk").toString());
   }
+  
+  public void setUnique(boolean unique) {
+    set("unique", unique);
+  }
+
+  public boolean isUnique() {
+    return Boolean.parseBoolean(get("unique").toString());
+  }
 
 }

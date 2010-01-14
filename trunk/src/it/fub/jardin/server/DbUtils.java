@@ -326,6 +326,7 @@ public class DbUtils {
       ResultSet result = doQuery(connection, query);
 
       int resultWidth = result.getMetaData().getColumnCount();
+      log(query);
       while (result.next()) {
         BaseModelData map = new BaseModelData();
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
@@ -589,7 +590,9 @@ public class DbUtils {
 
         int num = ps.executeUpdate();
         if (num > 0) {
-          Log.debug("INSERT (" + ps.toString() + ")");
+          String toLog = "INSERT (" + ps.toString() + ")";
+          Log.debug(toLog);
+          log(toLog);
         }
         result += num;
       }
@@ -1086,6 +1089,7 @@ public class DbUtils {
 
       List<ResultsetField> resultFieldList = new ArrayList<ResultsetField>();
       List<BaseModelData> PKs = null;
+      ArrayList<String> UKs = new ArrayList<String>();
 
       ResultSet result = doQuery(connection, query);
       while (result.next()) {
@@ -1125,6 +1129,7 @@ public class DbUtils {
           }
 
           PKs = dbProperties.getPrimaryKeys(name);
+          UKs = dbProperties.getUniqueKeys(name);
 
         } else {
           /* Gestione di un CAMPO di un resultset */
@@ -1145,6 +1150,14 @@ public class DbUtils {
           for (BaseModelData pk : PKs) {
             if (((String) pk.get("PK_NAME")).compareToIgnoreCase(name) == 0) {
               resField.setIsPK(true);
+            }
+          }
+          
+          for (String uk : UKs) {
+            if (uk.compareToIgnoreCase(name) == 0) {
+              resField.setUnique(true);
+            }else{
+              resField.setUnique(false);
             }
           }
 
