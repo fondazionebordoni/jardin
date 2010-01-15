@@ -24,7 +24,9 @@ Ad esempio, se volessimo cercare tutti i record di impianti che sono situati nel
 
 == In che formato devono essere forniti i dati per poterli importare nella griglia? ==
 
-Il formato valido per una corretta importazione è, per il momento, lo stesso usato per l'esportazione CSV. Il separatore di campo e i delimitatori dei valori sono ricavabili dal file esportato (per il momento: separatore di campo = ``|``, delimitatore = ``"``)
+Il formato valido per una corretta importazione è, per il momento, lo stesso usato per l'esportazione CSV. Il separatore di campo e i delimitatori dei valori sono ricavabili dal file esportato (per il momento: separatore di campo = ``|``, delimitatore = ``"``).
+
+L'importazione verrà eseguita rispettando i vincoli delle chiavi primarie, o in assenza di queste, dei campi unique.
 
 == Dovendo inserire dei record nuovi come posso gestire la chiave primaria? ==
 
