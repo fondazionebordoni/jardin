@@ -234,11 +234,11 @@ public class DbProperties {
     try {
       ResultSet result = DbUtils.doQuery(connection, query);
       result.next();
-      if (dbConnectionHandler.getView().compareToIgnoreCase("enabled") == 0) {
+      /*if (dbConnectionHandler.getView().compareToIgnoreCase("enabled") == 0) {
         statement = "`" + result.getString(1) + "`";
-      } else {
+      } else {*/
         statement = "(" + result.getString(1) + ") AS query";
-      }
+      //}
     } catch (SQLException e) {
       throw e;
     } finally {

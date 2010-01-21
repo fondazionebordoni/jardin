@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -41,6 +42,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
+
+import org.apache.batik.apps.svgbrowser.JSVGViewerFrame.ViewSourceAction;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -339,7 +342,11 @@ public class DbUtils {
           Object value = result.getObject(i);
           if (value instanceof BigDecimal) {
             value = ((BigDecimal) value).floatValue();
+          }else if(value.getClass().toString().contains("class [B")){
+        	  // TODO trovare un modo migliore per accorgersi che il l'oggetto recuperato sia un byte[]
+        	  value = new String(result.getBytes(i));
           }
+          //System.out.println(key+": "+value.getClass());
           map.set(key, value);
         }
         records.add(map);
@@ -578,7 +585,7 @@ public class DbUtils {
         int i = 1;
         for (String property : record.getPropertyNames()) {
           Object value = record.get(property);
-          if (value != null && String.valueOf(value).length()>0 ) {
+          if (value != null && String.valueOf(value).length() > 0) {
             ps.setObject(i, record.get(property));
             ps.setObject(i + columns, record.get(property));
           } else {
@@ -990,7 +997,7 @@ public class DbUtils {
     String queryStatement = null;
     String query =
         "SELECT statement FROM " + T_RESULTSET + " WHERE id = '" + resultsetId
-            + "'";
+            + "' ";
     try {
       ResultSet res = doQuery(connection, query);
       while (res.next()) {
@@ -1056,6 +1063,20 @@ public class DbUtils {
     List<ResultsetImproved> resultSetList = new ArrayList<ResultsetImproved>();
     Connection connection = dbConnectionHandler.getConn();
 
+    // recupero i nomi delle view
+    ArrayList<String> views = new ArrayList<String>();
+    try {
+      ResultSet rs = null;
+      DatabaseMetaData meta = connection.getMetaData();
+      rs = meta.getTables(null, null, null, new String[] { "VIEW" });
+      while (rs.next()) {
+        views.add(rs.getString("TABLE_NAME"));
+      }
+    } catch (SQLException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+
     String query =
         "SELECT res.statement as statement, r.id as resourceid, g.id AS groupid, res.id AS rsid, "
             + "f.id_resultset as resultsetid, "
@@ -1114,9 +1135,17 @@ public class DbUtils {
 
           ArrayList<Tool> tools = getToolbar(rsid, groupid);
 
-          ResultsetImproved res =
-              new ResultsetImproved(id, name, alias, statement, readperm,
-                  deleteperm, modifyperm, insertperm, tools);
+          ResultsetImproved res = null;
+          if (views.contains(name)) {
+            //System.out.println(name + " è una view");
+            res =
+                new ResultsetImproved(id, name, alias, statement, readperm,
+                    false, false, false, tools);
+          } else {
+            res =
+                new ResultsetImproved(id, name, alias, statement, readperm,
+                    deleteperm, modifyperm, insertperm, tools);
+          }
           resultSetList.add(res);
 
           List<BaseModelData> groupings = getReGroupings(id);
@@ -1144,25 +1173,25 @@ public class DbUtils {
           resField.setType(result.getString("type"));
           resField.setDefaultValue(result.getString("defaultvalue"));
           resField.setIsPK(false);
+          resField.setUnique(false);
 
           resultFieldList.add(resField);
 
-          for (BaseModelData pk : PKs) {
-            if (((String) pk.get("PK_NAME")).compareToIgnoreCase(name) == 0) {
-              resField.setIsPK(true);
+          if (PKs != null) {
+            for (BaseModelData pk : PKs) {
+             if (((String) pk.get("PK_NAME")).compareToIgnoreCase(name) == 0) {
+                resField.setIsPK(true);
+              }
             }
           }
           
-          for (String uk : UKs) {
-            if (uk.compareToIgnoreCase(name) == 0) {
+          if (UKs != null) {
+            if (UKs.contains(name)) {
               resField.setUnique(true);
-            }else{
-              resField.setUnique(false);
             }
           }
-
+          
         }
-
       }
 
       PKs = null;
@@ -1171,18 +1200,19 @@ public class DbUtils {
         for (int j = 0; j < resultFieldList.size(); j++) {
           if (resultFieldList.get(j).getResultsetid() == resultSetList.get(i).getId()) {
 
-            /* aggiunta dell'eventuale foreignKEY */
+            // aggiunta dell'eventuale foreignKEY
             resultFieldList.get(j).setForeignKey(
                 dbProperties.getForeignKey(resultSetList.get(i).getName(),
                     resultFieldList.get(j).getName()));
             resultSetList.get(i).addField(resultFieldList.get(j));
-
           }
         }
+
+        // aggiunta delle eventuali foreignKEY entranti
         resultSetList.get(i).setForeignKeyIn(
             this.getForeignKeyInForATable(resultSetList.get(i).getId(),
                 resultSetList));
-      }
+     }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
       throw new HiddenException(
