@@ -206,7 +206,8 @@ public class DbProperties {
    */
   public ResultSetMetaData getResultsetMetadata(Connection connection,
       int resultset) throws SQLException {
-    String query = "SELECT * FROM " + getStatement(resultset) + " WHERE 0";
+    //String query = "SELECT * FROM " + getStatement(resultset) + " WHERE 0";
+    String query = getStatement(resultset);
     ResultSet result = DbUtils.doQuery(connection, query);
     return result.getMetaData();
   }
@@ -237,7 +238,11 @@ public class DbProperties {
       /*if (dbConnectionHandler.getView().compareToIgnoreCase("enabled") == 0) {
         statement = "`" + result.getString(1) + "`";
       } else {*/
-        statement = "(" + result.getString(1) + ") AS query";
+        //statement = "(" + result.getString(1) + ") AS query";
+      statement = result.getString(1);
+      if (statement.toLowerCase().indexOf("where")==-1){
+        statement = statement+" WHERE 1 ";
+      }
       //}
     } catch (SQLException e) {
       throw e;

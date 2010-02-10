@@ -60,8 +60,8 @@ public class JardinDetail extends FormPanel {
       if (field.getReadperm()) {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
-        List<String> values =
-            resultset.getForeignKeyList().getValues(field.getId());
+        List<String> values = new ArrayList<String>();
+        //resultset.getForeignKeyList().getValues(field.getId());
         // Field f = FieldCreator.getField(field, values, true, labelWidth);
         // Field f = FieldCreator.getField(field,0);
         Field<?> f = FieldCreator.getField(field, values, 0, true);

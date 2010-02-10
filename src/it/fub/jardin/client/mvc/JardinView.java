@@ -252,7 +252,7 @@ public class JardinView extends View {
   private synchronized void gotValuesOfForeignKeys(Integer resultsetId) {
     ResultsetImproved resultset =
         controller.getUser().getResultsetFromId(resultsetId);
-
+    
     /* Creazione della griglia */
     ListStore<BaseModelData> store = new ListStore<BaseModelData>();
     JardinColumnModel cm = new JardinColumnModel(resultset);

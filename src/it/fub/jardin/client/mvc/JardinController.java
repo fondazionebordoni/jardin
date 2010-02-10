@@ -484,30 +484,31 @@ public class JardinController extends Controller {
       // forwardToView(view, EventList.gotValuesOfForeignKeys,
       // resultsetId);
 
-      final ManagerServiceAsync service =
-          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-
-      /*
-       * Carica i valori dei vincoli di integrità referenziale attualmente
-       * presenti: sever per il binding dei campi del dettaglio e per il row
-       * editor
-       */
-
-      AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
-          new AsyncCallback<FieldsMatrix>() {
-            public void onFailure(Throwable caught) {
-              Dispatcher.forwardEvent(EventList.Error,
-                  caught.getLocalizedMessage());
-            }
-
-            public void onSuccess(FieldsMatrix fieldsMatrix) {
-              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-              rs.setForeignKeyList(fieldsMatrix);
-              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
-            }
-          };
-
-      service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
+//      final ManagerServiceAsync service =
+//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//
+//      /*
+//       * Carica i valori dei vincoli di integrità referenziale attualmente
+//       * presenti: sever per il binding dei campi del dettaglio e per il row
+//       * editor
+//       */
+//
+//      AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
+//          new AsyncCallback<FieldsMatrix>() {
+//            public void onFailure(Throwable caught) {
+//              Dispatcher.forwardEvent(EventList.Error,
+//                  caught.getLocalizedMessage());
+//            }
+//
+//            public void onSuccess(FieldsMatrix fieldsMatrix) {
+//              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+//              rs.setForeignKeyList(fieldsMatrix);
+//              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
+//            }
+//          };
+//
+//      service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
+      forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
     }
   }
 
