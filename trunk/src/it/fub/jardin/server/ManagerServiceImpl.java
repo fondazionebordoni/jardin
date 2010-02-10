@@ -179,8 +179,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public User getUser(Credentials credentials) throws VisibleException {
+    
     User user = dbUtils.getUser(credentials);
-
     String id = getThreadLocalRequest().getSession().getId();
     synchronized (this) {
       users.put(id, user);

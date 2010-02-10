@@ -107,6 +107,7 @@ public class DbUtils {
 
   public static ResultSet doQuery(Connection connection, String query)
       throws SQLException {
+
     PreparedStatement ps =
         (PreparedStatement) connection.prepareStatement(query);
     return ps.executeQuery();
@@ -210,8 +211,81 @@ public class DbUtils {
     Map<String, String> fields = getMapFromListModelData(fieldList);
 
     String query = dbProperties.getStatement(id);
-    query = "SELECT * FROM " + query + " WHERE 1";
+    // query = "SELECT * FROM " + query + " WHERE 1";
 
+    /*
+     * Gestione parte WHERE della query
+     */
+
+    for (String key : fields.keySet()) {
+      String value = fields.get(key);
+
+      if (value.length() > 0) {
+        StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
+
+        if (key.compareTo(SPECIAL_FIELD) != 0) {
+          /* Gestione campo normale */
+          query += " AND (0";
+          while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            query += fieldTest(key, "OR", token, like);
+          }
+          query += ")";
+        } else {
+          /* Gestione campo speciale */
+          while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            query +=
+                fieldTest(dbProperties.getFieldList(id), "OR", token, like);
+          }
+        }
+
+      }
+    }
+
+    /*
+     * Gestione configurazione di ricerca (SORT e LIMIT)
+     */
+    if (config != null) {
+      if (config.getSortInfo().getSortField() != null) {
+        query +=
+            " ORDER BY `" + config.getSortInfo().getSortField() + "` "
+                + config.getSortInfo().getSortDir();
+      }
+
+      if (config.getLimit() != -1) {
+        query +=
+            " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
+                + ((PagingLoadConfig) config).getLimit();
+      }
+    }
+
+    Log.debug("Search Query: " + query);
+    return query;
+  }
+
+  private String createSearchQueryForCount(PagingLoadConfig config,
+      SearchParams searchParams) throws SQLException {
+
+    // TODO like può essere recuperato, se necessario, da searchParams;
+
+    boolean like = !(searchParams.getAccurate());
+
+    Integer id = searchParams.getResultsetId();
+    List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
+
+    /*
+     * Trasformazione di List<BaseModelData> in Map<String, String>
+     */
+
+    Map<String, String> fields = getMapFromListModelData(fieldList);
+
+    String query = dbProperties.getStatement(id);
+    // query = "SELECT * FROM " + query + " WHERE 1";
+
+    int startPartialQuery = query.toLowerCase().indexOf("from");
+    String partialQuery = query.substring(startPartialQuery);
+    query = "SELECT COUNT(*) " + partialQuery;
     /*
      * Gestione parte WHERE della query
      */
@@ -327,7 +401,6 @@ public class DbUtils {
       String query = createSearchQuery(config, searchParams);
       connection = dbConnectionHandler.getConn();
       ResultSet result = doQuery(connection, query);
-
       int resultWidth = result.getMetaData().getColumnCount();
       log(query);
       while (result.next()) {
@@ -340,13 +413,18 @@ public class DbUtils {
           // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene
           // sollevata un'eccezione e la query non prosegue
           Object value = result.getObject(i);
-          if (value instanceof BigDecimal) {
-            value = ((BigDecimal) value).floatValue();
-          }else if(value.getClass().toString().contains("class [B")){
-        	  // TODO trovare un modo migliore per accorgersi che il l'oggetto recuperato sia un byte[]
-        	  value = new String(result.getBytes(i));
+          if (value != null) {
+            if (value instanceof BigDecimal) {
+              value = ((BigDecimal) value).floatValue();
+            } else if (value.getClass().toString().contains("class [B")) {
+              // TODO trovare un modo migliore per accorgersi che il l'oggetto
+              // recuperato sia un byte[]
+              value = new String(result.getBytes(i));
+            } else {
+              value = value.toString();
+            }
           }
-          //System.out.println(key+": "+value.getClass());
+          // System.out.println(key + ": " + value.getClass());
           map.set(key, value);
         }
         records.add(map);
@@ -385,9 +463,7 @@ public class DbUtils {
     Connection connection = dbConnectionHandler.getConn();
 
     try {
-      String query =
-          "SELECT COUNT(*) FROM (" + createSearchQuery(null, searchParams)
-              + ") as A";
+      String query = createSearchQueryForCount(null, searchParams);
 
       ResultSet result = doQuery(connection, query);
       result.next();
@@ -944,9 +1020,10 @@ public class DbUtils {
 
     try {
       HashMap<Integer, String> rsf = getResultsetFields(resultsetId);
-      String query =
-          "SELECT * FROM " + dbProperties.getStatement(resultsetId)
-              + " WHERE 0";
+      // String query =
+      // "SELECT * FROM " + dbProperties.getStatement(resultsetId)
+      // + " WHERE 0";
+      String query = dbProperties.getStatement(resultsetId);
       ResultSet resultset = doQuery(connection, query);
 
       for (Integer fieldId : rsf.keySet()) {
@@ -965,7 +1042,7 @@ public class DbUtils {
             values.add((String) fieldValue.get(fkFName));
           }
           matrix.addField(fieldId, values);
-
+          //System.out.println(fieldId + "->" + values.toString());
         }
       }
     } catch (SQLException e) {
@@ -1137,7 +1214,7 @@ public class DbUtils {
 
           ResultsetImproved res = null;
           if (views.contains(name)) {
-            //System.out.println(name + " è una view");
+            // System.out.println(name + " è una view");
             res =
                 new ResultsetImproved(id, name, alias, statement, readperm,
                     false, false, false, tools);
@@ -1179,18 +1256,18 @@ public class DbUtils {
 
           if (PKs != null) {
             for (BaseModelData pk : PKs) {
-             if (((String) pk.get("PK_NAME")).compareToIgnoreCase(name) == 0) {
+              if (((String) pk.get("PK_NAME")).compareToIgnoreCase(name) == 0) {
                 resField.setIsPK(true);
               }
             }
           }
-          
+
           if (UKs != null) {
             if (UKs.contains(name)) {
               resField.setUnique(true);
             }
           }
-          
+
         }
       }
 
@@ -1212,7 +1289,7 @@ public class DbUtils {
         resultSetList.get(i).setForeignKeyIn(
             this.getForeignKeyInForATable(resultSetList.get(i).getId(),
                 resultSetList));
-     }
+      }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
       throw new HiddenException(

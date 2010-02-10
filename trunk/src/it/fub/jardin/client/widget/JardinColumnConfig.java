@@ -5,6 +5,7 @@ package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.ResultsetField;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -24,6 +25,7 @@ public class JardinColumnConfig extends ColumnConfig {
   private int fieldId;
   private boolean isKey;
   private boolean isUnique;
+  private ArrayList<String> values;
 
   // private String foreignKey;
 
@@ -55,13 +57,13 @@ public class JardinColumnConfig extends ColumnConfig {
       if (f instanceof SimpleComboBox) {
         if (field.getType().compareToIgnoreCase("int") == 0) {
           ((SimpleComboBox) f).setEditable(false);
-          editor = new CellEditor((SimpleComboBox<Integer>) f) {
+          editor = new CellEditor((SimpleComboBox) f) {
             @Override
             public Object preProcessValue(Object value) {
               if (value == null) {
                 return value;
               }
-              return ((SimpleComboBox<Integer>) f).findModel((Integer) value);
+              return ((SimpleComboBox) f).findModel(value);
             }
 
             @Override

@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
@@ -47,8 +48,8 @@ public class JardinGrid extends Grid<BaseModelData> {
 
   // private ListStore<BaseModelData> store;
 
-  public JardinGrid(final ListStore<BaseModelData> store, JardinColumnModel cm,
-      final ResultsetImproved resultset) {
+  public JardinGrid(final ListStore<BaseModelData> store,
+      final JardinColumnModel cm, final ResultsetImproved resultset) {
     super(store, cm);
 
     // this.store = store;
@@ -83,6 +84,8 @@ public class JardinGrid extends Grid<BaseModelData> {
             ((JardinController) Dispatcher.get().getControllers().get(0)).getUser();
         List<ResultsetImproved> resultsets = user.getResultsets();
 
+        // Creazione del menu contestuale per le foreignkey e le foreignkey
+        // entranti
         for (final ResultsetField field : resultset.getFields()) {
           if ((field.getForeignKey().compareToIgnoreCase("") != 0)) {
             String fkinfo = field.getForeignKey();
@@ -113,10 +116,7 @@ public class JardinGrid extends Grid<BaseModelData> {
 
         m.add(sep);
 
-        // foreign keys entranti
-
         for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
-
           final String linkedTable = fk.getLinkingTable();
           final String linkedField = fk.getLinkingField();
           final String field = fk.getField();
@@ -131,12 +131,11 @@ public class JardinGrid extends Grid<BaseModelData> {
           MenuItem mitem =
               new MenuItem("Visualizza corrispondenze in "
                   + fk.getInterestedResultset().getAlias());
-
           mitem.addListener(Events.Select, new Listener() {
             public void handleEvent(BaseEvent be) {
 
-              Log.debug(linkedTable + "." + linkedField + "->" + field
-                  + "=" + selectedRow.get(field));
+              // Log.debug(linkedTable + "." + linkedField + "->" + field + "="
+              // + selectedRow.get(field));
               Dispatcher.forwardEvent(EventList.ViewLinkedTable, fkIN);
 
             }
@@ -169,6 +168,29 @@ public class JardinGrid extends Grid<BaseModelData> {
       }
 
     });
+
+    // Set del valore dei SimpleComboBox
+    this.addListener(Events.CellDoubleClick,
+        new Listener<GridEvent<BaseModelData>>() {
+          public void handleEvent(GridEvent<BaseModelData> be) {
+            final ModelData selectedRow =
+                (ModelData) be.getGrid().getSelectionModel().getSelection().get(
+                    0);
+            for (final ResultsetField field : resultset.getFields()) {
+              if (cm.getColumnById(field.getName()).getEditor().getField() instanceof SimpleComboBox) {
+                String defaultValue = selectedRow.get(field.getName());
+                if ((field.getType().compareToIgnoreCase("int") == 0)
+                    || (field.getType().compareToIgnoreCase("real") == 0)) {
+                  cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
+                      defaultValue);
+                } else {
+                  cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
+                      "" + defaultValue);
+                }
+              }
+            }
+          }
+        });
 
     this.editor = new RowEditor<BaseModelData>();
     this.editor.setClicksToEdit(ClicksToEdit.TWO);
