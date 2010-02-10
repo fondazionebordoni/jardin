@@ -1748,7 +1748,7 @@ public class DbUtils {
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
           row.set(key, result.getObject(i));
-          Log.debug(key + "=" + result.getObject(i));
+          //Log.debug(key + "=" + result.getObject(i));
         }
       }
     } catch (SQLException e) {
