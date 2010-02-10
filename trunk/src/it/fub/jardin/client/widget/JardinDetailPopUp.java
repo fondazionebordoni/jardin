@@ -191,7 +191,7 @@ public class JardinDetailPopUp extends Window {
           }
           if (field.getValue() != null) {
             newItem.set(property, value);
-            Log.debug("aggiunto item " + newItem.get(property));
+            //Log.debug("aggiunto item " + newItem.get(property));
           }
         }
         newItemList.add(newItem);
