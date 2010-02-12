@@ -178,14 +178,15 @@ public class JardinGrid extends Grid<BaseModelData> {
                     0);
             for (final ResultsetField field : resultset.getFields()) {
               if (cm.getColumnById(field.getName()).getEditor().getField() instanceof SimpleComboBox) {
-                String defaultValue = selectedRow.get(field.getName());
+
                 if ((field.getType().compareToIgnoreCase("int") == 0)
                     || (field.getType().compareToIgnoreCase("real") == 0)) {
+                  Integer defaultValue = selectedRow.get(field.getName());
+                  cm.getColumnById(field.getName()).getEditor().getField().setRawValue(""+defaultValue);
+                } else {
+                  String defaultValue = selectedRow.get(field.getName());
                   cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
                       defaultValue);
-                } else {
-                  cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
-                      "" + defaultValue);
                 }
               }
             }

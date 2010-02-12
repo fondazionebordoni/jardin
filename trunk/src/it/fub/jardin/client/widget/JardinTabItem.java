@@ -260,10 +260,17 @@ public class JardinTabItem extends TabItem {
               BaseModelData record = be.getSelection().get(0);
               for (final Field field : detail.getFields()) {
                 if (field instanceof SimpleComboBox) {
-                  String defaultValue = record.get(field.getName());
-                  ArrayList<String> defval = new ArrayList<String>();
-                  defval.add(defaultValue);
-                  ((SimpleComboBox) field).add(defval);
+                  if (record.get(field.getName()) instanceof Integer) {
+                    Integer defaultValue = record.get(field.getName());
+                    ArrayList<Integer> defval = new ArrayList<Integer>();
+                    defval.add(defaultValue);
+                    ((SimpleComboBox) field).add(defval);
+                  } else {
+                    String defaultValue = record.get(field.getName());
+                    ArrayList<String> defval = new ArrayList<String>();
+                    defval.add(defaultValue);
+                    ((SimpleComboBox) field).add(defval);
+                  }
                 }
               }
               formbinding.bind(record);

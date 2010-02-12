@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -403,27 +404,57 @@ public class DbUtils {
       ResultSet result = doQuery(connection, query);
       int resultWidth = result.getMetaData().getColumnCount();
       log(query);
+      ResultSet res =
+          connection.getMetaData().getColumns(null, null,
+              result.getMetaData().getTableName(1), null);
       while (result.next()) {
         BaseModelData map = new BaseModelData();
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
+        String type = "string";
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
+          // ResultSet res =
+          // connection.getMetaData().getColumns(null, null,
+          // result.getMetaData().getTableName(1), null);
+          Object value = result.getObject(i);
+          while (res.next()) {
+            // System.out.println(
+            // "  "+res.getString("TABLE_SCHEM")
+            // + ", "+res.getString("TABLE_NAME")
+            // + ", "+res.getString("COLUMN_NAME")
+            // + ", "+res.getString("TYPE_NAME")
+            // + ", "+res.getInt("COLUMN_SIZE")
+            // + ", "+res.getString("NULLABLE"));
+            if (res.getString("COLUMN_NAME").compareToIgnoreCase(key) == 0) {
+              type = res.getString("TYPE_NAME");
+              // System.out.println(res.getString("COLUMN_NAME")+"->"+type);
+              if (value != null) {
+                if (type.compareToIgnoreCase("VARBINARY") == 0) {
+                  value = new String(result.getBytes(i));
+                } else if (type.compareToIgnoreCase("bigdecimal") == 0) {
+                  value = ((BigDecimal) value).floatValue();
+                } else {
+                  value = value.toString();
+                }
+              }
+            }
+          }
           // TODO Inserire un controllo di compatibilità di conversione dati
           // SQL->JDBC
           // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene
           // sollevata un'eccezione e la query non prosegue
-          Object value = result.getObject(i);
-          if (value != null) {
-            if (value instanceof BigDecimal) {
-              value = ((BigDecimal) value).floatValue();
-            } else if (value.getClass().toString().contains("class [B")) {
-              // TODO trovare un modo migliore per accorgersi che il l'oggetto
-              // recuperato sia un byte[]
-              value = new String(result.getBytes(i));
-            } else {
-              value = value.toString();
-            }
-          }
+          // Object value = result.getObject(i);
+          // if (value != null) {
+          // if (value instanceof BigDecimal) {
+          // value = ((BigDecimal) value).floatValue();
+          // } else if (value.getClass().toString().contains("class [B")) {
+          // // TODO trovare un modo migliore per accorgersi che il l'oggetto
+          // // recuperato sia un byte[]
+          // value = new String(result.getBytes(i));
+          // } else {
+          // value = value.toString();
+          // }
+          // }
           // System.out.println(key + ": " + value.getClass());
           map.set(key, value);
         }
@@ -1042,7 +1073,7 @@ public class DbUtils {
             values.add((String) fieldValue.get(fkFName));
           }
           matrix.addField(fieldId, values);
-          //System.out.println(fieldId + "->" + values.toString());
+          // System.out.println(fieldId + "->" + values.toString());
         }
       }
     } catch (SQLException e) {
@@ -1748,7 +1779,7 @@ public class DbUtils {
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
           row.set(key, result.getObject(i));
-          //Log.debug(key + "=" + result.getObject(i));
+          // Log.debug(key + "=" + result.getObject(i));
         }
       }
     } catch (SQLException e) {
