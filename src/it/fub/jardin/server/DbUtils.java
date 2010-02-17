@@ -413,9 +413,6 @@ public class DbUtils {
         String type = "string";
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
-          // ResultSet res =
-          // connection.getMetaData().getColumns(null, null,
-          // result.getMetaData().getTableName(1), null);
           Object value = result.getObject(i);
           while (res.next()) {
             // System.out.println(
