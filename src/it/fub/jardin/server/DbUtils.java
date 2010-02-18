@@ -561,6 +561,7 @@ public class DbUtils {
       String query =
           "SELECT DISTINCT `" + fieldName + "` FROM " + resultset
               + " ORDER BY `" + fieldName + "` ASC";
+      System.out.println(query);
       ResultSet res = doQuery(connection, query);
       while (res.next()) {
         BaseModelData m = new BaseModelData();
@@ -585,8 +586,9 @@ public class DbUtils {
   public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldName)
       throws HiddenException {
     try {
-      return getValuesOfAField(dbProperties.getStatement(resultsetId),
-          fieldName);
+      return getValuesOfAField(dbProperties.getResultSetName(resultsetId), fieldName);
+      // return getValuesOfAField(dbProperties.getStatement(resultsetId),
+      // fieldName);
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
       throw new HiddenException(
