@@ -45,6 +45,7 @@ import java.util.StringTokenizer;
 import javax.mail.MessagingException;
 
 import org.apache.batik.apps.svgbrowser.JSVGViewerFrame.ViewSourceAction;
+import org.apache.batik.dom.util.HashTable;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -407,39 +408,39 @@ public class DbUtils {
       ResultSet res =
           connection.getMetaData().getColumns(null, null,
               result.getMetaData().getTableName(1), null);
+
+      HashTable types = new HashTable();
+      while (res.next()) {
+        // System.out.println(
+        // "  "+res.getString("TABLE_SCHEM")
+        // + ", "+res.getString("TABLE_NAME")
+        // + ", "+res.getString("COLUMN_NAME")
+        // + ", "+res.getString("TYPE_NAME")
+        // + ", "+res.getInt("COLUMN_SIZE")
+        // + ", "+res.getString("NULLABLE"));
+        types.put(res.getString("COLUMN_NAME"), res.getString("TYPE_NAME"));
+      }
+
       while (result.next()) {
         BaseModelData map = new BaseModelData();
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
-        String type = "string";
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
           Object value = result.getObject(i);
-          while (res.next()) {
-            // System.out.println(
-            // "  "+res.getString("TABLE_SCHEM")
-            // + ", "+res.getString("TABLE_NAME")
-            // + ", "+res.getString("COLUMN_NAME")
-            // + ", "+res.getString("TYPE_NAME")
-            // + ", "+res.getInt("COLUMN_SIZE")
-            // + ", "+res.getString("NULLABLE"));
-            if (res.getString("COLUMN_NAME").compareToIgnoreCase(key) == 0) {
-              type = res.getString("TYPE_NAME");
-              // System.out.println(res.getString("COLUMN_NAME")+"->"+type);
-              if (value != null) {
-                if (type.compareToIgnoreCase("VARBINARY") == 0) {
-                  value = new String(result.getBytes(i));
-                } else if (type.compareToIgnoreCase("bigdecimal") == 0) {
-                  value = ((BigDecimal) value).floatValue();
-                } else {
-                  value = value.toString();
-                }
-              }
+          if (value != null) {
+            if (((String) types.get(key)).compareToIgnoreCase("VARBINARY") == 0) {
+              value = new String(result.getBytes(i));
+            } else if (((String) types.get(key)).compareToIgnoreCase("bigdecimal") == 0) {
+              value = ((BigDecimal) value).floatValue();
+            } else {
+              value = value.toString();
             }
           }
           // TODO Inserire un controllo di compatibilità di conversione dati
           // SQL->JDBC
           // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene
           // sollevata un'eccezione e la query non prosegue
+
           // Object value = result.getObject(i);
           // if (value != null) {
           // if (value instanceof BigDecimal) {

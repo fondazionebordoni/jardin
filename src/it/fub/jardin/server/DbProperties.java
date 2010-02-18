@@ -57,9 +57,9 @@ public class DbProperties {
         BaseModelData pk = new BaseModelData();
         pk.set("TABLE_NAME", infoPrimaryKey.getString("TABLE_NAME"));
         pk.set("PK_NAME", infoPrimaryKey.getString("COLUMN_NAME"));
-        Log.debug("Primary key per: " + table + " -->"
-            + infoPrimaryKey.getString("TABLE_NAME") + "."
-            + infoPrimaryKey.getString("COLUMN_NAME"));
+        // Log.debug("Primary key per: " + table + " -->"
+        // + infoPrimaryKey.getString("TABLE_NAME") + "."
+        // + infoPrimaryKey.getString("COLUMN_NAME"));
         primaryKeys.add(pk);
       }
     } catch (SQLException e) {
