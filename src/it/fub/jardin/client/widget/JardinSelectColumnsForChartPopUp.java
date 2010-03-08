@@ -41,7 +41,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
     this.grid = grid;
 
     /* Impostazione caratteristiche di Window */
-    this.setMinHeight(180);
+    this.setMinHeight(210);
     // this.setMinWidth(1000);
     this.setPlain(true);
     this.setHeading("Selezione le colonne");
@@ -84,6 +84,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
         }
       }
     }
+    //formPanel.addText("Verranno visualizzate solo le prime 50 righe.<br /><br />");
     formPanel.addText("Colonna titolo:<br />");
     formPanel.add(lbTitle);
     formPanel.addText("<br />Colonna valore:<br />");

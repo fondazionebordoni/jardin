@@ -28,7 +28,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface ManagerServiceAsync {
 
   public void createReport(String file, Template template,
-      PagingLoadConfig config, List<BaseModelData> selectedRows, List<String> columns, SearchParams searchParams,
+      PagingLoadConfig config, List<BaseModelData> selectedRows,
+      List<String> columns, SearchParams searchParams,
       AsyncCallback<String> callback);
 
   void getEvents(AsyncCallback<List<EventTypeSerializable>> callback);
@@ -70,7 +71,7 @@ public interface ManagerServiceAsync {
 
   // TODO implement USER direct messages
   public void sendMessage(Message message, AsyncCallback callback);
-  
+
   public void setObjects(Integer resultset, List<BaseModelData> newItemList,
       AsyncCallback<Integer> asyncCallback);
 
@@ -80,7 +81,7 @@ public interface ManagerServiceAsync {
 
   public void updateUserProperties(User user, AsyncCallback callback);
 
-public void getPopUpDetailEntry(BaseModelData data,
-		AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry);
+  public void getPopUpDetailEntry(BaseModelData data,
+      AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry);
 
 }

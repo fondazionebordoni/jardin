@@ -130,22 +130,14 @@ public class AddRowForm extends Window {
     for (ResultsetField field : this.resultset.getFields()) {
 
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-        List<String> values =
-            resultset.getForeignKeyList().getValues(field.getId());
+        List values = new ArrayList();
 
         Field<?> PF = FieldCreator.getField(field, values, 0, true);
-        // ParametricField PF =
-        // new ParametricField(grid.getResultset().getId(),
-        // field.getForeignKey().split("\\.")[1], field.getName(),
-        // field.getAlias());
 
         if (!field.getInsertperm()) {
           PF.setEnabled(false);
         }
 
-        // if (!field.getDeleteperm()) {
-        // PF.setEnabled(false);
-        // }
 
         fieldList.add(PF);
         formPanel.add(PF);
@@ -218,10 +210,7 @@ public class AddRowForm extends Window {
     for (ResultsetField field : this.resultset.getFields()) {
 
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-        // List<String> values =
-        // resultset.getForeignKeyList().getValues(field.getId());
 
-        // Field PF = FieldCreator.getField(field, values, 0);
         ParametricField PF =
             new ParametricField(grid.getResultset().getId(),
                 field.getForeignKey().split("\\.")[1], field.getName(),
@@ -232,8 +221,6 @@ public class AddRowForm extends Window {
         }
 
         // if (!field.getDeleteperm()) {
-        // PF.setEnabled(false);
-        // }
 
         fieldList.add(PF);
         formPanel.add(PF);

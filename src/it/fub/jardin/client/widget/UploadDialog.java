@@ -96,7 +96,7 @@ public class UploadDialog extends Window {
     panel.setScrollMode(Scroll.AUTO);
     panel.setFieldWidth(180);
     panel.setLabelWidth(50);
-
+    
     HiddenField<String> importType = new HiddenField<String>();
     importType.setName(FIELD_TYPE);
     importType.setValue(type);
@@ -129,7 +129,7 @@ public class UploadDialog extends Window {
       }
     });
     panel.addButton(btn);
-
+    
     panel.addListener(Events.Submit, new Listener<FormEvent>() {
       public void handleEvent(FormEvent fe) {
         hide();
@@ -150,7 +150,7 @@ public class UploadDialog extends Window {
       }
 
     });
-
+    
     this.setLayout(new FitLayout());
     this.setIconStyle("icon-upload-file");
     this.setHeading("File upload");
@@ -158,6 +158,11 @@ public class UploadDialog extends Window {
     this.setBodyStyle("padding: 8px 4px;");
     this.setWidth(300);
     this.setResizable(false);
+    this.addText("Se si carica un file contente uno più record già presenti "
+        + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
+        + "contenuti nel file stesso."
+        + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b>"+"<BR />Attenzione: la prima riga del file da importare deve contenere i nomi delle colonne!");
+
     this.add(panel);
     this.setFocusWidget(file);
   }

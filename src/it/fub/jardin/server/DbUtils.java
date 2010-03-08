@@ -23,7 +23,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -40,6 +43,9 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
+
+import org.apache.batik.apps.svgbrowser.JSVGViewerFrame.ViewSourceAction;
+import org.apache.batik.dom.util.HashTable;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -103,6 +109,7 @@ public class DbUtils {
 
   public static ResultSet doQuery(Connection connection, String query)
       throws SQLException {
+
     PreparedStatement ps =
         (PreparedStatement) connection.prepareStatement(query);
     return ps.executeQuery();
@@ -193,6 +200,7 @@ public class DbUtils {
       SearchParams searchParams) throws SQLException {
 
     // TODO like può essere recuperato, se necessario, da searchParams;
+
     boolean like = !(searchParams.getAccurate());
 
     Integer id = searchParams.getResultsetId();
@@ -205,7 +213,7 @@ public class DbUtils {
     Map<String, String> fields = getMapFromListModelData(fieldList);
 
     String query = dbProperties.getStatement(id);
-    query = "SELECT * FROM " + query + " WHERE 1";
+    // query = "SELECT * FROM " + query + " WHERE 1";
 
     /*
      * Gestione parte WHERE della query
@@ -246,9 +254,85 @@ public class DbUtils {
             " ORDER BY `" + config.getSortInfo().getSortField() + "` "
                 + config.getSortInfo().getSortDir();
       }
-      query +=
-          " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
-              + ((PagingLoadConfig) config).getLimit();
+
+      if (config.getLimit() != -1) {
+        query +=
+            " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
+                + ((PagingLoadConfig) config).getLimit();
+      }
+    }
+
+    Log.debug("Search Query: " + query);
+    return query;
+  }
+
+  private String createSearchQueryForCount(PagingLoadConfig config,
+      SearchParams searchParams) throws SQLException {
+
+    // TODO like può essere recuperato, se necessario, da searchParams;
+
+    boolean like = !(searchParams.getAccurate());
+
+    Integer id = searchParams.getResultsetId();
+    List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
+
+    /*
+     * Trasformazione di List<BaseModelData> in Map<String, String>
+     */
+
+    Map<String, String> fields = getMapFromListModelData(fieldList);
+
+    String query = dbProperties.getStatement(id);
+    // query = "SELECT * FROM " + query + " WHERE 1";
+
+    int startPartialQuery = query.toLowerCase().indexOf("from");
+    String partialQuery = query.substring(startPartialQuery);
+    query = "SELECT COUNT(*) " + partialQuery;
+    /*
+     * Gestione parte WHERE della query
+     */
+
+    for (String key : fields.keySet()) {
+      String value = fields.get(key);
+
+      if (value.length() > 0) {
+        StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
+
+        if (key.compareTo(SPECIAL_FIELD) != 0) {
+          /* Gestione campo normale */
+          query += " AND (0";
+          while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            query += fieldTest(key, "OR", token, like);
+          }
+          query += ")";
+        } else {
+          /* Gestione campo speciale */
+          while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            query +=
+                fieldTest(dbProperties.getFieldList(id), "OR", token, like);
+          }
+        }
+
+      }
+    }
+
+    /*
+     * Gestione configurazione di ricerca (SORT e LIMIT)
+     */
+    if (config != null) {
+      if (config.getSortInfo().getSortField() != null) {
+        query +=
+            " ORDER BY `" + config.getSortInfo().getSortField() + "` "
+                + config.getSortInfo().getSortDir();
+      }
+
+      if (config.getLimit() != -1) {
+        query +=
+            " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
+                + ((PagingLoadConfig) config).getLimit();
+      }
     }
 
     Log.debug("Search Query: " + query);
@@ -302,7 +386,8 @@ public class DbUtils {
    * Esegue una query su database e restituisce la lista dei record sotto forma
    * di List<BaseModelData>. Le proprietà del ModelData sono inviate tramite
    * BaseModelData vedi: http://extjs.com/deploy/gxtdocs/com/extjs/gxt/ui/client
-   * /data/BaseModelData.html#BaseModelData(java.util.Map)
+   * /data/BaseModelData.html#BaseModelData(java.util.Map) se config == null ->
+   * restituisce l'intero store, altrimenti rispetta la paginazione
    * 
    * @param config
    * @param searchParams
@@ -318,17 +403,58 @@ public class DbUtils {
       String query = createSearchQuery(config, searchParams);
       connection = dbConnectionHandler.getConn();
       ResultSet result = doQuery(connection, query);
-
       int resultWidth = result.getMetaData().getColumnCount();
+      log(query);
+      ResultSet res =
+          connection.getMetaData().getColumns(null, null,
+              result.getMetaData().getTableName(1), null);
+
+      HashTable types = new HashTable();
+      while (res.next()) {
+        // System.out.println(
+        // "  "+res.getString("TABLE_SCHEM")
+        // + ", "+res.getString("TABLE_NAME")
+        // + ", "+res.getString("COLUMN_NAME")
+        // + ", "+res.getString("TYPE_NAME")
+        // + ", "+res.getInt("COLUMN_SIZE")
+        // + ", "+res.getString("NULLABLE"));
+        types.put(res.getString("COLUMN_NAME"), res.getString("TYPE_NAME"));
+      }
 
       while (result.next()) {
         BaseModelData map = new BaseModelData();
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
-          // TODO Inserire un controllo di compatibilità di conversione dati SQL->JDBC
-          // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene sollevata un'eccezione e la query non prosegue
-          map.set(key, result.getObject(i));
+          Object value = result.getObject(i);
+          if (value != null) {
+            if (((String) types.get(key)).compareToIgnoreCase("VARBINARY") == 0) {
+              value = new String(result.getBytes(i));
+            } else if (((String) types.get(key)).compareToIgnoreCase("bigdecimal") == 0) {
+              value = ((BigDecimal) value).floatValue();
+            } else {
+              value = value.toString();
+            }
+          }
+          // TODO Inserire un controllo di compatibilità di conversione dati
+          // SQL->JDBC
+          // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene
+          // sollevata un'eccezione e la query non prosegue
+
+          // Object value = result.getObject(i);
+          // if (value != null) {
+          // if (value instanceof BigDecimal) {
+          // value = ((BigDecimal) value).floatValue();
+          // } else if (value.getClass().toString().contains("class [B")) {
+          // // TODO trovare un modo migliore per accorgersi che il l'oggetto
+          // // recuperato sia un byte[]
+          // value = new String(result.getBytes(i));
+          // } else {
+          // value = value.toString();
+          // }
+          // }
+          // System.out.println(key + ": " + value.getClass());
+          map.set(key, value);
         }
         records.add(map);
       }
@@ -337,7 +463,6 @@ public class DbUtils {
     } finally {
       dbConnectionHandler.closeConn(connection);
     }
-
     return records;
   }
 
@@ -367,9 +492,7 @@ public class DbUtils {
     Connection connection = dbConnectionHandler.getConn();
 
     try {
-      String query =
-          "SELECT COUNT(*) FROM (" + createSearchQuery(null, searchParams)
-              + ") as A";
+      String query = createSearchQueryForCount(null, searchParams);
 
       ResultSet result = doQuery(connection, query);
       result.next();
@@ -438,6 +561,7 @@ public class DbUtils {
       String query =
           "SELECT DISTINCT `" + fieldName + "` FROM " + resultset
               + " ORDER BY `" + fieldName + "` ASC";
+      System.out.println(query);
       ResultSet res = doQuery(connection, query);
       while (res.next()) {
         BaseModelData m = new BaseModelData();
@@ -462,8 +586,9 @@ public class DbUtils {
   public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldName)
       throws HiddenException {
     try {
-      return getValuesOfAField(dbProperties.getStatement(resultsetId),
-          fieldName);
+      return getValuesOfAField(dbProperties.getResultSetName(resultsetId), fieldName);
+      // return getValuesOfAField(dbProperties.getStatement(resultsetId),
+      // fieldName);
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
       throw new HiddenException(
@@ -566,14 +691,22 @@ public class DbUtils {
             (PreparedStatement) connection.prepareStatement(query);
         int i = 1;
         for (String property : record.getPropertyNames()) {
-          ps.setObject(i, record.get(property));
-          ps.setObject(i + columns, record.get(property));
+          Object value = record.get(property);
+          if (value != null && String.valueOf(value).length() > 0) {
+            ps.setObject(i, record.get(property));
+            ps.setObject(i + columns, record.get(property));
+          } else {
+            ps.setNull(i, java.sql.Types.NULL);
+            ps.setNull(i + columns, java.sql.Types.NULL);
+          }
           i++;
         }
 
         int num = ps.executeUpdate();
         if (num > 0) {
-          Log.debug("INSERT (" + ps.toString() + ")");
+          String toLog = "INSERT (" + ps.toString() + ")";
+          Log.debug(toLog);
+          log(toLog);
         }
         result += num;
       }
@@ -918,9 +1051,10 @@ public class DbUtils {
 
     try {
       HashMap<Integer, String> rsf = getResultsetFields(resultsetId);
-      String query =
-          "SELECT * FROM " + dbProperties.getStatement(resultsetId)
-              + " WHERE 0";
+      // String query =
+      // "SELECT * FROM " + dbProperties.getStatement(resultsetId)
+      // + " WHERE 0";
+      String query = dbProperties.getStatement(resultsetId);
       ResultSet resultset = doQuery(connection, query);
 
       for (Integer fieldId : rsf.keySet()) {
@@ -939,7 +1073,7 @@ public class DbUtils {
             values.add((String) fieldValue.get(fkFName));
           }
           matrix.addField(fieldId, values);
-
+          // System.out.println(fieldId + "->" + values.toString());
         }
       }
     } catch (SQLException e) {
@@ -954,7 +1088,7 @@ public class DbUtils {
   }
 
   /**
-   * @param resultSetList 
+   * @param resultSetList
    * @param userId
    * @return resultSetList
    * 
@@ -963,14 +1097,15 @@ public class DbUtils {
    */
 
   public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(
-      Integer resultsetId, List<ResultsetImproved> resultSetList) throws HiddenException {
+      Integer resultsetId, List<ResultsetImproved> resultSetList)
+      throws HiddenException {
     ArrayList<IncomingForeignKeyInformation> listaIfki;
     String tableName = null;
     Connection connection = dbConnectionHandler.getConn();
     String queryStatement = null;
     String query =
         "SELECT statement FROM " + T_RESULTSET + " WHERE id = '" + resultsetId
-            + "'";
+            + "' ";
     try {
       ResultSet res = doQuery(connection, query);
       while (res.next()) {
@@ -997,18 +1132,19 @@ public class DbUtils {
         String linkingTable = resultFKIn.getString("TABLE_NAME");
         String linkingField = resultFKIn.getString("COLUMN_NAME");
         String field = resultFKIn.getString("REFERENCED_COLUMN_NAME");
-        //trasformare la linkingTable in un rsimproved
-        //dal nome recupero l'id e dall'id recupero l'rs
+        // trasformare la linkingTable in un rsimproved
+        // dal nome recupero l'id e dall'id recupero l'rs
         for (final ResultsetImproved rs : resultSetList) {
           IncomingForeignKeyInformation ifki =
-            new IncomingForeignKeyInformation(linkingTable, linkingField, field);
-          if (rs.getName().compareTo(ifki.getLinkingTable()) == 0){
+              new IncomingForeignKeyInformation(linkingTable, linkingField,
+                  field);
+          if (rs.getName().compareTo(ifki.getLinkingTable()) == 0) {
             ifki.setInterestedResultset(rs);
             ifki.setResultsetId(rs.getId());
             listaIfki.add(ifki);
           }
         }
-        
+
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
@@ -1034,6 +1170,20 @@ public class DbUtils {
 
     List<ResultsetImproved> resultSetList = new ArrayList<ResultsetImproved>();
     Connection connection = dbConnectionHandler.getConn();
+
+    // recupero i nomi delle view
+    ArrayList<String> views = new ArrayList<String>();
+    try {
+      ResultSet rs = null;
+      DatabaseMetaData meta = connection.getMetaData();
+      rs = meta.getTables(null, null, null, new String[] { "VIEW" });
+      while (rs.next()) {
+        views.add(rs.getString("TABLE_NAME"));
+      }
+    } catch (SQLException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
 
     String query =
         "SELECT res.statement as statement, r.id as resourceid, g.id AS groupid, res.id AS rsid, "
@@ -1063,12 +1213,12 @@ public class DbUtils {
             + " f ON  (r.id=f.id))"
             + " WHERE u.id = '"
             + uid
-            + "' AND readperm = '1' "
-            + " ORDER BY r.id ASC";
+            + "' AND readperm = '1' " + " ORDER BY r.id ASC";
     try {
 
       List<ResultsetField> resultFieldList = new ArrayList<ResultsetField>();
       List<BaseModelData> PKs = null;
+      ArrayList<String> UKs = new ArrayList<String>();
 
       ResultSet result = doQuery(connection, query);
       while (result.next()) {
@@ -1093,9 +1243,17 @@ public class DbUtils {
 
           ArrayList<Tool> tools = getToolbar(rsid, groupid);
 
-          ResultsetImproved res =
-              new ResultsetImproved(id, name, alias, statement, readperm,
-                  deleteperm, modifyperm, insertperm, tools);
+          ResultsetImproved res = null;
+          if (views.contains(name)) {
+            // System.out.println(name + " è una view");
+            res =
+                new ResultsetImproved(id, name, alias, statement, readperm,
+                    false, false, false, tools);
+          } else {
+            res =
+                new ResultsetImproved(id, name, alias, statement, readperm,
+                    deleteperm, modifyperm, insertperm, tools);
+          }
           resultSetList.add(res);
 
           List<BaseModelData> groupings = getReGroupings(id);
@@ -1108,6 +1266,7 @@ public class DbUtils {
           }
 
           PKs = dbProperties.getPrimaryKeys(name);
+          UKs = dbProperties.getUniqueKeys(name);
 
         } else {
           /* Gestione di un CAMPO di un resultset */
@@ -1122,17 +1281,25 @@ public class DbUtils {
           resField.setType(result.getString("type"));
           resField.setDefaultValue(result.getString("defaultvalue"));
           resField.setIsPK(false);
+          resField.setUnique(false);
 
           resultFieldList.add(resField);
 
-          for (BaseModelData pk : PKs) {
-            if (((String) pk.get("PK_NAME")).compareToIgnoreCase(name) == 0) {
-              resField.setIsPK(true);
+          if (PKs != null) {
+            for (BaseModelData pk : PKs) {
+              if (((String) pk.get("PK_NAME")).compareToIgnoreCase(name) == 0) {
+                resField.setIsPK(true);
+              }
+            }
+          }
+
+          if (UKs != null) {
+            if (UKs.contains(name)) {
+              resField.setUnique(true);
             }
           }
 
         }
-
       }
 
       PKs = null;
@@ -1141,15 +1308,18 @@ public class DbUtils {
         for (int j = 0; j < resultFieldList.size(); j++) {
           if (resultFieldList.get(j).getResultsetid() == resultSetList.get(i).getId()) {
 
-            /* aggiunta dell'eventuale foreignKEY */
+            // aggiunta dell'eventuale foreignKEY
             resultFieldList.get(j).setForeignKey(
                 dbProperties.getForeignKey(resultSetList.get(i).getName(),
                     resultFieldList.get(j).getName()));
             resultSetList.get(i).addField(resultFieldList.get(j));
-
           }
         }
-        resultSetList.get(i).setForeignKeyIn(this.getForeignKeyInForATable(resultSetList.get(i).getId(), resultSetList));
+
+        // aggiunta delle eventuali foreignKEY entranti
+        resultSetList.get(i).setForeignKeyIn(
+            this.getForeignKeyInForATable(resultSetList.get(i).getId(),
+                resultSetList));
       }
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
@@ -1315,7 +1485,7 @@ public class DbUtils {
   }
 
   public int importFile(Credentials credentials, int resultsetId,
-      File importFile) throws HiddenException, VisibleException {
+      File importFile) throws HiddenException, VisibleException, SQLException {
 
     getUser(credentials);
 
@@ -1342,17 +1512,32 @@ public class DbUtils {
     }
 
     String recordLine;
+    String[] columns;
     List<BaseModelData> recordList = new ArrayList<BaseModelData>();
 
     try {
       recordLine = in.readLine();
-
+      columns = recordLine.replaceAll("\"", "").split("\\|");
+      /*
+       * check nomi dei campi corretti
+       * 
+       * ArrayList<Boolean> colsCheck = new ArrayList<Boolean>(); for (String
+       * col : columns) { boolean present = false; for (int i = 0; i <
+       * rsmd.getColumnCount(); i++) { if
+       * (col.compareToIgnoreCase(rsmd.getColumnName(i)) == 0) { present = true;
+       * } } colsCheck.add(present); }
+       * 
+       * if (colsCheck.contains(false)) { recordLine = null;
+       * Log.debug("Una delle colonne non è stata riconosciuta!"); }
+       */
+      recordLine = in.readLine();
       while (recordLine != null) {
         Log.debug(recordLine);
-        if (validateLine(rsmd, recordLine)) {
-          recordList.add(createRecord(rsmd, recordLine));
-        } else
-          throw new HiddenException("record: " + recordLine + " non valido!");
+        // if (validateLine(rsmd, recordLine)) {
+        recordList.add(createRecord(rsmd, recordLine, columns));
+        // } else
+        // throw new HiddenException("record: " + recordLine +
+        // " non valido!");
         recordLine = in.readLine();
       }
     } catch (IOException e) {
@@ -1367,47 +1552,36 @@ public class DbUtils {
     return opCode;
   }
 
-  private BaseModelData createRecord(ResultSetMetaData rsmd, String recordLine)
-      throws HiddenException {
+  private BaseModelData createRecord(ResultSetMetaData rsmd, String recordLine,
+      String[] columns) throws HiddenException {
 
     BaseModelData bm = new BaseModelData();
-    try {
-      for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-        int j = i - 1;
-        String value = null;
-        value = recordLine.split("\\|")[j].replaceAll("^\"|\"$", "");
-        if (value.compareToIgnoreCase("") == 0) {
-          value = null;
-        }
-        bm.set(rsmd.getColumnName(i), value);
+    for (int i = 0; i < columns.length; i++) {
+      if (i < recordLine.split("\\|").length) {
+        String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
+        bm.set(columns[i], value);
       }
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      throw new HiddenException(
-          "il seguente record è valido, ma non riesco a crearlo: " + recordLine);
     }
-
     return bm;
   }
 
-  private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
-      throws HiddenException {
-
-    boolean valid = false;
-    try {
-
-      if (recordLine.split("\\|").length == rsmd.getColumnCount()) {
-        valid = true;
-      }
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      throw new HiddenException("problemi nella lettura dei metadata per il rs");
-    }
-
-    return valid;
-  }
+  // private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
+  // throws HiddenException {
+  //
+  // boolean valid = false;
+  // try {
+  //
+  // if (recordLine.split("\\|").length == rsmd.getColumnCount()) {
+  // valid = true;
+  // }
+  // } catch (SQLException e) {
+  // // TODO Auto-generated catch block
+  // e.printStackTrace();
+  // throw new HiddenException("problemi nella lettura dei metadata per il rs");
+  // }
+  //
+  // return true;
+  // }
 
   /*
    * invocata solo in caso di duplicate key entry per la setObject: si suppone
@@ -1605,7 +1779,7 @@ public class DbUtils {
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
           row.set(key, result.getObject(i));
-          Log.debug(key + "=" + result.getObject(i));
+          // Log.debug(key + "=" + result.getObject(i));
         }
       }
     } catch (SQLException e) {

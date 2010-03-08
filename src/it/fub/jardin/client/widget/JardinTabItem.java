@@ -1,10 +1,18 @@
 package it.fub.jardin.client.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import it.fub.jardin.client.EventList;
+import it.fub.jardin.client.Jardin;
+import it.fub.jardin.client.ManagerServiceAsync;
+import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -13,6 +21,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -30,235 +39,260 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.smartgwt.client.widgets.grid.events.CellClickEvent;
 
 /**
  * @author gpantanetti
  */
 public class JardinTabItem extends TabItem {
 
-	private static final int PAGESIZE = 20;
-	private static final int MARGIN = 2;
-	private ContentPanel main;
-	private ContentPanel north;
-	private ContentPanel west;
-	private ContentPanel center;
-	private ContentPanel center_center;
-	private ContentPanel center_south;
-	private JardinGrid grid;
-	private JardinGridToolBar toolbar;
-	private FormPanel detail;
-	private FormBinding formbinding;
+  private static final int PAGESIZE = 20;
+  private static final int MARGIN = 2;
+  private ContentPanel main;
+  private ContentPanel north;
+  private ContentPanel west;
+  private ContentPanel center;
+  private ContentPanel center_center;
+  private ContentPanel center_south;
+  private JardinGrid grid;
+  private JardinGridToolBar toolbar;
+  private FormPanel detail;
+  private FormBinding formbinding;
 
-	public JardinTabItem(ResultsetImproved resultset) {
-		super(resultset.getAlias());
-	
-		this.setClosable(false);
-		this.setLayout(new FitLayout());
-		
-		this.main = new ContentPanel(new BorderLayout());
-		this.main.setHeaderVisible(false);
-		this.main.setBorders(false);
-		this.main.setFrame(false);
-		this.main.setBodyBorder(false);
-		this.add(this.main);
+  public JardinTabItem(ResultsetImproved resultset) {
+    super(resultset.getAlias());
 
-		this.createNorth();
-		this.createWest();
-		this.createCenter();
-	}
+    this.setClosable(false);
+    this.setLayout(new FitLayout());
 
-	private void createNorth() {
-		this.north = new ContentPanel(new FitLayout());
-		this.north.setHeaderVisible(false);
-		this.north.add(new WaitPanel());
+    this.main = new ContentPanel(new BorderLayout());
+    this.main.setHeaderVisible(false);
+    this.main.setBorders(false);
+    this.main.setFrame(false);
+    this.main.setBodyBorder(false);
+    this.add(this.main);
 
-		BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 40);
-		data.setCollapsible(false);
-		data.setSplit(false);
-		data.setFloatable(false);
-		data.setMargins(new Margins(MARGIN, MARGIN, 0, MARGIN));
+    this.createNorth();
+    this.createWest();
+    this.createCenter();
+  }
 
-		this.main.add(this.north, data);
-	}
+  private void createNorth() {
+    this.north = new ContentPanel(new FitLayout());
+    this.north.setHeaderVisible(false);
+    this.north.add(new WaitPanel());
 
-	private void createWest() {
-		this.west = new ContentPanel(new FitLayout());
-		this.west.setHeaderVisible(true);
-		this.west.add(new WaitPanel());
+    BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 40);
+    data.setCollapsible(false);
+    data.setSplit(false);
+    data.setFloatable(false);
+    data.setMargins(new Margins(MARGIN, MARGIN, 0, MARGIN));
 
-		BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 340);
-		data.setCollapsible(true);
-		data.setSplit(false);
-		data.setFloatable(false);
-		data.setMargins(new Margins(MARGIN, 0, MARGIN, MARGIN));
+    this.main.add(this.north, data);
+  }
 
-		this.main.add(this.west, data);
-	}
+  private void createWest() {
+    this.west = new ContentPanel(new FitLayout());
+    this.west.setHeaderVisible(true);
+    this.west.add(new WaitPanel());
 
-	private void createCenter() {
-		this.center = new ContentPanel(new BorderLayout());
-		this.center.setBodyBorder(false);
-		this.center.setHeaderVisible(false);
+    BorderLayoutData data = new BorderLayoutData(LayoutRegion.WEST, 340);
+    data.setCollapsible(true);
+    data.setSplit(false);
+    data.setFloatable(false);
+    data.setMargins(new Margins(MARGIN, 0, MARGIN, MARGIN));
 
-		this.createDetail();
-		this.createGrid();
+    this.main.add(this.west, data);
+  }
 
-		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
-		centerData.setMargins(new Margins(MARGIN));
+  private void createCenter() {
+    this.center = new ContentPanel(new BorderLayout());
+    this.center.setBodyBorder(false);
+    this.center.setHeaderVisible(false);
 
-		this.main.add(this.center, centerData);
-	}
+    this.createDetail();
+    this.createGrid();
 
-	private void createGrid() {
-		this.center_center = new ContentPanel(new FitLayout());
-		this.center_center.setHeaderVisible(false);
-		// this.center_center.setLayoutOnChange(true);
-		this.center_center.add(new WaitPanel());
-		toolbar = new JardinGridToolBar();
-		this.center_center.setTopComponent(toolbar);
-		this.center_center.setBottomComponent(new PagingToolBar(PAGESIZE));
+    BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+    centerData.setMargins(new Margins(MARGIN));
 
-		BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
-		data.setCollapsible(false);
-		data.setSplit(true);
-		data.setFloatable(false);
-		data.setMargins(new Margins(0));
+    this.main.add(this.center, centerData);
+  }
 
-		this.center.add(this.center_center, data);
+  private void createGrid() {
+    this.center_center = new ContentPanel(new FitLayout());
+    this.center_center.setHeaderVisible(false);
+    // this.center_center.setLayoutOnChange(true);
+    this.center_center.add(new WaitPanel());
+    toolbar = new JardinGridToolBar();
+    this.center_center.setTopComponent(toolbar);
+    this.center_center.setBottomComponent(new PagingToolBar(PAGESIZE));
 
-	}
+    BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
+    data.setCollapsible(false);
+    data.setSplit(true);
+    data.setFloatable(false);
+    data.setMargins(new Margins(0));
 
-	private void createDetail() {
-		this.center_south = new ContentPanel(new FitLayout());
-		this.center_south.setHeaderVisible(true);
-		this.center_south.setHeading("Dettaglio del record della griglia");
-		// this.center_south.setLayoutOnChange(true);
-		this.center_south.add(new WaitPanel());
+    this.center.add(this.center_center, data);
 
-		BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 300);
-		data.setCollapsible(true);
-		data.setSplit(true);
-		data.setFloatable(false);
-		data.setMargins(new Margins(MARGIN, 0, 0, 0));
+  }
 
-		this.center.add(this.center_south, data);
-	}
+  private void createDetail() {
+    this.center_south = new ContentPanel(new FitLayout());
+    this.center_south.setHeaderVisible(true);
+    this.center_south.setHeading("Dettaglio del record della griglia");
+    // this.center_south.setLayoutOnChange(true);
+    this.center_south.add(new WaitPanel());
 
-	public void addSearchAreaBase(SearchAreaBase searchAreaBase) {
-		this.north.removeAll();
-		this.north.add(searchAreaBase);
-		this.north.layout();
-	}
+    BorderLayoutData data = new BorderLayoutData(LayoutRegion.SOUTH, 300);
+    data.setCollapsible(true);
+    data.setSplit(true);
+    data.setFloatable(false);
+    data.setMargins(new Margins(MARGIN, 0, 0, 0));
 
-	public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
-		this.west.expand();
-		this.west.removeAll();
-		this.west.add(searchAreaAdvanced);
-		this.west.layout();
-		this.west.collapse();
-	}
+    this.center.add(this.center_south, data);
+  }
 
-	public JardinGridToolBar getToolbar() {
-		return this.toolbar;
-	}
+  public void addSearchAreaBase(SearchAreaBase searchAreaBase) {
+    this.north.removeAll();
+    this.north.add(searchAreaBase);
+    this.north.layout();
+  }
 
-	public FormPanel getDetail() {
-		return this.detail;
-	}
+  public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
+    this.west.expand();
+    this.west.removeAll();
+    this.west.add(searchAreaAdvanced);
+    this.west.layout();
+    this.west.collapse();
+  }
 
-	public JardinGrid getGrid() {
-		return this.grid;
-	}
+  public JardinGridToolBar getToolbar() {
+    return this.toolbar;
+  }
 
-	public void setGrid(JardinGrid grid) {
-		this.grid = grid;
-		this.center_center.removeAll();
-		JardinGridToolBar toolbar = (JardinGridToolBar) this.center_center
-				.getTopComponent();
-		toolbar.setGrid(grid);
-		this.center_center.add(grid);
-	}
+  public FormPanel getDetail() {
+    return this.detail;
+  }
 
-	public void addDetail(JardinDetail detail) {
-		this.detail = detail;
-		this.center_south.expand();
-		this.center_south.removeAll();
-		this.center_south.add(detail);
-		this.center_south.layout();
-		this.center_south.collapse();
+  public JardinGrid getGrid() {
+    return this.grid;
+  }
 
-		/* Binding con l'area di dettaglio */
-		this.formbinding = new FormBinding(this.detail, false);
-		for (Field<?> field : this.detail.getFields()) {
-			if (field instanceof SimpleComboBox<?>) {
-				this.formbinding
-						.addFieldBinding(new SimpleComboBoxFieldBinding(
-								(SimpleComboBox<?>) field, field.getName()));
-			} else {
-				this.formbinding.addFieldBinding(new FieldBinding(field, field
-						.getName()));
-			}
-		}
-	}
+  public void setGrid(JardinGrid grid) {
+    this.grid = grid;
+    this.center_center.removeAll();
+    JardinGridToolBar toolbar =
+        (JardinGridToolBar) this.center_center.getTopComponent();
+    toolbar.setGrid(grid);
+    this.center_center.add(grid);
+  }
 
-	public void updateStore(final ListStore<BaseModelData> store) {
+  public void addDetail(JardinDetail detail) {
+    this.detail = detail;
+    this.center_south.expand();
+    this.center_south.removeAll();
+    this.center_south.add(detail);
+    this.center_south.layout();
+    this.center_south.collapse();
 
-		/* Loading dello store */
-		final PagingLoader<PagingLoadResult<BaseModelData>> loader = (PagingLoader<PagingLoadResult<BaseModelData>>) store
-				.getLoader();
-		loader.load(0, PAGESIZE);
+    /* Binding con l'area di dettaglio */
+    this.formbinding = new FormBinding(this.detail, false);
+    for (Field<?> field : this.detail.getFields()) {
+      if (field instanceof SimpleComboBox<?>) {
+        this.formbinding.addFieldBinding(new SimpleComboBoxFieldBinding(
+            (SimpleComboBox<?>) field, field.getName()));
+      } else {
+        this.formbinding.addFieldBinding(new FieldBinding(field,
+            field.getName()));
+      }
+    }
+  }
 
-		/* Aggancio PaginToolbar */
-		PagingToolBar bottomBar = (PagingToolBar) this.center_center
-				.getBottomComponent();
-		bottomBar.bind(loader);
+  public void updateStore(final ListStore<BaseModelData> store) {
 
-		/* Riconfigurazione della griglia col nuovo store */
-		this.grid.reconfigure(store, this.grid.getColumnModel());
+    /* Loading dello store */
+    final PagingLoader<PagingLoadResult<BaseModelData>> loader =
+        (PagingLoader<PagingLoadResult<BaseModelData>>) store.getLoader();
+    loader.load(0, PAGESIZE);
 
-		((JardinGridView) this.grid.getView()).setGridHeader();
+    /* Aggancio PaginToolbar */
+    PagingToolBar bottomBar =
+        (PagingToolBar) this.center_center.getBottomComponent();
+    bottomBar.bind(loader);
 
-		this.grid.getStore().addListener(Store.Update,
-				new Listener<StoreEvent<BaseModelData>>() {
-					public void handleEvent(StoreEvent<BaseModelData> be) {
-						if (be.getOperation() == RecordUpdate.EDIT) {
-							Dispatcher.forwardEvent(EventList.CommitChanges,
-									grid);
-						}
-						formbinding.bind(grid.getSelectionModel()
-								.getSelectedItem());
-					}
-				});
+    /* Riconfigurazione della griglia col nuovo store */
+    this.grid.reconfigure(store, this.grid.getColumnModel());
 
-		/* Binding con il nuovo store */
-		formbinding.setStore(this.grid.getStore());
+    ((JardinGridView) this.grid.getView()).setGridHeader();
 
-		this.grid.getSelectionModel().addListener(Events.SelectionChange,
-				new Listener<SelectionChangedEvent<BaseModelData>>() {
-					public void handleEvent(
-							SelectionChangedEvent<BaseModelData> be) {
-						if (be.getSelection().size() > 0) {
-							BaseModelData record = be.getSelection().get(0);
-							formbinding.bind(record);
-						} else {
-							formbinding.unbind();
-						}
-					}
-				});
+    this.grid.getStore().addListener(Store.Update,
+        new Listener<StoreEvent<BaseModelData>>() {
+          public void handleEvent(StoreEvent<BaseModelData> be) {
+            if (be.getOperation() == RecordUpdate.EDIT) {
+              Dispatcher.forwardEvent(EventList.CommitChanges, grid);
+            }
+            formbinding.bind(grid.getSelectionModel().getSelectedItem());
+          }
+        });
 
-	}
+    /* Binding con il nuovo store */
+    formbinding.setStore(this.grid.getStore());
 
-	private class WaitPanel extends ContentPanel {
-		public WaitPanel() {
-			super();
-			this.setStyleName("wait");
-			this.setHeaderVisible(false);
-			this.setBodyBorder(false);
-		}
-	}
+    // this.grid.getSelectionModel().addListener(Events.SelectionChange,
+    // new Listener<SelectionChangedEvent<BaseModelData>>() {
+    // public void handleEvent(SelectionChangedEvent<BaseModelData> be) {
+    // if (be.getSelection().size() > 0) {
+    // BaseModelData record = be.getSelection().get(0);
+    // formbinding.bind(record);
+    // } else {
+    // formbinding.unbind();
+    // }
+    // }
+    // });
+    // ////////////////////////////////////////////////////////////////////////////////
+    this.grid.getSelectionModel().addListener(Events.SelectionChange,
+        new Listener<SelectionChangedEvent<BaseModelData>>() {
+          public void handleEvent(SelectionChangedEvent<BaseModelData> be) {
+            if (be.getSelection().size() > 0) {
+              BaseModelData record = be.getSelection().get(0);
+              for (final Field field : detail.getFields()) {
+                if (field instanceof SimpleComboBox) {
+                  if (record.get(field.getName()) instanceof Integer) {
+                    Integer defaultValue = record.get(field.getName());
+                    ArrayList<Integer> defval = new ArrayList<Integer>();
+                    defval.add(defaultValue);
+                    ((SimpleComboBox) field).add(defval);
+                  } else {
+                    String defaultValue = record.get(field.getName());
+                    ArrayList<String> defval = new ArrayList<String>();
+                    defval.add(defaultValue);
+                    ((SimpleComboBox) field).add(defval);
+                  }
+                }
+              }
+              formbinding.bind(record);
+            } else {
+              formbinding.unbind();
+            }
+          }
+        });
+    // //////////////////////////////////////////////////////////////////////////////////
+  }
 
-	public void updatePreference(HeaderPreferenceList data) {
-		toolbar.updatePreferenceButton(data);
-	}
+  private class WaitPanel extends ContentPanel {
+    public WaitPanel() {
+      super();
+      this.setStyleName("wait");
+      this.setHeaderVisible(false);
+      this.setBodyBorder(false);
+    }
+  }
+
+  public void updatePreference(HeaderPreferenceList data) {
+    toolbar.updatePreferenceButton(data);
+  }
 
 }

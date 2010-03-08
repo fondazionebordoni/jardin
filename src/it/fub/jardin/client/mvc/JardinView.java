@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -246,7 +247,7 @@ public class JardinView extends View {
   private synchronized void gotValuesOfForeignKeys(Integer resultsetId) {
     ResultsetImproved resultset =
         controller.getUser().getResultsetFromId(resultsetId);
-
+    
     /* Creazione della griglia */
     ListStore<BaseModelData> store = new ListStore<BaseModelData>();
     JardinColumnModel cm = new JardinColumnModel(resultset);
@@ -286,13 +287,14 @@ public class JardinView extends View {
     if (item != null) {
       if (item.getGrid() != null) {
         /* Aggiornamento dello store della griglia del tabItem */
-        item.updateStore(this.getStore(searchParams));
+        item.updateStore(this.getStore(searchParams, true));
         item.getGrid().setSearchparams(searchParams);
       }
     }
   }
 
-  private ListStore<BaseModelData> getStore(final SearchParams searchParams) {
+  public ListStore<BaseModelData> getStore(final SearchParams searchParams,
+      final boolean limit) {
 
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -302,8 +304,11 @@ public class JardinView extends View {
           @Override
           public void load(Object loadConfig,
               AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
-            service.getRecords((PagingLoadConfig) loadConfig, searchParams,
-                callback);
+            PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
+            if (!limit) {
+              plc.setLimit(-1);
+            }
+            service.getRecords((PagingLoadConfig) plc, searchParams, callback);
           }
         };
 
@@ -311,6 +316,7 @@ public class JardinView extends View {
         new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
     loader.setRemoteSort(true);
     ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+    
     return store;
   }
 
