@@ -34,8 +34,8 @@ import com.google.gwt.user.client.rpc.RemoteService;
 public interface ManagerService extends RemoteService {
 
   public String createReport(String file, Template template,
-      PagingLoadConfig config, List<BaseModelData> selectedRows, List<String> columns, SearchParams searchParams)
-      throws VisibleException;
+      PagingLoadConfig config, List<BaseModelData> selectedRows,
+      List<String> columns, SearchParams searchParams) throws VisibleException;
 
   /**
    * Sits on listening and gets events from server.
@@ -56,7 +56,8 @@ public interface ManagerService extends RemoteService {
   public PagingLoadResult<BaseModelData> getRecords(PagingLoadConfig config,
       SearchParams searchParams) throws HiddenException;
 
-  public List<BaseModelData> getReGroupings(int resultSetId) throws HiddenException;
+  public List<BaseModelData> getReGroupings(int resultSetId)
+      throws HiddenException;
 
   /**
    * Chiede al server l'ora attuale formattata nel modo HH:MM. La funzione può
@@ -83,7 +84,8 @@ public interface ManagerService extends RemoteService {
   public List<BaseModelData> getValuesOfAFieldFromTableName(String table,
       String field) throws HiddenException;
 
-  public FieldsMatrix getValuesOfFields(Integer resultsetId) throws HiddenException;
+  public FieldsMatrix getValuesOfFields(Integer resultsetId)
+      throws HiddenException;
 
   public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
       throws HiddenException;
@@ -92,7 +94,8 @@ public interface ManagerService extends RemoteService {
       List<BaseModelData> selectedRows) throws HiddenException;
 
   // TODO implement USER direct messages
-  public void sendMessage(Message message) throws HiddenException, VisibleException;
+  public void sendMessage(Message message) throws HiddenException,
+      VisibleException;
 
   public Integer setObjects(Integer resultsetId, List<BaseModelData> newItemList)
       throws HiddenException;
@@ -103,6 +106,7 @@ public interface ManagerService extends RemoteService {
 
   public void updateUserProperties(User user) throws HiddenException;
 
-  public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data) throws HiddenException;
+  public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data)
+      throws HiddenException;
 
 }

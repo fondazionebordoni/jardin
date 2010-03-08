@@ -168,7 +168,7 @@ public class JardinGridView extends GridView {
   public void setGridHeader() {
     // TODO aggiunta per sottolineare la foreignkey
     for (int i = 0; i < cm.getColumnCount(); i++) {
-      if (cm.getColumn(i).isKey()) {
+      if ((cm.getColumn(i).isKey()) || (cm.getColumn(i).isUnique())) {
         getHeader().setHeader(i,
             "<u><b>" + cm.getColumn(i).getHeader() + "</u></b>");
       }

@@ -4,6 +4,7 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.SearchStringParser;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
@@ -30,13 +31,21 @@ import com.extjs.gxt.charts.client.Chart;
 import com.extjs.gxt.charts.client.model.BarDataProvider;
 import com.extjs.gxt.charts.client.model.ChartModel;
 import com.extjs.gxt.charts.client.model.PieDataProvider;
+import com.extjs.gxt.charts.client.model.Scale;
 import com.extjs.gxt.charts.client.model.ScaleProvider;
+import com.extjs.gxt.charts.client.model.charts.BarChart;
 import com.extjs.gxt.charts.client.model.charts.FilledBarChart;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
+import com.extjs.gxt.charts.client.model.charts.StackedBarChart;
+import com.extjs.gxt.charts.client.model.charts.BarChart.BarStyle;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -297,7 +306,7 @@ public class JardinController extends Controller {
         onShowChart((ArrayList<String>) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SelectColumnsForChart
-        Log.error("Errore nei dati di EventList.SelectColumnsForChart");
+        Log.error("Errore nei dati di EventList.ShowChart");
       }
     } else if (t == EventList.ShowPieChart) {
       if (event.getData() instanceof Integer) {
@@ -489,30 +498,31 @@ public class JardinController extends Controller {
       forwardToView(view, EventList.NewResultset, resultsetId);
       forwardToView(view, EventList.GotValuesOfFields, resultsetId);
 
-      final ManagerServiceAsync service =
-          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-
-      /*
-       * Carica i valori dei vincoli di integrità referenziale attualmente
-       * presenti: sever per il binding dei campi del dettaglio e per il row
-       * editor
-       */
-
-      AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
-          new AsyncCallback<FieldsMatrix>() {
-            public void onFailure(Throwable caught) {
-              Dispatcher.forwardEvent(EventList.Error,
-                  caught.getLocalizedMessage());
-            }
-
-            public void onSuccess(FieldsMatrix fieldsMatrix) {
-              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-              rs.setForeignKeyList(fieldsMatrix);
-              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
-            }
-          };
-
-      service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
+//      final ManagerServiceAsync service =
+//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//
+//      /*
+//       * Carica i valori dei vincoli di integrità referenziale attualmente
+//       * presenti: sever per il binding dei campi del dettaglio e per il row
+//       * editor
+//       */
+//
+//      AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
+//          new AsyncCallback<FieldsMatrix>() {
+//            public void onFailure(Throwable caught) {
+//              Dispatcher.forwardEvent(EventList.Error,
+//                  caught.getLocalizedMessage());
+//            }
+//
+//            public void onSuccess(FieldsMatrix fieldsMatrix) {
+//              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+//              rs.setForeignKeyList(fieldsMatrix);
+//              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
+//            }
+//          };
+//
+//      service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
+      forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
     }
   }
 
@@ -855,7 +865,7 @@ public class JardinController extends Controller {
   private void onSelectColumnsForChart(ChartType ct, Integer resultset) {
     JardinTabItem item = view.getItemByResultsetId(resultset);
     JardinGrid grid = item.getGrid();
-
+    
     JardinSelectColumnsForChartPopUp popup =
         new JardinSelectColumnsForChartPopUp(grid, ct.toString());
 
@@ -889,7 +899,7 @@ public class JardinController extends Controller {
     JardinGrid grid = item.getGrid();
 
     /* Prendi gli ID delle prime due colonne visibili */
-    ColumnModel columnModel = grid.getColumnModel();
+    //ColumnModel columnModel = grid.getColumnModel();
     String cx = title;
     String cy = value;
 
@@ -902,15 +912,20 @@ public class JardinController extends Controller {
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
 
+    SearchParams searchParams = grid.getSearchparams();
+    ListStore<BaseModelData> store = view.getStore(searchParams, false);
+    store.getLoader().load();
+
     switch (type) {
     case BAR:
-      FilledBarChart bar = new FilledBarChart();
+      BarChart bar = new BarChart(BarStyle.GLASS);
       bar.setAnimateOnShow(true);
       bar.setTooltip("#val#");
       BarDataProvider bdp = new BarDataProvider(cy, cx);
-      bdp.bind(grid.getStore());
+      bdp.bind(store);
+      System.out.println(store);
       bar.setDataProvider(bdp);
-      cm.setScaleProvider(ScaleProvider.ROUNDED_NEAREST_SCALE_PROVIDER);
+      // cm.setScaleProvider(ScaleProvider.ROUNDED_NEAREST_SCALE_PROVIDER);
       cm.addChartConfig(bar);
       break;
     case PIE:
@@ -922,7 +937,7 @@ public class JardinController extends Controller {
       pie.setGradientFill(true);
       pie.setColours(chartColors);
       PieDataProvider pdp = new PieDataProvider(cy, cx);
-      pdp.bind(grid.getStore());
+      pdp.bind(store);
       pie.setDataProvider(pdp);
       cm.addChartConfig(pie);
       break;

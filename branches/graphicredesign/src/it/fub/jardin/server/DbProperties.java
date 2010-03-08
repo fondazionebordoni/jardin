@@ -57,9 +57,9 @@ public class DbProperties {
         BaseModelData pk = new BaseModelData();
         pk.set("TABLE_NAME", infoPrimaryKey.getString("TABLE_NAME"));
         pk.set("PK_NAME", infoPrimaryKey.getString("COLUMN_NAME"));
-        Log.debug("Primary key per: " + table + " -->"
-            + infoPrimaryKey.getString("TABLE_NAME") + "."
-            + infoPrimaryKey.getString("COLUMN_NAME"));
+        // Log.debug("Primary key per: " + table + " -->"
+        // + infoPrimaryKey.getString("TABLE_NAME") + "."
+        // + infoPrimaryKey.getString("COLUMN_NAME"));
         primaryKeys.add(pk);
       }
     } catch (SQLException e) {
@@ -138,6 +138,36 @@ public class DbProperties {
 
   }
 
+  public ArrayList<String> getUniqueKeys(String table) {
+    Connection connection = null;
+    ArrayList<String> uniqueKeys = new ArrayList<String>();
+    try {
+      
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
+
+    DatabaseMetaData dbmt;
+    try {
+      dbmt = connection.getMetaData();
+
+      ResultSet infoUniqueKeys =
+          dbmt.getIndexInfo(null, null, table, true, false);
+      while (infoUniqueKeys.next()) {
+          uniqueKeys.add(infoUniqueKeys.getString("COLUMN_NAME"));
+      }
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      dbConnectionHandler.closeConn(connection);
+      e.printStackTrace();
+    }
+    dbConnectionHandler.closeConn(connection);
+    return uniqueKeys;
+
+  }
+  
   public List<String> getFieldList(int resultset) {
 
     Connection connection = null;
@@ -176,7 +206,8 @@ public class DbProperties {
    */
   public ResultSetMetaData getResultsetMetadata(Connection connection,
       int resultset) throws SQLException {
-    String query = "SELECT * FROM " + getStatement(resultset) + " WHERE 0";
+    //String query = "SELECT * FROM " + getStatement(resultset) + " WHERE 0";
+    String query = getStatement(resultset);
     ResultSet result = DbUtils.doQuery(connection, query);
     return result.getMetaData();
   }
@@ -204,11 +235,15 @@ public class DbProperties {
     try {
       ResultSet result = DbUtils.doQuery(connection, query);
       result.next();
-      if (dbConnectionHandler.getView().compareToIgnoreCase("enabled") == 0) {
+      /*if (dbConnectionHandler.getView().compareToIgnoreCase("enabled") == 0) {
         statement = "`" + result.getString(1) + "`";
-      } else {
-        statement = "(" + result.getString(1) + ") AS query";
+      } else {*/
+        //statement = "(" + result.getString(1) + ") AS query";
+      statement = result.getString(1);
+      if (statement.toLowerCase().indexOf("where")==-1){
+        statement = statement+" WHERE 1 ";
       }
+      //}
     } catch (SQLException e) {
       throw e;
     } finally {
@@ -216,6 +251,47 @@ public class DbProperties {
     }
 
     return statement;
+  }
+  
+  /**
+   * @param resultset
+   * @return ritorna lo statement SQL per il resultSet il cui id è passato come
+   *         parametro
+   * @throws SQLException
+   */
+  public String getResultSetName(int resultset) throws SQLException {
+    String rsName;
+    Connection connection = null;
+    try {
+      connection = dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      // TODO re-throw HiddenException to be caught by caller
+      Log.error("Error con database connection", e);
+    }
+
+    String query =
+        "SELECT name FROM " + DbUtils.T_RESOURCE + " WHERE id = "
+            + resultset;
+
+    try {
+      ResultSet result = DbUtils.doQuery(connection, query);
+      result.next();
+      /*if (dbConnectionHandler.getView().compareToIgnoreCase("enabled") == 0) {
+        statement = "`" + result.getString(1) + "`";
+      } else {*/
+        //statement = "(" + result.getString(1) + ") AS query";
+      rsName = result.getString(1);
+//      if (statement.toLowerCase().indexOf("where")==-1){
+//        statement = statement+" WHERE 1 ";
+//      }
+      //}
+    } catch (SQLException e) {
+      throw e;
+    } finally {
+      dbConnectionHandler.closeConn(connection);
+    }
+
+    return rsName;
   }
 
   public int getTableNumber(int resultsetId) throws HiddenException,

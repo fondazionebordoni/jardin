@@ -8,6 +8,7 @@ import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.mvc.JardinView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -59,8 +60,8 @@ public class JardinDetail extends FormPanel {
       if (field.getReadperm()) {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
-        List<String> values =
-            resultset.getForeignKeyList().getValues(field.getId());
+        List<String> values = new ArrayList<String>();
+        //resultset.getForeignKeyList().getValues(field.getId());
         Field<?> f = FieldCreator.getField(field, values, 0, true);
 
         if (!field.getModifyperm()) {

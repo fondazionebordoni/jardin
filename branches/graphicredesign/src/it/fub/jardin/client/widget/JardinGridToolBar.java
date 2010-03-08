@@ -164,7 +164,8 @@ public class JardinGridToolBar extends ToolBar {
     b.setToolTip("Se si carica un file contente uno più record già presenti "
         + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
         + "contenuti nel file stesso.\n"
-        + "<b>La coincidenza deve sussistere a livello di chiave primaria</b>");
+        + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b><BR />"
+        + "La prima riga del file da importare deve contenere i nomi delle colonne!");
 
     this.add(b);
   }
