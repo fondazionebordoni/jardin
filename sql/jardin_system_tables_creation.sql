@@ -239,12 +239,7 @@ CREATE TABLE IF NOT EXISTS `__system_plugin` (
   `type` enum('link','single','single print template') NOT NULL,
   `note` text NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Dump dei dati per la tabella `__system_plugin`
---
-
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 -- --------------------------------------------------------
 
@@ -256,11 +251,14 @@ CREATE TABLE IF NOT EXISTS `__system_pluginassociation` (
   `id_plugin` int(11) NOT NULL,
   `id_resultset` int(11) NOT NULL,
   `id_group` int(11) NOT NULL,
-  PRIMARY KEY  (`id_plugin`,`id_resultset`),
+  PRIMARY KEY  (`id_plugin`,`id_resultset`,`id_group`),
   KEY `id_resultset` (`id_resultset`),
   KEY `id_group` (`id_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Limiti per le tabelle scaricate
+--
 
 --
 -- Limiti per la tabella `__system_pluginassociation`
@@ -269,7 +267,6 @@ ALTER TABLE `__system_pluginassociation`
   ADD CONSTRAINT `__system_pluginassociation_ibfk_3` FOREIGN KEY (`id_group`) REFERENCES `__system_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `__system_pluginassociation_ibfk_1` FOREIGN KEY (`id_plugin`) REFERENCES `__system_plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `__system_pluginassociation_ibfk_2` FOREIGN KEY (`id_resultset`) REFERENCES `__system_resultset` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
 
 
 --
