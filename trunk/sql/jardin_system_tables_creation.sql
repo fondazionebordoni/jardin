@@ -229,6 +229,47 @@ CREATE TABLE IF NOT EXISTS `__system_user` (
 -- --------------------------------------------------------
 
 --
+-- Struttura della tabella `__system_plugin`
+--
+
+CREATE TABLE IF NOT EXISTS `__system_plugin` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(256) default NULL,
+  `configurationfile` varchar(256) NOT NULL,
+  `type` enum('link','single','single print template') NOT NULL,
+  `note` text NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Dump dei dati per la tabella `__system_plugin`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `__system_pluginassociation`
+--
+
+CREATE TABLE IF NOT EXISTS `__system_pluginassociation` (
+  `id_plugin` int(11) NOT NULL,
+  `id_resultset` int(11) NOT NULL,
+  PRIMARY KEY  (`id_plugin`,`id_resultset`),
+  KEY `id_resultset` (`id_resultset`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Limiti per la tabella `__system_pluginassociation`
+--
+ALTER TABLE `__system_pluginassociation`
+  ADD CONSTRAINT `__system_pluginassociation_ibfk_1` FOREIGN KEY (`id_plugin`) REFERENCES `__system_plugin` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `__system_pluginassociation_ibfk_2` FOREIGN KEY (`id_resultset`) REFERENCES `__system_resultset` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+
+--
 -- Constraints for table `__system_field`
 --
 ALTER TABLE `__system_field`
