@@ -7,12 +7,14 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.widget.HeaderArea;
 import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
 import it.fub.jardin.client.widget.JardinGrid;
+import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.LoginDialog;
 import it.fub.jardin.client.widget.SearchAreaAdvanced;
@@ -29,9 +31,13 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -41,8 +47,11 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -133,10 +142,61 @@ public class JardinView extends View {
       }
     } else if (t == EventList.GotHeaderPreference) {
       updatePreferenceListMenu((HeaderPreferenceList) event.getData());
+    } else if (t == EventList.GotPlugins) {
+      updatePluginsMenu((ArrayList<Plugin>) event.getData());
+    } else if (t == EventList.ViewPlugin) {
+      viewPlugin((String) event.getData());
       /*
        * Altri eventi
        */
     }
+  }
+
+  private void viewPlugin(String data) {
+    Window w = new Window();
+    w.setHeading("Jardin Plugin");
+    w.setModal(false);
+    w.setResizable(true);
+    w.setSize(800, 600);
+    w.setMaximizable(true);
+    // w.setToolTip("The Rnf Manager");
+    w.setUrl(data);
+    w.show();
+
+  }
+
+  private void updatePluginsMenu(ArrayList<Plugin> plugins) {
+    JardinTabItem item = getItemByResultsetId(plugins.get(0).getRsId());
+    JardinGridToolBar jgtb = item.getToolbar();
+    Menu menuPlugins = new Menu();
+
+    for (final Plugin plugin : plugins) {
+      MenuItem mi = new MenuItem(plugin.getPluginName());
+      
+      mi.addSelectionListener(new SelectionListener() {
+
+        @Override
+        public void componentSelected(ComponentEvent ce) {
+          Dispatcher.forwardEvent(EventList.ViewPlugin, plugin.getConfigFile());
+        }
+
+//        public void handleEvent(BaseEvent be) {
+//          // TODO Auto-generated method stub
+//          
+//        }
+      });
+      menuPlugins.add(mi);
+      
+//          SelectionListener Listener = new SelectionListener() {
+//            @Override
+//            public void componentSelected(ComponentEvent ce) {
+//              Dispatcher.forwardEvent(EventList.ViewPlugin,
+//                  plugin.getConfigFile());
+//            }
+//          };
+    }
+    jgtb.getButtonMenuPlugins().setMenu(menuPlugins);
+    jgtb.getButtonMenuPlugins().showMenu();
   }
 
   private void onShowAllColumns(int resultset) {
@@ -252,7 +312,7 @@ public class JardinView extends View {
   private synchronized void gotValuesOfForeignKeys(Integer resultsetId) {
     ResultsetImproved resultset =
         controller.getUser().getResultsetFromId(resultsetId);
-    
+
     /* Creazione della griglia */
     ListStore<BaseModelData> store = new ListStore<BaseModelData>();
     JardinColumnModel cm = new JardinColumnModel(resultset);
@@ -321,7 +381,7 @@ public class JardinView extends View {
         new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
     loader.setRemoteSort(true);
     ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
-    
+
     return store;
   }
 

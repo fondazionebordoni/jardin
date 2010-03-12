@@ -117,7 +117,7 @@ public class ParametricField extends ComboBox<BaseModelData> {
 
         loader.load();
         // disabilitare l'evento!!!
-        removeListener(Events.OnClick, this);
+        // removeListener(Events.OnClick, this);
       }
     };
 

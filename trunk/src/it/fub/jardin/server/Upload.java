@@ -4,6 +4,7 @@
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.widget.UploadDialog;
@@ -21,9 +22,10 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 
 /**
- *  @author acozzolino
+ * @author acozzolino
  * 
  */
 public class Upload extends HttpServlet {
@@ -31,8 +33,11 @@ public class Upload extends HttpServlet {
   private static final int MAX_SIZE = 20 * 1024 * 1024; // 20MB
 
   private String type = null;
+  private String ts = null;
+  private String fs = null;
   private int resultset = 0;
   private Credentials credentials = null;
+  private String tipologia;
 
   public void doPost(HttpServletRequest request, HttpServletResponse response)
   /* throws ServletException, IOException */{
@@ -63,7 +68,6 @@ public class Upload extends HttpServlet {
           m = processUploadedFile(item);
         }
       }
-
       response.setContentType("text/plain");
       response.getWriter().write(m);
     } catch (Exception e) {
@@ -92,6 +96,20 @@ public class Upload extends HttpServlet {
       this.credentials = Credentials.parseCredentials(value);
       Log.debug("USER: " + this.credentials.getUsername() + "; PASS: "
           + this.credentials.getPassword());
+    } else if (name.compareTo("textSep") == 0) {
+      // Log.debug("separatore di testo: " + value);
+      this.ts = value;
+    } else if (name.compareTo("fieldSep") == 0) {
+      // Log.debug("separatore di campo: " + value);
+      this.fs = value;
+    } else if (name.compareTo("limit") == 0) {
+      // Log.debug("tipologia: " + value);
+      this.tipologia = name;
+    } else if (name.compareTo("fix") == 0) {
+      // Log.debug("tipologia: " + value);
+      this.tipologia = name;
+    } else {
+      Log.debug("attenzione campo non riconosciuto: " + name + "--->" + value);
     }
   }
 
@@ -114,6 +132,13 @@ public class Upload extends HttpServlet {
     if (!isSizeAcceptable(item)) {
       return "Errore. Il file da caricare è troppo grande. Dimensione massima di upload: "
           + MAX_SIZE + " byte";
+    }
+    if (ts.length() != 1) {
+      return "Il separatore di testo deve essere composto da un carattere";
+    } else if (fs.length() != 1) {
+      return "Il separatore di campo deve essere composto da un carattere";
+    } else if (ts.compareToIgnoreCase(fs) == 0) {
+      return "Il separatore di campo e il separatore di testo non possono essere uguali";
     }
 
     String name = item.getName();
@@ -143,7 +168,8 @@ public class Upload extends HttpServlet {
 
         /* Decisione delle azioni da eseguire con il file */
         if (this.type.compareToIgnoreCase(UploadDialog.TYPE_IMPORT) == 0) {
-          (new DbUtils()).importFile(this.credentials, this.resultset, f);
+          (new DbUtils()).importFile(this.credentials, this.resultset, f, ts,
+              fs, tipologia);
           return UploadDialog.SUCCESS
               + "Importazione dati avvenuta con successo";
         } else {

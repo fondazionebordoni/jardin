@@ -61,9 +61,9 @@ public class SearchAreaAdvanced extends FormPanel {
 
       if (field.getReadperm()) {
         /* Esamino se appartiene alla ricerca base o avanzata */
-        String mainFieldSetAlias = "Ricerca base";
+        String mainFieldSetAlias = "Ricerca autocompletata";
         if (field.getSearchgrouping() == 1) {
-          mainFieldSetAlias = "Ricerca avanzata";
+          mainFieldSetAlias = "Ricerca base";
         }
 
         /*

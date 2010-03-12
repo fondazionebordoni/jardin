@@ -11,6 +11,7 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
+import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
@@ -32,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
+import javax.print.attribute.standard.DateTimeAtCompleted;
 
 import org.apache.batik.apps.svgbrowser.JSVGViewerFrame.ViewSourceAction;
 import org.apache.batik.dom.util.HashTable;
@@ -76,6 +79,9 @@ public class DbUtils {
   public static final String T_NOTIFY = WRAP + SYSTEM_PREFIX + "notify" + WRAP;
   public static final String T_TOOLBAR =
       WRAP + SYSTEM_PREFIX + "toolbar" + WRAP;
+  public static final String T_PLUGIN = WRAP + SYSTEM_PREFIX + "plugin" + WRAP;
+  public static final String T_PLUGINASSOCIATION =
+      WRAP + SYSTEM_PREFIX + "pluginassociation" + WRAP;
   public static final String T_USER = WRAP + SYSTEM_PREFIX + "user" + WRAP;
   public static final String T_GROUP = WRAP + SYSTEM_PREFIX + "group" + WRAP;
   public static final String T_MANAGEMENT =
@@ -425,17 +431,29 @@ public class DbUtils {
         BaseModelData map = new BaseModelData();
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
         for (int i = 1; i <= resultWidth; i++) {
-          String key = result.getMetaData().getColumnLabel(i);
-          Object value = result.getObject(i);
-          if (value != null) {
-            if (((String) types.get(key)).compareToIgnoreCase("VARBINARY") == 0) {
-              value = new String(result.getBytes(i));
-            } else if (((String) types.get(key)).compareToIgnoreCase("bigdecimal") == 0) {
-              value = ((BigDecimal) value).floatValue();
-            } else {
-              value = value.toString();
+          String key = result.getMetaData().getColumnLabel(i);// getColumnClassName(i);
+          Object value;
+          // if (value != null) {
+          if (((String) types.get(key)).compareToIgnoreCase("VARBINARY") == 0) {
+            value = new String(result.getBytes(i));
+          } else if (((String) types.get(key)).compareToIgnoreCase("bigdecimal") == 0) {
+            // value = ((BigDecimal) result.getObject(i)).floatValue();
+            value = result.getBigDecimal(i).floatValue();
+          } else if (((String) types.get(key)).compareToIgnoreCase("DATE") == 0) {
+            value = result.getDate(i);
+          } else if (((String) types.get(key)).compareToIgnoreCase("DATETIME") == 0) {
+            try {
+              value = result.getTimestamp(i);
+            } catch (Exception e) {
+              value = result.getObject(i);
             }
+
+          } else if (((String) types.get(key)).compareToIgnoreCase("TIMESTAMP") == 0) {
+            value = result.getTimestamp(i);
+          } else {
+            value = result.getString(i);
           }
+          // }
           // TODO Inserire un controllo di compatibilità di conversione dati
           // SQL->JDBC
           // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene
@@ -586,7 +604,8 @@ public class DbUtils {
   public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldName)
       throws HiddenException {
     try {
-      return getValuesOfAField(dbProperties.getResultSetName(resultsetId), fieldName);
+      return getValuesOfAField(dbProperties.getResultSetName(resultsetId),
+          fieldName);
       // return getValuesOfAField(dbProperties.getStatement(resultsetId),
       // fieldName);
     } catch (SQLException e) {
@@ -701,7 +720,7 @@ public class DbUtils {
           }
           i++;
         }
-
+        System.out.println(ps.toString());
         int num = ps.executeUpdate();
         if (num > 0) {
           String toLog = "INSERT (" + ps.toString() + ")";
@@ -1485,7 +1504,8 @@ public class DbUtils {
   }
 
   public int importFile(Credentials credentials, int resultsetId,
-      File importFile) throws HiddenException, VisibleException, SQLException {
+      File importFile, String ts, String fs, String tipologia)
+      throws HiddenException, VisibleException, SQLException {
 
     getUser(credentials);
 
@@ -1512,12 +1532,54 @@ public class DbUtils {
     }
 
     String recordLine;
-    String[] columns;
+    String[] columns = null;
     List<BaseModelData> recordList = new ArrayList<BaseModelData>();
+    ArrayList<String> regExSpecialChars = new ArrayList<String>();
+    regExSpecialChars.add("\\");
+    regExSpecialChars.add("^");
+    regExSpecialChars.add("$");
+    regExSpecialChars.add("{");
+    regExSpecialChars.add("}");
+    regExSpecialChars.add("[");
+    regExSpecialChars.add("}");
+    regExSpecialChars.add("(");
+    regExSpecialChars.add(")");
+    regExSpecialChars.add(".");
+    regExSpecialChars.add("*");
+    regExSpecialChars.add("+");
+    regExSpecialChars.add("?");
+    regExSpecialChars.add("|");
+    regExSpecialChars.add("<");
+    regExSpecialChars.add(">");
+    regExSpecialChars.add("-");
+    regExSpecialChars.add("&");
 
     try {
       recordLine = in.readLine();
-      columns = recordLine.replaceAll("\"", "").split("\\|");
+      if (tipologia.compareToIgnoreCase("fix") == 0) {
+        // TODO gestione campo a lunghezza fissa da db!
+        System.out.println("caso1");
+      } else {
+        if (ts == null || ts == "" || ts.compareToIgnoreCase("null") == 0) {
+          // import solo split senza replaceAll
+          columns = recordLine.split(fs);
+          System.out.println("caso2");
+        } else {
+          System.out.println("caso3");
+          // import normale
+          recordLine = recordLine.substring(1, recordLine.length() - 1);
+          if (regExSpecialChars.contains(fs)) {
+            fs = "\\" + fs;
+          }
+          ts = "\\" + ts;
+          // columns = recordLine.split("\"\\|\"");
+          columns = recordLine.split(ts + fs + ts);
+          // for (int i = 0; i < columns.length; i++) {
+          // System.out.println(columns[i]);
+          // }
+        }
+      }
+
       /*
        * check nomi dei campi corretti
        * 
@@ -1534,7 +1596,7 @@ public class DbUtils {
       while (recordLine != null) {
         Log.debug(recordLine);
         // if (validateLine(rsmd, recordLine)) {
-        recordList.add(createRecord(rsmd, recordLine, columns));
+        recordList.add(createRecord(rsmd, recordLine, columns, ts, fs));
         // } else
         // throw new HiddenException("record: " + recordLine +
         // " non valido!");
@@ -1553,12 +1615,16 @@ public class DbUtils {
   }
 
   private BaseModelData createRecord(ResultSetMetaData rsmd, String recordLine,
-      String[] columns) throws HiddenException {
+      String[] columns, String textSeparator, String fieldSeparator)
+      throws HiddenException {
 
     BaseModelData bm = new BaseModelData();
+
     for (int i = 0; i < columns.length; i++) {
-      if (i < recordLine.split("\\|").length) {
-        String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
+      if (i < recordLine.split(fieldSeparator).length) {
+        // String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
+        String value = recordLine.split(fieldSeparator)[i];
+        value = value.substring(1, value.length() - 1);
         bm.set(columns[i], value);
       }
     }
@@ -1807,5 +1873,33 @@ public class DbUtils {
     }
     dbConnectionHandler.closeConn(connection);
     return queryStatement;
+  }
+
+  public ArrayList<Plugin> getPlugin(int gid, int rsid) throws HiddenException {
+    ArrayList<Plugin> plugins = new ArrayList<Plugin>();
+    String query =
+        "SELECT id_group, id_resultset, name, configurationfile, type, note, id FROM "
+            + T_PLUGIN + " INNER JOIN " + T_PLUGINASSOCIATION
+            + " ON (id_plugin = id) WHERE id_resultset = '" + rsid
+            + "' AND id_group = '" + gid + "'";
+    Connection connection = dbConnectionHandler.getConn();
+    try {
+      ResultSet result;
+      result = doQuery(connection, query);
+      while (result.next()) {
+        Plugin plugin =
+            new Plugin(result.getString("name"),
+                result.getString("configurationfile"),
+                result.getString("type"), result.getString("note"),
+                result.getInt("id"), result.getInt("id_resultset"),
+                result.getInt("id_group"));
+        plugins.add(plugin);
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    dbConnectionHandler.closeConn(connection);
+    return plugins;
   }
 }
