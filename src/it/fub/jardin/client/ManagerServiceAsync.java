@@ -13,6 +13,7 @@ import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
+import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
@@ -29,7 +30,7 @@ public interface ManagerServiceAsync {
 
   public void createReport(String file, Template template,
       PagingLoadConfig config, List<BaseModelData> selectedRows,
-      List<String> columns, SearchParams searchParams,
+      List<String> columns, SearchParams searchParams, char fs, char ts,
       AsyncCallback<String> callback);
 
   void getEvents(AsyncCallback<List<EventTypeSerializable>> callback);
@@ -84,4 +85,5 @@ public interface ManagerServiceAsync {
   public void getPopUpDetailEntry(BaseModelData data,
       AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry);
 
+  public void getPlugins(int gid, int rsid, AsyncCallback<ArrayList<Plugin>> callback);
 }

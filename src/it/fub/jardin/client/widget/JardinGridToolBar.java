@@ -9,15 +9,25 @@ import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.Tool;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -25,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.TextBox;
 
 /**
  * @author gpantanetti
@@ -37,6 +48,9 @@ public class JardinGridToolBar extends ToolBar {
   private JardinGrid grid;
   private MenuItem preferenceMenuItem;
   private SimpleComboBox<Template> comboTemplate;
+  private TextField<String> fs = new TextField<String>();
+  private SimpleComboBox<String> ts = new SimpleComboBox<String>();
+  private Button buttonMenuPlugins = new Button("Plugins", getListenerWithGrid(EventList.GetPlugins) );
 
   // TODO Modificare il costruttore: passare solo l'id del resultset
   public void setGrid(JardinGrid grid) {
@@ -77,6 +91,9 @@ public class JardinGridToolBar extends ToolBar {
         this.addChartButton();
       }
     }
+    this.add(new SeparatorToolItem());
+    
+    this.add(buttonMenuPlugins);
   }
 
   @SuppressWarnings("unchecked")
@@ -88,7 +105,8 @@ public class JardinGridToolBar extends ToolBar {
       this.add(new Button("Aggiungi riga", IconHelper.createStyle("icon-add"),
           getListenerWithGrid(EventList.AddRow)));
     } else {
-      //this.add(new Button("Aggiungi riga", IconHelper.createStyle("icon-add-disabled")));
+      // this.add(new Button("Aggiungi riga",
+      // IconHelper.createStyle("icon-add-disabled")));
     }
 
     if (grid.getResultset().isDelete()) {
@@ -96,7 +114,8 @@ public class JardinGridToolBar extends ToolBar {
           IconHelper.createStyle("icon-delete"),
           getListenerWithGrid(EventList.RemoveRows)));
     } else {
-      //this.add(new Button("Rimuovi righe", IconHelper.createStyle("icon-delete-disabled")));
+      // this.add(new Button("Rimuovi righe",
+      // IconHelper.createStyle("icon-delete-disabled")));
     }
   }
 
@@ -106,16 +125,62 @@ public class JardinGridToolBar extends ToolBar {
     Template defaultTemplate = new Template(Template.DEFAULT);
     defaultTemplate.setXsl(resultset + "_default.xsl");
 
+    // campi dei separatori per l'export
+    this.fs.setName("fs");
+    this.fs.setToolTip("Separatore campo");
+    this.fs.setWidth(15);
+    this.fs.setMaxLength(1);
+    this.fs.setValue(";");
+
+    this.ts.setName("ts");
+    this.ts.setToolTip("Separatore testo");
+    this.ts.setWidth(30);
+    
+    List<String> values = new ArrayList<String>();
+    values.add("\"");
+    values.add("'");
+    this.ts.add(values);
+    this.ts.setEditable(false);
+    this.ts.setTriggerAction(TriggerAction.ALL);
+    this.ts.setForceSelection(true);
+    this.ts.setSimpleValue("\"");
+    
+    this.add(this.fs);
+    this.add(this.ts);
+    
     /* Combo box per la selezione del formato di esportazione */
     this.comboTemplate = new SimpleComboBox<Template>();
-    this.comboTemplate.setTriggerAction(TriggerAction.ALL);
-    this.comboTemplate.setForceSelection(true);
-    this.comboTemplate.setEditable(false);
+
     this.comboTemplate.setWidth(80);
     this.comboTemplate.add(Template.CSV);
     this.comboTemplate.add(Template.XML);
     this.comboTemplate.add(defaultTemplate);
     this.comboTemplate.setSimpleValue(Template.CSV);
+    this.comboTemplate.setEditable(false);
+    this.comboTemplate.setTriggerAction(TriggerAction.ALL);
+    this.comboTemplate.setForceSelection(true);
+    
+    this.comboTemplate.addSelectionChangedListener(
+        new SelectionChangedListener<SimpleComboValue<Template>>() {
+
+          @Override
+          public void selectionChanged(
+              SelectionChangedEvent<SimpleComboValue<Template>> se) {
+            //System.out.println("template->"+se.getSelectedItem().getValue());
+            if (se.getSelectedItem().getValue().toString().compareToIgnoreCase("CSV")==0){
+              // abilito i campi per la specifica dei separatori
+              ts.setEnabled(true);
+              fs.setEnabled(true);
+            }else{
+              // disabilito i campi per la specifica dei separatori
+              ts.setEnabled(false);
+              fs.setEnabled(false);
+            }
+          }
+          
+        }
+    );
+
     this.add(this.comboTemplate);
 
     Menu menu = new Menu();
@@ -139,11 +204,11 @@ public class JardinGridToolBar extends ToolBar {
     menu.add(new MenuItem("Le righe selezionate, tutte le colonne",
         IconHelper.createStyle("icon-table-save"),
         getListenerWithGrid(EventList.ExportSomeRowsSomeColumns)));
-    
+
     menu.add(new MenuItem("Le righe selezionate, le colonne visibili",
         IconHelper.createStyle("icon-table-save"),
         getListenerWithGrid(EventList.ExportSomeRowsAllColumns)));
-    
+
     menu.add(new SeparatorMenuItem());
 
     menu.add(new MenuItem("Aggiungi template (file XSL)",
@@ -236,6 +301,24 @@ public class JardinGridToolBar extends ToolBar {
   public Template getTemplate() {
     return this.comboTemplate.getSimpleValue();
   }
+  
+  public char getTextSeparator() {
+    String sep = ts.getSimpleValue();
+    if ((sep != null) && (sep.compareTo("")!=0)){
+      return ts.getSimpleValue().charAt(0);
+    }else{
+      return '\0';
+    }
+  }
+  
+  public char getFieldSeparator() {
+    String sep = fs.getValue();
+    if ((sep != null) && (sep.compareTo("")!=0)){
+      return fs.getValue().charAt(0);
+    }else{
+      return '\0';
+    }
+  }
 
   private void addAnalisysButton() {
     this.add(new Button("Analisi", IconHelper.createStyle("icon-grid"),
@@ -259,4 +342,12 @@ public class JardinGridToolBar extends ToolBar {
 
   }
 
+  public Button getButtonMenuPlugins() {
+    return buttonMenuPlugins;
+  }
+
+  public void setButtonMenuPlugins(Button buttonMenuPlugins) {
+    this.buttonMenuPlugins = buttonMenuPlugins;
+  }
+  
 }

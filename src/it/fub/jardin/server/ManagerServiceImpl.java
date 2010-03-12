@@ -14,6 +14,7 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
+import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
@@ -59,9 +60,19 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   public String createReport(String file, Template template,
       PagingLoadConfig config, List<BaseModelData> selectedRows,
-      List<String> columns, SearchParams searchParams) throws VisibleException {
+      List<String> columns, SearchParams searchParams, char fs, char ts)
+      throws VisibleException {
     if (searchParams == null) {
       throw new VisibleException("Effettuare prima una ricerca");
+    } else if (ts == '\0') {
+      throw new VisibleException(
+          "Il separatore di testo deve essere composto da un carattere");
+    } else if (fs == '\0') {
+      throw new VisibleException(
+          "Il separatore di campo deve essere composto da un carattere");
+    } else if (fs == ts) {
+      throw new VisibleException(
+          "Il separatore di campo e il separatore di testo non possono essere uguali");
     }
     List<BaseModelData> records = null;
     if (selectedRows == null) {
@@ -91,7 +102,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       String context = this.getServletContext().getRealPath("/");
       String realpath = this.getServletContext().getRealPath(file);
       String result =
-          FileUtils.createReport(realpath, xsl, template, records, columns);
+          FileUtils.createReport(realpath, xsl, template, records, columns, fs,
+              ts);
       Log.debug("File esportato: " + result);
       Log.debug("Servlet context path: " + context);
       return result.substring(context.length());
@@ -179,7 +191,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public User getUser(Credentials credentials) throws VisibleException {
-    
+
     User user = dbUtils.getUser(credentials);
     String id = getThreadLocalRequest().getSession().getId();
     synchronized (this) {
@@ -300,6 +312,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data)
       throws HiddenException {
     return dbUtils.getPopUpDetailEntry(data);
+  }
+
+  @Override
+  public ArrayList<Plugin> getPlugins(int gid, int rsid) throws HiddenException {
+    return dbUtils.getPlugin(gid, rsid);
   }
 
 }

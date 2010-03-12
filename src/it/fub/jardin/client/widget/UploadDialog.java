@@ -3,28 +3,43 @@
  */
 package it.fub.jardin.client.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.bcel.generic.NEW;
+
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.User;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.RadioButton;
 
 /**
  * @author acozzolino
@@ -63,6 +78,8 @@ public class UploadDialog extends Window {
    * di esportazione dei dati
    */
   public static final String TYPE_TEMPLATE = "template";
+  
+  private MessageBox waitBox = new MessageBox();
 
   /**
    * Costruisce una finestra per l'upload di file. E' possibile definire il tipo
@@ -85,18 +102,96 @@ public class UploadDialog extends Window {
     panel.setEncoding(Encoding.MULTIPART);
     panel.setMethod(Method.POST);
 
-    panel.setLabelAlign(LabelAlign.RIGHT);
+    panel.setLabelAlign(LabelAlign.LEFT);
     panel.setHeaderVisible(false);
     panel.setBorders(false);
     panel.setBodyBorder(false);
     panel.setFrame(false);
 
-    panel.setLabelAlign(LabelAlign.RIGHT);
     panel.setButtonAlign(HorizontalAlignment.CENTER);
     panel.setScrollMode(Scroll.AUTO);
-    panel.setFieldWidth(180);
-    panel.setLabelWidth(50);
-    
+
+    panel.setLabelWidth(150);
+    panel.setFieldWidth(280);
+
+    if (type.compareTo(TYPE_IMPORT) == 0) {
+      
+      panel.addText("Scegliere il tipo di import:");
+      
+      final RadioButton limit = new RadioButton("limit");
+      limit.setText("Delimitati da separatori");
+      limit.setValue(true);
+      panel.add(limit);
+      
+      panel.addText("");
+      
+      final RadioButton fix = new RadioButton("fix");
+      fix.setText("Lunghezza fissa");
+      fix.setEnabled(false);
+      panel.add(fix);
+      
+      final TextField<String> fieldSeparator = new TextField<String>();
+      fieldSeparator.setName("fieldSep");
+      fieldSeparator.setWidth(20);
+      fieldSeparator.setMaxLength(1);
+      fieldSeparator.setFieldLabel("Separatore di campo");
+      fieldSeparator.setValue(";");
+      panel.add(fieldSeparator);
+
+      final SimpleComboBox<String> textSeparator = new SimpleComboBox<String>();
+      textSeparator.setName("textSep");
+      textSeparator.setWidth(20);
+      textSeparator.setMaxLength(1);
+      textSeparator.setFieldLabel("Separatore di testo");
+      List<String> values = new ArrayList<String>();
+      values.add("\"");
+      values.add("'");
+      textSeparator.add(values);
+      textSeparator.setEditable(false);
+      textSeparator.setTriggerAction(TriggerAction.ALL);
+      textSeparator.setForceSelection(true);
+      textSeparator.setSimpleValue("\"");
+      panel.add(textSeparator);
+
+      limit.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent arg0) {
+          fieldSeparator.show();
+          textSeparator.show();
+          fix.setValue(false);
+        }
+      });
+      
+      fix.addClickHandler(new ClickHandler() {
+        @Override
+        public void onClick(ClickEvent arg0) {
+          fieldSeparator.hide();
+          textSeparator.hide();
+          limit.setValue(false);
+        }
+      });
+
+      // group.addListener(Events.Change, new Listener<ComponentEvent>() {
+      //
+      // public void handleEvent(ComponentEvent be) {
+      // Radio selected = group.getValue();
+      // // MessageBox.alert("selezione", "selezionato: "
+      // // + selected.getData("valore"), null);
+      //
+      // if (((String) selected.getData("tipologia")).compareToIgnoreCase("fix")
+      // == 0) {
+      // fieldSeparator.hide();
+      // textSeparator.hide();
+      // } else {
+      // fieldSeparator.show();
+      // textSeparator.show();
+      // }
+      // }
+      //
+      // });
+
+    }
+
     HiddenField<String> importType = new HiddenField<String>();
     importType.setName(FIELD_TYPE);
     importType.setValue(type);
@@ -125,12 +220,17 @@ public class UploadDialog extends Window {
         if (!panel.isValid()) {
           return;
         }
+        waitBox =
+            MessageBox.wait("Caricamento dati",
+            "Attendere prego...", "Loading...");
         panel.submit();
       }
     });
     panel.addButton(btn);
-    
+
     panel.addListener(Events.Submit, new Listener<FormEvent>() {
+      
+
       public void handleEvent(FormEvent fe) {
         hide();
         String message = fe.getResultHtml();
@@ -139,6 +239,7 @@ public class UploadDialog extends Window {
           message = message.replaceAll(SUCCESS, "");
           if (type.compareTo(TYPE_IMPORT) == 0) {
             Dispatcher.forwardEvent(EventList.UpdateStore, resultset);
+            waitBox.close();
           }
           if (type.compareTo(TYPE_TEMPLATE) == 0) {
             Dispatcher.forwardEvent(EventList.UpdateTemplates, resultset);
@@ -147,22 +248,28 @@ public class UploadDialog extends Window {
         } else {
           Dispatcher.forwardEvent(EventList.Error, message);
         }
+        waitBox.close();
       }
 
     });
-    
-    this.setLayout(new FitLayout());
+
+    // this.setLayout(new FitLayout());
     this.setIconStyle("icon-upload-file");
     this.setHeading("File upload");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");
-    this.setWidth(300);
-    this.setResizable(false);
-    this.addText("Se si carica un file contente uno più record già presenti "
-        + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
-        + "contenuti nel file stesso."
-        + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b>"+"<BR />Attenzione: la prima riga del file da importare deve contenere i nomi delle colonne!");
+    this.setWidth(500);
+    this.setMinHeight(300);
 
+    this.setResizable(false);
+
+    if (type.compareTo(TYPE_IMPORT) == 0) {
+      this.addText("Se si carica un file contente uno più record già presenti "
+          + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
+          + "contenuti nel file stesso.<BR />"
+          + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b>"
+          + "<BR /><b><u>Attenzione: la prima riga del file da importare deve contenere i nomi delle colonne!</u></b>");
+    }
     this.add(panel);
     this.setFocusWidget(file);
   }

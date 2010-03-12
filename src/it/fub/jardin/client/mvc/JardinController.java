@@ -11,15 +11,18 @@ import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
+import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.widget.JardinGrid;
+import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinSelectColumnsForChartPopUp;
 import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.Jungle;
 import it.fub.jardin.client.widget.UploadDialog;
+import it.fub.jardin.server.DbUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +120,9 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.NewMessage);
     registerEventTypes(EventList.ViewLinkedTable);
     registerEventTypes(EventList.ViewPopUpDetail);
+    registerEventTypes(EventList.GetPlugins);
+    registerEventTypes(EventList.GotPlugins);
+    registerEventTypes(EventList.ViewPlugin);
   }
 
   public void initialize() {
@@ -235,16 +241,14 @@ public class JardinController extends Controller {
       if (event.getData() instanceof Integer) {
         onExport((Integer) event.getData(), true, true, true);
       } else {
-        // TODO Gestire errore nei dati di
-        // EventList.ExportAllStoreAllColumns
+        // TODO Gestire errore nei dati di EventList.ExportAllStoreAllColumns
         Log.error("Errore nei dati di EventList.ExportSomeRowAllColumns");
       }
     } else if (t == EventList.ExportSomeRowsSomeColumns) {
       if (event.getData() instanceof Integer) {
         onExport((Integer) event.getData(), true, true, false);
       } else {
-        // TODO Gestire errore nei dati di
-        // EventList.ExportSomeStoreSomeColumns
+        // TODO Gestire errore nei dati di EventList.ExportSomeStoreSomeColumns
         Log.error("Errore nei dati di EventList.ExportSomeRowSomeColumns");
       }
     } else if (t == EventList.ShowAllColumns) {
@@ -343,6 +347,10 @@ public class JardinController extends Controller {
       onNewMessage();
     } else if (t == EventList.ViewLinkedTable) {
       onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
+    } else if (t == EventList.GetPlugins) {
+      onGetPlugins((Integer) event.getData());
+    } else if (t == EventList.ViewPlugin) {
+      forwardToView(view, EventList.ViewPlugin, (String) event.getData());
     }
   }
 
@@ -484,30 +492,31 @@ public class JardinController extends Controller {
       // forwardToView(view, EventList.gotValuesOfForeignKeys,
       // resultsetId);
 
-//      final ManagerServiceAsync service =
-//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-//
-//      /*
-//       * Carica i valori dei vincoli di integrità referenziale attualmente
-//       * presenti: sever per il binding dei campi del dettaglio e per il row
-//       * editor
-//       */
-//
-//      AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
-//          new AsyncCallback<FieldsMatrix>() {
-//            public void onFailure(Throwable caught) {
-//              Dispatcher.forwardEvent(EventList.Error,
-//                  caught.getLocalizedMessage());
-//            }
-//
-//            public void onSuccess(FieldsMatrix fieldsMatrix) {
-//              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-//              rs.setForeignKeyList(fieldsMatrix);
-//              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
-//            }
-//          };
-//
-//      service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
+      // final ManagerServiceAsync service =
+      // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+      //
+      // /*
+      // * Carica i valori dei vincoli di integrità referenziale attualmente
+      // * presenti: sever per il binding dei campi del dettaglio e per il row
+      // * editor
+      // */
+      //
+      // AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
+      // new AsyncCallback<FieldsMatrix>() {
+      // public void onFailure(Throwable caught) {
+      // Dispatcher.forwardEvent(EventList.Error,
+      // caught.getLocalizedMessage());
+      // }
+      //
+      // public void onSuccess(FieldsMatrix fieldsMatrix) {
+      // ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+      // rs.setForeignKeyList(fieldsMatrix);
+      // forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
+      // }
+      // };
+      //
+      // service.getValuesOfForeignKeys(resultsetId,
+      // callbackValuesOfForeignKeys);
       forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
     }
   }
@@ -666,8 +675,19 @@ public class JardinController extends Controller {
    *          se esportare o no tutte le colonne dello store o solo quelle
    *          visualizate nella griglia
    */
+  // private void onExport(BaseModelData dataForExport) {
+  // int resultset = dataForExport.get("resultsetId");
+  // boolean allRows = dataForExport.get("allRows");
+  // boolean allColumns = dataForExport.get("allColumns");
+  // boolean allStore = dataForExport.get("allStore");
+  // String fs = dataForExport.get("fs");
+  // String ts = dataForExport.get("ts");
   private void onExport(int resultset, boolean allRows, boolean allStore,
       boolean allColumns) {
+
+    final MessageBox waitBox =
+        new MessageBox().wait("Caricamento dati", "Attendere prego...",
+            "Loading...");
 
     /* Nome del file da creare */
     String filename =
@@ -681,7 +701,13 @@ public class JardinController extends Controller {
     JardinTabItem item = view.getItemByResultsetId(resultset);
 
     /* Prendi il formato di esportazione */
-    Template template = item.getToolbar().getTemplate();
+    JardinGridToolBar toolbar = item.getToolbar();
+    Template template = toolbar.getTemplate();
+
+    // Prendi i separatori per l'export csv
+    // if toolbar
+    char fs = toolbar.getFieldSeparator();
+    char ts = toolbar.getTextSeparator();
 
     /* Prendi la griglia */
     JardinGrid grid = item.getGrid();
@@ -699,7 +725,7 @@ public class JardinController extends Controller {
     ColumnModel cm = grid.getColumnModel();
     List<String> columns = new ArrayList<String>();
     for (int i = 0; i < cm.getColumnCount(); i++) {
-      if (!cm.getColumn(i).isHidden() || allColumns) {
+      if (allColumns || !cm.getColumn(i).isHidden()) {
         columns.add(cm.getColumn(i).getId());
       }
     }
@@ -713,10 +739,12 @@ public class JardinController extends Controller {
 
     AsyncCallback<String> callback = new AsyncCallback<String>() {
       public void onFailure(Throwable caught) {
+        waitBox.close();
         Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
       }
 
       public void onSuccess(String result) {
+        waitBox.close();
         if (result != null && result.length() > 0) {
           Log.debug("Export file: " + result);
           String url = GWT.getModuleBaseURL() + "download?file=" + result;
@@ -728,7 +756,7 @@ public class JardinController extends Controller {
     };
 
     service.createReport("/tmp/" + filename, template, config, selectedRows,
-        columns, searchParams, callback);
+        columns, searchParams, fs, ts, callback);
   }
 
   private void onShowAllColumns(int resultset) {
@@ -834,9 +862,9 @@ public class JardinController extends Controller {
         }
       }
     };
-
+    char noChar = 0;
     service.createReport("/tmp/" + filename, Template.XML, null, null, columns,
-        searchParams, callback);
+        searchParams, noChar, noChar, callback);
 
   }
 
@@ -851,7 +879,7 @@ public class JardinController extends Controller {
   private void onSelectColumnsForChart(ChartType ct, Integer resultset) {
     JardinTabItem item = view.getItemByResultsetId(resultset);
     JardinGrid grid = item.getGrid();
-    
+
     JardinSelectColumnsForChartPopUp popup =
         new JardinSelectColumnsForChartPopUp(grid, ct.toString());
 
@@ -885,7 +913,7 @@ public class JardinController extends Controller {
     JardinGrid grid = item.getGrid();
 
     /* Prendi gli ID delle prime due colonne visibili */
-    //ColumnModel columnModel = grid.getColumnModel();
+    // ColumnModel columnModel = grid.getColumnModel();
     String cx = title;
     String cy = value;
 
@@ -962,5 +990,27 @@ public class JardinController extends Controller {
     }
     searchParams.setFieldsValuesList(queryFieldList);
     Dispatcher.forwardEvent(EventList.Search, searchParams);
+  }
+
+  private void onGetPlugins(Integer data) {
+    ResultsetImproved rs = user.getResultsetFromId(data);
+    // final JardinGrid grid = view.getItemByResultsetId(data).getGrid();
+
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    AsyncCallback<ArrayList<Plugin>> callback = new AsyncCallback<ArrayList<Plugin>>() {
+      public void onFailure(Throwable caught) {
+        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
+      }
+
+      public void onSuccess(ArrayList<Plugin> result) {
+        forwardToView(view, EventList.GotPlugins, result);
+      }
+    };
+
+    service.getPlugins(user.getGid(),
+        rs.getId(), callback);
+
   }
 }

@@ -181,12 +181,17 @@ public class JardinGrid extends Grid<BaseModelData> {
 
                 if ((field.getType().compareToIgnoreCase("int") == 0)
                     || (field.getType().compareToIgnoreCase("real") == 0)) {
-                  Integer defaultValue = Integer.parseInt((String) selectedRow.get(field.getName()));
-                  cm.getColumnById(field.getName()).getEditor().getField().setRawValue(""+defaultValue);
+                  Integer defaultValue =
+                      Integer.parseInt((String) selectedRow.get(field.getName()));
+                  // cm.getColumnById(field.getName()).getEditor().getField().setRawValue(defaultValue.toString());
+                  ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
+                  ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
                 } else {
                   String defaultValue = selectedRow.get(field.getName());
-                  cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
-                      defaultValue);
+                  // cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
+                  // defaultValue);
+                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
+                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
                 }
               }
             }

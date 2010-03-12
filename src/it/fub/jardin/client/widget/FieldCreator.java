@@ -62,14 +62,16 @@ public class FieldCreator {
       boolean textarea) {
     Field<?> result = null;
     String fieldType = field.getType();
-
+System.out.println(fieldType);
     /* Se il campo è una data non creo un combo */
-    if (fieldType.compareToIgnoreCase("DATE") == 0
-        || fieldType.compareToIgnoreCase("DATETIME") == 0) {
+    if (fieldType.compareToIgnoreCase("DATE") == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
       result = f;
-
+    } else if (fieldType.compareToIgnoreCase("DATETIME") == 0) {
+      DateField f = new DateField();
+      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y HH:mm:ss"));
+      result = f;
     } /*
        * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
        * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result =
@@ -132,13 +134,16 @@ public class FieldCreator {
     String fieldType = field.getType();
 
     /* Se il campo è una data non creo un combo */
-    if (fieldType.compareToIgnoreCase("DATE") == 0
-        || fieldType.compareToIgnoreCase("DATETIME") == 0) {
+    if (fieldType.compareToIgnoreCase("DATE") == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
 
       result = f;
       Log.debug(field.getName() + ": DATE");
+    }  else if (fieldType.compareToIgnoreCase("DATETIME") == 0) {
+      DateField f = new DateField();
+      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y HH:mm:ss"));
+      result = f;
     }/*
       * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
       * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result = f;

@@ -56,12 +56,12 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  */
 public class FileUtils {
 
-  public static final char CSV_SEPARATOR = '|';
-  public static final char CSV_WRAPPER = '"';
+  // public static final char CSV_SEPARATOR = '|';
+  // public static final char CSV_WRAPPER = '"';
   public static final char CSV_REPLACER = '?';
 
   public static String createReport(String file, String xsl, Template template,
-      List<BaseModelData> records, List<String> columns)
+      List<BaseModelData> records, List<String> columns, char fs, char ts)
       throws VisibleException {
     try {
       // TODO Possibile che non ci sia un modo migliore? Vedi EventList
@@ -81,7 +81,7 @@ public class FileUtils {
         recordsToExport.add(bmd);
       }
       if (template.getInfo().compareTo(Template.CSV.getInfo()) == 0) {
-        writeCsvReport(f, recordsToExport, columns);
+        writeCsvReport(f, recordsToExport, columns, fs, ts);
       } else if (template.getInfo().compareTo(Template.XML.getInfo()) == 0) {
         writeXmlReport(f, recordsToExport, columns);
       } else {
@@ -129,10 +129,10 @@ public class FileUtils {
    * @throws IOException
    */
   private static void writeCsvReport(File f, List<BaseModelData> records,
-      List<String> columns) throws IOException {
+      List<String> columns, char fs, char ts) throws IOException {
 
-    char separator = CSV_SEPARATOR;
-    char wrapper = CSV_WRAPPER;
+    char separator = fs;
+    char wrapper = ts;
     char replacer = CSV_REPLACER;
 
     BufferedWriter out = new BufferedWriter(new FileWriter(f));
@@ -172,12 +172,23 @@ public class FileUtils {
     String s = "";
 
     for (String v : c) {
-      v = v.replace(wrapper, replacer);
-      v = v.replace(separator, replacer);
-      s += wrapper + v + wrapper + separator;
+      if (wrapper !='\0' ){
+        v = v.replace(wrapper, replacer);
+        s += wrapper + v + wrapper;
+      } else {
+        s += v;
+      }
+      if (separator !='\0' ){
+        v = v.replace(separator, replacer);
+        s += separator;
+      }
+    }
+    if (separator !='\0' ){
+      return s.substring(0, s.lastIndexOf(separator)) + "\r\n";
+    } else {
+      return s + "\r\n";
     }
 
-    return s.substring(0, s.lastIndexOf(separator)) + "\r\n";
   }
 
   private static void writeXmlReport(File f, List<BaseModelData> records,
