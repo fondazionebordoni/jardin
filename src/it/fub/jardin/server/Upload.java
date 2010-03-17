@@ -4,7 +4,6 @@
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
-import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.widget.UploadDialog;
@@ -22,7 +21,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 /**
  * @author acozzolino

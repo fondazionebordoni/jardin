@@ -11,7 +11,6 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
-import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;

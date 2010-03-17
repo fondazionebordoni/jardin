@@ -172,18 +172,18 @@ public class FileUtils {
     String s = "";
 
     for (String v : c) {
-      if (wrapper !='\0' ){
+      if (wrapper != '\0') {
         v = v.replace(wrapper, replacer);
         s += wrapper + v + wrapper;
       } else {
         s += v;
       }
-      if (separator !='\0' ){
+      if (separator != '\0') {
         v = v.replace(separator, replacer);
         s += separator;
       }
     }
-    if (separator !='\0' ){
+    if (separator != '\0') {
       return s.substring(0, s.lastIndexOf(separator)) + "\r\n";
     } else {
       return s + "\r\n";

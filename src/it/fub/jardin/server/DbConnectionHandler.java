@@ -50,17 +50,19 @@ public class DbConnectionHandler {
           (Connection) DriverManager.getConnection(url + db, user, pass);
     } catch (Exception e) {
       Log.error("Errore durante la creazione della connesione a database", e);
-      throw new HiddenException("Errore durante la creazione della connessione a database");
+      throw new HiddenException(
+          "Errore durante la creazione della connessione a database");
     }
     return connection;
   }
-  
+
   public Connection getConnDbInformationSchema() {
     Connection connection = null;
     try {
       Class.forName(driver).newInstance();
       connection =
-          (Connection) DriverManager.getConnection(url + dbInformationSchema, user, pass);
+          (Connection) DriverManager.getConnection(url + dbInformationSchema,
+              user, pass);
     } catch (Exception e) {
       Log.warn("Errore durante la connesione a database", e);
     }
@@ -74,7 +76,7 @@ public class DbConnectionHandler {
   public String getDbInformationSchema() {
     return dbInformationSchema;
   }
-  
+
   public String getView() {
     return view;
   }
