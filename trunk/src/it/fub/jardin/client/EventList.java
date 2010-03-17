@@ -111,5 +111,7 @@ public class EventList {
   public static final EventType GotPlugins = new EventType();
 
   public static final EventType ViewPlugin = new EventType();
+  
+  public static final EventType Searched = new EventType();
 
 }

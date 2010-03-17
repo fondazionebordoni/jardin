@@ -16,6 +16,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.model.SearchResult;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinSelectColumnsForChartPopUp;
@@ -521,10 +522,43 @@ public class JardinController extends Controller {
     }
   }
 
-  private void onSearch(SearchParams searchParams) {
+  private void onSearch(final SearchParams searchParams) {
     // TODO Modificare per gestire il solo resultsetId come parametro
     if (user.getResultsetFromId(searchParams.getResultsetId()).isRead()) {
+
+      // ///////////////////////////////////////////
+      // alla griglia servono i searchParams
       forwardToView(view, EventList.Search, searchParams);
+      
+      final boolean limit = searchParams.isLimit();
+      final ManagerServiceAsync service =
+          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+      RpcProxy<PagingLoadResult<BaseModelData>> proxy =
+          new RpcProxy<PagingLoadResult<BaseModelData>>() {
+            @Override
+            public void load(Object loadConfig,
+                AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
+              PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
+              if (!limit) {
+                plc.setLimit(-1);
+              }
+              service.getRecords((PagingLoadConfig) plc, searchParams, callback);
+            }
+          };
+
+      PagingLoader<PagingLoadResult<BaseModelData>> loader =
+          new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
+      loader.setRemoteSort(true);
+      ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+
+      SearchResult searchResult = new SearchResult();
+      searchResult.setResultsetId(searchParams.getResultsetId());
+      searchResult.setStore(store);
+      forwardToView(view, EventList.Searched, searchResult);
+      // ///////////////////////////////////////////
+
+      // forwardToView(view, EventList.Search, searchParams);
     } else {
       Dispatcher.forwardEvent(EventList.Error,
           "L'utente non dispone dei permessi di lettura");
@@ -926,8 +960,9 @@ public class JardinController extends Controller {
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
 
-    SearchParams searchParams = grid.getSearchparams();
-    ListStore<BaseModelData> store = view.getStore(searchParams, false);
+//    SearchParams searchParams = grid.getSearchparams();
+//    ListStore<BaseModelData> store = view.getStore(searchParams, false);
+    ListStore<BaseModelData> store = grid.getStore();
     store.getLoader().load();
 
     switch (type) {
@@ -999,18 +1034,19 @@ public class JardinController extends Controller {
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
-    AsyncCallback<ArrayList<Plugin>> callback = new AsyncCallback<ArrayList<Plugin>>() {
-      public void onFailure(Throwable caught) {
-        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
-      }
+    AsyncCallback<ArrayList<Plugin>> callback =
+        new AsyncCallback<ArrayList<Plugin>>() {
+          public void onFailure(Throwable caught) {
+            Dispatcher.forwardEvent(EventList.Error,
+                caught.getLocalizedMessage());
+          }
 
-      public void onSuccess(ArrayList<Plugin> result) {
-        forwardToView(view, EventList.GotPlugins, result);
-      }
-    };
+          public void onSuccess(ArrayList<Plugin> result) {
+            forwardToView(view, EventList.GotPlugins, result);
+          }
+        };
 
-    service.getPlugins(user.getGid(),
-        rs.getId(), callback);
+    service.getPlugins(user.getGid(), rs.getId(), callback);
 
   }
 }
