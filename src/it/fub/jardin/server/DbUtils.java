@@ -1133,10 +1133,19 @@ public class DbUtils {
       ResultSet result = doQuery(connection, queryStatement);
       if ((result != null) && (result.getMetaData().getColumnCount() > 1)) {
         tableName = result.getMetaData().getTableName(1);
+//        System.out.println("que: " + queryStatement);
+//        System.out.println("t-name: " + tableName);
       }
+
+      // è una vista
+      if (tableName == null) {
+        return null;
+      }
+      
       if (tableName.length() <= 0) {
         return null;
       }
+      
       String db = dbConnectionHandler.getDB();
       Connection connectionInformationSchema =
           dbConnectionHandler.getConnDbInformationSchema();
