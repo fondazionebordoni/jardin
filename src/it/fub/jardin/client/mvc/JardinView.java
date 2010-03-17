@@ -165,7 +165,7 @@ public class JardinView extends View {
 
   private void createHeader() {
     this.header = new HeaderArea(this.controller.getUser());
-    //this.header.setId(JardinView.HEADER_AREA);
+    // this.header.setId(JardinView.HEADER_AREA);
 
     RowData rd = new RowData(1, 32);
     rd.setMargins(new Margins(0));
@@ -226,7 +226,7 @@ public class JardinView extends View {
     /* Prendi le proprietà del resultset in base all'id dall'utente */
     ResultsetImproved resultset =
         controller.getUser().getResultsetFromId(resultsetId);
-    
+
     ui.addTab(resultset);
   }
 
@@ -247,7 +247,7 @@ public class JardinView extends View {
   private synchronized void gotValuesOfForeignKeys(Integer resultsetId) {
     ResultsetImproved resultset =
         controller.getUser().getResultsetFromId(resultsetId);
-    
+
     /* Creazione della griglia */
     ListStore<BaseModelData> store = new ListStore<BaseModelData>();
     JardinColumnModel cm = new JardinColumnModel(resultset);
@@ -316,7 +316,7 @@ public class JardinView extends View {
         new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
     loader.setRemoteSort(true);
     ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
-    
+
     return store;
   }
 

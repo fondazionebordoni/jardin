@@ -54,6 +54,10 @@
   padding: .4em 0;
 }
 
+.gwt-TabLayoutPanel {
+	background: #555753;
+}
+
 .search-button .x-btn-over button {
 	background-image: none;
 	color: #555753;

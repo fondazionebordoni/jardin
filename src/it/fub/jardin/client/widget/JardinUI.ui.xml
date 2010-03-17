@@ -5,7 +5,7 @@
 	xmlns:jardin='urn:import:it.fub.jardin.client.widget'>
 
 	<g:DockLayoutPanel unit='EM'>
-		<g:north size='2'>
+		<g:north size='2.1'>
 			<jardin:HeaderArea ui:field='header'/>
 		</g:north>
 
