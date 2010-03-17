@@ -8,7 +8,6 @@ import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.ResultsetField;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -47,6 +46,7 @@ public class FieldCreator {
   /**
    * Crea una widget per un campo a partire da un campo di un resultset.
    * Restituisce un combo con in valori di values se combo = true.
+   * USATO PER L'AUTOCOMPLETAMENTO IN RICERCA
    * 
    * @param field
    *          il campo del resultset da disegnare
@@ -58,7 +58,7 @@ public class FieldCreator {
    * @return una widget per la gestione del campo del resultset
    */
   public static/* TODO deve restituire <T extends Field> al posto di Field */Field<?> getField(
-      ResultsetField field, List<String> values, boolean combo, int labelWidth,
+      final ResultsetField field, List<String> values, boolean combo, int labelWidth,
       boolean textarea) {
     Field<?> result = null;
     String fieldType = field.getType();
@@ -90,8 +90,9 @@ System.out.println(fieldType);
       result = f;
     } else {
       if (combo) {
-        if (values != null && values.size() > 0) {
-          SimpleComboBox f;
+//        if (values != null && values.size() > 0) {
+        if (values != null) {
+          final SimpleComboBox f;
           if ((fieldType.compareToIgnoreCase("int") == 0)
               || (fieldType.compareToIgnoreCase("real") == 0)) {
             f = new SimpleComboBox<Integer>();
@@ -109,10 +110,81 @@ System.out.println(fieldType);
             f.setTriggerAction(TriggerAction.ALL);
             f.add(values);
           }
+          
+          /////////////////////////
+          Listener<BaseEvent> l = new Listener<BaseEvent>() {
+
+            public void handleEvent(BaseEvent be) {
+
+              final MessageBox wait =
+                  MessageBox.wait(
+                      "Attendere",
+                      "Recupero valori autocompletamento per " + field.getAlias(),
+                      "");
+              final ManagerServiceAsync service =
+                  (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+              RpcProxy<List<BaseModelData>> proxy =
+                  new RpcProxy<List<BaseModelData>>() {
+
+                    protected void load(Object loadConfig,
+                        AsyncCallback<List<BaseModelData>> callback) {
+                      service.getValuesOfAField(
+                          field.getResultsetid(),
+                          field.getName(), callback);
+                    }
+                  };
+
+              final BaseListLoader loader = new BaseListLoader(proxy);
+              loader.setRemoteSort(false);
+              final ListStore<BaseModelData> fieldValuesStore =
+                  new ListStore<BaseModelData>(loader);
+
+              loader.addLoadListener(new LoadListener() {
+                @Override
+                public void loaderLoad(LoadEvent le) {
+
+                  f.removeAll();
+                  List<BaseModelData> elementes = fieldValuesStore.getModels();
+
+                  List<String> newValues = new ArrayList<String>();
+                  for (BaseModelData bm : elementes) {
+                    newValues.add((String) bm.get(field.getName()));
+                  }
+
+                  f.add(newValues);
+
+                  wait.close();
+
+                  if (!f.isExpanded()) {
+                    f.expand();
+                  }
+                }
+
+                @Override
+                public void loaderLoadException(LoadEvent le) {
+                  MessageBox.alert("Recupero store autocompletamento campo "
+                      + field.getName(),
+                      "loaderLoadException: "
+                          + le.exception.getLocalizedMessage(), null);
+                  le.exception.printStackTrace();
+                }
+
+              });
+
+              loader.load();
+            }
+
+          };
+
+          f.addListener(Events.OnClick, l);
+          /////////////////////////
+          
           result = f;
         } else {
           result = new TextField<String>();
         }
+        
       } else {
         result = new TextField<String>();
       }
@@ -128,6 +200,20 @@ System.out.println(fieldType);
     return result;
   }
 
+  /**
+   * Crea una widget per un campo a partire da un campo di un resultset.
+   * Restituisce un combo con in valori di values se combo = true.
+   * USATO PER L'AUTOCOMPLETAMENTO IN GRIGLIA E DETTAGLIO
+   * 
+   * @param field
+   *          il campo del resultset da disegnare
+   * @param values
+   *          i valori da inserire nel combo
+   * @param combo
+   *          settare a true se si vuole un combo, false altrimenti
+   * @param labelWidth
+   * @return una widget per la gestione del campo del resultset
+   */
   public static Field<?> getField(final ResultsetField field,
       List<String> values, int labelWidth, boolean textarea) {
     Field<?> result = null;

@@ -10,6 +10,7 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.model.SearchResult;
 import it.fub.jardin.client.widget.HeaderArea;
 import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
@@ -117,6 +118,13 @@ public class JardinView extends View {
       if (event.getData() instanceof Integer) {
         gotValuesOfForeignKeys((Integer) event.getData());
       }
+    } else if (t == EventList.Searched) {
+      if (event.getData() instanceof SearchResult) {
+        onSearched((SearchResult) event.getData());
+      }
+      /*
+       * Gestione eventi della toolbar
+       */
     } else if (t == EventList.Search) {
       if (event.getData() instanceof SearchParams) {
         onSearch((SearchParams) event.getData());
@@ -152,6 +160,7 @@ public class JardinView extends View {
     }
   }
 
+
   private void viewPlugin(String data) {
     Window w = new Window();
     w.setHeading("Jardin Plugin");
@@ -172,7 +181,7 @@ public class JardinView extends View {
 
     for (final Plugin plugin : plugins) {
       MenuItem mi = new MenuItem(plugin.getPluginName());
-      
+
       mi.addSelectionListener(new SelectionListener() {
 
         @Override
@@ -180,20 +189,20 @@ public class JardinView extends View {
           Dispatcher.forwardEvent(EventList.ViewPlugin, plugin.getConfigFile());
         }
 
-//        public void handleEvent(BaseEvent be) {
-//          // TODO Auto-generated method stub
-//          
-//        }
+        // public void handleEvent(BaseEvent be) {
+        // // TODO Auto-generated method stub
+        //          
+        // }
       });
       menuPlugins.add(mi);
-      
-//          SelectionListener Listener = new SelectionListener() {
-//            @Override
-//            public void componentSelected(ComponentEvent ce) {
-//              Dispatcher.forwardEvent(EventList.ViewPlugin,
-//                  plugin.getConfigFile());
-//            }
-//          };
+
+      // SelectionListener Listener = new SelectionListener() {
+      // @Override
+      // public void componentSelected(ComponentEvent ce) {
+      // Dispatcher.forwardEvent(EventList.ViewPlugin,
+      // plugin.getConfigFile());
+      // }
+      // };
     }
     jgtb.getButtonMenuPlugins().setMenu(menuPlugins);
     jgtb.getButtonMenuPlugins().showMenu();
@@ -346,44 +355,57 @@ public class JardinView extends View {
     }
   }
 
-  private void onSearch(SearchParams searchParams) {
-    JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
 
+  private void onSearch(SearchParams searchParams) {
+    // TODO Auto-generated method stub
+    JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
     if (item != null) {
       if (item.getGrid() != null) {
-        /* Aggiornamento dello store della griglia del tabItem */
-        item.updateStore(this.getStore(searchParams, true));
         item.getGrid().setSearchparams(searchParams);
       }
     }
   }
+  
+  
+  private void onSearched(SearchResult result) {
+    JardinTabItem item = getItemByResultsetId(result.getResultsetId());
 
-  public ListStore<BaseModelData> getStore(final SearchParams searchParams,
-      final boolean limit) {
-
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-
-    RpcProxy<PagingLoadResult<BaseModelData>> proxy =
-        new RpcProxy<PagingLoadResult<BaseModelData>>() {
-          @Override
-          public void load(Object loadConfig,
-              AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
-            PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
-            if (!limit) {
-              plc.setLimit(-1);
-            }
-            service.getRecords((PagingLoadConfig) plc, searchParams, callback);
-          }
-        };
-
-    PagingLoader<PagingLoadResult<BaseModelData>> loader =
-        new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
-    loader.setRemoteSort(true);
-    ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
-
-    return store;
+    if (item != null) {
+      if (item.getGrid() != null) {
+        /* Aggiornamento dello store della griglia del tabItem */
+        // item.updateStore(this.getStore(searchParams, true));
+        item.updateStore(result.getStore());
+//        item.getGrid().setSearchparams(searchParams);
+      }
+    }
   }
+
+//  public ListStore<BaseModelData> getStore(final SearchParams searchParams,
+//      final boolean limit) {
+//
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//
+//    RpcProxy<PagingLoadResult<BaseModelData>> proxy =
+//        new RpcProxy<PagingLoadResult<BaseModelData>>() {
+//          @Override
+//          public void load(Object loadConfig,
+//              AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
+//            PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
+//            if (!limit) {
+//              plc.setLimit(-1);
+//            }
+//            service.getRecords((PagingLoadConfig) plc, searchParams, callback);
+//          }
+//        };
+//
+//    PagingLoader<PagingLoadResult<BaseModelData>> loader =
+//        new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
+//    loader.setRemoteSort(true);
+//    ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+//
+//    return store;
+//  }
 
   private void onSaveGridView(int resultset) {
     final JardinGrid grid = getItemByResultsetId(resultset).getGrid();

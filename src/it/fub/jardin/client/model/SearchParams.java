@@ -14,6 +14,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class SearchParams implements IsSerializable {
 
 	private int resultsetId;
+	
+	private boolean limit = true;
 
 	private List<BaseModelData> fieldsValuesList;
 	private boolean accurate;
@@ -61,5 +63,19 @@ public class SearchParams implements IsSerializable {
 	public boolean getAccurate() {
 		return this.accurate;
 	}
+
+  /**
+   * @param limit the limit to set
+   */
+  public void setLimit(boolean limit) {
+    this.limit = limit;
+  }
+
+  /**
+   * @return the limit
+   */
+  public boolean isLimit() {
+    return limit;
+  }
 
 }

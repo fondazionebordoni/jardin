@@ -81,15 +81,18 @@ public class SearchAreaAdvanced extends FormPanel {
         }
 
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
+        
         boolean combo = field.getSearchgrouping() == 0;
-        // List<String> values =
-        // resultset.getValuesList().getValues(field.getId());
         // Field f = FieldCreator.getField(field, values, combo);
+              
+        List<String> values = new ArrayList<String>();
+        
         Field<?> f;
         if (combo) {
-          f =
-              new ParametricField(resultset.getId(), field.getName(),
-                  field.getName(), field.getAlias());
+          System.out.println(field.getAlias() + ": combo");
+          f = FieldCreator.getField(field, values, true, true);
+//              new ParametricField(resultset.getId(), field.getName(),
+//                  field.getName(), field.getAlias());
         } else {
           f = new TextField<String>();
           f.setName(field.getName());

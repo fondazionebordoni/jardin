@@ -46,13 +46,13 @@ public class JardinGrid extends Grid<BaseModelData> {
   private SearchParams searchparams;
   private Integer userPreferenceHeaderId;
 
-  // private ListStore<BaseModelData> store;
+   private ListStore<BaseModelData> store;
 
   public JardinGrid(final ListStore<BaseModelData> store,
       final JardinColumnModel cm, final ResultsetImproved resultset) {
     super(store, cm);
 
-    // this.store = store;
+     this.store = store;
     this.resultset = resultset;
 
     this.setBorders(false);
