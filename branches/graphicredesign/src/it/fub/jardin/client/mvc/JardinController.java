@@ -76,7 +76,8 @@ public class JardinController extends Controller {
   private JardinView view;
 
   private enum ChartType {
-    PIE, BAR;
+    PIE,
+    BAR;
   }
 
   private static final String[] chartColors =
@@ -136,7 +137,7 @@ public class JardinController extends Controller {
     if (t == EventList.Login) {
       forwardToView(view, EventList.Login, loginMessage());
     } else if (t == EventList.TestUI) {
-        onTestUI();
+      onTestUI();
     } else if (t == EventList.CheckUser) {
       if (event.getData() instanceof Credentials) {
         Credentials credentials = (Credentials) event.getData();
@@ -352,14 +353,14 @@ public class JardinController extends Controller {
 
   private void onTestUI() {
     Log.debug("JardinController...");
-    
+
     List<ResultsetImproved> l = new ArrayList<ResultsetImproved>();
     l.add(new ResultsetImproved(1, "Test", "Test", "SELECT * FROM user", true,
         true, true, true, null));
-    
-    JardinUI ui = new JardinUI(new User(1, 1, new Credentials("Test", "test"),
-        "Mario", "Rossi", "Test", "test@test.com", null, null, 1, 1, null, l,
-        null));
+
+    JardinUI ui =
+        new JardinUI(new User(1, 1, new Credentials("Test", "test"), "Mario",
+            "Rossi", "Test", "test@test.com", null, null, 1, 1, null, l, null));
   }
 
   private void onNewMessage() {
@@ -496,33 +497,8 @@ public class JardinController extends Controller {
       final Integer resultsetId = resultset.getId();
       /* Avvisa la view che si sta creando un nuovo resultset */
       forwardToView(view, EventList.NewResultset, resultsetId);
-      forwardToView(view, EventList.GotValuesOfFields, resultsetId);
-
-//      final ManagerServiceAsync service =
-//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-//
-//      /*
-//       * Carica i valori dei vincoli di integrità referenziale attualmente
-//       * presenti: sever per il binding dei campi del dettaglio e per il row
-//       * editor
-//       */
-//
-//      AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
-//          new AsyncCallback<FieldsMatrix>() {
-//            public void onFailure(Throwable caught) {
-//              Dispatcher.forwardEvent(EventList.Error,
-//                  caught.getLocalizedMessage());
-//            }
-//
-//            public void onSuccess(FieldsMatrix fieldsMatrix) {
-//              ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-//              rs.setForeignKeyList(fieldsMatrix);
-//              forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
-//            }
-//          };
-//
-//      service.getValuesOfForeignKeys(resultsetId, callbackValuesOfForeignKeys);
-      forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
+      //forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+      //forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
     }
   }
 
@@ -865,7 +841,7 @@ public class JardinController extends Controller {
   private void onSelectColumnsForChart(ChartType ct, Integer resultset) {
     JardinTabItem item = view.getItemByResultsetId(resultset);
     JardinGrid grid = item.getGrid();
-    
+
     JardinSelectColumnsForChartPopUp popup =
         new JardinSelectColumnsForChartPopUp(grid, ct.toString());
 
@@ -899,7 +875,7 @@ public class JardinController extends Controller {
     JardinGrid grid = item.getGrid();
 
     /* Prendi gli ID delle prime due colonne visibili */
-    //ColumnModel columnModel = grid.getColumnModel();
+    // ColumnModel columnModel = grid.getColumnModel();
     String cx = title;
     String cy = value;
 
