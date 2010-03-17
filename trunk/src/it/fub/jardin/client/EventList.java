@@ -27,7 +27,7 @@ public class EventList {
   public static final EventType ExportSomeStoreAllColumns = new EventType();
 
   public static final EventType ExportSomeStoreSomeColumns = new EventType();
-  
+
   public static final EventType ExportSomeRowsAllColumns = new EventType();
 
   public static final EventType ExportSomeRowsSomeColumns = new EventType();
@@ -65,7 +65,7 @@ public class EventList {
   public static final EventType ResultSetsLoaded = new EventType();
 
   public static final EventType ResultSetsSearch = new EventType();
-  
+
   public static final EventType GotValuesOfForeignKeysIn = new EventType();
 
   public static final EventType SaveChangesCommit = new EventType();
@@ -78,7 +78,8 @@ public class EventList {
 
   public static final EventType SearchCompravendita = new EventType();
 
-  public static final EventTypeSerializable SendMessage = new EventTypeSerializable(75);
+  public static final EventTypeSerializable SendMessage =
+      new EventTypeSerializable(75);
 
   public static final EventType ShowAllColumns = new EventType();
 
@@ -98,7 +99,8 @@ public class EventList {
 
   public static final EventType UploadTemplate = new EventType();
 
-  public static final EventTypeSerializable NewMessage = new EventTypeSerializable(95);
+  public static final EventTypeSerializable NewMessage =
+      new EventTypeSerializable(95);
 
   public static final EventType ViewLinkedTable = new EventType();
 
@@ -111,7 +113,7 @@ public class EventList {
   public static final EventType GotPlugins = new EventType();
 
   public static final EventType ViewPlugin = new EventType();
-  
+
   public static final EventType Searched = new EventType();
 
 }

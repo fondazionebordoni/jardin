@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -33,7 +31,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,9 +42,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
-import javax.print.attribute.standard.DateTimeAtCompleted;
 
-import org.apache.batik.apps.svgbrowser.JSVGViewerFrame.ViewSourceAction;
 import org.apache.batik.dom.util.HashTable;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -1133,19 +1128,19 @@ public class DbUtils {
       ResultSet result = doQuery(connection, queryStatement);
       if ((result != null) && (result.getMetaData().getColumnCount() > 1)) {
         tableName = result.getMetaData().getTableName(1);
-//        System.out.println("que: " + queryStatement);
-//        System.out.println("t-name: " + tableName);
+        // System.out.println("que: " + queryStatement);
+        // System.out.println("t-name: " + tableName);
       }
 
       // è una vista
       if (tableName == null) {
         return null;
       }
-      
+
       if (tableName.length() <= 0) {
         return null;
       }
-      
+
       String db = dbConnectionHandler.getDB();
       Connection connectionInformationSchema =
           dbConnectionHandler.getConnDbInformationSchema();

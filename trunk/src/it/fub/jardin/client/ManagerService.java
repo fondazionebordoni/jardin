@@ -13,7 +13,6 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
-import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.SearchParams;
@@ -36,7 +35,8 @@ public interface ManagerService extends RemoteService {
 
   public String createReport(String file, Template template,
       PagingLoadConfig config, List<BaseModelData> selectedRows,
-      List<String> columns, SearchParams searchParams, char fs, char ts) throws VisibleException;
+      List<String> columns, SearchParams searchParams, char fs, char ts)
+      throws VisibleException;
 
   /**
    * Sits on listening and gets events from server.

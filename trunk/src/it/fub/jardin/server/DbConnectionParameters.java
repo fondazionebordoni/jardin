@@ -59,7 +59,7 @@ public class DbConnectionParameters {
   public String getDb() {
     return db;
   }
-  
+
   public String getDbInformationSchema() {
     return dbInformationSchema;
   }
@@ -100,7 +100,7 @@ public class DbConnectionParameters {
   private void setDb(String db) {
     this.db = db;
   }
-  
+
   private void setDbInformationSchema(String dbInformationSchema) {
     this.dbInformationSchema = dbInformationSchema;
   }
