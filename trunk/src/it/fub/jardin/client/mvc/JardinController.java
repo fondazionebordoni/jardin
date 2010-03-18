@@ -347,11 +347,26 @@ public class JardinController extends Controller {
     } else if (t.getEventCode() == EventList.NewMessage.getEventCode()) {
       onNewMessage();
     } else if (t == EventList.ViewLinkedTable) {
-      onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
+      if (event.getData() instanceof IncomingForeignKeyInformation) {
+        onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.ViewLinkedTable
+        Log.error("Errore nei dati di EventList.ViewLinkedTable");
+      }
     } else if (t == EventList.GetPlugins) {
-      onGetPlugins((Integer) event.getData());
+      if (event.getData() instanceof Integer) {
+        onGetPlugins((Integer) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.GetPlugins
+        Log.error("Errore nei dati di EventList.GetPlugins");
+      }
     } else if (t == EventList.ViewPlugin) {
-      forwardToView(view, EventList.ViewPlugin, (String) event.getData());
+      if (event.getData() instanceof String) {
+        forwardToView(view, EventList.ViewPlugin, (String) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.ViewPlugin
+        Log.error("Errore nei dati di EventList.ViewPlugin");
+      }
     }
   }
 
