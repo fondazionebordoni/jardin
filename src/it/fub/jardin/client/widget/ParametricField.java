@@ -82,7 +82,7 @@ public class ParametricField extends ComboBox<BaseModelData> {
             Collections.sort(elementes, new Comparator<BaseModelData>() {
               public int compare(BaseModelData arg0, BaseModelData arg1) {
                 if (((String) arg0.get(fieldName)) == null
-                    || ((String) arg0.get(fieldName)) == null) {
+                    || ((String) arg1.get(fieldName)) == null) {
                   return 0;
                 } else {
                   return ((String) arg0.get(fieldName)).compareTo((String) arg1.get(fieldName));

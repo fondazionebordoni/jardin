@@ -89,7 +89,7 @@ public class SearchAreaAdvanced extends FormPanel {
         
         Field<?> f;
         if (combo) {
-          System.out.println(field.getAlias() + ": combo");
+          //System.out.println(field.getAlias() + ": combo");
           f = FieldCreator.getField(field, values, true, true);
 //              new ParametricField(resultset.getId(), field.getName(),
 //                  field.getName(), field.getAlias());
