@@ -1,0 +1,208 @@
+.PS
+
+copy "sequence.pic";
+
+boxht = 0.3;
+boxwid = 0.5;
+movewid = 0.2;
+
+actor(U,	"User");
+
+boxwid = 0.6;
+object(M,	":Manager");
+object(D,	":Dispatcher");
+
+boxwid = 1.0;
+pobject(JC,	":JardinController");
+pobject(JV,	":JardinView");
+pobject(LD,	":LoginDialog");
+
+boxwid = 0.5;
+object(S,	":Service");
+
+boxwid = 1.1;
+object(DCH,	":DbConnectionHandler");
+
+boxwid = 0.5;
+pobject(DU,	":DbUtils");
+pobject(US,	":User");
+pobject(RS,	":Resultset");
+
+boxwid = 0.5;
+
+step();
+step();
+
+active(U);
+message(U,M,"Get()");
+
+active(M);
+boxwid = 1.0;
+cmessage(M,JC,":JardinController");
+message(M,D,"dispatch(EventList.BrowserControl)");
+inactive(M);
+
+active(D);
+message(D,JC,"EventList.Login");
+inactive(D);
+
+active(JC);
+boxwid = 0.8;
+cmessage(JC,JV,":JardinView");
+message(JC,JC,"isSupportedBrowser()");
+message(JC,JV,"forwardToView(JardinView, EventList.Login, isSupportedBrowser)");
+inactive(JC);
+
+active(JV);
+cmessage(JV,LD,":LoginDialog");
+inactive(JV);
+
+
+
+active(LD);
+rmessage(LD,U,"Please Login");
+inactive(LD);
+
+inactive(U);
+
+step();
+
+# ---------------------------------------------------------
+# Begin Pre-Login Phase
+boxwid = 1;
+begin_frame(U,IF,"Pre-Login Phase");
+
+active(U);
+message(U,LD,"Login");
+
+active(LD);
+rmessage(LD,U,"Checking...");
+inactive(U);
+message(LD,D,"dispatch(EventList.CheckUser)");
+inactive(LD);
+
+active(D);
+message(D,JC,"handleEvent(EventList.CheckUser)");
+inactive(D);
+
+active(JC);
+message(JC,S,"getUser(username, password)");
+
+active(S);
+rmessage(S,JC,"");
+inactive(JC);
+
+message(S,S,"getDbConnectionParameters()");
+#cmessage(S,DCH,":DbConnectionHandler");
+message(S,DCH,"getConnection()");
+
+active(DCH);
+rmessage(DCH,S,"");
+inactive(DCH);
+
+boxwid = 0.5;
+cmessage(S,DU,":DbUtils");
+message(S,DU,"getUser(username,password,connection)");
+
+
+active(DU);
+message(DU,DU,"getUser()");
+step();
+end_frame(DU,IF,"Pre-Login Phase");
+# End Pre-Login Phase
+# ---------------------------------------------------------
+
+step();
+
+# ---------------------------------------------------------
+# Begin Wrong User
+boxwid = 1;
+begin_frame(U,IF,"Wrong User");
+
+rmessage(DU,S,"UserException");
+inactive(DU);
+delete(DU);
+message(S,DCH,"closeConnection()");
+active(DCH);
+rmessage(DCH,S,"");
+inactive(DCH);
+rmessage(S,JC,"UserException");
+inactive(S);
+active(JC);
+message(JC,JV,"");
+inactive(JC);
+active(JV);
+rmessage(JV,U,"Wrong User!");
+message(JV,LD,"refresh()");
+inactive(JV);
+active(LD);
+rmessage(LD,U,"Please Login");
+inactive(LD);
+step();
+comment(U,C,down .2 right .2, wid 1.4 ht 0.25 "Goto Pre-Login Phase");
+end_frame(DU,IF,"Wrong User");
+# End Wrong User
+# ---------------------------------------------------------
+
+step();
+step();
+
+active(DU);
+active(S);
+# ---------------------------------------------------------
+# Begin Valid User
+boxwid = 1;
+begin_frame(U,IF,"Valid User");
+
+boxwid = 0.5;
+
+cmessage(DU,US,":User");
+message(DU,DU,"getResultsetList(User user)");
+
+cmessage(DU,RS,":Resultset");
+message(DU,DU,"User.setResultset(Resultset resultset)");
+
+rmessage(DU,S,"User");
+delete(DU);
+message(S,DCH,"closeConnection()");
+active(DCH);
+rmessage(DCH,S,"");
+inactive(DCH);
+rmessage(S,JC,"User");
+inactive(S);
+active(JC);
+message(JC,JV,"");
+inactive(JC);
+active(JV);
+dmessage(JV,LD,"");
+message(JV,D,"dispatch(EventList.Init)");
+inactive(JV);
+step();
+
+end_frame(US,IF,"Valid User");
+# End Valid User
+# ---------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+step();
+complete(U);
+complete(M);
+complete(D);
+complete(JC);
+complete(JV);
+complete(S);
+complete(DCH);
+complete(US);
+complete(RS);
+
+
+.PE

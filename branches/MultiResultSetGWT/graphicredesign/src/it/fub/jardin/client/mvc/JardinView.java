@@ -1,0 +1,340 @@
+/**
+ * 
+ */
+package it.fub.jardin.client.mvc;
+
+import it.fub.jardin.client.EventList;
+import it.fub.jardin.client.Jardin;
+import it.fub.jardin.client.ManagerServiceAsync;
+import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.widget.HeaderArea;
+import it.fub.jardin.client.widget.JardinColumnModel;
+import it.fub.jardin.client.widget.JardinDetail;
+import it.fub.jardin.client.widget.JardinGrid;
+import it.fub.jardin.client.widget.JardinTabItem;
+import it.fub.jardin.client.widget.JardinUI;
+import it.fub.jardin.client.widget.LoginDialog;
+import it.fub.jardin.client.widget.SearchAreaAdvanced;
+import it.fub.jardin.client.widget.SearchAreaBase;
+
+import java.util.ArrayList;
+
+import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.mvc.View;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.RootPanel;
+
+/**
+ * @author gpantanetti
+ */
+public class JardinView extends View {
+
+  public static final String HEADER_AREA = "header-area";
+  public static final String MAIN_AREA = "main-area";
+  public static final String DETAIL_AREA = "detail-area";
+  public static final String SEARCH_AREA = "search-area";
+  public static final String SEARCH_AREA_ADVANCED = "search-area-advanced";
+  private static final String ITEM_PREFIX = "item-id-";
+
+  private JardinController controller;
+  private JardinUI ui;
+  private Viewport viewport;
+  // private ContentPanel search;
+  private TabPanel main;
+  private HeaderArea header;
+  private LoginDialog dialog;
+
+  public JardinView(Controller controller) {
+    super(controller);
+    if (controller instanceof JardinController) {
+      this.controller = (JardinController) controller;
+    }
+  }
+
+  @Override
+  protected void handleEvent(AppEvent event) {
+    EventType t = event.getType();
+    if (t == EventList.Login) {
+      if (event.getData() instanceof String) {
+        login((String) event.getData());
+      } else {
+        login(null);
+      }
+    } else if (t == EventList.Init) {
+      dialog.hide();
+      initUI();
+    } else if (t == EventList.Refresh) {
+      this.viewport.removeAll();
+      Dispatcher.forwardEvent(new AppEvent(EventList.Login));
+    } else if (t == EventList.LoginError) {
+      dialog.hide();
+      String message;
+      if (event.getData() instanceof String) {
+        message = (String) event.getData();
+      } else {
+        message = "Errore durante l'accesso";
+      }
+      loginError(message);
+    } else if (t == EventList.NewResultset) {
+      if (event.getData() instanceof Integer) {
+        newResultset((Integer) event.getData());
+      }
+    } else if (t == EventList.GotValuesOfFields) {
+      if (event.getData() instanceof Integer) {
+        gotValuesOfFields((Integer) event.getData());
+      }
+    } else if (t == EventList.GotValuesOfForeignKeys) {
+      if (event.getData() instanceof Integer) {
+        gotValuesOfForeignKeys((Integer) event.getData());
+      }
+    } else if (t == EventList.Search) {
+      if (event.getData() instanceof SearchParams) {
+        onSearch((SearchParams) event.getData());
+      }
+      /*
+       * Gestione eventi della toolbar
+       */
+    } else if (t == EventList.AddRow) {
+      if (event.getData() instanceof Integer) {
+        onAddRow((Integer) event.getData());
+      }
+    } else if (t == EventList.ViewPopUpDetail) {
+      if (event.getData() instanceof ArrayList<?>) {
+        onViewPopUpDetail((ArrayList<BaseModelData>) event.getData());
+      }
+    } else if (t == EventList.ShowAllColumns) {
+      if (event.getData() instanceof Integer) {
+        onShowAllColumns((Integer) event.getData());
+      }
+    } else if (t == EventList.SaveGridView) {
+      if (event.getData() instanceof Integer) {
+        onSaveGridView((Integer) event.getData());
+      }
+    } else if (t == EventList.GotHeaderPreference) {
+      updatePreferenceListMenu((HeaderPreferenceList) event.getData());
+      /*
+       * Altri eventi
+       */
+    }
+  }
+
+  private void onShowAllColumns(int resultset) {
+    JardinTabItem item = getItemByResultsetId(resultset);
+    item.getGrid().showAllColumns();
+  }
+
+  private void onAddRow(int resultset) {
+    JardinTabItem item = getItemByResultsetId(resultset);
+    item.getGrid().addRow();
+  }
+
+  private void onViewPopUpDetail(ArrayList<BaseModelData> infoToView) {
+    BaseModelData data = infoToView.get(0);
+    Integer rsId = data.get("RSID");
+    JardinTabItem item = getItemByResultsetId(rsId);
+    item.getGrid().viewDetailPopUp(infoToView);
+  }
+
+  private void initUI() {
+    ui = new JardinUI(this.controller.getUser());
+    Dispatcher.forwardEvent(EventList.CreateUI);
+  }
+
+  private void createHeader() {
+    this.header = new HeaderArea(this.controller.getUser());
+    // this.header.setId(JardinView.HEADER_AREA);
+
+    RowData rd = new RowData(1, 32);
+    rd.setMargins(new Margins(0));
+    this.viewport.add(this.header, rd);
+  }
+
+  private void createMain() {
+    this.main = new TabPanel();
+    this.main.setId(JardinView.MAIN_AREA);
+    this.main.setAnimScroll(true);
+    this.main.setTabScroll(true);
+
+    RowData rd = new RowData(1, 1);
+    this.viewport.add(this.main, rd);
+  }
+
+  /**
+   * Restituisce il tabItem che rappresenta il resultset in base all'id o null
+   * se non esiste
+   * 
+   * @param resultsetId
+   *          l'id del resultset
+   * @return un TabItem o null se non esiste
+   */
+  public synchronized JardinTabItem getItemByResultsetId(Integer resultsetId) {
+    if (this.main.getItemByItemId(ITEM_PREFIX + resultsetId) instanceof JardinTabItem) {
+      JardinTabItem item =
+          (JardinTabItem) this.main.getItemByItemId(ITEM_PREFIX + resultsetId);
+      // TODO Verificare se è possibile togliere questa chiamata
+      this.main.setSelection(item);
+      return item;
+    } else {
+      return null;
+    }
+  }
+
+  private void login(String loginMessage) {
+
+    dialog = new LoginDialog();
+    dialog.setClosable(false);
+    dialog.show();
+
+    if (loginMessage != null) {
+      MessageBox.alert("Attenzione", loginMessage, null);
+    }
+  }
+
+  private void loginError(String message) {
+    final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
+      public void handleEvent(MessageBoxEvent we) {
+        Dispatcher.forwardEvent(new AppEvent(EventList.Login));
+      }
+    };
+    MessageBox.alert("Errore", message, l);
+  }
+
+  private void newResultset(Integer resultsetId) {
+    /* Prendi le proprietà del resultset in base all'id dall'utente */
+    ResultsetImproved resultset =
+        controller.getUser().getResultsetFromId(resultsetId);
+
+    ui.addTab(resultset);
+  }
+
+  private synchronized void gotValuesOfFields(Integer resultsetId) {
+    ResultsetImproved resultset =
+        controller.getUser().getResultsetFromId(resultsetId);
+
+    /* Creazione dell'area di ricerca avanzata */
+    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
+
+    JardinTabItem item = getItemByResultsetId(resultsetId);
+    if (item != null) {
+      /* Aggiungere la ricerca avanzata al tabitem */
+      item.addSearchAreaAdvanced(searchAreaAdvanced);
+    }
+  }
+
+  private synchronized void gotValuesOfForeignKeys(Integer resultsetId) {
+    ResultsetImproved resultset =
+        controller.getUser().getResultsetFromId(resultsetId);
+
+    /* Creazione della griglia */
+    ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+    JardinColumnModel cm = new JardinColumnModel(resultset);
+    JardinGrid grid = new JardinGrid(store, cm, resultset);
+
+    /* Creazione dell'area di ricerca semplice */
+    SearchAreaBase searchAreaBase = new SearchAreaBase(resultset);
+
+    /* Creazione del dettaglio */
+    JardinDetail detail = new JardinDetail(resultset);
+
+    JardinTabItem item = getItemByResultsetId(resultsetId);
+    if (item != null) {
+      /* Aggiungere la griglia al tabItem */
+      item.setGrid(grid);
+
+      /* Aggiungere la ricerca semplice al tabItem */
+      item.addSearchAreaBase(searchAreaBase);
+
+      /* Aggiungere il dettaglio al tabitem */
+      item.addDetail(detail);
+
+      /*
+       * Eseguo una ricerca per riempire il resultset
+       * 
+       * SearchParams searchParams = new SearchParams(resultsetId);
+       * List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+       * searchParams.setFieldsValuesList(queryFieldList);
+       * Dispatcher.forwardEvent(EventList.Search, searchParams);
+       */
+    }
+  }
+
+  private void onSearch(SearchParams searchParams) {
+    JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
+
+    if (item != null) {
+      if (item.getGrid() != null) {
+        /* Aggiornamento dello store della griglia del tabItem */
+        item.updateStore(this.getStore(searchParams, true));
+        item.getGrid().setSearchparams(searchParams);
+      }
+    }
+  }
+
+  public ListStore<BaseModelData> getStore(final SearchParams searchParams,
+      final boolean limit) {
+
+    final ManagerServiceAsync service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+    RpcProxy<PagingLoadResult<BaseModelData>> proxy =
+        new RpcProxy<PagingLoadResult<BaseModelData>>() {
+          @Override
+          public void load(Object loadConfig,
+              AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
+            PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
+            if (!limit) {
+              plc.setLimit(-1);
+            }
+            service.getRecords((PagingLoadConfig) plc, searchParams, callback);
+          }
+        };
+
+    PagingLoader<PagingLoadResult<BaseModelData>> loader =
+        new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
+    loader.setRemoteSort(true);
+    ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+
+    return store;
+  }
+
+  private void onSaveGridView(int resultset) {
+    final JardinGrid grid = getItemByResultsetId(resultset).getGrid();
+    final MessageBox box = MessageBox.prompt("Nome", "Salva visualizzazione");
+    box.addCallback(new Listener<MessageBoxEvent>() {
+      public void handleEvent(MessageBoxEvent be) {
+        grid.saveGridView(controller.getUser(), be.getValue());
+      }
+    });
+  }
+
+  private void updatePreferenceListMenu(HeaderPreferenceList data) {
+    JardinTabItem item = getItemByResultsetId(data.getResultsetId());
+    if (item != null) {
+      /* Aggiungere la ricerca avanzata al tabitem */
+      item.updatePreference(data);
+    }
+  }
+}
