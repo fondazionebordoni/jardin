@@ -203,11 +203,11 @@ public class JardinGridToolBar extends ToolBar {
 
     menu.add(new MenuItem("Le righe selezionate, tutte le colonne",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportSomeRowsSomeColumns)));
+        getListenerWithGrid(EventList.ExportSomeRowsAllColumns)));
 
     menu.add(new MenuItem("Le righe selezionate, le colonne visibili",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportSomeRowsAllColumns)));
+        getListenerWithGrid(EventList.ExportSomeRowsSomeColumns)));
 
     menu.add(new SeparatorMenuItem());
 
