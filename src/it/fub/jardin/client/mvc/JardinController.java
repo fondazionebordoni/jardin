@@ -45,11 +45,15 @@ import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -60,6 +64,7 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.gargoylesoftware.htmlunit.javascript.host.Event;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -538,13 +543,17 @@ public class JardinController extends Controller {
   }
 
   private void onSearch(final SearchParams searchParams) {
+    final MessageBox waitBox =
+        new MessageBox().wait("Caricamento dati", "Attendere prego...",
+            "Loading...");
     // TODO Modificare per gestire il solo resultsetId come parametro
     if (user.getResultsetFromId(searchParams.getResultsetId()).isRead()) {
 
       // ///////////////////////////////////////////
       // alla griglia servono i searchParams
+
       forwardToView(view, EventList.Search, searchParams);
-      
+
       final boolean limit = searchParams.isLimit();
       final ManagerServiceAsync service =
           (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -564,8 +573,22 @@ public class JardinController extends Controller {
 
       PagingLoader<PagingLoadResult<BaseModelData>> loader =
           new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
+
       loader.setRemoteSort(true);
       ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+
+      loader.addLoadListener(new LoadListener() {
+        @Override
+        public void loaderLoad(LoadEvent le) {
+          waitBox.close();
+        }
+
+        @Override
+        public void loaderLoadException(LoadEvent le) {
+          waitBox.close();
+          Dispatcher.forwardEvent(EventList.Error, le.exception);
+        }
+      });
 
       SearchResult searchResult = new SearchResult();
       searchResult.setResultsetId(searchParams.getResultsetId());
@@ -975,8 +998,8 @@ public class JardinController extends Controller {
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
 
-//    SearchParams searchParams = grid.getSearchparams();
-//    ListStore<BaseModelData> store = view.getStore(searchParams, false);
+    // SearchParams searchParams = grid.getSearchparams();
+    // ListStore<BaseModelData> store = view.getStore(searchParams, false);
     ListStore<BaseModelData> store = grid.getStore();
     store.getLoader().load();
 

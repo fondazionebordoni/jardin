@@ -45,6 +45,7 @@ import javax.mail.MessagingException;
 
 import org.apache.batik.dom.util.HashTable;
 
+import com.Ostermiller.util.CSVParser;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -674,7 +675,7 @@ public class DbUtils {
   }
 
   public int setObjects(Integer resultsetId, List<BaseModelData> records)
-      throws HiddenException {
+      throws HiddenException, SQLException {
 
     log("<START> Setting records");
 
@@ -688,6 +689,7 @@ public class DbUtils {
       ResultSetMetaData metadata =
           dbProperties.getResultsetMetadata(connection, resultsetId);
       tableName = metadata.getTableName(1);
+      connection.setAutoCommit(false);
       for (BaseModelData record : records) {
         String set = "";
         int columns = record.getPropertyNames().size();
@@ -724,7 +726,10 @@ public class DbUtils {
         }
         result += num;
       }
+      connection.commit();
+      connection.setAutoCommit(true);
     } catch (MySQLIntegrityConstraintViolationException ex) {
+      connection.rollback();
       String message = ex.getLocalizedMessage();
       String newMess = "";
       Log.warn("Errore SQL", ex);
@@ -749,6 +754,7 @@ public class DbUtils {
       throw new HiddenException(newMess);
 
     } catch (Exception e) {
+      connection.rollback();
       Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il salvataggio delle modifiche:\n"
@@ -1559,29 +1565,26 @@ public class DbUtils {
     regExSpecialChars.add("&");
 
     try {
-      recordLine = in.readLine();
+      //recordLine = in.readLine();
       if (tipologia.compareToIgnoreCase("fix") == 0) {
         // TODO gestione campo a lunghezza fissa da db!
-        System.out.println("caso1");
       } else {
-        if (ts == null || ts == "" || ts.compareToIgnoreCase("null") == 0) {
-          // import solo split senza replaceAll
-          columns = recordLine.split(fs);
-          System.out.println("caso2");
-        } else {
-          System.out.println("caso3");
-          // import normale
-          recordLine = recordLine.substring(1, recordLine.length() - 1);
-          if (regExSpecialChars.contains(fs)) {
-            fs = "\\" + fs;
-          }
-          ts = "\\" + ts;
-          // columns = recordLine.split("\"\\|\"");
-          columns = recordLine.split(ts + fs + ts);
-          // for (int i = 0; i < columns.length; i++) {
-          // System.out.println(columns[i]);
-          // }
-        }
+//        if (ts == null || ts == "" || ts.compareToIgnoreCase("null") == 0) {
+//          // import solo split senza replaceAll
+//          columns = recordLine.split(fs);
+//        } else {
+//          // import normale
+//          recordLine = recordLine.substring(1, recordLine.length() - 1);
+//          if (regExSpecialChars.contains(fs)) {
+//            fs = "\\" + fs;
+//          }
+//          ts = "\\" + ts;
+//          // columns = recordLine.split("\"\\|\"");
+//          columns = recordLine.split(ts + fs + ts);
+//          // for (int i = 0; i < columns.length; i++) {
+//          // System.out.println(columns[i]);
+//          // }
+//        }
       }
 
       /*
@@ -1596,16 +1599,41 @@ public class DbUtils {
        * if (colsCheck.contains(false)) { recordLine = null;
        * Log.debug("Una delle colonne non è stata riconosciuta!"); }
        */
-      recordLine = in.readLine();
-      while (recordLine != null) {
-        Log.debug(recordLine);
-        // if (validateLine(rsmd, recordLine)) {
-        recordList.add(createRecord(rsmd, recordLine, columns, ts, fs));
-        // } else
-        // throw new HiddenException("record: " + recordLine +
-        // " non valido!");
-        recordLine = in.readLine();
+      //recordLine = in.readLine();
+      CSVParser csvp = new CSVParser(in);
+      String delim = new String(fs);
+      String quote = new String(ts);
+      String commentDelims = new String("#");
+      csvp.changeDelimiter(delim.charAt(0));
+      csvp.changeQuote(quote.charAt(0));
+      csvp.setCommentStart(commentDelims);
+
+      String[] t;
+      columns =csvp.getLine();
+      BaseModelData bm = new BaseModelData();
+      try {
+        while ((t =csvp.getLine()) != null) {
+          //System.out.print("" + csvp.lastLineNumber() + ":");
+          for (int i = 0; i < t.length; i++) {
+            bm.set(columns[i], t[i]);
+            //System.out.print("\"" + t[i] + "\";");
+          }
+          recordList.add(bm);
+        }
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
+
+      // while (recordLine != null) {
+      // Log.debug(recordLine);
+      // // if (validateLine(rsmd, recordLine)) {
+      // recordList.add(createRecord(rsmd, recordLine, columns, ts, fs));
+      // // } else
+      // // throw new HiddenException("record: " + recordLine +
+      // // " non valido!");
+      // recordLine = in.readLine();
+      // }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -1618,22 +1646,30 @@ public class DbUtils {
     return opCode;
   }
 
-  private BaseModelData createRecord(ResultSetMetaData rsmd, String recordLine,
-      String[] columns, String textSeparator, String fieldSeparator)
-      throws HiddenException {
-
-    BaseModelData bm = new BaseModelData();
-
-    for (int i = 0; i < columns.length; i++) {
-      if (i < recordLine.split(fieldSeparator).length) {
-        // String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
-        String value = recordLine.split(fieldSeparator)[i];
-        value = value.substring(1, value.length() - 1);
-        bm.set(columns[i], value);
-      }
-    }
-    return bm;
-  }
+  // private BaseModelData createRecord(ResultSetMetaData rsmd, String
+  // recordLine,
+  // String[] columns, String textSeparator, String fieldSeparator)
+  // throws HiddenException {
+  //
+  // BaseModelData bm = new BaseModelData();
+  //
+  // for (int i = 0; i < columns.length; i++) {
+  // if (i < recordLine.split(fieldSeparator).length) {
+  // // String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
+  // String value = recordLine.split(fieldSeparator)[i];
+  // System.out.println(value);
+  // if (value.length()>2){
+  // value = value.substring(1, value.length() - 1);
+  // } else {
+  // value=null;
+  // System.out.println("------------------");
+  // }
+  // System.out.println(value);
+  // bm.set(columns[i], value);
+  // }
+  // }
+  // return bm;
+  // }
 
   // private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
   // throws HiddenException {
