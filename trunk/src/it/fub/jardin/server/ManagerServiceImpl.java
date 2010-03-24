@@ -63,13 +63,13 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       throws VisibleException {
     if (searchParams == null) {
       throw new VisibleException("Effettuare prima una ricerca");
-    } else if (ts == '\0') {
+    } else if ((template.getInfo().compareTo(Template.CSV.getInfo()) == 0) && (ts == '\0')) {
       throw new VisibleException(
           "Il separatore di testo deve essere composto da un carattere");
-    } else if (fs == '\0') {
+    } else if ((template.getInfo().compareTo(Template.CSV.getInfo()) == 0) && (fs == '\0')) {
       throw new VisibleException(
           "Il separatore di campo deve essere composto da un carattere");
-    } else if (fs == ts) {
+    } else if ((template.getInfo().compareTo(Template.CSV.getInfo()) == 0) && (fs == ts)) {
       throw new VisibleException(
           "Il separatore di campo e il separatore di testo non possono essere uguali");
     }
