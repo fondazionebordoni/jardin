@@ -28,7 +28,7 @@ import com.allen_sauer.gwt.log.client.Log;
  */
 public class Upload extends HttpServlet {
   private static final long serialVersionUID = 6098745782027999297L;
-  private static final int MAX_SIZE = 20 * 1024 * 1024; // 20MB
+  private static final int MAX_SIZE = 30 * 1024 * 1024; // 30MB
 
   private String type = null;
   private String ts = null;
