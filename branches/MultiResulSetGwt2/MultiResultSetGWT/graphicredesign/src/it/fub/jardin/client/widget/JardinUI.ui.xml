@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'
+	xmlns:jardin='urn:import:it.fub.jardin.client.widget'>
+
+	<g:DockLayoutPanel unit='EM'>
+		<g:north size='2.1'>
+			<jardin:HeaderArea ui:field='header'/>
+		</g:north>
+
+		<g:center>
+			<g:TabLayoutPanel barUnit='EM' barHeight='2' ui:field="main">
+			</g:TabLayoutPanel>
+		</g:center>
+	</g:DockLayoutPanel>
+
+</ui:UiBinder>
