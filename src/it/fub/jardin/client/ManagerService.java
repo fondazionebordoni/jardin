@@ -19,6 +19,7 @@ import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 

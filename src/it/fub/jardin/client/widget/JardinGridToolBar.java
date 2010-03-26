@@ -223,16 +223,27 @@ public class JardinGridToolBar extends ToolBar {
   }
 
   private void addImportActions() {
-    Button b =
-        new Button("Importa", IconHelper.createStyle("icon-import"),
+    Button importButton =
+        new Button("Aggiorna", IconHelper.createStyle("icon-import"),
             getListenerWithGrid(EventList.UploadImport));
-    b.setToolTip("Se si carica un file contente uno più record già presenti "
+    importButton.setToolTip("Se si carica un file contente uno più record già presenti "
         + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
         + "contenuti nel file stesso.\n"
         + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b><BR />"
         + "La prima riga del file da importare deve contenere i nomi delle colonne!");
 
-    this.add(b);
+    this.add(importButton);
+    
+    Button insertButton =
+      new Button("Inserisci", IconHelper.createStyle("icon-import"),
+          getListenerWithGrid(EventList.UploadInsert));
+//    insertButton.setToolTip("Se si carica un file contente uno più record già presenti "
+//      + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
+//      + "contenuti nel file stesso.\n"
+//      + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b><BR />"
+//      + "La prima riga del file da importare deve contenere i nomi delle colonne!");
+
+  this.add(insertButton);
   }
 
   private void addPreferenceActions() {

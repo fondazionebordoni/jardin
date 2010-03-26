@@ -116,4 +116,8 @@ public class EventList {
 
   public static final EventType Searched = new EventType();
 
+  public static final EventType UploadInsert = new EventType();
+
+  public static final EventType InsertStore = new EventType();
+
 }

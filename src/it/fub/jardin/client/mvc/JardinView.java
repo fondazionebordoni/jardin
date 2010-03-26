@@ -175,7 +175,7 @@ public class JardinView extends View {
   }
 
   private void updatePluginsMenu(ArrayList<Plugin> plugins) {
-    if (plugins != null && plugins.size()>0) {
+    if (plugins != null && plugins.size() > 0) {
       JardinTabItem item = getItemByResultsetId(plugins.get(0).getRsId());
       JardinGridToolBar jgtb = item.getToolbar();
       Menu menuPlugins = new Menu();
