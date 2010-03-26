@@ -117,6 +117,7 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.GetGridViews);
     registerEventTypes(EventList.UploadTemplate);
     registerEventTypes(EventList.UploadImport);
+    registerEventTypes(EventList.UploadInsert);
     registerEventTypes(EventList.UpdateColumnModel);
     registerEventTypes(EventList.Jungle);
     registerEventTypes(EventList.ShowPieChart);
@@ -291,6 +292,13 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di EventList.UploadImport
         Log.error("Errore nei dati di EventList.UploadImport");
+      }
+    } else if (t == EventList.UploadInsert) {
+      if (event.getData() instanceof Integer) {
+        onUploadInsert((Integer) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.UploadInsert
+        Log.error("Errore nei dati di EventList.UploadInsert");
       }
     } else if (t == EventList.UpdateColumnModel) {
       // TODO CAMBIARE!!!
@@ -868,6 +876,12 @@ public class JardinController extends Controller {
   private void onUploadImport(int resultset) {
     UploadDialog d =
         new UploadDialog(user, UploadDialog.TYPE_IMPORT, resultset);
+    d.show();
+  }
+
+  private void onUploadInsert(int resultset) {
+    UploadDialog d =
+        new UploadDialog(user, UploadDialog.TYPE_INSERT, resultset);
     d.show();
   }
 

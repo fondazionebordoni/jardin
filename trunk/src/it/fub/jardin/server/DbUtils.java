@@ -18,6 +18,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.widget.UploadDialog;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,6 +35,7 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -675,7 +677,7 @@ public class DbUtils {
   }
 
   public int setObjects(Integer resultsetId, List<BaseModelData> records)
-      throws HiddenException, SQLException {
+      throws HiddenException {
 
     log("<START> Setting records");
 
@@ -698,11 +700,11 @@ public class DbUtils {
         }
         set = set.substring(0, set.length() - sep.length());
 
-        String query =
-            "INSERT INTO `" + tableName + "` SET " + set
-                + " ON DUPLICATE KEY UPDATE " + set;
+        // String query =
+        // "INSERT INTO `" + tableName + "` SET " + set
+        // + " ON DUPLICATE KEY UPDATE " + set;
+        String query = "INSERT INTO `" + tableName + "` SET " + set;
 
-        Log.debug("Query INSERT: " + query);
         PreparedStatement ps =
             (PreparedStatement) connection.prepareStatement(query);
         int i = 1;
@@ -710,10 +712,10 @@ public class DbUtils {
           Object value = record.get(property);
           if (value != null && String.valueOf(value).length() > 0) {
             ps.setObject(i, record.get(property));
-            ps.setObject(i + columns, record.get(property));
+            // ps.setObject(i + columns, record.get(property));
           } else {
             ps.setNull(i, java.sql.Types.NULL);
-            ps.setNull(i + columns, java.sql.Types.NULL);
+            // ps.setNull(i + columns, java.sql.Types.NULL);
           }
           i++;
         }
@@ -729,14 +731,20 @@ public class DbUtils {
       connection.commit();
       connection.setAutoCommit(true);
     } catch (MySQLIntegrityConstraintViolationException ex) {
-      connection.rollback();
+      try {
+        connection.rollback();
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       String message = ex.getLocalizedMessage();
       String newMess = "";
       Log.warn("Errore SQL", ex);
       if (ex.getErrorCode() == 1062) {
-
-        updateObjects(resultsetId, records);
-
+        // updateObjects(resultsetId, records);
+        newMess =
+            newMess.concat(ex.getErrorCode()
+                + " - Errore!!! \n PRIMARY KEY DUPLICATA :\n" + message);
       } else if (ex.getErrorCode() == 1048) {
         newMess =
             newMess.concat(ex.getErrorCode()
@@ -754,7 +762,12 @@ public class DbUtils {
       throw new HiddenException(newMess);
 
     } catch (Exception e) {
-      connection.rollback();
+      try {
+        connection.rollback();
+      } catch (Exception e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
       Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il salvataggio delle modifiche:\n"
@@ -1514,8 +1527,8 @@ public class DbUtils {
   }
 
   public int importFile(Credentials credentials, int resultsetId,
-      File importFile, String ts, String fs, String tipologia)
-      throws HiddenException, VisibleException, SQLException {
+      File importFile, String ts, String fs, String tipologia, String type,
+      String condition) throws HiddenException, VisibleException, SQLException {
 
     getUser(credentials);
 
@@ -1565,26 +1578,26 @@ public class DbUtils {
     regExSpecialChars.add("&");
 
     try {
-      //recordLine = in.readLine();
+      // recordLine = in.readLine();
       if (tipologia.compareToIgnoreCase("fix") == 0) {
         // TODO gestione campo a lunghezza fissa da db!
       } else {
-//        if (ts == null || ts == "" || ts.compareToIgnoreCase("null") == 0) {
-//          // import solo split senza replaceAll
-//          columns = recordLine.split(fs);
-//        } else {
-//          // import normale
-//          recordLine = recordLine.substring(1, recordLine.length() - 1);
-//          if (regExSpecialChars.contains(fs)) {
-//            fs = "\\" + fs;
-//          }
-//          ts = "\\" + ts;
-//          // columns = recordLine.split("\"\\|\"");
-//          columns = recordLine.split(ts + fs + ts);
-//          // for (int i = 0; i < columns.length; i++) {
-//          // System.out.println(columns[i]);
-//          // }
-//        }
+        // if (ts == null || ts == "" || ts.compareToIgnoreCase("null") == 0) {
+        // // import solo split senza replaceAll
+        // columns = recordLine.split(fs);
+        // } else {
+        // // import normale
+        // recordLine = recordLine.substring(1, recordLine.length() - 1);
+        // if (regExSpecialChars.contains(fs)) {
+        // fs = "\\" + fs;
+        // }
+        // ts = "\\" + ts;
+        // // columns = recordLine.split("\"\\|\"");
+        // columns = recordLine.split(ts + fs + ts);
+        // // for (int i = 0; i < columns.length; i++) {
+        // // System.out.println(columns[i]);
+        // // }
+        // }
       }
 
       /*
@@ -1599,7 +1612,7 @@ public class DbUtils {
        * if (colsCheck.contains(false)) { recordLine = null;
        * Log.debug("Una delle colonne non è stata riconosciuta!"); }
        */
-      //recordLine = in.readLine();
+      // recordLine = in.readLine();
       CSVParser csvp = new CSVParser(in);
       String delim = new String(fs);
       String quote = new String(ts);
@@ -1609,14 +1622,14 @@ public class DbUtils {
       csvp.setCommentStart(commentDelims);
 
       String[] t;
-      columns =csvp.getLine();
-      BaseModelData bm = new BaseModelData();
+      columns = csvp.getLine();
       try {
-        while ((t =csvp.getLine()) != null) {
-          //System.out.print("" + csvp.lastLineNumber() + ":");
+        while ((t = csvp.getLine()) != null) {
+          BaseModelData bm = new BaseModelData();
+          // System.out.print("" + csvp.lastLineNumber() + ":");
           for (int i = 0; i < t.length; i++) {
             bm.set(columns[i], t[i]);
-            //System.out.print("\"" + t[i] + "\";");
+            System.out.print("\"" + t[i] + "\";");
           }
           recordList.add(bm);
         }
@@ -1640,9 +1653,11 @@ public class DbUtils {
       throw new HiddenException("impossibile leggere il file: "
           + importFile.getName());
     }
-
-    opCode = setObjects(resultsetId, recordList);
-
+    if (type.compareToIgnoreCase(UploadDialog.TYPE_INSERT) == 0) {
+      opCode = setObjects(resultsetId, recordList);
+    } else {
+      opCode = updateObjects(resultsetId, recordList, condition);
+    }
     return opCode;
   }
 
@@ -1694,7 +1709,7 @@ public class DbUtils {
    * quindi che la chiave primaria non sia stata alterata
    */
   public Integer updateObjects(Integer resultsetId,
-      List<BaseModelData> newItemList) throws HiddenException {
+      List<BaseModelData> newItemList, String condition) throws HiddenException {
 
     log("<START> Setting records");
 
@@ -1707,23 +1722,24 @@ public class DbUtils {
           dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
 
-      List<BaseModelData> PKs = dbProperties.getPrimaryKeys(tableName);
       String PKset = "";
-
+      connection.setAutoCommit(false);
       for (BaseModelData record : newItemList) {
 
-        for (BaseModelData pk : PKs) {
-          PKset =
-              PKset.concat((String) pk.get("PK_NAME") + "="
-                  + record.get((String) pk.get("PK_NAME")) + " AND ");
-        }
-
-        PKset = PKset.substring(0, PKset.length() - 5);
-
+        // for (BaseModelData pk : PKs) {
+        // PKset =
+        // PKset.concat((String) pk.get("PK_NAME") + "="
+        // + record.get((String) pk.get("PK_NAME")) + " AND ");
+        // }
+        //
+        // PKset = PKset.substring(0, PKset.length() - 5);
+        PKset = condition + " = " + record.get(condition);
         String set = "";
-
-        for (String property : record.getPropertyNames()) {
-          set += "`" + property + "`=?'" + sep;
+        Collection<String> properties = record.getPropertyNames();
+        for (String property : properties) {
+          if (property.compareToIgnoreCase(condition) != 0) {
+            set += "`" + property + "` =? " + sep;
+          }
         }
 
         set = set.substring(0, set.length() - sep.length());
@@ -1734,25 +1750,36 @@ public class DbUtils {
         PreparedStatement ps =
             (PreparedStatement) connection.prepareStatement(query);
         int i = 1;
-        for (String property : record.getPropertyNames()) {
-          ps.setObject(i, record.get(property));
-          // ps.setObject(i + columns, record.get(property));
-          if (i < record.getPropertyNames().size()) {
+        for (String property : properties) {
+          // System.out.println(i+" "+record.getPropertyNames().size()+" "+property+" "+record.get(property)+" ");
+          if (property.compareToIgnoreCase(condition) != 0) {
+            if (record.get(property) != null
+                && String.valueOf(record.get(property)).length() > 0) {
+              ;
+              ps.setObject(i, record.get(property));
+            } else {
+              ps.setNull(i, java.sql.Types.NULL);
+              // ps.setObject(i + columns, record.get(property));
+            }
             i++;
           }
         }
-
         Log.debug("Query UPDATE: " + ps);
-
         int num = ps.executeUpdate();
-
         if (num > 0) {
           log("UPDATE (" + ps.toString() + ")");
         }
         result += num;
-
       }
+      connection.commit();
+      connection.setAutoCommit(true);
     } catch (Exception e) {
+      try {
+        connection.rollback();
+      } catch (Exception e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
       Log.warn("Errore SQL", e);
       throw new HiddenException("Errore durante l'aggiornamento del record:\n"
           + e.getLocalizedMessage());
