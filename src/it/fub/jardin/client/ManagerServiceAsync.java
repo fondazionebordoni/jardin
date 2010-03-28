@@ -86,4 +86,7 @@ public interface ManagerServiceAsync {
 
   public void getPlugins(int gid, int rsid,
       AsyncCallback<ArrayList<Plugin>> callback);
+
+  public void updateObjects(Integer resultsetId, List<BaseModelData> newItemList,
+		String condition, AsyncCallback<Integer> callback);
 }

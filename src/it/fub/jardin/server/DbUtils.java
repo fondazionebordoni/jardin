@@ -1721,25 +1721,42 @@ public class DbUtils {
       ResultSetMetaData metadata =
           dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
-
+      
+      List<BaseModelData> PKs = dbProperties.getResultsetPrimaryKeys(resultsetId);
+      
       String PKset = "";
       connection.setAutoCommit(false);
       for (BaseModelData record : newItemList) {
-
-        // for (BaseModelData pk : PKs) {
-        // PKset =
-        // PKset.concat((String) pk.get("PK_NAME") + "="
-        // + record.get((String) pk.get("PK_NAME")) + " AND ");
-        // }
-        //
-        // PKset = PKset.substring(0, PKset.length() - 5);
-        PKset = condition + " = " + record.get(condition);
+    	  
+    	  boolean conditionFounded = false;
+    	  if (condition.compareToIgnoreCase(new String("$-notspec-$")) == 0) {
+    		  // richiesta di update da griglia o dettaglio
+        	 for (BaseModelData pk : PKs) {
+               PKset =
+               PKset.concat((String) pk.get("PK_NAME") + "="
+               + record.get((String) pk.get("PK_NAME")) + " AND ");
+               }
+              
+               PKset = PKset.substring(0, PKset.length() - 5);
+               
+               conditionFounded = true;
+                              
+    	  } else {
+    		  PKset = condition + " = " + record.get(condition);
+    	  }
         String set = "";
         Collection<String> properties = record.getPropertyNames();
+        
         for (String property : properties) {
           if (property.compareToIgnoreCase(condition) != 0) {
             set += "`" + property + "` =? " + sep;
+          } else {
+        	  conditionFounded = true;
           }
+        }
+        
+        if (!conditionFounded) {
+        	throw new VisibleException("condizione di UPDATE non trovata nel file");
         }
 
         set = set.substring(0, set.length() - sep.length());
