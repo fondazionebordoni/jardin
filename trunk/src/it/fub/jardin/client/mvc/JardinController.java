@@ -648,7 +648,8 @@ public class JardinController extends Controller {
         };
 
         /* Make the call */
-        service.setObjects(resultset.getId(), newItemList, callback);
+//        service.setObjects(resultset.getId(), newItemList, callback);
+        service.updateObjects(resultset.getId(), newItemList, new String("$-notspec-$"), callback);
       } else {
         Info.display("Informazione", "Nessuna modifica da salvare", "");
       }
