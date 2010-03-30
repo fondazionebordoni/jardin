@@ -53,10 +53,10 @@ Ad esempio, se volessimo cercare tutti i record di impianti che sono situati nel
 <A NAME="toc5"></A>
 <H2>In che formato devono essere forniti i dati per poterli importare nella griglia?</H2>
 <P>
-Il formato valido per una corretta importazione è, per il momento, lo stesso usato per l'esportazione CSV. Il separatore di campo e i delimitatori dei valori sono ricavabili dal file esportato (per il momento: separatore di campo = <CODE>|</CODE>, delimitatore = <CODE>"</CODE>).
+Il formato attualmente supportato per l'importazione è CSV. Il separatore di campo può essere scelto tra ";" o ",", mentre il delimitatore dei valori, può essere scelto a piacimento. La prima riga del file importato deve contenere il nome delle colonne. Non tutte le colonne devono essere obbligatoriamente inserite nel file.
 </P>
 <P>
-L'importazione verrà eseguita rispettando i vincoli delle chiavi primarie, o in assenza di queste, dei campi unique.
+Anche la modifica massiva di dati è possibile tramite import di file CVS. In questo caso, però, verrà chiesto all'utente di specificare la cosiddetta "condizione di WHERE", ovvero il campo sulla base del quale verrà identificato il record da aggiornare.
 </P>
 <A NAME="toc6"></A>
 <H2>Dovendo inserire dei record nuovi come posso gestire la chiave primaria?</H2>
