@@ -719,7 +719,7 @@ public class DbUtils {
           }
           i++;
         }
-        System.out.println(ps.toString());
+//        System.out.println(ps.toString());
         int num = ps.executeUpdate();
         if (num > 0) {
           String toLog = "INSERT (" + ps.toString() + ")";
@@ -1626,10 +1626,12 @@ public class DbUtils {
       try {
         while ((t = csvp.getLine()) != null) {
           BaseModelData bm = new BaseModelData();
+//          System.out.println("lunghezza riga: "+ t.length);
           // System.out.print("" + csvp.lastLineNumber() + ":");
           for (int i = 0; i < t.length; i++) {
-            bm.set(columns[i], t[i]);
-            System.out.print("\"" + t[i] + "\";");
+//            System.out.println("valorizzazione campo: " + columns[i] +" = " + t[i]);
+              bm.set(columns[i], t[i]);
+//            System.out.println("\"" + t[i] + "\";");
           }
           recordList.add(bm);
         }
