@@ -187,9 +187,9 @@ public class Upload extends HttpServlet {
     } catch (HiddenException e) {
       Log.warn("Errore durante il caricamento dei dati", e);
       return "Errore. " + e.getLocalizedMessage();
-    } catch (ArrayIndexOutOfBoundsException ex) {
-      Log.warn("Troppi campi nel file", ex);
-      return "Troppi campi nel file";
+    } catch (VisibleException e) {
+      Log.warn(e.getMessage());
+      return e.getMessage();
     } catch (Exception e) {
       Log.warn("Errore durante l'upload del file", e);
       return "Errore. Impossibile salvare il file sul server";
