@@ -719,7 +719,7 @@ public class DbUtils {
           }
           i++;
         }
-//        System.out.println(ps.toString());
+        // System.out.println(ps.toString());
         int num = ps.executeUpdate();
         if (num > 0) {
           String toLog = "INSERT (" + ps.toString() + ")";
@@ -1621,20 +1621,27 @@ public class DbUtils {
       csvp.changeQuote(quote.charAt(0));
       csvp.setCommentStart(commentDelims);
 
-      String[] t;
+      String[] t = null;
       columns = csvp.getLine();
+      int lineFailed = 0;
       try {
         while ((t = csvp.getLine()) != null) {
+          lineFailed++;
           BaseModelData bm = new BaseModelData();
-//          System.out.println("lunghezza riga: "+ t.length);
+//          System.out.println("lunghezza riga: " + t.length);
           // System.out.print("" + csvp.lastLineNumber() + ":");
           for (int i = 0; i < t.length; i++) {
-//            System.out.println("valorizzazione campo: " + columns[i] +" = " + t[i]);
-              bm.set(columns[i], t[i]);
-//            System.out.println("\"" + t[i] + "\";");
+//            System.out.println("valorizzazione campo: " + columns[i] + " = "
+//                + t[i]);
+            bm.set(columns[i], t[i]);
+            // System.out.println("\"" + t[i] + "\";");
           }
           recordList.add(bm);
         }
+      } catch (ArrayIndexOutOfBoundsException ex) {
+        Log.warn("Troppi campi nel file: " + t.length + " alla riga " + (lineFailed+1), ex);
+        throw new VisibleException("Troppi campi nel file: " + t.length
+            + " alla riga " + (lineFailed+1));
       } catch (IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -1723,42 +1730,44 @@ public class DbUtils {
       ResultSetMetaData metadata =
           dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
-      
-      List<BaseModelData> PKs = dbProperties.getResultsetPrimaryKeys(resultsetId);
-      
+
+      List<BaseModelData> PKs =
+          dbProperties.getResultsetPrimaryKeys(resultsetId);
+
       String PKset = "";
       connection.setAutoCommit(false);
       for (BaseModelData record : newItemList) {
-    	  
-    	  boolean conditionFounded = false;
-    	  if (condition.compareToIgnoreCase(new String("$-notspec-$")) == 0) {
-    		  // richiesta di update da griglia o dettaglio
-        	 for (BaseModelData pk : PKs) {
-               PKset =
-               PKset.concat((String) pk.get("PK_NAME") + "="
-               + record.get((String) pk.get("PK_NAME")) + " AND ");
-               }
-              
-               PKset = PKset.substring(0, PKset.length() - 5);
-               
-               conditionFounded = true;
-                              
-    	  } else {
-    		  PKset = condition + " = " + record.get(condition);
-    	  }
+
+        boolean conditionFounded = false;
+        if (condition.compareToIgnoreCase(new String("$-notspec-$")) == 0) {
+          // richiesta di update da griglia o dettaglio
+          for (BaseModelData pk : PKs) {
+            PKset =
+                PKset.concat((String) pk.get("PK_NAME") + "="
+                    + record.get((String) pk.get("PK_NAME")) + " AND ");
+          }
+
+          PKset = PKset.substring(0, PKset.length() - 5);
+
+          conditionFounded = true;
+
+        } else {
+          PKset = condition + " = " + record.get(condition);
+        }
         String set = "";
         Collection<String> properties = record.getPropertyNames();
-        
+
         for (String property : properties) {
           if (property.compareToIgnoreCase(condition) != 0) {
             set += "`" + property + "` =? " + sep;
           } else {
-        	  conditionFounded = true;
+            conditionFounded = true;
           }
         }
-        
+
         if (!conditionFounded) {
-        	throw new VisibleException("condizione di UPDATE non trovata nel file");
+          throw new VisibleException(
+              "condizione di UPDATE non trovata nel file");
         }
 
         set = set.substring(0, set.length() - sep.length());

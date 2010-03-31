@@ -72,6 +72,7 @@ public class SearchAreaBase extends HtmlContainer {
     this.field = new TextField<String>();
     this.field.setBorders(true);
     this.field.setName(SPECIAL_FIELD);
+    this.field.setWidth(300);
     this.field.setFieldLabel("Ricerca");
     this.field.setEmptyText("inserisci il testo...");
     this.field.setToolTip(tooltip);
