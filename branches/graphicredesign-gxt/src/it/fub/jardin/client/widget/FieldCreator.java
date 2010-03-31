@@ -62,7 +62,6 @@ public class FieldCreator {
       boolean textarea) {
     Field<?> result = null;
     String fieldType = field.getType();
-System.out.println(fieldType);
     /* Se il campo è una data non creo un combo */
     if (fieldType.compareToIgnoreCase("DATE") == 0) {
       DateField f = new DateField();
@@ -265,6 +264,7 @@ System.out.println(fieldType);
             if (values.get(i) != null) {
               Integer intVal = Integer.valueOf((String) values.get(i));
               intVals.add(i, intVal);
+System.out.println("campo: "+f.getName()+i+"->"+f.getClass());
             } else {
               intVals.add(null);
             }
@@ -274,6 +274,7 @@ System.out.println(fieldType);
           f = new SimpleComboBox<String>();
           f.setTriggerAction(TriggerAction.ALL);
           f.add(values);
+//System.out.println("campo: "+f.getName()+"->"+f.getClass()+f.get);
         }
         // System.out.println("test");
         // f = new SimpleComboBox<String>();

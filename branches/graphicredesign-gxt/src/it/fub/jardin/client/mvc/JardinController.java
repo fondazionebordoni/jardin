@@ -45,11 +45,15 @@ import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -60,6 +64,7 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.gargoylesoftware.htmlunit.javascript.host.Event;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -112,6 +117,7 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.GetGridViews);
     registerEventTypes(EventList.UploadTemplate);
     registerEventTypes(EventList.UploadImport);
+    registerEventTypes(EventList.UploadInsert);
     registerEventTypes(EventList.UpdateColumnModel);
     registerEventTypes(EventList.Jungle);
     registerEventTypes(EventList.ShowPieChart);
@@ -287,6 +293,13 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.UploadImport
         Log.error("Errore nei dati di EventList.UploadImport");
       }
+    } else if (t == EventList.UploadInsert) {
+      if (event.getData() instanceof Integer) {
+        onUploadInsert((Integer) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.UploadInsert
+        Log.error("Errore nei dati di EventList.UploadInsert");
+      }
     } else if (t == EventList.UpdateColumnModel) {
       // TODO CAMBIARE!!!
       if (event.getData() instanceof JardinGrid) {
@@ -347,11 +360,26 @@ public class JardinController extends Controller {
     } else if (t.getEventCode() == EventList.NewMessage.getEventCode()) {
       onNewMessage();
     } else if (t == EventList.ViewLinkedTable) {
-      onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
+      if (event.getData() instanceof IncomingForeignKeyInformation) {
+        onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.ViewLinkedTable
+        Log.error("Errore nei dati di EventList.ViewLinkedTable");
+      }
     } else if (t == EventList.GetPlugins) {
-      onGetPlugins((Integer) event.getData());
+      if (event.getData() instanceof Integer) {
+        onGetPlugins((Integer) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.GetPlugins
+        Log.error("Errore nei dati di EventList.GetPlugins");
+      }
     } else if (t == EventList.ViewPlugin) {
-      forwardToView(view, EventList.ViewPlugin, (String) event.getData());
+      if (event.getData() instanceof String) {
+        forwardToView(view, EventList.ViewPlugin, (String) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.ViewPlugin
+        Log.error("Errore nei dati di EventList.ViewPlugin");
+      }
     }
   }
 
@@ -523,13 +551,17 @@ public class JardinController extends Controller {
   }
 
   private void onSearch(final SearchParams searchParams) {
+    final MessageBox waitBox =
+        new MessageBox().wait("Caricamento dati", "Attendere prego...",
+            "Loading...");
     // TODO Modificare per gestire il solo resultsetId come parametro
     if (user.getResultsetFromId(searchParams.getResultsetId()).isRead()) {
 
       // ///////////////////////////////////////////
       // alla griglia servono i searchParams
+
       forwardToView(view, EventList.Search, searchParams);
-      
+
       final boolean limit = searchParams.isLimit();
       final ManagerServiceAsync service =
           (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -549,8 +581,22 @@ public class JardinController extends Controller {
 
       PagingLoader<PagingLoadResult<BaseModelData>> loader =
           new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
+
       loader.setRemoteSort(true);
       ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+
+      loader.addLoadListener(new LoadListener() {
+        @Override
+        public void loaderLoad(LoadEvent le) {
+          waitBox.close();
+        }
+
+        @Override
+        public void loaderLoadException(LoadEvent le) {
+          waitBox.close();
+          Dispatcher.forwardEvent(EventList.Error, le.exception);
+        }
+      });
 
       SearchResult searchResult = new SearchResult();
       searchResult.setResultsetId(searchParams.getResultsetId());
@@ -602,7 +648,8 @@ public class JardinController extends Controller {
         };
 
         /* Make the call */
-        service.setObjects(resultset.getId(), newItemList, callback);
+//        service.setObjects(resultset.getId(), newItemList, callback);
+        service.updateObjects(resultset.getId(), newItemList, new String("$-notspec-$"), callback);
       } else {
         Info.display("Informazione", "Nessuna modifica da salvare", "");
       }
@@ -833,6 +880,12 @@ public class JardinController extends Controller {
     d.show();
   }
 
+  private void onUploadInsert(int resultset) {
+    UploadDialog d =
+        new UploadDialog(user, UploadDialog.TYPE_INSERT, resultset);
+    d.show();
+  }
+
   private void onUpdateColumnModel(final JardinGrid grid) {
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -960,8 +1013,8 @@ public class JardinController extends Controller {
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
 
-//    SearchParams searchParams = grid.getSearchparams();
-//    ListStore<BaseModelData> store = view.getStore(searchParams, false);
+    // SearchParams searchParams = grid.getSearchparams();
+    // ListStore<BaseModelData> store = view.getStore(searchParams, false);
     ListStore<BaseModelData> store = grid.getStore();
     store.getLoader().load();
 

@@ -152,6 +152,18 @@
 	background: url(images/icons/folder_table.png) no-repeat center left !important;
 }
 
+.icon-plugin {
+  background: url(images/icons/brick.png) no-repeat center left !important;
+}
+
+.icon-table-update {
+  background: url(images/icons/table_refresh.png) no-repeat center left !important;
+}
+
+.icon-table-insert {
+  background: url(images/icons/table_add.png) no-repeat center left !important;
+}
+
 .icon-export {
 	background: url(images/icons/disk.png) no-repeat center left !important;
 }
@@ -170,6 +182,10 @@
 
 .icon-delete-disabled {
 	background: url(images/icons/deleteDisabled.png) no-repeat center left !important;
+}
+
+.icon-search {
+  background: url(images/icons/magnifier.png) no-repeat center left !important;
 }
 
 .icon-chart,

@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.bcel.generic.NEW;
 
 import it.fub.jardin.client.EventList;
+import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.User;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -74,6 +76,11 @@ public class UploadDialog extends Window {
    */
   public static final String TYPE_IMPORT = "import";
   /**
+   * Definisce il nome dell'azione di import di un file contenente record da
+   * inserire
+   */
+  public static final String TYPE_INSERT = "insert";
+  /**
    * Definisce il nome dell'azione di import di un file da usare come template
    * di esportazione dei dati
    */
@@ -114,7 +121,7 @@ public class UploadDialog extends Window {
     panel.setLabelWidth(150);
     panel.setFieldWidth(280);
 
-    if (type.compareTo(TYPE_IMPORT) == 0) {
+    if ((type.compareTo(TYPE_IMPORT) == 0) || (type.compareTo(TYPE_INSERT) == 0)) {
       
       panel.addText("Scegliere il tipo di import:");
       
@@ -192,6 +199,24 @@ public class UploadDialog extends Window {
 
     }
 
+    if (type.compareTo(TYPE_IMPORT) == 0){
+      SimpleComboBox<String> conditions = new SimpleComboBox<String>();
+      ResultsetImproved rsi = user.getResultsetFromId(resultset);
+      List<ResultsetField> fields = rsi.getFields();
+      for (ResultsetField field : fields) {
+        if (field.getIsPK() || field.isUnique()){
+          conditions.add(field.getName());
+        }
+      }
+      conditions.setFieldLabel("Colonna di riferimento");
+      conditions.setName("condition");
+      conditions.setEditable(false);
+      conditions.setTriggerAction(TriggerAction.ALL);
+      conditions.setForceSelection(true);
+      conditions.setAllowBlank(false);
+      panel.add(conditions);
+    }
+    
     HiddenField<String> importType = new HiddenField<String>();
     importType.setName(FIELD_TYPE);
     importType.setValue(type);
@@ -237,11 +262,10 @@ public class UploadDialog extends Window {
         message = message.replaceAll("<(.)?pre>", "");
         if (message.contains(SUCCESS)) {
           message = message.replaceAll(SUCCESS, "");
-          if (type.compareTo(TYPE_IMPORT) == 0) {
+          if ((type.compareTo(TYPE_IMPORT) == 0) || (type.compareTo(TYPE_INSERT) == 0)) {
             Dispatcher.forwardEvent(EventList.UpdateStore, resultset);
             waitBox.close();
-          }
-          if (type.compareTo(TYPE_TEMPLATE) == 0) {
+          } else if (type.compareTo(TYPE_TEMPLATE) == 0) {
             Dispatcher.forwardEvent(EventList.UpdateTemplates, resultset);
           }
           Info.display("Informazione", message);
@@ -264,11 +288,7 @@ public class UploadDialog extends Window {
     this.setResizable(false);
 
     if (type.compareTo(TYPE_IMPORT) == 0) {
-      this.addText("Se si carica un file contente uno più record già presenti "
-          + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
-          + "contenuti nel file stesso.<BR />"
-          + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b>"
-          + "<BR /><b><u>Attenzione: la prima riga del file da importare deve contenere i nomi delle colonne!</u></b>");
+      this.addText("<b><u>Attenzione: la prima riga del file da importare deve contenere i nomi delle colonne!</u></b>");
     }
     this.add(panel);
     this.setFocusWidget(file);

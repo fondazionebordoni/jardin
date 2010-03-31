@@ -4,6 +4,7 @@
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
+import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.widget.UploadDialog;
@@ -28,13 +29,14 @@ import com.allen_sauer.gwt.log.client.Log;
  */
 public class Upload extends HttpServlet {
   private static final long serialVersionUID = 6098745782027999297L;
-  private static final int MAX_SIZE = 20 * 1024 * 1024; // 20MB
+  private static final int MAX_SIZE = 30 * 1024 * 1024; // 30MB
 
   private String type = null;
   private String ts = null;
   private String fs = null;
   private int resultset = 0;
   private Credentials credentials = null;
+  private String condition = null;
   private String tipologia;
 
   public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -92,20 +94,18 @@ public class Upload extends HttpServlet {
       Log.debug("RESULTSET: " + this.resultset);
     } else if (name.compareTo(UploadDialog.FIELD_CREDENTIALS) == 0) {
       this.credentials = Credentials.parseCredentials(value);
-      Log.debug("USER: " + this.credentials.getUsername() + "; PASS: "
-          + this.credentials.getPassword());
+      // Log.debug("USER: " + this.credentials.getUsername() + "; PASS: "
+      // + this.credentials.getPassword());
     } else if (name.compareTo("textSep") == 0) {
-      // Log.debug("separatore di testo: " + value);
       this.ts = value;
     } else if (name.compareTo("fieldSep") == 0) {
-      // Log.debug("separatore di campo: " + value);
       this.fs = value;
     } else if (name.compareTo("limit") == 0) {
-      // Log.debug("tipologia: " + value);
       this.tipologia = name;
     } else if (name.compareTo("fix") == 0) {
-      // Log.debug("tipologia: " + value);
       this.tipologia = name;
+    } else if (name.compareTo("condition") == 0) {
+      this.condition = value;
     } else {
       Log.debug("attenzione campo non riconosciuto: " + name + "--->" + value);
     }
@@ -153,7 +153,8 @@ public class Upload extends HttpServlet {
         /* Decisione del posto dove salvare il file */
         if (this.type.compareTo(UploadDialog.TYPE_TEMPLATE) == 0) {
           f = new File(root + Template.TEMPLATE_DIR + name);
-        } else if (this.type.compareTo(UploadDialog.TYPE_IMPORT) == 0) {
+        } else if ((this.type.compareTo(UploadDialog.TYPE_IMPORT) == 0)
+            || (this.type.compareTo(UploadDialog.TYPE_INSERT) == 0)) {
           f = File.createTempFile(name, "");
         } else {
           Log.warn("Azione da eseguire con il file '" + this.type
@@ -167,7 +168,12 @@ public class Upload extends HttpServlet {
         /* Decisione delle azioni da eseguire con il file */
         if (this.type.compareToIgnoreCase(UploadDialog.TYPE_IMPORT) == 0) {
           (new DbUtils()).importFile(this.credentials, this.resultset, f, ts,
-              fs, tipologia);
+              fs, tipologia, UploadDialog.TYPE_IMPORT, condition);
+          return UploadDialog.SUCCESS
+              + "Importazione dati avvenuta con successo";
+        } else if (this.type.compareToIgnoreCase(UploadDialog.TYPE_INSERT) == 0) {
+          (new DbUtils()).importFile(this.credentials, this.resultset, f, ts,
+              fs, tipologia, UploadDialog.TYPE_INSERT, condition);
           return UploadDialog.SUCCESS
               + "Importazione dati avvenuta con successo";
         } else {
@@ -181,6 +187,9 @@ public class Upload extends HttpServlet {
     } catch (HiddenException e) {
       Log.warn("Errore durante il caricamento dei dati", e);
       return "Errore. " + e.getLocalizedMessage();
+    } catch (VisibleException e) {
+      Log.warn(e.getMessage());
+      return e.getMessage();
     } catch (Exception e) {
       Log.warn("Errore durante l'upload del file", e);
       return "Errore. Impossibile salvare il file sul server";

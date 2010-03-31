@@ -72,6 +72,7 @@ public class SearchAreaBase extends HtmlContainer {
     this.field = new TextField<String>();
     this.field.setBorders(true);
     this.field.setName(SPECIAL_FIELD);
+    this.field.setWidth(300);
     this.field.setFieldLabel("Ricerca");
     this.field.setEmptyText("inserisci il testo...");
     this.field.setToolTip(tooltip);
@@ -82,11 +83,9 @@ public class SearchAreaBase extends HtmlContainer {
           search(false);
         }
       }
-
     });
 
     this.add(field, "#" + searchId + "-text");
-
   }
 
   private void setButtons() {
@@ -166,11 +165,7 @@ public class SearchAreaBase extends HtmlContainer {
     }
 
     searchParams.setFieldsValuesList(queryFieldList);
-    if (accurate.getValue() == true) {
-      searchParams.setAccurate(true);
-    } else {
-      searchParams.setAccurate(false);
-    }
+    searchParams.setAccurate(accurate.getValue());
     Dispatcher.forwardEvent(EventList.Search, searchParams);
   }
 }

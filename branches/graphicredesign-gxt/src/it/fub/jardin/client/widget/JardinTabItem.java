@@ -1,18 +1,11 @@
 package it.fub.jardin.client.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import it.fub.jardin.client.EventList;
-import it.fub.jardin.client.Jardin;
-import it.fub.jardin.client.ManagerServiceAsync;
-import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
-import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.Registry;
+import java.util.ArrayList;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -21,7 +14,6 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -39,8 +31,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.smartgwt.client.widgets.grid.events.CellClickEvent;
 
 /**
  * @author gpantanetti
@@ -50,7 +40,6 @@ public class JardinTabItem extends TabItem {
   private static final int PAGESIZE = 20;
   private static final int MARGIN = 2;
   private ContentPanel main;
-  private ContentPanel north;
   private ContentPanel west;
   private ContentPanel center;
   private ContentPanel center_center;
@@ -73,23 +62,8 @@ public class JardinTabItem extends TabItem {
     this.main.setBodyBorder(false);
     this.add(this.main);
 
-    this.createNorth();
     this.createWest();
     this.createCenter();
-  }
-
-  private void createNorth() {
-    this.north = new ContentPanel(new FitLayout());
-    this.north.setHeaderVisible(false);
-    this.north.add(new WaitPanel());
-
-    BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH, 40);
-    data.setCollapsible(false);
-    data.setSplit(false);
-    data.setFloatable(false);
-    data.setMargins(new Margins(MARGIN, MARGIN, 0, MARGIN));
-
-    this.main.add(this.north, data);
   }
 
   private void createWest() {
@@ -153,12 +127,6 @@ public class JardinTabItem extends TabItem {
     data.setMargins(new Margins(MARGIN, 0, 0, 0));
 
     this.center.add(this.center_south, data);
-  }
-
-  public void addSearchAreaBase(SearchAreaBase searchAreaBase) {
-    this.north.removeAll();
-    this.north.add(searchAreaBase);
-    this.north.layout();
   }
 
   public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
