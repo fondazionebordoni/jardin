@@ -83,11 +83,9 @@ public class SearchAreaBase extends HtmlContainer {
           search(false);
         }
       }
-
     });
 
     this.add(field, "#" + searchId + "-text");
-
   }
 
   private void setButtons() {
@@ -167,11 +165,7 @@ public class SearchAreaBase extends HtmlContainer {
     }
 
     searchParams.setFieldsValuesList(queryFieldList);
-    if (accurate.getValue() == true) {
-      searchParams.setAccurate(true);
-    } else {
-      searchParams.setAccurate(false);
-    }
+    searchParams.setAccurate(accurate.getValue());
     Dispatcher.forwardEvent(EventList.Search, searchParams);
   }
 }
