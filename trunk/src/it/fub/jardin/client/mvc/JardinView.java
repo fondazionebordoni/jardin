@@ -4,8 +4,6 @@
 package it.fub.jardin.client.mvc;
 
 import it.fub.jardin.client.EventList;
-import it.fub.jardin.client.Jardin;
-import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetImproved;
@@ -23,19 +21,10 @@ import it.fub.jardin.client.widget.SearchAreaBase;
 
 import java.util.ArrayList;
 
-import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
-import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -53,8 +42,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.gargoylesoftware.htmlunit.AlertHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -184,27 +171,13 @@ public class JardinView extends View {
         MenuItem mi = new MenuItem(plugin.getPluginName());
 
         mi.addSelectionListener(new SelectionListener() {
-
           @Override
           public void componentSelected(ComponentEvent ce) {
             Dispatcher.forwardEvent(EventList.ViewPlugin,
                 plugin.getConfigFile());
           }
-
-          // public void handleEvent(BaseEvent be) {
-          // // TODO Auto-generated method stub
-          //          
-          // }
         });
         menuPlugins.add(mi);
-
-        // SelectionListener Listener = new SelectionListener() {
-        // @Override
-        // public void componentSelected(ComponentEvent ce) {
-        // Dispatcher.forwardEvent(EventList.ViewPlugin,
-        // plugin.getConfigFile());
-        // }
-        // };
       }
       jgtb.getButtonMenuPlugins().setMenu(menuPlugins);
       jgtb.getButtonMenuPlugins().showMenu();
@@ -341,9 +314,6 @@ public class JardinView extends View {
       /* Aggiungere la griglia al tabItem */
       item.setGrid(grid);
 
-      /* Aggiungere la ricerca semplice al tabItem */
-      item.addSearchAreaBase(searchAreaBase);
-
       /* Aggiungere il dettaglio al tabitem */
       item.addDetail(detail);
 
@@ -380,33 +350,6 @@ public class JardinView extends View {
       }
     }
   }
-
-  // public ListStore<BaseModelData> getStore(final SearchParams searchParams,
-  // final boolean limit) {
-  //
-  // final ManagerServiceAsync service =
-  // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-  //
-  // RpcProxy<PagingLoadResult<BaseModelData>> proxy =
-  // new RpcProxy<PagingLoadResult<BaseModelData>>() {
-  // @Override
-  // public void load(Object loadConfig,
-  // AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
-  // PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
-  // if (!limit) {
-  // plc.setLimit(-1);
-  // }
-  // service.getRecords((PagingLoadConfig) plc, searchParams, callback);
-  // }
-  // };
-  //
-  // PagingLoader<PagingLoadResult<BaseModelData>> loader =
-  // new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
-  // loader.setRemoteSort(true);
-  // ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
-  //
-  // return store;
-  // }
 
   private void onSaveGridView(int resultset) {
     final JardinGrid grid = getItemByResultsetId(resultset).getGrid();

@@ -4,26 +4,30 @@
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
+import it.fub.jardin.client.SearchStringParser;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.Tool;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.IconHelper;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
@@ -35,7 +39,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.event.dom.client.KeyCodes;
 
 /**
  * @author gpantanetti
@@ -43,19 +47,45 @@ import com.google.gwt.user.client.ui.TextBox;
  */
 public class JardinGridToolBar extends ToolBar {
 
-  private int resultset;
+  private ResultsetImproved resultset;
   // TODO Eliminare riferimenti a grid: dovrebbe bastare il resultset
   private JardinGrid grid;
+  private SimpleComboBox<String> searchfield;
+  private static final String SPECIAL_FIELD = "searchField";
+  private List<String> fieldNames;
   private MenuItem preferenceMenuItem;
   private SimpleComboBox<Template> comboTemplate;
   private TextField<String> fs = new TextField<String>();
   private SimpleComboBox<String> ts = new SimpleComboBox<String>();
-  private Button buttonMenuPlugins = new Button("Plugins", getListenerWithGrid(EventList.GetPlugins) );
+  private Button buttonMenuPlugins =
+      new Button("Plugin", IconHelper.createStyle("icon-plugin"),
+          getListenerWithGrid(EventList.GetPlugins));
+  private SearchParams searchParams;
+  private String tooltip;
+  private String searchId;
+  private CheckMenuItem accurate;
 
   // TODO Modificare il costruttore: passare solo l'id del resultset
   public void setGrid(JardinGrid grid) {
-    this.resultset = grid.getResultset().getId();
+    this.resultset = grid.getResultset();
+    this.searchId = "grid-toolbar-" + resultset.getId();
+    this.searchParams = new SearchParams(resultset.getId());
     this.grid = grid;
+
+    this.fieldNames = new ArrayList<String>();
+    this.tooltip =
+        "Per una ricerca avanzata &egrave; possibile usare le seguenti parole chiave:<br/>";
+    for (ResultsetField f : resultset.getFields()) {
+      String fieldName = f.getName();
+      this.fieldNames.add(fieldName);
+      this.tooltip += "<b>" + fieldName + "</b>; ";
+    }
+    this.tooltip +=
+        "<br>Costruire un testo per la ricerca usando parole "
+            + "chiave e valori da cercare in questo modo:<br>"
+            + "[parola_chiave:]valore [parola_chiave:valore ...]";
+    this.addSearch();
+    this.add(new SeparatorToolItem());
 
     ArrayList<Tool> tools = grid.getResultset().getTools();
     if (tools.contains(Tool.ALL)) {
@@ -69,6 +99,7 @@ public class JardinGridToolBar extends ToolBar {
       this.add(new SeparatorToolItem());
       this.addAnalisysButton();
       this.addChartButton();
+      this.add(new SeparatorToolItem());
     } else {
       if (tools.contains(Tool.MODIFY)) {
         this.addModifyActions();
@@ -89,11 +120,130 @@ public class JardinGridToolBar extends ToolBar {
       if (tools.contains(Tool.ANALISYS)) {
         this.addAnalisysButton();
         this.addChartButton();
+        this.add(new SeparatorToolItem());
       }
     }
-    this.add(new SeparatorToolItem());
-    
+
     this.add(buttonMenuPlugins);
+  }
+
+  private void addSearch() {
+    this.searchfield = new SimpleComboBox<String>() {
+      @Override
+      public void doQuery(String q, boolean forceAll) {
+        int index = q.lastIndexOf(' ', q.length() - 2);
+        q = q.substring(index + 1);
+        super.doQuery(q, forceAll);
+      }
+
+      @Override
+      protected void onSelect(SimpleComboValue<String> model, int index) {
+        String value = this.getRawValue();
+        int i = value.lastIndexOf(' ', value.length() - 2);
+        value = value.substring(0, i + 1);
+        super.onSelect(model, index);
+        this.setRawValue(value + model.getValue() + ":");
+      }
+    };
+    this.searchfield.setHideTrigger(true);
+    this.searchfield.setEditable(true);
+    this.searchfield.setTypeAhead(false);
+    this.searchfield.add(this.fieldNames);
+    this.searchfield.setName(SPECIAL_FIELD);
+    this.searchfield.setFieldLabel("Cerca");
+    // this.searchfield.setEmptyText("Cerca");
+    this.searchfield.setToolTip(tooltip);
+    this.searchfield.setWidth("24em");
+    this.searchfield.addKeyListener(new KeyListener() {
+      @Override
+      public void componentKeyPress(final ComponentEvent event) {
+        if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+          search(false);
+        }
+      }
+    });
+
+    this.add(searchfield);
+    this.addSearchButtons();
+  }
+
+  private void addSearchButtons() {
+
+    final String SEARCH = searchId + "-search";
+    final String SEARCH_ALL = searchId + "-searchall";
+
+    SelectionListener<ButtonEvent> listener =
+        new SelectionListener<ButtonEvent>() {
+          @Override
+          public void componentSelected(ButtonEvent te) {
+            if (te.getButton().getId().compareTo(SEARCH) == 0) {
+              search(false);
+            } else if (te.getButton().getId().compareTo(SEARCH_ALL) == 0) {
+              search(true);
+            }
+          }
+        };
+
+    HorizontalPanel searchPanel = new HorizontalPanel();
+
+    Button search = new Button("Cerca", IconHelper.createStyle("icon-search"));
+    search.addSelectionListener(listener);
+    search.setId(SEARCH);
+    searchPanel.add(search);
+
+    Button searchOptions = new Button("Opzioni");
+
+    Menu menu = new Menu();
+    String tooltipAccurate =
+        "La selezione del checkbox permette di fare una ricerca pi&ugrave; accurata della parola.";
+    this.accurate = new CheckMenuItem("Ricerca accurata");
+    this.accurate.setChecked(true);
+    this.accurate.setToolTip(tooltipAccurate);
+    menu.add(this.accurate);
+
+    searchOptions.setMenu(menu);
+    searchPanel.add(searchOptions);
+
+    this.add(searchPanel);
+  }
+
+  /**
+   * Avvia la ricerca su database nel resultset associato alla tabella
+   * 
+   * @param searchAll
+   *          se avviare o no la ricerca su tutti i valori del resultset.
+   *          Impostare a true per visualizzare tutti i record del resultset
+   */
+  private void search(boolean searchAll) {
+    String s = this.searchfield.getRawValue().trim();
+
+    List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+
+    if (!searchAll && s.length() > 0) {
+      SearchStringParser parser = new SearchStringParser(s);
+
+      String specialSearchValue = parser.getSpecialSearchValue();
+      if (specialSearchValue != null) {
+        BaseModelData m = new BaseModelData();
+        m.set(SPECIAL_FIELD, specialSearchValue);
+        queryFieldList.add(m);
+      }
+
+      Map<String, String> searchMap = parser.getSearchMap();
+      for (String key : parser.getSearchMap().keySet()) {
+        for (String k : fieldNames) {
+          if (k.equalsIgnoreCase(key)) {
+            BaseModelData m = new BaseModelData();
+            m.set(key, searchMap.get(key));
+            queryFieldList.add(m);
+          }
+        }
+      }
+    }
+
+    searchParams.setFieldsValuesList(queryFieldList);
+    searchParams.setAccurate(accurate.isChecked());
+    Dispatcher.forwardEvent(EventList.Search, searchParams);
   }
 
   @SuppressWarnings("unchecked")
@@ -101,7 +251,7 @@ public class JardinGridToolBar extends ToolBar {
 
     // TODO Non inserire il bottone se l'azione non è consentita
 
-    if (grid.getResultset().isInsert()) {
+    if (resultset.isInsert()) {
       this.add(new Button("Aggiungi riga", IconHelper.createStyle("icon-add"),
           getListenerWithGrid(EventList.AddRow)));
     } else {
@@ -109,7 +259,7 @@ public class JardinGridToolBar extends ToolBar {
       // IconHelper.createStyle("icon-add-disabled")));
     }
 
-    if (grid.getResultset().isDelete()) {
+    if (resultset.isDelete()) {
       this.add(new Button("Rimuovi righe",
           IconHelper.createStyle("icon-delete"),
           getListenerWithGrid(EventList.RemoveRows)));
@@ -123,7 +273,7 @@ public class JardinGridToolBar extends ToolBar {
   private void addExportActions() {
 
     Template defaultTemplate = new Template(Template.DEFAULT);
-    defaultTemplate.setXsl(resultset + "_default.xsl");
+    defaultTemplate.setXsl(resultset.getId() + "_default.xsl");
 
     // campi dei separatori per l'export
     this.fs.setName("fs");
@@ -135,7 +285,7 @@ public class JardinGridToolBar extends ToolBar {
     this.ts.setName("ts");
     this.ts.setToolTip("Separatore testo");
     this.ts.setWidth(30);
-    
+
     List<String> values = new ArrayList<String>();
     values.add("\"");
     values.add("'");
@@ -144,10 +294,10 @@ public class JardinGridToolBar extends ToolBar {
     this.ts.setTriggerAction(TriggerAction.ALL);
     this.ts.setForceSelection(true);
     this.ts.setSimpleValue("\"");
-    
+
     this.add(this.fs);
     this.add(this.ts);
-    
+
     /* Combo box per la selezione del formato di esportazione */
     this.comboTemplate = new SimpleComboBox<Template>();
 
@@ -159,27 +309,26 @@ public class JardinGridToolBar extends ToolBar {
     this.comboTemplate.setEditable(false);
     this.comboTemplate.setTriggerAction(TriggerAction.ALL);
     this.comboTemplate.setForceSelection(true);
-    
-    this.comboTemplate.addSelectionChangedListener(
-        new SelectionChangedListener<SimpleComboValue<Template>>() {
 
-          @Override
-          public void selectionChanged(
-              SelectionChangedEvent<SimpleComboValue<Template>> se) {
-            //System.out.println("template->"+se.getSelectedItem().getValue());
-            if (se.getSelectedItem().getValue().toString().compareToIgnoreCase("CSV")==0){
-              // abilito i campi per la specifica dei separatori
-              ts.setEnabled(true);
-              fs.setEnabled(true);
-            }else{
-              // disabilito i campi per la specifica dei separatori
-              ts.setEnabled(false);
-              fs.setEnabled(false);
-            }
-          }
-          
+    this.comboTemplate.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<Template>>() {
+
+      @Override
+      public void selectionChanged(
+          SelectionChangedEvent<SimpleComboValue<Template>> se) {
+        // System.out.println("template->"+se.getSelectedItem().getValue());
+        if (se.getSelectedItem().getValue().toString().compareToIgnoreCase(
+            "CSV") == 0) {
+          // abilito i campi per la specifica dei separatori
+          ts.setEnabled(true);
+          fs.setEnabled(true);
+        } else {
+          // disabilito i campi per la specifica dei separatori
+          ts.setEnabled(false);
+          fs.setEnabled(false);
         }
-    );
+      }
+
+    });
 
     this.add(this.comboTemplate);
 
@@ -223,27 +372,28 @@ public class JardinGridToolBar extends ToolBar {
   }
 
   private void addImportActions() {
-    Button importButton =
-        new Button("Aggiorna", IconHelper.createStyle("icon-import"),
+
+    Button b = new Button("Importa", IconHelper.createStyle("icon-import"));
+
+    Menu menu = new Menu();
+
+    MenuItem update =
+        new MenuItem("Aggiorna", IconHelper.createStyle("icon-table-update"),
             getListenerWithGrid(EventList.UploadImport));
-    importButton.setToolTip("Se si carica un file contente uno più record già presenti "
+    update.setToolTip("Se si carica un file contente uno più record già presenti "
         + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
         + "contenuti nel file stesso.\n"
         + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b><BR />"
         + "La prima riga del file da importare deve contenere i nomi delle colonne!");
+    menu.add(update);
 
-    this.add(importButton);
-    
-    Button insertButton =
-      new Button("Inserisci", IconHelper.createStyle("icon-import"),
-          getListenerWithGrid(EventList.UploadInsert));
-//    insertButton.setToolTip("Se si carica un file contente uno più record già presenti "
-//      + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
-//      + "contenuti nel file stesso.\n"
-//      + "<b>La coincidenza deve sussistere a livello di chiave primaria o chiave unique.</b><BR />"
-//      + "La prima riga del file da importare deve contenere i nomi delle colonne!");
+    MenuItem add =
+        new MenuItem("Inserisci", IconHelper.createStyle("icon-table-insert"),
+            getListenerWithGrid(EventList.UploadInsert));
+    menu.add(add);
 
-  this.add(insertButton);
+    b.setMenu(menu);
+    this.add(b);
   }
 
   private void addPreferenceActions() {
@@ -273,11 +423,12 @@ public class JardinGridToolBar extends ToolBar {
     this.add(preferenceButton);
   }
 
+  @SuppressWarnings("unchecked")
   private SelectionListener getListenerWithGrid(final EventType e) {
     SelectionListener listener = new SelectionListener() {
       @Override
       public void componentSelected(ComponentEvent ce) {
-        Dispatcher.forwardEvent(e, resultset);
+        Dispatcher.forwardEvent(e, resultset.getId());
       }
     };
     return listener;
@@ -312,21 +463,21 @@ public class JardinGridToolBar extends ToolBar {
   public Template getTemplate() {
     return this.comboTemplate.getSimpleValue();
   }
-  
+
   public char getTextSeparator() {
     String sep = ts.getSimpleValue();
-    if ((sep != null) && (sep.compareTo("")!=0)){
+    if ((sep != null) && (sep.compareTo("") != 0)) {
       return ts.getSimpleValue().charAt(0);
-    }else{
+    } else {
       return '\0';
     }
   }
-  
+
   public char getFieldSeparator() {
     String sep = fs.getValue();
-    if ((sep != null) && (sep.compareTo("")!=0)){
+    if ((sep != null) && (sep.compareTo("") != 0)) {
       return fs.getValue().charAt(0);
-    }else{
+    } else {
       return '\0';
     }
   }
@@ -360,5 +511,5 @@ public class JardinGridToolBar extends ToolBar {
   public void setButtonMenuPlugins(Button buttonMenuPlugins) {
     this.buttonMenuPlugins = buttonMenuPlugins;
   }
-  
+
 }
