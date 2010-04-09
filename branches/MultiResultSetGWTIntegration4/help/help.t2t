@@ -1,0 +1,132 @@
+Manuale di utilizzo dell'applicazione
+
+
+%!target: html
+%!encoding: utf8
+%!options: --toc
+%!style: help.css
+
+
+
+= Introduzione =
+L'applicazione Jardin è stata progettata e realizzata con l'intento di creare un comodo ambiente di lavoro per l'interrogazione, la gestione e la modifica di informazioni in un database.
+
+I dati ottenuti come risultato di interrogazioni generiche o mirate e le funzionalità offerte dall'interfaccia, sono funzione del ruolo associato all'operatore al momento dell'identificazione e autenticazione. 
+
+In base al livello di accredito dell'operatore il sistema mette a disposizione varie funzionalità per interagire con i dati.
+
+I dati presenti nel database possono essere modificati, aggiungi e cancellati.
+
+Sono disponibili funzionalità di importazione/esportazione dei dati per trattare in modo automatico ed in pochi secondi grosse moli di dati.
+
+L'interfaccia stessa di visualizzazione dei dati è un oggetto dinamico parametrizzabile in modo da fornire di volta in volta l'ambiente di lavoro più adeguato in base alle operazioni di interesse dell'utente.
+
+
+= Interfaccia =
+
+
+L'interfaccia dell'applicazione offre diversi ausili ed implementa funzionalità distinte in base alla tipologia d'utente. 
+
+Per favorire l'interazione dell'utente, è prevista la possibilità di personalizzare le caratteristiche relative alla visualizzazione dei risultati dell'applicazione, cambiando cioè le dimensione delle finestre e permettendo di selezionare quali campi delle interrogazioni visualizzare, selezionando solo quelli contenenti i dati d'interesse oppure l'intero contenuto informativo. 
+
+Una volta modificate le impostazioni relative alla visualizzazione dei dati, è possibile salvarle in modo da garantire la stessa configurazione impostata anche nelle successive sessione di lavoro e fino a nuovi cambiamenti.
+
+== Dimensionamento dinamico ==
+Per facilitare la visualizzazione è stata predisposta una funzionalità di dimensionamento dinamico delle diverse aree di lavoro. 
+Tale funzionalità permette di impostare la dimensione più adatta attraverso l'utilizzo dei bottoni presenti nella parte superiore delle finestre ovvero attraverso il meccanismo del resize/drag and drop (dimensionamento tramite trascinamento e rilascio).
+
+== Menu a scomparsa ==
+
+Per rendere più omogenea e schematica la visualizzazione dei dati sono stati predisposti dei menu a scomparsa.
+
+Cliccando sull'apposita icona è possibile mostrare/nascondere aree dell'applicazione delegate a specifiche funzioni come ad esempio un dettaglio di un singolo risultato o l'impostazione di parametri di ricerca specifici.
+	
+
+== Selezione dei campi ==
+
+Poiché il numero di informazioni associate ad un singolo record contenuto nel database è molto elevato, è stato predisposto in automatico un profilo che visualizza solo un sottoinsieme scelto di queste informazioni. 
+
+A partire da tale profilo, come già detto, l'utente può modificare l'impostazione automatica attivando o disattivando la visualizzazione di ulteriori campi (abilitando o meno il relativo riquadro) posizionandosi su uno dei campi contenuti nell'intestazione della griglia, cliccando sul tasto destro e navigando all'interno dei sottomenu che raggruppano i campi informativi per tipologia.
+
+L'utente può inoltre ordinare i record in ordine crescente/decrescente in base a varie chiavi tramite i tasti Sort Ascending (ordine crescente) e Sort Descending (ordine decrescente).
+
+Cambiate le preferenze relative ai campi da visualizzare, è possibile salvare le nuove impostazioni cliccando sul tasto Salva preferenze griglia in modo da conservare la composizione delle informazioni nelle griglia dei risultati anche al login successivo o fino ad ulteriori cambiamenti.
+
+
+
+
+== Auto completamento dei campi di ricerca==
+
+Nel box sinistro di ricerca, è disponibile una funzione di "ricerca autocompletata". 
+
+Cliccando su uno textfield del sottogruppo "ricerca autocompletata", è possibile visualizzare l'elenco completo delle voci disponibili per il campo, quindi iniziando a digitare i caratteri l'elenco si restringe progressivamente.
+
+La prima parola che corrisponde alle lettere digitate del nuovo elenco compare a video come suggerimento seguita da tutte le altre possibili parole, l'utente può così confermarla oppure continuare a digitare normalmente le altre lettere. 
+
+Si precisa che l'utente può anche solo inserire una qualsiasi stringa di caratteri parziale che verrà ricercata tra i valori del campo specifico ed ottenere quindi soli i record che la contengono.
+
+
+= Funzionalità principali =
+
+== Interrogare il database ==
+In Jardin è possibile cercare un valore in una vista su database utilizzando l'area di ricerca base, posta sopra la griglia, o l'area di ricerca avanzata a sinistra della griglia, solitamente nascosta. 
+
+== Modificare il database ==
+La possibilità di alterare i dati contenuti nel database è disponibile solo per gli utenti con un adeguato livello di autenticazione.
+
+
+=== Modificare una riga ===
+Per modificare una riga nell'area di visualizzazione dei dati è necessario posizionare il cursore del mouse sopra la riga stessa ed effettuare un doppio click con il mouse.
+
+Si aprirà, a questo punto, un menù di editing attraverso cui l'utente può cambiare le informazioni in essi contenute.
+
+In prossimità della riga compariranno anche due bottoni (save e cancel) corrispondenti rispettivamente al salvataggio delle informazioni modificate all'interno del database e all'annullamento delle modifiche apportate sul riga stessa.
+
+=== Aggiungere una riga ===
+Per aggiungere una riga nel database è necessario effettuare un click sull'icona "Aggiungi una riga".
+Il sistema aprirà un popup e sarà compito dell'utente inserire i vari campi del record.
+
+=== Rimuovere una riga ===
+Per rimuovere una riga nel database è necessario innanzitutto posizionare il cursore del mouse sulla riga di interesse e selezionarlo attraverso un click del mouse.
+A questo punto è sufficiente effettuare un click sull'icona "Rimuovi righe"
+=== Rimuovi righe ===
+
+
+== Importare i dati ==
+La funzione di importazione dei dati consente di caricare dati da una fonte esterna all'interno del database dell'applicazione. L'importazione può essere effettuata tramite file CSV, la cui prima riga deve contenere i nomi delle colonne della tabella che si sta modificando; non è necessario che si includano nel file tutte le colonne di una tabella.
+
+
+== Esportare i dati ==
+La funzione di esportazione dei dati consente di salvare i dati presenti nel database in uno spazio fisico selezionabile dall'utente.
+
+Sono disponibili varie modalità di salvataggio in base alle esigenze degli utenti.
+
+In base ai risultati di una ricerca un utente può salvare:
+- Tutta la griglia, tutte le colonne
+- Tutta la griglia, le colonne visibili
+- La griglia visibile, tutte le colone
+- La griglia visibile, le colonne visibili
+- Le righe selezionate, tutte le colonne
+- Le righe selezionate, le colonne visibili
+
+
+E' disponibile anche una funzionalità per il caricamento di template in formato XSL per l'esportazione dei dati in PDF (ancora da implementare).
+
+== Parametrizzare e salvare le preferenze di visualizzazione della griglia ==
+Le preferenze di lavoro settate dall'utente attraverso la funzione di Selezione dei campi, possono essere salvate.
+L'utente può quindi configurare la visualizzazione dei dati secondo le proprie esigenze.
+L'area di configurazione della visualizzazione contiene tre funzioni principali:
+- caricamento di una visualizzazione 
+- salvataggio di una visualizzazione
+- caricamento della visualizzazione di default
+
+
+== Analisi dei dati ==
+
+== Grafici ==
+Torta
+Istogramma
+
+=Altre utility=
+== Calcolatrice ==
+== Calendario ==
