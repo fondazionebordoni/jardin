@@ -9,7 +9,8 @@
 
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>Jardin.html</welcome-file>
+    <!-- <welcome-file>Jardin.html</welcome-file> -->
+    <welcome-file>TestLayoutGWT.html</welcome-file>
   </welcome-file-list>
   
   <!-- Servlets -->
