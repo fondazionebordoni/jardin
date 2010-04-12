@@ -24,7 +24,7 @@ public class CorrelatedResulSetsArea extends DockLayoutPanel {
 	boolean isShownResultSetbyIncomingKeysRelativeResultSetId(int incomingKeysRelativeResultSetId){
 		for (int i = 0 ; i < resultSetGuiArray.size(); i++) {
 			ResultSetGui currResultSetGui = resultSetGuiArray.get(i);		
-			if (currResultSetGui.resultSetSilly.id  == incomingKeysRelativeResultSetId) {
+			if (currResultSetGui.resultSetImproved.getId()  == incomingKeysRelativeResultSetId) {
 				return true;
 			} 
 		}
@@ -37,7 +37,7 @@ public class CorrelatedResulSetsArea extends DockLayoutPanel {
 		int l = resultSetGuiArray.size();
 		for (int i = 0 ; i < l ; i++) {
 			ResultSetGui currResultSetGui = resultSetGuiArray.get(i);		
-			if (currResultSetGui.resultSetSilly.id == incomingKeysRelativeResultSetId) {
+			if (currResultSetGui.resultSetImproved.getId() == incomingKeysRelativeResultSetId) {
 				currResultSetGui.removeFromParent();
 				resultSetGuiArray.remove(i);
 				break;
@@ -70,7 +70,7 @@ public class CorrelatedResulSetsArea extends DockLayoutPanel {
 			ArrayList<ResultSetGui> resultSetGuiArrayNew = new ArrayList<ResultSetGui>();
 			for (int i = 0 ; i < resultSetGuiArray.size(); i++) {
 				ResultSetGui currResultSetGui = resultSetGuiArray.get(i);		
-				if (currResultSetGui.resultSetSilly.id < newResultSetGui.resultSetSilly.id) {
+				if (currResultSetGui.resultSetImproved.getId()< newResultSetGui.resultSetImproved.getId()) {
 					resultSetGuiArrayNew.add(currResultSetGui);
 				} else {
 					if (inserted == false){

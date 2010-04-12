@@ -1,5 +1,9 @@
 package it.fub.jardin.client.testLayoutGWTPKG;
 
+import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.model.ResultsetImproved;
+
+import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -27,7 +31,10 @@ public class ResultSetGui extends DockLayoutPanel {
 	boolean navShown = false;
 	boolean detailShown = false;
 	boolean gridShown = true;
-	ResultSetSilly resultSetSilly;
+	//ResultSetSilly resultSetSilly;
+	ResultsetImproved resultSetImproved;
+	boolean  isRootResultSet;
+	boolean  isLarge;	
 	int rowNumber ; 
 	int colNumber ; 
 	Button gridButton;
@@ -52,15 +59,17 @@ public class ResultSetGui extends DockLayoutPanel {
 			"also said they would explore working together on technologies relating to electric vehicles and batteries to which all " +
 			"other layout panels should be attached test text ";
 	
-	public ResultSetGui(ResultSetSilly resultSetSilly){
+	public ResultSetGui(ResultsetImproved resultSetSilly, boolean  itsRootResultSet){
 		super(Unit.EM);	
-		this.resultSetSilly = resultSetSilly;
-		if (resultSetSilly.id == 0){
+		this.resultSetImproved = resultSetSilly;
+		this.isRootResultSet = itsRootResultSet;
+//		if (resultSetSilly.id == 0){
+		if (itsRootResultSet){
 			this.setStylePrimaryName("mainArea");
 		}
 		int a = random.nextInt(15); 
 		int b = random.nextInt(15); 
-		if (resultSetSilly.isLarge) {
+		if (isLarge) {
 			rowNumber = 2 + Math.min(a, b); 
 			colNumber = 1 + Math.max(a, b);;
 		} else {
@@ -71,6 +80,15 @@ public class ResultSetGui extends DockLayoutPanel {
 		createAndPlaceObjects ();
 	}
 
+	void checkIfLarge(){
+		if (resultSetImproved.getFields().size()> 3){
+			this.isLarge = true;
+		} else {
+			this.isLarge = false;			
+		}
+	}
+	
+	
 	Grid createNavAndDetail(){
 		Grid grid = new Grid(colNumber,2);
 		for (int i = 0; i < colNumber; i++) {
@@ -95,7 +113,8 @@ public class ResultSetGui extends DockLayoutPanel {
 			}
 			
 		}
-		if (resultSetSilly.id == 0){
+//		if (resultSetSilly.id == 0){
+		if (isRootResultSet){
 			grid.setStylePrimaryName("mainNavAndDetail");
 		} else {
 			grid.setStylePrimaryName("navAndDetail");			
@@ -152,7 +171,8 @@ public class ResultSetGui extends DockLayoutPanel {
 	}
 	
 	private void placeObjects(){
-		if (resultSetSilly.id ==0){
+		if (isRootResultSet) {
+		//if (resultSetSilly.id ==0){
 			if(grid!= null){
 				grid.setStylePrimaryName("mainResultSet");
 			}
@@ -166,14 +186,16 @@ public class ResultSetGui extends DockLayoutPanel {
 			} else {		
 				if (navShown) {
 					navAndOthersSplitPanel = new SplitLayoutPanel();
-					if (resultSetSilly.id == 0){
+//					if (resultSetSilly.id == 0){
+					if (isRootResultSet){
 						navAndOthersSplitPanel.setStylePrimaryName("mainNavAndOthersSplitPanel");
 					}
 					navAndOthersSplitPanel.addWest(navHTML, 200);		
 					if (detailShown) {					
 						gridAndDetailSplitPanel = new SplitLayoutPanel();
 						gridAndDetailSplitPanel.setStylePrimaryName("gridAndDetailSplitPanel");
- 						if (resultSetSilly.id == 0){
+ 						//if (resultSetSilly.id == 0){
+ 	 						if (isRootResultSet){
 							gridAndDetailSplitPanel.setStyleName("mainGridAndDetailSplitPanel");
 						}
 						gridAndDetailSplitPanel.addSouth(detailHTML, 200);
@@ -219,20 +241,55 @@ public class ResultSetGui extends DockLayoutPanel {
 		}
 		if (gridShown){
 			if (grid == null){
-				grid = createGrid();
+				grid = createCentralGrid();
 			}
 		} else {
 			grid = null;
 		}
 	}
 	
-	private Grid createGrid(){
+	private Grid createCentralGrid(){
+		List <ResultsetField> fieldsList = resultSetImproved.getFields();
+		colNumber = fieldsList.size();
+		Grid grid = new Grid(rowNumber,colNumber );
+		int j = 0;
+		for (ResultsetField currField :  fieldsList){			
+		//for (int j = 0; j < colNumber; j++) {
+			String colName = currField.getName();
+			boolean colIsNumeric = random.nextBoolean();		
+			boolean colIsMoney = random.nextBoolean();		
+			for (int i = 0; i < rowNumber; i++) {
+				String newRandomString = generateRandomString ( );				
+				if (i == 0){
+					grid.setHTML(i, j, "<b>" + colName  + "</b>");				
+				} else {
+					if (colIsNumeric) {
+						if (colIsMoney) {
+							newRandomString = "" + random.nextInt(20000) + "," + random.nextInt(100) + " E";
+						} else {
+						newRandomString = "" + random.nextInt(2000000);
+						}
+					} 
+					grid.setText(i, j, newRandomString );					
+					grid.setCellSpacing(0);
+				}	
+			}
+			j++;
+		}
+		grid.setStylePrimaryName("grid");
+//		if (incomingKeysRelativeResultSetId == 0){
+//			grid.setStylePrimaryName("mainGrid");
+//		}
+		return grid ;
+	}
+
+	private Grid createCentralGridSilly(){
 		Grid grid = new Grid(rowNumber,colNumber );
 		for (int j = 0; j < colNumber; j++) {
 			boolean colIsNumeric = random.nextBoolean();		
 			boolean colIsMoney = random.nextBoolean();		
 			for (int i = 0; i < rowNumber; i++) {
-				String newRandomString = generateRandomString ( i, j);				
+				String newRandomString = generateRandomString ( );				
 				if (i == 0){
 					grid.setHTML(i, j, "<b>" + generateColTitleString()  + "</b>");				
 				} else {
@@ -254,8 +311,8 @@ public class ResultSetGui extends DockLayoutPanel {
 //		}
 		return grid ;
 	}
-	
-	private String generateRandomString (int i, int j){
+
+	private String generateRandomString (){
 		int newRandomStringLenght = poolString.length();
 		int start = random.nextInt(newRandomStringLenght);				
 		int end = start + Math.min(15, random.nextInt(newRandomStringLenght - start) );
@@ -343,12 +400,12 @@ public class ResultSetGui extends DockLayoutPanel {
 		updateGridNavAndDetailButtonsState();
 		
 		TextBox textBox = new TextBox();
-		textBox.setText("Rs - " + this.resultSetSilly.id);
+		textBox.setText("Rs - " + this.resultSetImproved.getId());
 		textBox.setWidth("60px");
 		textBox.setEnabled(false);
 		
 		fp.add(textBox);
-		if (resultSetSilly.id == 0){
+		if (isRootResultSet){
 			fp.setStylePrimaryName("mainMultiRsToolbar");
 		}
 		return fp;

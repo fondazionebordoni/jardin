@@ -1,5 +1,9 @@
 package it.fub.jardin.client.testLayoutGWTPKG;
 
+import it.fub.jardin.client.model.IncomingForeignKeyInformation;
+import it.fub.jardin.client.model.ResultsetImproved;
+
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.google.gwt.dom.client.Style.Unit;
@@ -22,15 +26,16 @@ public class MultiResGui extends DockLayoutPanel{
 	DockLayoutPanel mainMainDockLayoutPanel;
 	SplitLayoutPanel mainMainSplitLayoutPanel2;
 	boolean putBottom = false;
-	ResultSetSilly mainResultSet;		
+	//ResultSetSilly mainResultSet;
+	ResultsetImproved mainResultSet;
 	Random random = new Random();
 	
-	public MultiResGui(ResultSetSilly mainResultSet){
+	public MultiResGui(ResultsetImproved mainResultSet){
 		super(Unit.EM);	
 		//mainResultSet = new ResultSetSilly(0, random.nextBoolean());
 		this.mainResultSet = mainResultSet;
 		//createCorrelatedRs();
-		mainResultSetGui = new ResultSetGui(mainResultSet);
+		mainResultSetGui = new ResultSetGui(mainResultSet, true);
 		correlatedResultSetButtonsFlowPanel = createMultiRsButtons();
 		vertCorrelatedResulSetsArea = new CorrelatedResulSetsArea (false);
 		horizCorrelatedResulSetsArea = new CorrelatedResulSetsArea (true);
@@ -114,10 +119,10 @@ public class MultiResGui extends DockLayoutPanel{
 
 
 	
-	private void createNewCorrelatedResultSetGui (int incomingKeysRelativeResultSetId){
-		ResultSetSilly rs = mainResultSet.getCorrelatedResultSet(incomingKeysRelativeResultSetId);
-		ResultSetGui newResultSetGui = new ResultSetGui(rs );			
-		if (rs.isLarge) {
+	private void createNewCorrelatedResultSetGui (ResultsetImproved rs){
+		//ResultSetSilly rs = mainResultSet.getCorrelatedResultSet(incomingKeysRelativeResultSetId);
+		ResultSetGui newResultSetGui = new ResultSetGui(rs , false);			
+		if (newResultSetGui.isLarge) {
 			horizCorrelatedResulSetsArea.insertNonExistentNewResultSetGui(newResultSetGui);
 		} else {
 			vertCorrelatedResulSetsArea.insertNonExistentNewResultSetGui(newResultSetGui);
@@ -129,11 +134,16 @@ public class MultiResGui extends DockLayoutPanel{
 	
 	private FlowPanel createMultiRsButtons(){
 		FlowPanel fp = new FlowPanel();
-		int incomingKeysNumber = mainResultSet.correlatedResultSetSillyArrayList.size();
-		for (int i = 1; i <  incomingKeysNumber + 1  ; i++) {
-			ResultSetSilly rs = mainResultSet.correlatedResultSetSillyArrayList.get(i-1);
-			int resulSetId = rs.id;
-			Button srsB = new Button("sottoRes - " + resulSetId);			
+		ArrayList<IncomingForeignKeyInformation> foreignKeyInArrayList = mainResultSet.getForeignKeyIn();
+//		int incomingKeysNumber = foreignKeyInArrayList.size();
+//		int incomingKeysNumber = mainResultSet.correlatedResultSetSillyArrayList.size();
+		for (IncomingForeignKeyInformation incomingForeignKeyInformation : foreignKeyInArrayList) {
+			//for (int i = 1; i <  incomingKeysNumber + 1  ; i++) {
+			ResultsetImproved resultsetImproved =  incomingForeignKeyInformation.getInterestedResultset();
+			//ResultSetSilly rs = mainResultSet.correlatedResultSetSillyArrayList.get(i-1);
+//			int resulSetId = resultsetImproved.getId();
+			String alias = resultsetImproved.getAlias();
+			Button srsB = new Button(alias);			
 			srsB.setStylePrimaryName("unselectedButton");
 			srsB.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
@@ -141,10 +151,11 @@ public class MultiResGui extends DockLayoutPanel{
 					Button sourceButton = (Button)obj;
 					String buttonName = sourceButton.getText();
 					//System.out.println(buttonName);
-					String resultSetIdstring = buttonName.substring(11, buttonName.length());	
+//					String resultSetIdstring = buttonName.substring(11, buttonName.length());	
 					try {
-						int resultSetId = Integer.parseInt(resultSetIdstring) ;	
-						
+						// int resultSetId = Integer.parseInt(resultSetIdstring) ;	
+						ResultsetImproved rs = mainResultSet.getIncomingKeyResultsetFromAlias(buttonName);
+						int resultSetId = rs.getId();
 						boolean removed = false;
 						if ( horizCorrelatedResulSetsArea.isShownResultSetbyIncomingKeysRelativeResultSetId(resultSetId) ) {
 							horizCorrelatedResulSetsArea.removeResultSetbyIncomingKeysRelativeResultSetId(resultSetId);
@@ -155,7 +166,7 @@ public class MultiResGui extends DockLayoutPanel{
 							removed = true;
 						} 						
 						if ( !removed) {
-							createNewCorrelatedResultSetGui(resultSetId);	
+							createNewCorrelatedResultSetGui(rs);	
 							sourceButton.setStylePrimaryName("selectedButton");
 						} else {
 							sourceButton.setStylePrimaryName("unselectedButton");
