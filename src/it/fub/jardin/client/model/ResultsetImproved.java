@@ -217,4 +217,24 @@ public class ResultsetImproved implements IsSerializable {
     this.fields.add(resultField);
   }
 
+  public ResultsetImproved getIncomingKeyResultsetFromId(int resultsetId) {
+		for (IncomingForeignKeyInformation incomingForeignKeyInformation : foreignKeyIn) {
+			ResultsetImproved resultsetImproved =  incomingForeignKeyInformation.getInterestedResultset();
+	      if (resultsetImproved.getId() == resultsetId) {
+	        return resultsetImproved;
+	      }
+	    }
+	    return null;
+	  }
+
+	  public ResultsetImproved getIncomingKeyResultsetFromAlias(String resultsetAlias) {
+			for (IncomingForeignKeyInformation incomingForeignKeyInformation : foreignKeyIn) {
+				ResultsetImproved resultsetImproved =  incomingForeignKeyInformation.getInterestedResultset();
+		      if (resultsetImproved.getAlias().compareTo(resultsetAlias) == 0) {
+		        return resultsetImproved;
+		      }
+		    }
+		    return null;
+		  }
+
 }
