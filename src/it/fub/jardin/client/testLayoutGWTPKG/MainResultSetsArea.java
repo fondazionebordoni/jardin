@@ -24,7 +24,7 @@ public class MainResultSetsArea extends DockLayoutPanel {
 	boolean isShownResultSetbyIncomingKeysRelativeResultSetId(int resultSetId){
 		for (int i = 0 ; i < resultSetGuiArray.size(); i++) {
 			MultiResGui currResultSetGui = resultSetGuiArray.get(i);		
-			if (currResultSetGui.mainResultSet.id  == resultSetId) {
+			if (currResultSetGui.mainResultSet.getId()  == resultSetId) {
 				return true;
 			} 
 		}
@@ -37,7 +37,7 @@ public class MainResultSetsArea extends DockLayoutPanel {
 		int l = resultSetGuiArray.size();
 		for (int i = 0 ; i < l ; i++) {
 			MultiResGui currResultSetGui = resultSetGuiArray.get(i);		
-			if (currResultSetGui.mainResultSet.id == resultSetId) {
+			if (currResultSetGui.mainResultSet.getId() == resultSetId) {
 				currResultSetGui.removeFromParent();
 				resultSetGuiArray.remove(i);
 				break;
@@ -70,7 +70,7 @@ public class MainResultSetsArea extends DockLayoutPanel {
 			ArrayList<MultiResGui> resultSetGuiArrayNew = new ArrayList<MultiResGui>();
 			for (int i = 0 ; i < resultSetGuiArray.size(); i++) {
 				MultiResGui currResultSetGui = resultSetGuiArray.get(i);		
-				if (currResultSetGui.mainResultSet.id < newResultSetGui.mainResultSet.id) {
+				if (currResultSetGui.mainResultSet.getId() < newResultSetGui.mainResultSet.getId()) {
 					resultSetGuiArrayNew.add(currResultSetGui);
 				} else {
 					if (inserted == false){

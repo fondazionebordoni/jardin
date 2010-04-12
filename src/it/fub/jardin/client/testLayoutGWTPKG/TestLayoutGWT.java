@@ -31,7 +31,7 @@ public class TestLayoutGWT implements EntryPoint {
 	DockLayoutPanel mainDlp;
 	DockLayoutPanel allTablesDlp;
 	FlowPanel mainTablesButtonBar;	
-	DBSchema dbSchema ;
+	//DBSchema dbSchema ;
 	//MainResultSetsArea horizMainResulSetsArea;
 	MainResultSetsArea vertMainResulSetsArea;
 	User user;
@@ -91,9 +91,6 @@ public class TestLayoutGWT implements EntryPoint {
 	    dispatcher.addController(new JardinController());
 
 	    GXT.hideLoadingPanel("loading");
-
-		
-		
 		
 		//onCheckUser (new Credentials("sportello1", "fub206"));
 		onCheckUser (new Credentials("backoffice1", "fub206"));
@@ -101,7 +98,7 @@ public class TestLayoutGWT implements EntryPoint {
 
 	
 	void guiCreate(){
-		dbSchema =  new DBSchema();
+		//dbSchema =  new DBSchema();
 		mainDlp = new DockLayoutPanel(Unit.EM);
 		mainDlp.addNorth(new HTML("My Header"),2);		
 		mainTablesButtonBar = createAllTablesButtons();		
@@ -127,8 +124,8 @@ public class TestLayoutGWT implements EntryPoint {
 	       // final Integer resultsetId = resultset.getId();
 //		int allTablesNumber = dbSchema.mainResultSetSillyArrayList.size();
 //		for (int i = 1; i <  allTablesNumber  + 1  ; i++) {
-	        String resulSetName = resultset.getName();
-	        Button srsB = new Button("Res - " + resulSetName);			
+	        String resulSetAlias = resultset.getAlias();
+	        Button srsB = new Button(resulSetAlias);
 			srsB.setStylePrimaryName("unselectedButton");
 			srsB.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
@@ -136,10 +133,11 @@ public class TestLayoutGWT implements EntryPoint {
 					Button sourceButton = (Button)obj;
 					String buttonName = sourceButton.getText();
 					//System.out.println(buttonName);
-					String resultSetIdstring = buttonName.substring(6, buttonName.length());	
+					//String resultSetIAliaString = buttonName.substring(6, buttonName.length());	
 					try {
-						int resultSetId = Integer.parseInt(resultSetIdstring) ;	
-						
+						//int resultSetId = Integer.parseInt(resultSetIdstring) ;	
+						ResultsetImproved rs = user.getResultsetFromAlias(buttonName);
+						int resultSetId = rs.getId();
 						boolean removed = false;
 //						if ( horizMainResulSetsArea.isShownResultSetbyIncomingKeysRelativeResultSetId(resultSetId) ) {
 //							horizMainResulSetsArea.removeResultSetbyIncomingKeysRelativeResultSetId(resultSetId);
@@ -150,7 +148,7 @@ public class TestLayoutGWT implements EntryPoint {
 							removed = true;
 						} 						
 						if ( !removed) {
-							createNewMainResultSetGui(resultSetId);	
+							createNewMainResultSetGui(rs);	
 							sourceButton.setStylePrimaryName("selectedButton");
 						} else {
 							sourceButton.setStylePrimaryName("unselectedButton");
@@ -166,14 +164,14 @@ public class TestLayoutGWT implements EntryPoint {
 		return fp;
 	}
 
-	private void createNewMainResultSetGui (int resultSetId){
+	private void createNewMainResultSetGui (ResultsetImproved rs){
 //		if (mainResultSet.correlatedResultSetSillyArrayList.get(incomingKeysRelativeResultSetId -1).isLarge) {
 //			ResultSetSilly rs = new ResultSetSilly( incomingKeysRelativeResultSetId,
 //					mainResultSet.correlatedResultSetSillyArrayList.get(incomingKeysRelativeResultSetId -1 ).isLarge);
 //			ResultSetGui newResultSetGui = new ResultSetGui(rs );			
 //			horizCorrelatedResulSetsArea.insertNonExistentNewResultSetGui(newResultSetGui);
 //		} else {
-			ResultSetSilly rs = dbSchema.mainResultSetSillyArrayList.get(resultSetId -1); 
+		// ResultSetSilly rs = dbSchema.mainResultSetSillyArrayList.get(resultSetId -1); 
 			MultiResGui newMultiResultSetGui = new MultiResGui(rs );			
 			vertMainResulSetsArea.insertNonExistentNewResultSetGui(newMultiResultSetGui);
 //		}
