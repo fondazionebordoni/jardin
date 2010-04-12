@@ -157,6 +157,16 @@ public class User implements IsSerializable {
     return res;
   }
 
+  public ResultsetImproved getResultsetFromAlias(String resultsetAlias) {
+	    ResultsetImproved res = null;
+	    for (ResultsetImproved r : this.getResultsets()) {
+	      if (r.getAlias().compareTo(resultsetAlias) == 0) {
+	        res = r;
+	      }
+	    }
+	    return res;
+	  }
+  
 	public List<ResultsetImproved> getResultsets() {
     return resultsets;
   }
