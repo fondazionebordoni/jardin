@@ -32,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1628,34 +1629,26 @@ public class DbUtils {
         while ((t = csvp.getLine()) != null) {
           lineFailed++;
           BaseModelData bm = new BaseModelData();
-//          System.out.println("lunghezza riga: " + t.length);
+          // System.out.println("lunghezza riga: " + t.length);
           // System.out.print("" + csvp.lastLineNumber() + ":");
           for (int i = 0; i < t.length; i++) {
-//            System.out.println("valorizzazione campo: " + columns[i] + " = "
-//                + t[i]);
+            // System.out.println("valorizzazione campo: " + columns[i] + " = "
+            // + t[i]);
             bm.set(columns[i], t[i]);
             // System.out.println("\"" + t[i] + "\";");
           }
           recordList.add(bm);
         }
       } catch (ArrayIndexOutOfBoundsException ex) {
-        Log.warn("Troppi campi nel file: " + t.length + " alla riga " + (lineFailed+1), ex);
+        Log.warn("Troppi campi nel file: " + t.length + " alla riga "
+            + (lineFailed + 1), ex);
         throw new VisibleException("Troppi campi nel file: " + t.length
-            + " alla riga " + (lineFailed+1));
+            + " alla riga " + (lineFailed + 1));
       } catch (IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
-      // while (recordLine != null) {
-      // Log.debug(recordLine);
-      // // if (validateLine(rsmd, recordLine)) {
-      // recordList.add(createRecord(rsmd, recordLine, columns, ts, fs));
-      // // } else
-      // // throw new HiddenException("record: " + recordLine +
-      // // " non valido!");
-      // recordLine = in.readLine();
-      // }
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -1670,48 +1663,32 @@ public class DbUtils {
     return opCode;
   }
 
-  // private BaseModelData createRecord(ResultSetMetaData rsmd, String
-  // recordLine,
-  // String[] columns, String textSeparator, String fieldSeparator)
-  // throws HiddenException {
-  //
-  // BaseModelData bm = new BaseModelData();
-  //
-  // for (int i = 0; i < columns.length; i++) {
-  // if (i < recordLine.split(fieldSeparator).length) {
-  // // String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
-  // String value = recordLine.split(fieldSeparator)[i];
-  // System.out.println(value);
-  // if (value.length()>2){
-  // value = value.substring(1, value.length() - 1);
-  // } else {
-  // value=null;
-  // System.out.println("------------------");
-  // }
-  // System.out.println(value);
-  // bm.set(columns[i], value);
-  // }
-  // }
-  // return bm;
-  // }
+  /**
+   * Put a Java Object in a PreparedStatement. Return the number of transferred
+   * Objects.
+   * 
+   * @param ps
+   *          The PreparedStatement to modify
+   * @param i
+   *          The index in which to put the Java Object
+   * @param value
+   *          The Object to put in the PreparedStatement
+   * @return Number of transferred Objects (1 if all went OK, 0 otherwise). Tip:
+   *         you can use this value to increment index pointer.
+   * @throws SQLException
+   */
+  private Integer putJavaObjectInPs(PreparedStatement ps, Integer i, Object value)
+      throws SQLException {
 
-  // private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
-  // throws HiddenException {
-  //
-  // boolean valid = false;
-  // try {
-  //
-  // if (recordLine.split("\\|").length == rsmd.getColumnCount()) {
-  // valid = true;
-  // }
-  // } catch (SQLException e) {
-  // // TODO Auto-generated catch block
-  // e.printStackTrace();
-  // throw new HiddenException("problemi nella lettura dei metadata per il rs");
-  // }
-  //
-  // return true;
-  // }
+    // TODO Warning!
+    if (value != null && value.toString().length() > 0) {
+      ps.setObject(i, value);
+    } else {
+      ps.setNull(i, Types.NULL);
+    }
+
+    return 1;
+  }
 
   /*
    * invocata solo in caso di duplicate key entry per la setObject: si suppone
@@ -1725,12 +1702,14 @@ public class DbUtils {
     int result = 0;
     Connection connection = dbConnectionHandler.getConn();
     final String sep = ",";
+    boolean defaultPrimaryKeys = condition.equalsIgnoreCase("$-notspec-$");
 
     try {
       ResultSetMetaData metadata =
           dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
 
+      // TODO Creare un oggetto per la memorizzazione colonna->valore
       List<BaseModelData> PKs =
           dbProperties.getResultsetPrimaryKeys(resultsetId);
 
@@ -1739,29 +1718,26 @@ public class DbUtils {
       for (BaseModelData record : newItemList) {
 
         boolean conditionFounded = false;
-        if (condition.compareToIgnoreCase(new String("$-notspec-$")) == 0) {
-          // richiesta di update da griglia o dettaglio
-          for (BaseModelData pk : PKs) {
-            PKset =
-                PKset.concat((String) pk.get("PK_NAME") + "="
-                    + record.get((String) pk.get("PK_NAME")) + " AND ");
-          }
-
-          PKset = PKset.substring(0, PKset.length() - 5);
-
+        if (defaultPrimaryKeys) {
           conditionFounded = true;
 
+          // richiesta di update da griglia o dettaglio
+          for (BaseModelData pk : PKs) {
+            PKset += (String) pk.get("PK_NAME") + "=? AND ";
+          }
+          PKset = PKset.substring(0, PKset.length() - 5); // Strips " AND "
+
         } else {
-          PKset = condition + " = " + record.get(condition);
+          PKset = condition + "=? ";
         }
+
         String set = "";
         Collection<String> properties = record.getPropertyNames();
-
         for (String property : properties) {
-          if (property.compareToIgnoreCase(condition) != 0) {
-            set += "`" + property + "` =? " + sep;
-          } else {
+          if (property.equalsIgnoreCase(condition)) {
             conditionFounded = true;
+          } else {
+            set += "`" + property + "`=? " + sep;
           }
         }
 
@@ -1778,20 +1754,25 @@ public class DbUtils {
         PreparedStatement ps =
             (PreparedStatement) connection.prepareStatement(query);
         int i = 1;
+
+        /* Set prepared statement values for changing fields */
         for (String property : properties) {
-          // System.out.println(i+" "+record.getPropertyNames().size()+" "+property+" "+record.get(property)+" ");
-          if (property.compareToIgnoreCase(condition) != 0) {
-            if (record.get(property) != null
-                && String.valueOf(record.get(property)).length() > 0) {
-              ;
-              ps.setObject(i, record.get(property));
-            } else {
-              ps.setNull(i, java.sql.Types.NULL);
-              // ps.setObject(i + columns, record.get(property));
-            }
-            i++;
+          if (!property.equalsIgnoreCase(condition)) {
+            i += putJavaObjectInPs(ps, i, record.get(property));
           }
         }
+
+        /* Set prepared statement values for where condition fields */
+        if (defaultPrimaryKeys) {
+          for (BaseModelData pk : PKs) {
+            Object value = record.get((String) pk.get("PK_NAME"));
+            i += putJavaObjectInPs(ps, i, value);
+          }
+        } else {
+          Object value = record.get(condition);
+          i += putJavaObjectInPs(ps, i, value);
+        }
+
         Log.debug("Query UPDATE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
