@@ -16,12 +16,12 @@ public class MainResultSetsArea extends DockLayoutPanel {
 		updateGUI();
 	}
 
-	void updateGUI(){
+	public void updateGUI(){
 		removeAllObjects();
 		placeObjects ();
 	}
 
-	boolean isShownResultSetbyIncomingKeysRelativeResultSetId(int resultSetId){
+	public boolean isShownResultSetbyIncomingKeysRelativeResultSetId(int resultSetId){
 		for (int i = 0 ; i < resultSetGuiArray.size(); i++) {
 			MultiResGui currResultSetGui = resultSetGuiArray.get(i);		
 			if (currResultSetGui.mainResultSet.getId()  == resultSetId) {
@@ -32,7 +32,7 @@ public class MainResultSetsArea extends DockLayoutPanel {
 	}
 
 	
-	void removeResultSetbyIncomingKeysRelativeResultSetId(int resultSetId){
+	public void removeResultSetbyIncomingKeysRelativeResultSetId(int resultSetId){
 		removeAllObjects();;
 		int l = resultSetGuiArray.size();
 		for (int i = 0 ; i < l ; i++) {
@@ -61,7 +61,7 @@ public class MainResultSetsArea extends DockLayoutPanel {
 		}
 	}
 		
-	void insertNonExistentNewResultSetGui (MultiResGui newResultSetGui){
+	public void insertNonExistentNewResultSetGui (MultiResGui newResultSetGui){
 		removeAllObjects();
 		boolean inserted = false;
 		if (resultSetGuiArray.size()== 0){
