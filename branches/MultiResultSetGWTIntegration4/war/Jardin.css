@@ -283,3 +283,139 @@
 	/* width: 250px; */
 	/* border: 1px solid #eeeeec; */
 }
+
+
+
+.gwt-Label {
+	/* background-color: green; */
+	margin :0px 6px 6px;
+	border: 2px;
+	padding: 3px; 
+}
+
+.mainNavAndOthersSplitPanel .gwt-SplitLayoutPanel-HDragger {
+	background:gray;
+	cursor:col-resize;
+}
+		
+.mainNavAndOthersSplitPanel .gwt-SplitLayoutPanel-VDragger{
+		background:gray;
+		cursor:col-resize;
+}
+
+.gridAndDetailSplitPanel .gwt-SplitLayoutPanel-HDragger {
+	background:gray;
+	cursor:col-resize;
+}
+		
+.gridAndDetailSplitPanel .gwt-SplitLayoutPanel-VDragger{
+		background:gray;
+		cursor:col-resize;
+}
+
+/*
+.gwt-SplitLayoutPanel-HDragger  {
+	background:url("images/splitPanelThumb.png") no-repeat scroll center center #D0E4F6;
+	cursor:col-resize;
+}
+
+*/
+
+.mainResultSet tr, td{
+	height: 20px;
+}
+
+/*
+table {
+	width: 400px; 
+	height: 150px;
+}
+
+tr {
+	margin : 0px;
+	height: 10px;
+}
+
+td{
+	margin : 0px;
+	border: 1px;
+	border-color: black;
+	border-style: solid;
+	height: 10px;
+}
+*/
+
+.MultiResGui {
+	background-color: graytext;
+	margin 30px;
+	padding: 20px;
+}
+
+.selectedButton {
+	background-color: graytext;
+}
+
+.unselectedButton {
+	
+}
+
+.dummyGrid tr {
+		height: 10px;
+	}
+
+.dummyGrid td {	
+	border:  0px;
+	margin: 0px;
+	width: 50px;
+	padding : 2px;
+	border: 1px;
+	border-color: black;
+	border-style: solid;
+	text-align: right;
+	/*
+	border: 1px solid black;
+	margin: 0px; 
+	height: 5px; 
+	background-color: #dddddd;
+	width: 100px;
+	*/
+}
+
+
+
+.mainNavAndDetail, .navAndDetail table {
+	border: 0px;
+	cellspacing: 0;
+	width: 200px;
+	margin :0px 6px 6px;
+	height: 5px; 
+	background-color: #dddddd;
+}
+
+.mainNavAndDetail, .navAndDetail td {	
+	border:  0px;
+	margin: 0px;
+	/*
+	border: 1px solid black;
+	margin: 0px; 
+	height: 5px; 
+	background-color: #dddddd;
+	width: 100px;
+	*/
+}
+
+.mainNavAndDetail tr {
+	border:  0px;
+	margin: 0px;
+	
+	/*
+	background-color: #dddddd;
+	margin: 0px; 
+	*/  
+}
+
+.mainArea, .mainResultSet, .mainNavAndOthersSplitPanel, .mainGridAndDetailSplitPanel, .mainMultiRsToolbar{
+	background-color: #dddddd;
+}
+
+
