@@ -9,6 +9,8 @@ import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.SearchResult;
+import it.fub.jardin.client.testLayoutGWTPKG.MainResultSetsArea;
+import it.fub.jardin.client.testLayoutGWTPKG.MultiResGui;
 import it.fub.jardin.client.widget.HeaderArea;
 import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
@@ -20,6 +22,7 @@ import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -42,6 +45,14 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -62,6 +73,10 @@ public class JardinView extends View {
   private TabPanel main;
   private HeaderArea header;
   private LoginDialog dialog;
+	DockLayoutPanel mainDlp;
+	DockLayoutPanel allTablesDlp;
+	FlowPanel mainTablesButtonBar;	
+	MainResultSetsArea vertMainResulSetsArea;
 
   public JardinView(Controller controller) {
     super(controller);
@@ -202,35 +217,140 @@ public class JardinView extends View {
   }
 
   private void initUI() {
-    viewport = new Viewport();
-    viewport.setLayout(new RowLayout(Orientation.VERTICAL));
+//    viewport = new Viewport();
+//    viewport.setLayout(new RowLayout(Orientation.VERTICAL));
 
-    createHeader();
-    createMain();
+//    createHeader();
+//    createMain();
 
-    RootPanel.get().add(viewport);
-    Dispatcher.forwardEvent(EventList.CreateUI);
+//    RootPanel.get().add(viewport);
+	  guiCreate();
   }
 
-  private void createHeader() {
-    this.header = new HeaderArea(this.controller.getUser());
-    this.header.setId(JardinView.HEADER_AREA);
+//  private void createHeader() {
+//    this.header = new HeaderArea(this.controller.getUser());
+//    this.header.setId(JardinView.HEADER_AREA);
+//
+//    RowData rd = new RowData(1, 32);
+//    rd.setMargins(new Margins(0));
+//    this.viewport.add(this.header, rd);
+//  }
+//
+//  private void createMain() {
+//    this.main = new TabPanel();
+//    this.main.setId(JardinView.MAIN_AREA);
+//    this.main.setAnimScroll(true);
+//    this.main.setTabScroll(true);
+//
+//    RowData rd = new RowData(1, 1);
+//    this.viewport.add(this.main, rd);
+//  }
 
-    RowData rd = new RowData(1, 32);
-    rd.setMargins(new Margins(0));
-    this.viewport.add(this.header, rd);
-  }
+	void guiCreate(){
+		//dbSchema =  new DBSchema();
+		mainDlp = new DockLayoutPanel(Unit.EM);
+		this.header = new HeaderArea(this.controller.getUser());
+		mainDlp.addNorth(header,3);		
+//		mainTablesButtonBar = createAllTablesButtons();		
+		mainTablesButtonBar = new FlowPanel();		
+		List <ResultsetImproved> rsList = controller.getUser().getResultsets();
+	    for (ResultsetImproved resultset : rsList) {
+	    	createSingleMainTableButton(resultset);
+	    	//Dispatcher.forwardEvent(EventList.CreateUI);
+	    }	
+		
+		allTablesDlp = new DockLayoutPanel(Unit.EM);	
+		allTablesDlp.addNorth(mainTablesButtonBar, 3);
+		// MultiResGui multiResGui = new MultiResGui(dbSchema.mainResultSetSillyArrayList.get(0));
+		vertMainResulSetsArea = new MainResultSetsArea(false);
+		allTablesDlp.add(vertMainResulSetsArea);
+		mainDlp.add(allTablesDlp);
+		RootLayoutPanel.get().add(mainDlp);			
+	}
 
-  private void createMain() {
-    this.main = new TabPanel();
-    this.main.setId(JardinView.MAIN_AREA);
-    this.main.setAnimScroll(true);
-    this.main.setTabScroll(true);
+	
+	
+	
+	
+	
+	private void updateLayout(){
+		vertMainResulSetsArea.updateGUI();
+	}
 
-    RowData rd = new RowData(1, 1);
-    this.viewport.add(this.main, rd);
-  }
+		
+	private void createSingleMainTableButton (ResultsetImproved resultset ){
+		//FlowPanel fp = new FlowPanel();
+	    
+//		for (ResultsetImproved resultset : this.user.getResultsets()) {
+	       // final Integer resultsetId = resultset.getId();
+//		int allTablesNumber = dbSchema.mainResultSetSillyArrayList.size();
+//		for (int i = 1; i <  allTablesNumber  + 1  ; i++) {
+	        String resulSetAlias = resultset.getAlias();
+	        Button srsB = new Button(resulSetAlias);
+			srsB.setStylePrimaryName("unselectedButton");
+			srsB.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					Object obj = event.getSource();
+					Button sourceButton = (Button)obj;
+					doClickOnMainTableButton(sourceButton);
+					//System.out.println(buttonName);
+					//String resultSetIAliaString = buttonName.substring(6, buttonName.length());	
+				}
+			  });
+		mainTablesButtonBar.add(srsB);
+//		}
+//		return fp;
+	}
 
+	private void doClickOnMainTableButton(Button sourceButton){
+		String buttonName = sourceButton.getText();
+		try {
+			//int resultSetId = Integer.parseInt(resultSetIdstring) ;	
+			ResultsetImproved rs = controller.getUser().getResultsetFromAlias(buttonName);
+			int resultSetId = rs.getId();
+			boolean removed = false;
+//			if ( horizMainResulSetsArea.isShownResultSetbyIncomingKeysRelativeResultSetId(resultSetId) ) {
+//				horizMainResulSetsArea.removeResultSetbyIncomingKeysRelativeResultSetId(resultSetId);
+//				removed = true;
+//			} 
+			if ( vertMainResulSetsArea.isShownResultSetbyIncomingKeysRelativeResultSetId(resultSetId) ) {
+				vertMainResulSetsArea.removeResultSetbyIncomingKeysRelativeResultSetId(resultSetId);
+				removed = true;
+			} 						
+			if ( !removed) {
+				createNewMainResultSetGui(rs);	
+				sourceButton.setStylePrimaryName("selectedButton");
+			} else {
+				sourceButton.setStylePrimaryName("unselectedButton");
+			}
+			vertMainResulSetsArea.updateGUI();
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}					
+
+	}
+	
+	private void createNewMainResultSetGui (ResultsetImproved rs){
+//		if (mainResultSet.correlatedResultSetSillyArrayList.get(incomingKeysRelativeResultSetId -1).isLarge) {
+//			ResultSetSilly rs = new ResultSetSilly( incomingKeysRelativeResultSetId,
+//					mainResultSet.correlatedResultSetSillyArrayList.get(incomingKeysRelativeResultSetId -1 ).isLarge);
+//			ResultSetGui newResultSetGui = new ResultSetGui(rs );			
+//			horizCorrelatedResulSetsArea.insertNonExistentNewResultSetGui(newResultSetGui);
+//		} else {
+		// ResultSetSilly rs = dbSchema.mainResultSetSillyArrayList.get(resultSetId -1); 
+			MultiResGui newMultiResultSetGui = new MultiResGui(rs );			
+			vertMainResulSetsArea.insertNonExistentNewResultSetGui(newMultiResultSetGui);
+//		}
+		updateLayout();
+	}
+
+  
+  
+  
+  
+  
+  
+  
   /**
    * Restituisce il tabItem che rappresenta il resultset in base all'id o null
    * se non esiste
@@ -275,9 +395,10 @@ public class JardinView extends View {
     /* Prendi le proprietà del resultset in base all'id dall'utente */
     ResultsetImproved resultset =
         controller.getUser().getResultsetFromId(resultsetId);
-    JardinTabItem item = new JardinTabItem(resultset);
-    item.setId(ITEM_PREFIX + resultsetId);
-    this.main.add(item);
+    createSingleMainTableButton(resultset);
+    //JardinTabItem item = new JardinTabItem(resultset);
+    //item.setId(ITEM_PREFIX + resultsetId);
+   // this.main.add(item);
   }
 
   private synchronized void gotValuesOfFields(Integer resultsetId) {

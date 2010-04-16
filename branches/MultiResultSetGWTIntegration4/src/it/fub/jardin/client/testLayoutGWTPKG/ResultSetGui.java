@@ -276,7 +276,7 @@ public class ResultSetGui extends DockLayoutPanel {
 			}
 			j++;
 		}
-		grid.setStylePrimaryName("grid");
+		grid.setStylePrimaryName("dummyGrid");
 //		if (incomingKeysRelativeResultSetId == 0){
 //			grid.setStylePrimaryName("mainGrid");
 //		}

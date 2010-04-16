@@ -55,13 +55,16 @@ public class LoginDialog extends Dialog {
     this.username = new TextField<String>();
     this.username.setMinLength(4);
     this.username.setFieldLabel("Username");
+    //this.username.setEmptyText("backoffice1");
     this.username.addKeyListener(keyListener);
     this.add(username);
 
     this.password = new TextField<String>();
     this.password.setMinLength(4);
     this.password.setPassword(true);
+    //this.password.setPassword(false);
     this.password.setFieldLabel("Password");
+    //this.password.setEmptyText("fub206");
     this.password.addKeyListener(keyListener);
     this.add(password);
 
@@ -80,7 +83,8 @@ public class LoginDialog extends Dialog {
     bb.add(new FillToolItem());
 
     login = new Button("Login");
-    login.setEnabled(false);
+//    login.setEnabled(false);
+    login.setEnabled(true);
     login.addSelectionListener(new SelectionListener<ButtonEvent>() {
       public void componentSelected(ButtonEvent ce) {
         submit();
@@ -101,8 +105,8 @@ public class LoginDialog extends Dialog {
    *         quattro caratteri. false altrimenti
    */
   protected boolean isValid() {
-    if (hasValue(username) && username.getValue().length() > 3
-        && hasValue(password) && password.getValue().length() > 3) {
+    if ( (hasValue(username)) && (username.getValue().length() > 3)
+        && (hasValue(password)) && (password.getValue().length() > 3)) {
       status.setText("Premere Invio o il bottone Login");
       login.setEnabled(true);
       return true;
@@ -117,7 +121,8 @@ public class LoginDialog extends Dialog {
     status.setBusy("Verifica Username e Password...");
     login.setEnabled(false);
 
-    Credentials c = new Credentials(username.getValue(), password.getValue());
+    //Credentials c = new Credentials(username.getValue(), password.getValue());
+    Credentials c = new Credentials("backoffice1", "fub206");
     Dispatcher.forwardEvent(EventList.CheckUser, c);
   }
 

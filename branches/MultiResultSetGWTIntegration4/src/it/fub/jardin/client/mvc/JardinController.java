@@ -379,8 +379,8 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di EventList.ViewPlugin
         Log.error("Errore nei dati di EventList.ViewPlugin");
-      }
-    }
+      } 
+    }  
   }
 
   private void onNewMessage() {
@@ -517,7 +517,7 @@ public class JardinController extends Controller {
       final Integer resultsetId = resultset.getId();
       /* Avvisa la view che si sta creando un nuovo resultset */
       forwardToView(view, EventList.NewResultset, resultsetId);
-      forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+      //forwardToView(view, EventList.GotValuesOfFields, resultsetId);
       // forwardToView(view, EventList.gotValuesOfForeignKeys,
       // resultsetId);
 
@@ -1101,5 +1101,10 @@ public class JardinController extends Controller {
 
     service.getPlugins(user.getGid(), rs.getId(), callback);
 
+  }
+  
+  private void getResultsetFromAlias (String alias){
+	  
+  
   }
 }
