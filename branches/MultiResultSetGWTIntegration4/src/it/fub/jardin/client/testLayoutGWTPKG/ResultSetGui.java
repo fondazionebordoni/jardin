@@ -1,37 +1,61 @@
 package it.fub.jardin.client.testLayoutGWTPKG;
 
-import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.EventList;
+import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.widget.JardinColumnModel;
+import it.fub.jardin.client.widget.JardinDetail;
+import it.fub.jardin.client.widget.JardinGrid;
+import it.fub.jardin.client.widget.JardinGridToolBar;
+import it.fub.jardin.client.widget.JardinGridView;
+import it.fub.jardin.client.widget.SearchAreaAdvanced;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.StringTokenizer;
-
+import com.extjs.gxt.ui.client.binding.FieldBinding;
+import com.extjs.gxt.ui.client.binding.FormBinding;
+import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.Record.RecordUpdate;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class ResultSetGui extends DockLayoutPanel {
-	FlowPanel toolbar ;	
+	FlowPanel toolbarGWT ;	
 	SplitLayoutPanel gridAndDetailSplitPanel;
 	SplitLayoutPanel navAndOthersSplitPanel;
-	Grid navHTML;
-	Grid detailHTML;
-	Grid grid;
+	DockLayoutPanel jardinGridHisToolbarAndHisBottomDLP;
+	WaitPanel detailWaitPanel;
+	WaitPanel gridWaitPanel;
+	WaitPanel navWaitPanel;
+    private JardinGrid grid;
+	private JardinGridToolBar toolbar;
+	private FormPanel detail;
+	private FormBinding formbinding;
 	boolean toolbarShown = true;;
 	boolean navShown = false;
 	boolean detailShown = false;
 	boolean gridShown = true;
-	//ResultSetSilly resultSetSilly;
 	ResultsetImproved resultSetImproved;
 	boolean  isRootResultSet;
 	boolean  isLarge;	
@@ -41,23 +65,9 @@ public class ResultSetGui extends DockLayoutPanel {
 	Button navButton;
 	Button detailButton;
 	Random random = new Random();
-	
-	String poolString = "singleton that serves as a root container and a dira, Cadore, Cadorna, Cafiera, Calcedonia, Calista, " +
-			"Calliope, Callista, Calogera, Calvina, Camelia,  Cleopatra, Cleope, " +
-			"Cleria, Clerice, Cleta, Clia, Cliceria, Climene, Clio, Clita, Clizia, Clodia, Clodomira, Clodovea, Cloe, Clora, Clori, " +
-			"Cloride, Clorinda, Clotilde, Coletta,Derno, Diletto, Dilio, Dillo, Dilo Colomba, Colombina, Coltura, Comasia, Comincio," +
-			" Comita, Comunarda, Cona, Concepita, " +
-			"Concessa, Concessina, Concetta, Concettina,  Bernardo, Berniero, Bernino, Bertillo, Bertino, Berto Conchita, Concita, Concordia, " +
-			"Conetta, Conforta, Conina," +
-			" Consalva, ConsigliaFeria, Feriana, Ferida, Feride, Feridia, Feridie, Ferina, Ferma, Fermana, Fermentina, Fermilde, Fermilia," +
-			" Fermilide, Fermina, Ferminia,Tolmino, Tolomeo, Tomasino, Tomaso, Tomassino, Tomasso, Tomeo, Tommasino, Tommaso, Tommassino," +
-			" Tonello, Tonino, Tonio, Tonuccio, Tore, Torello Fernalda, Fernanda, , Leonia, Leonice, Leonida, LeonideFernella, Fernice, Fernida," +
-			" Ferranda, " +
-			"Ferrandina, Ferrara, Ferrarina, " +
-			"Ferrea, Ferrera, Ferriana, Ferrida, Ferrina, Ferronia, Fertilia, Fervida, Festilia, Festina, Festosa, Fetina, Fiametta, " +
-			"Fiamma, Fiammella, Fiammetta, Fiammina, Fiandra, ahead of a scheduled press conference in Brussels, the three companies " +
-			"also said they would explore working together on technologies relating to electric vehicles and batteries to which all " +
-			"other layout panels should be attached test text ";
+	SearchAreaAdvanced searchAreaAdvanced;
+    private static final int PAGESIZE = 20;
+	PagingToolBar pagingToolbar; // = new PagingToolBar(PAGESIZE);
 	
 	public ResultSetGui(ResultsetImproved resultSetSilly, boolean  itsRootResultSet){
 		super(Unit.EM);	
@@ -75,8 +85,8 @@ public class ResultSetGui extends DockLayoutPanel {
 		} else {
 			rowNumber = 2 + Math.max(a, b); 
 			colNumber = 1 + Math.min(a, b);;
-		} 
- 
+		}  
+		createCentralGrid2();
 		createAndPlaceObjects ();
 	}
 
@@ -87,102 +97,111 @@ public class ResultSetGui extends DockLayoutPanel {
 			this.isLarge = false;			
 		}
 	}
-	
-	
-	Grid createNavAndDetail(){
-		Grid grid = new Grid(colNumber,2);
-		for (int i = 0; i < colNumber; i++) {
-			int casuale = random.nextInt(3);
-			Label label = new Label();
-			label.setText("Campo numero " + i + ":  ");
-			grid.setWidget(i, 0, label);
-			if (casuale == 0 ){
-				final TextBox nameField = new TextBox();
-				nameField.setText("GWT UserThis panel is a singleton that serves as a root container to which all other layout panels should be attached (see RequiresResize and ProvidesResize  ");
-				grid.setWidget(i, 1, nameField);
-			} else if (casuale == 1 ){
-				ListBox listBox = new ListBox();
-				for (int j = 0; j < 5; j++) {
-					listBox.addItem ("item" + j);				
-				}			
-				grid.setWidget(i, 1, listBox);
-			} else if (casuale == 2 ){
-				CheckBox checkBox =  new CheckBox();
-				checkBox.setValue(random.nextBoolean());
-				grid.setWidget(i, 1, checkBox);
-			}
-			
-		}
-//		if (resultSetSilly.id == 0){
-		if (isRootResultSet){
-			grid.setStylePrimaryName("mainNavAndDetail");
-		} else {
-			grid.setStylePrimaryName("navAndDetail");			
-		}
-		return grid;
-	}
 
-//	FlowPanel createNavAndDetail(){		
-//		FlowPanel flowPanel = new FlowPanel();
-//		for (int i = 0; i < 6; i++) {
-//			final TextBox nameField = new TextBox();
-//			nameField.setText("GWT UserThis panel is a singleton that serves as a root container to which all other layout panels should be attached (see RequiresResize and ProvidesResize  ");
-//			flowPanel.add(nameField);
-//			ListBox listBox = new ListBox();
-//			for (int j = 0; j < 5; j++) {
-//				listBox.addItem ("item" + j);				
-//			}
-//			flowPanel.add(listBox);			
-//		}
-//		if (resultSetSilly.id == 0){
-//			flowPanel.setStylePrimaryName("mainNavAndDetail");
-//		}
-//		return flowPanel;
-//	}
-	
-	
-	
 	private void createAndPlaceObjects (){
 		removeAllObjects();
 		createObjects ();
 		placeObjects();
 	}
 
+	private void createObjects (){
+		if (toolbarShown) {
+			if (toolbarGWT == null) {
+				toolbarGWT = createToolbarButtons();	
+			} 		
+		} else {
+			toolbarGWT = null;
+		}		
+		if (detailShown) {
+			if (detailWaitPanel == null){
+				//detailHTML = new HTML ("detail - " + "Main");
+				detailWaitPanel =  new WaitPanel() ;
+			}
+		} else {
+			detailWaitPanel = null;
+		}
+		if (navShown) {
+			if (navWaitPanel == null){
+				//navHTML = new HTML ("Nav - " + "Main");
+				navWaitPanel =  new WaitPanel();
+			}
+		} else {
+			navWaitPanel = null;
+		}
+		if (gridShown){
+			if (jardinGridHisToolbarAndHisBottomDLP == null ){
+				jardinGridHisToolbarAndHisBottomDLP = new DockLayoutPanel(Unit.EM);
+			}			
+			if (toolbar==null){
+				toolbar = new JardinGridToolBar();
+				toolbar.setGrid(grid);
+			}
+			if (pagingToolbar == null){
+				pagingToolbar = new PagingToolBar(PAGESIZE);
+			}
+			if (gridWaitPanel == null){
+				gridWaitPanel =  new WaitPanel();
+			}
+		} else {
+			gridWaitPanel = null;
+		}
+		
+	}
+
 	private void removeAllObjects(){
-		if (detailHTML != null) {
-			detailHTML.removeFromParent();
+		if (detailWaitPanel != null) {
+			detailWaitPanel.removeFromParent();
 		}		    	
+		if (gridWaitPanel != null) {
+			gridWaitPanel.removeFromParent();
+		} 
+		if (toolbar != null) {
+			toolbar.removeFromParent();
+		} 
 		if (grid != null) {
 			grid.removeFromParent();
-		}				    	
+		} 
+		if (jardinGridHisToolbarAndHisBottomDLP != null) {
+			jardinGridHisToolbarAndHisBottomDLP.removeFromParent();
+		} 		
 		if (gridAndDetailSplitPanel != null) {
 			gridAndDetailSplitPanel.removeFromParent();
 		}		    	
-		if (navHTML != null) {
-			navHTML.removeFromParent();
+		if (navWaitPanel != null) {
+			navWaitPanel.removeFromParent();
 		}
 		if (navAndOthersSplitPanel != null) {
 			navAndOthersSplitPanel.removeFromParent();
 		}		    	
-		if (toolbar != null) {
-			toolbar.removeFromParent();
+		if (toolbarGWT != null) {
+			toolbarGWT.removeFromParent();
 		} 
- 
+		if (searchAreaAdvanced != null) {
+			searchAreaAdvanced.removeFromParent();
+		} 
+		if (pagingToolbar != null){
+			pagingToolbar.removeFromParent();
+		}
 	}
 	
 	private void placeObjects(){
-		if (isRootResultSet) {
-		//if (resultSetSilly.id ==0){
-			if(grid!= null){
-				grid.setStylePrimaryName("mainResultSet");
-			}
-		}
+//		if (isRootResultSet) {
+//		}
 		if (toolbarShown) {
-			addNorth(toolbar, 3);			
+			addNorth(toolbarGWT, 3);			
 		} 		
 		if (gridShown) {
+			if (grid != null){
+				jardinGridHisToolbarAndHisBottomDLP.addNorth(toolbar, 2);
+				jardinGridHisToolbarAndHisBottomDLP.addSouth(pagingToolbar, 2);				
+				jardinGridHisToolbarAndHisBottomDLP.add(grid);		
+			}
 			if ( (!detailShown) && (!navShown) ) {
-				add(grid);	
+				if (grid != null){
+					add (jardinGridHisToolbarAndHisBottomDLP);
+				} else {
+					add (gridWaitPanel);
+				}
 			} else {		
 				if (navShown) {
 					navAndOthersSplitPanel = new SplitLayoutPanel();
@@ -190,162 +209,61 @@ public class ResultSetGui extends DockLayoutPanel {
 					if (isRootResultSet){
 						navAndOthersSplitPanel.setStylePrimaryName("mainNavAndOthersSplitPanel");
 					}
-					navAndOthersSplitPanel.addWest(navHTML, 200);		
+					if (searchAreaAdvanced != null){
+						navAndOthersSplitPanel.addWest(searchAreaAdvanced, 200);
+					} else {
+						navAndOthersSplitPanel.addWest (navWaitPanel,200);
+					}
 					if (detailShown) {					
 						gridAndDetailSplitPanel = new SplitLayoutPanel();
 						gridAndDetailSplitPanel.setStylePrimaryName("gridAndDetailSplitPanel");
  						//if (resultSetSilly.id == 0){
- 	 						if (isRootResultSet){
+ 	 					if (isRootResultSet){
 							gridAndDetailSplitPanel.setStyleName("mainGridAndDetailSplitPanel");
 						}
-						gridAndDetailSplitPanel.addSouth(detailHTML, 200);
-						gridAndDetailSplitPanel.add(grid);
+						if (detail != null){
+							gridAndDetailSplitPanel.addSouth(detail, 200);
+						} else {
+							gridAndDetailSplitPanel.addSouth(detailWaitPanel, 200);
+						}
+						if (grid != null){
+							gridAndDetailSplitPanel.add(grid);
+						} else {
+							gridAndDetailSplitPanel.add (gridWaitPanel);
+						}
 						navAndOthersSplitPanel.add(gridAndDetailSplitPanel);
 					} else {
-						navAndOthersSplitPanel.add(grid);
+						if (grid != null){
+							navAndOthersSplitPanel.add(grid);
+						} else {
+							navAndOthersSplitPanel.add(gridWaitPanel);
+						}
 					}
 					add (navAndOthersSplitPanel);
 				} else {					
 						gridAndDetailSplitPanel = new SplitLayoutPanel();
-						gridAndDetailSplitPanel.addSouth(detailHTML, 200);
-						gridAndDetailSplitPanel.add(grid);
+						if (detail != null){
+							gridAndDetailSplitPanel.addSouth(detail, 200);
+						} else {
+							gridAndDetailSplitPanel.addSouth(detailWaitPanel, 200);							
+						}
+						if (grid!= null){												
+							gridAndDetailSplitPanel.add(grid);
+						} else {
+							gridAndDetailSplitPanel.add(gridWaitPanel);							
+						}
+						
 						add(gridAndDetailSplitPanel);
 				}
 			}
 		}
 	}
-		
-	private void createObjects (){
-		if (toolbarShown) {
-			if (toolbar == null) {
-				toolbar = createToolbarButtons();	
-			} 		
-		} else {
-			toolbar = null;
-		}		
-		if (detailShown) {
-			if (detailHTML == null){
-				//detailHTML = new HTML ("detail - " + "Main");
-				detailHTML = createNavAndDetail();
-			}
-		} else {
-			detailHTML = null;
-		}
-		if (navShown) {
-			if (navHTML == null){
-				//navHTML = new HTML ("Nav - " + "Main");
-				navHTML = createNavAndDetail();
-			}
-		} else {
-			navHTML = null;
-		}
-		if (gridShown){
-			if (grid == null){
-				grid = createCentralGrid();
-			}
-		} else {
-			grid = null;
-		}
-	}
 	
-	private Grid createCentralGrid(){
-		List <ResultsetField> fieldsList = resultSetImproved.getFields();
-		colNumber = fieldsList.size();
-		Grid grid = new Grid(rowNumber,colNumber );
-		int j = 0;
-		for (ResultsetField currField :  fieldsList){			
-		//for (int j = 0; j < colNumber; j++) {
-			String colName = currField.getName();
-			boolean colIsNumeric = random.nextBoolean();		
-			boolean colIsMoney = random.nextBoolean();		
-			for (int i = 0; i < rowNumber; i++) {
-				String newRandomString = generateRandomString ( );				
-				if (i == 0){
-					grid.setHTML(i, j, "<b>" + colName  + "</b>");				
-				} else {
-					if (colIsNumeric) {
-						if (colIsMoney) {
-							newRandomString = "" + random.nextInt(20000) + "," + random.nextInt(100) + " E";
-						} else {
-						newRandomString = "" + random.nextInt(2000000);
-						}
-					} 
-					grid.setText(i, j, newRandomString );					
-					grid.setCellSpacing(0);
-				}	
-			}
-			j++;
-		}
-		grid.setStylePrimaryName("dummyGrid");
-//		if (incomingKeysRelativeResultSetId == 0){
-//			grid.setStylePrimaryName("mainGrid");
-//		}
-		return grid ;
+	private void createCentralGrid2(){	
+	    ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+	    JardinColumnModel cm = new JardinColumnModel(resultSetImproved);
+	    this.grid = new JardinGrid(store, cm, resultSetImproved);
 	}
-
-	private Grid createCentralGridSilly(){
-		Grid grid = new Grid(rowNumber,colNumber );
-		for (int j = 0; j < colNumber; j++) {
-			boolean colIsNumeric = random.nextBoolean();		
-			boolean colIsMoney = random.nextBoolean();		
-			for (int i = 0; i < rowNumber; i++) {
-				String newRandomString = generateRandomString ( );				
-				if (i == 0){
-					grid.setHTML(i, j, "<b>" + generateColTitleString()  + "</b>");				
-				} else {
-					if (colIsNumeric) {
-						if (colIsMoney) {
-							newRandomString = "" + random.nextInt(20000) + "," + random.nextInt(100) + " E";
-						} else {
-						newRandomString = "" + random.nextInt(2000000);
-						}
-					} 
-					grid.setText(i, j, newRandomString );					
-					grid.setCellSpacing(0);
-				}	
-			}
-		}
-		grid.setStylePrimaryName("grid");
-//		if (incomingKeysRelativeResultSetId == 0){
-//			grid.setStylePrimaryName("mainGrid");
-//		}
-		return grid ;
-	}
-
-	private String generateRandomString (){
-		int newRandomStringLenght = poolString.length();
-		int start = random.nextInt(newRandomStringLenght);				
-		int end = start + Math.min(15, random.nextInt(newRandomStringLenght - start) );
-		String newRandomString= ""; 
-		if (start < end) {
-			newRandomString = poolString.substring(start, end);
-		} else {
-			newRandomString = poolString.substring(end, start);
-		}
-		if (newRandomString.length() == 0){
-			newRandomString = " - ";
-		}
-		return newRandomString;
-	}
-
-	private String generateColTitleString (){
-		String titlePoolString = "Le proprietà fisiche vengono generalmente divise " +
-				"in classi di equivalenza, in base alla possibilità di essere confrontate fra di loro, ovvero di essere misurate. " +
-				"Spesso si usa l'espressione proprietà fisica per indicare l'intera classe di equivalenza " +
-				"corrispondente ad una particolare proprietà di un sistema." +
-				" Se la proprietà di un sistema può essere confrontata con quella di un altro e il confronto corrisponde  " ;
-		String[] stringTokens = titlePoolString.split("\\s");
-		String newToken = "surname";	
-	    for (int i=0; i < stringTokens.length; i++){
-			int index = random.nextInt(stringTokens.length);
-	    	newToken =  stringTokens[index];
-			if ((newToken.length()> 4 ) && (newToken.length()< 12  )) {
-				break;
-			} 
-	    }
-		return newToken;		
-	}
-
 	
 	private void updateButtonState(Button button,  boolean isPressed){
 		if (isPressed) {
@@ -410,5 +328,161 @@ public class ResultSetGui extends DockLayoutPanel {
 		}
 		return fp;
 	}	
+
+	  public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
+		  this.searchAreaAdvanced = searchAreaAdvanced;
+		  createAndPlaceObjects();
+	  }
+
+		  public JardinGridToolBar getToolbar() {
+		    return this.toolbar;
+		  }
+
+		  public FormPanel getDetail() {
+		    return this.detail;
+		  }
+
+		  public JardinGrid getGrid() {
+		    return this.grid;
+		  }
+
+		  public void setGrid(JardinGrid grid) {
+		    this.grid = grid;
+//		    this.center_center.removeAll();
+//		    JardinGridToolBar toolbar =
+//		        (JardinGridToolBar) this.center_center.getTopComponent();
+		    toolbar.setGrid(grid);
+//		    this.center_center.add(grid);
+		    createAndPlaceObjects();
+		  }
+
+		  public void addDetail(JardinDetail detail) {
+		    this.detail = detail;
+//		    this.center_south.expand();
+//		    this.center_south.removeAll();
+//		    this.center_south.add(detail);
+//		    this.center_south.layout();
+//		    this.center_south.collapse();
+
+		    /* Binding con l'area di dettaglio */
+		    this.formbinding = new FormBinding(this.detail, false);
+		    for (Field<?> field : this.detail.getFields()) {
+		      if (field instanceof SimpleComboBox<?>) {
+		        this.formbinding.addFieldBinding(new SimpleComboBoxFieldBinding(
+		            (SimpleComboBox<?>) field, field.getName()));
+		      } else {
+		        this.formbinding.addFieldBinding(new FieldBinding(field,
+		            field.getName()));
+		      }
+		    }		    
+		    createAndPlaceObjects();
+
+		  }
+
+		  public void updateStore(final ListStore<BaseModelData> store) {
+
+		    /* Loading dello store */
+		    final PagingLoader<PagingLoadResult<BaseModelData>> loader =
+		        (PagingLoader<PagingLoadResult<BaseModelData>>) store.getLoader();
+		    loader.load(0, PAGESIZE);
+
+		    /* Aggancio PaginToolbar */
+//		    PagingToolBar bottomBar =
+//		        (PagingToolBar) this.center_center.getBottomComponent();
+		    ContentPanel bottomBarContentPanel = new ContentPanel();
+		    //Component bottomBarComponent = new Component();
+		   // PagingToolBar bottomBar = (PagingToolBar) bottomBarContentPanel;
+	
+		    
+		    
+		    /*
+		     * 
+		     *
+		     *
+		     *
+		     *
+		     *	DA CAMBIARE : bottomBar NON E' agganciato alla griglia !!!!!!! 
+		     *
+		     * 
+		     * 
+		     * 
+		     * */
+		    
+		    PagingToolBar bottomBar =(PagingToolBar) bottomBarContentPanel.getBottomComponent();
+		    
+		    bottomBar.bind(loader);
+		    
+		    jardinGridHisToolbarAndHisBottomDLP.addSouth(bottomBarContentPanel, 4);
+		    /* Riconfigurazione della griglia col nuovo store */
+		    this.grid.reconfigure(store, this.grid.getColumnModel());
+
+		    ((JardinGridView) this.grid.getView()).setGridHeader();
+
+		    this.grid.getStore().addListener(Store.Update,
+		        new Listener<StoreEvent<BaseModelData>>() {
+		          public void handleEvent(StoreEvent<BaseModelData> be) {
+		            if (be.getOperation() == RecordUpdate.EDIT) {
+		              Dispatcher.forwardEvent(EventList.CommitChanges, grid);
+		            }
+		            formbinding.bind(grid.getSelectionModel().getSelectedItem());
+		          }
+		        });
+
+		    /* Binding con il nuovo store */
+		    formbinding.setStore(this.grid.getStore());
+
+		    // this.grid.getSelectionModel().addListener(Events.SelectionChange,
+		    // new Listener<SelectionChangedEvent<BaseModelData>>() {
+		    // public void handleEvent(SelectionChangedEvent<BaseModelData> be) {
+		    // if (be.getSelection().size() > 0) {
+		    // BaseModelData record = be.getSelection().get(0);
+		    // formbinding.bind(record);
+		    // } else {
+		    // formbinding.unbind();
+		    // }
+		    // }
+		    // });
+		    // ////////////////////////////////////////////////////////////////////////////////
+		    this.grid.getSelectionModel().addListener(Events.SelectionChange,
+		        new Listener<SelectionChangedEvent<BaseModelData>>() {
+		          public void handleEvent(SelectionChangedEvent<BaseModelData> be) {
+		            if (be.getSelection().size() > 0) {
+		              BaseModelData record = be.getSelection().get(0);
+		              for (final Field field : detail.getFields()) {
+		                if (field instanceof SimpleComboBox) {
+		                  if (record.get(field.getName()) instanceof Integer) {
+		                    Integer defaultValue = record.get(field.getName());
+		                    ArrayList<Integer> defval = new ArrayList<Integer>();
+		                    defval.add(defaultValue);
+		                    ((SimpleComboBox) field).add(defval);
+		                  } else {
+		                    String defaultValue = record.get(field.getName());
+		                    ArrayList<String> defval = new ArrayList<String>();
+		                    defval.add(defaultValue);
+		                    ((SimpleComboBox) field).add(defval);
+		                  }
+		                }
+		              }
+		              formbinding.bind(record);
+		            } else {
+		              formbinding.unbind();
+		            }
+		          }
+		        });
+		    // //////////////////////////////////////////////////////////////////////////////////
+		  }
+
+		  private class WaitPanel extends ContentPanel {
+		    public WaitPanel() {
+		      super();
+		      this.setStyleName("wait");
+		      this.setHeaderVisible(false);
+		      this.setBodyBorder(false);
+		    }
+		  }
+
+		  public void updatePreference(HeaderPreferenceList data) {
+		    toolbar.updatePreferenceButton(data);
+		  }
 
 }
