@@ -192,7 +192,7 @@ public class JardinDetailPopUp extends Window {
           }
         }
         newItemList.add(newItem);
-        commitChangesAsync(resultset.getId(), newItemList);
+        commitChangesAsync(resultset.getId(),0, newItemList);
       }
     });
 
@@ -204,7 +204,7 @@ public class JardinDetailPopUp extends Window {
    * @param resultset
    * @param items
    */
-  private void commitChangesAsync(final Integer resultset,
+  private void commitChangesAsync(final Integer resultset, final Integer parentResultset,
       List<BaseModelData> items) {
 
     final MessageBox waitbox =
@@ -225,7 +225,7 @@ public class JardinDetailPopUp extends Window {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
-          SearchParams sp = new SearchParams(resultset);
+          SearchParams sp = new SearchParams(resultset, parentResultset);
           List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
           BaseModelData bm = new BaseModelData();
 
@@ -243,7 +243,7 @@ public class JardinDetailPopUp extends Window {
     };
 
     /* Make the call */
-    service.setObjects(resultset, items, callback);
+    service.setObjects(resultset, parentResultset, items, callback);
   }
 
 }

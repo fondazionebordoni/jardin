@@ -3,6 +3,8 @@ package it.fub.jardin.client.testLayoutGWTPKG;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.model.SearchResult;
 import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
 import it.fub.jardin.client.widget.JardinGrid;
@@ -37,6 +39,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
@@ -45,9 +48,12 @@ public class ResultSetGui extends DockLayoutPanel {
 	SplitLayoutPanel gridAndDetailSplitPanel;
 	SplitLayoutPanel navAndOthersSplitPanel;
 	DockLayoutPanel jardinGridHisToolbarAndHisBottomDLP;
-	WaitPanel detailWaitPanel;
-	WaitPanel gridWaitPanel;
-	WaitPanel navWaitPanel;
+//	WaitPanel detailWaitPanel;
+//	WaitPanel gridWaitPanel;
+//	WaitPanel navWaitPanel;
+	HTML detailWaitPanel ;
+	HTML gridWaitPanel ;
+	HTML navWaitPanel ;
     private JardinGrid grid;
 	private JardinGridToolBar toolbar;
 	private FormPanel detail;
@@ -57,10 +63,9 @@ public class ResultSetGui extends DockLayoutPanel {
 	boolean detailShown = false;
 	boolean gridShown = true;
 	ResultsetImproved resultSetImproved;
-	boolean  isRootResultSet;
-	boolean  isLarge;	
-	int rowNumber ; 
-	int colNumber ; 
+	ResultsetImproved mainParentResultSetImproved;
+	boolean isRootResultSet;
+	boolean isLarge;	
 	Button gridButton;
 	Button navButton;
 	Button detailButton;
@@ -69,25 +74,25 @@ public class ResultSetGui extends DockLayoutPanel {
     private static final int PAGESIZE = 20;
 	PagingToolBar pagingToolbar; // = new PagingToolBar(PAGESIZE);
 	
-	public ResultSetGui(ResultsetImproved resultSetSilly, boolean  itsRootResultSet){
+	
+	public ResultSetGui(ResultsetImproved resultSetSilly, ResultsetImproved mainParentResultSetImproved, boolean  itsRootResultSet){
 		super(Unit.EM);	
 		this.resultSetImproved = resultSetSilly;
+		this.mainParentResultSetImproved = mainParentResultSetImproved;
 		this.isRootResultSet = itsRootResultSet;
 //		if (resultSetSilly.id == 0){
 		if (itsRootResultSet){
 			this.setStylePrimaryName("mainArea");
 		}
-		int a = random.nextInt(15); 
-		int b = random.nextInt(15); 
-		if (isLarge) {
-			rowNumber = 2 + Math.min(a, b); 
-			colNumber = 1 + Math.max(a, b);;
-		} else {
-			rowNumber = 2 + Math.max(a, b); 
-			colNumber = 1 + Math.min(a, b);;
-		}  
-		createCentralGrid2();
 		createAndPlaceObjects ();
+	}
+
+	public ResultsetImproved getResultSetImproved() {
+		return resultSetImproved;
+	}
+
+	public ResultsetImproved getMainParentResultSetImproved() {
+		return mainParentResultSetImproved;
 	}
 
 	void checkIfLarge(){
@@ -115,7 +120,8 @@ public class ResultSetGui extends DockLayoutPanel {
 		if (detailShown) {
 			if (detailWaitPanel == null){
 				//detailHTML = new HTML ("detail - " + "Main");
-				detailWaitPanel =  new WaitPanel() ;
+				detailWaitPanel =  new HTML ("wait detail please") ;
+				// detailWaitPanel =  new WaitPanel() ;
 			}
 		} else {
 			detailWaitPanel = null;
@@ -123,12 +129,14 @@ public class ResultSetGui extends DockLayoutPanel {
 		if (navShown) {
 			if (navWaitPanel == null){
 				//navHTML = new HTML ("Nav - " + "Main");
-				navWaitPanel =  new WaitPanel();
+				navWaitPanel = new HTML ("wait nav please");
+				//navWaitPanel =  new WaitPanel();
 			}
 		} else {
 			navWaitPanel = null;
 		}
 		if (gridShown){
+			createCentralGrid2();
 			if (jardinGridHisToolbarAndHisBottomDLP == null ){
 				jardinGridHisToolbarAndHisBottomDLP = new DockLayoutPanel(Unit.EM);
 			}			
@@ -140,7 +148,8 @@ public class ResultSetGui extends DockLayoutPanel {
 				pagingToolbar = new PagingToolBar(PAGESIZE);
 			}
 			if (gridWaitPanel == null){
-				gridWaitPanel =  new WaitPanel();
+				gridWaitPanel = new HTML ("wait grid please");
+				//gridWaitPanel =  new WaitPanel();
 			}
 		} else {
 			gridWaitPanel = null;
@@ -155,21 +164,24 @@ public class ResultSetGui extends DockLayoutPanel {
 		if (gridWaitPanel != null) {
 			gridWaitPanel.removeFromParent();
 		} 
+		if (navWaitPanel != null) {
+			navWaitPanel.removeFromParent();
+		}
 		if (toolbar != null) {
 			toolbar.removeFromParent();
 		} 
 		if (grid != null) {
 			grid.removeFromParent();
 		} 
+		if (detail != null) {
+			detail.removeFromParent();
+		}		    	
 		if (jardinGridHisToolbarAndHisBottomDLP != null) {
 			jardinGridHisToolbarAndHisBottomDLP.removeFromParent();
 		} 		
 		if (gridAndDetailSplitPanel != null) {
 			gridAndDetailSplitPanel.removeFromParent();
 		}		    	
-		if (navWaitPanel != null) {
-			navWaitPanel.removeFromParent();
-		}
 		if (navAndOthersSplitPanel != null) {
 			navAndOthersSplitPanel.removeFromParent();
 		}		    	
@@ -188,7 +200,7 @@ public class ResultSetGui extends DockLayoutPanel {
 //		if (isRootResultSet) {
 //		}
 		if (toolbarShown) {
-			addNorth(toolbarGWT, 3);			
+			addNorth(toolbarGWT, 2);			
 		} 		
 		if (gridShown) {
 			if (grid != null){
@@ -222,19 +234,19 @@ public class ResultSetGui extends DockLayoutPanel {
 							gridAndDetailSplitPanel.setStyleName("mainGridAndDetailSplitPanel");
 						}
 						if (detail != null){
-							gridAndDetailSplitPanel.addSouth(detail, 200);
+							gridAndDetailSplitPanel.addSouth(detail, 50);
 						} else {
-							gridAndDetailSplitPanel.addSouth(detailWaitPanel, 200);
+							gridAndDetailSplitPanel.addSouth(detailWaitPanel, 50);
 						}
 						if (grid != null){
-							gridAndDetailSplitPanel.add(grid);
+							gridAndDetailSplitPanel.add(jardinGridHisToolbarAndHisBottomDLP);
 						} else {
 							gridAndDetailSplitPanel.add (gridWaitPanel);
 						}
 						navAndOthersSplitPanel.add(gridAndDetailSplitPanel);
 					} else {
 						if (grid != null){
-							navAndOthersSplitPanel.add(grid);
+							navAndOthersSplitPanel.add(jardinGridHisToolbarAndHisBottomDLP);
 						} else {
 							navAndOthersSplitPanel.add(gridWaitPanel);
 						}
@@ -243,12 +255,12 @@ public class ResultSetGui extends DockLayoutPanel {
 				} else {					
 						gridAndDetailSplitPanel = new SplitLayoutPanel();
 						if (detail != null){
-							gridAndDetailSplitPanel.addSouth(detail, 200);
+							gridAndDetailSplitPanel.addSouth(detail, 50);
 						} else {
-							gridAndDetailSplitPanel.addSouth(detailWaitPanel, 200);							
+							gridAndDetailSplitPanel.addSouth(detailWaitPanel, 50);							
 						}
 						if (grid!= null){												
-							gridAndDetailSplitPanel.add(grid);
+							gridAndDetailSplitPanel.add(jardinGridHisToolbarAndHisBottomDLP);
 						} else {
 							gridAndDetailSplitPanel.add(gridWaitPanel);							
 						}
@@ -260,9 +272,11 @@ public class ResultSetGui extends DockLayoutPanel {
 	}
 	
 	private void createCentralGrid2(){	
-	    ListStore<BaseModelData> store = new ListStore<BaseModelData>();
-	    JardinColumnModel cm = new JardinColumnModel(resultSetImproved);
-	    this.grid = new JardinGrid(store, cm, resultSetImproved);
+	    if (grid == null){
+			ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+		    JardinColumnModel cm = new JardinColumnModel(resultSetImproved);
+		    this.grid = new JardinGrid(store, cm, resultSetImproved, mainParentResultSetImproved);
+	    }	    
 	}
 	
 	private void updateButtonState(Button button,  boolean isPressed){
@@ -318,8 +332,9 @@ public class ResultSetGui extends DockLayoutPanel {
 		updateGridNavAndDetailButtonsState();
 		
 		TextBox textBox = new TextBox();
-		textBox.setText("Rs - " + this.resultSetImproved.getId());
-		textBox.setWidth("60px");
+		//textBox.setText("Rs - " + this.resultSetImproved.getId());
+		textBox.setText(this.resultSetImproved.getAlias());
+		textBox.setWidth("100px");
 		textBox.setEnabled(false);
 		
 		fp.add(textBox);
@@ -341,6 +356,10 @@ public class ResultSetGui extends DockLayoutPanel {
 		  public FormPanel getDetail() {
 		    return this.detail;
 		  }
+
+		  public int getResultSetId() {
+			    return this.resultSetImproved.getId();
+			  }
 
 		  public JardinGrid getGrid() {
 		    return this.grid;
@@ -378,8 +397,12 @@ public class ResultSetGui extends DockLayoutPanel {
 		    createAndPlaceObjects();
 
 		  }
+		  public void updateStore(SearchResult result ) {
+			  updateStore (result.getStore());
+			  createAndPlaceObjects();
+		  }
 
-		  public void updateStore(final ListStore<BaseModelData> store) {
+		  private void updateStore(final ListStore<BaseModelData> store) {
 
 		    /* Loading dello store */
 		    final PagingLoader<PagingLoadResult<BaseModelData>> loader =
@@ -387,32 +410,9 @@ public class ResultSetGui extends DockLayoutPanel {
 		    loader.load(0, PAGESIZE);
 
 		    /* Aggancio PaginToolbar */
-//		    PagingToolBar bottomBar =
-//		        (PagingToolBar) this.center_center.getBottomComponent();
-		    ContentPanel bottomBarContentPanel = new ContentPanel();
-		    //Component bottomBarComponent = new Component();
-		   // PagingToolBar bottomBar = (PagingToolBar) bottomBarContentPanel;
-	
+		    pagingToolbar.bind(loader);
 		    
-		    
-		    /*
-		     * 
-		     *
-		     *
-		     *
-		     *
-		     *	DA CAMBIARE : bottomBar NON E' agganciato alla griglia !!!!!!! 
-		     *
-		     * 
-		     * 
-		     * 
-		     * */
-		    
-		    PagingToolBar bottomBar =(PagingToolBar) bottomBarContentPanel.getBottomComponent();
-		    
-		    bottomBar.bind(loader);
-		    
-		    jardinGridHisToolbarAndHisBottomDLP.addSouth(bottomBarContentPanel, 4);
+		    //jardinGridHisToolbarAndHisBottomDLP.addSouth(bottomBarContentPanel, 4);
 		    /* Riconfigurazione della griglia col nuovo store */
 		    this.grid.reconfigure(store, this.grid.getColumnModel());
 
@@ -428,8 +428,11 @@ public class ResultSetGui extends DockLayoutPanel {
 		          }
 		        });
 
+		    
 		    /* Binding con il nuovo store */
-		    formbinding.setStore(this.grid.getStore());
+		    if (detail != null){
+		    	formbinding.setStore(this.grid.getStore());
+		    }
 
 		    // this.grid.getSelectionModel().addListener(Events.SelectionChange,
 		    // new Listener<SelectionChangedEvent<BaseModelData>>() {
@@ -446,6 +449,7 @@ public class ResultSetGui extends DockLayoutPanel {
 		    this.grid.getSelectionModel().addListener(Events.SelectionChange,
 		        new Listener<SelectionChangedEvent<BaseModelData>>() {
 		          public void handleEvent(SelectionChangedEvent<BaseModelData> be) {
+  	                if (detail!=null){
 		            if (be.getSelection().size() > 0) {
 		              BaseModelData record = be.getSelection().get(0);
 		              for (final Field field : detail.getFields()) {
@@ -463,9 +467,10 @@ public class ResultSetGui extends DockLayoutPanel {
 		                  }
 		                }
 		              }
-		              formbinding.bind(record);
+	            	  formbinding.bind(record);
 		            } else {
-		              formbinding.unbind();
+			           formbinding.unbind();
+		            }
 		            }
 		          }
 		        });
@@ -485,4 +490,7 @@ public class ResultSetGui extends DockLayoutPanel {
 		    toolbar.updatePreferenceButton(data);
 		  }
 
+		  public void setSearchParams(SearchParams searchParams){
+			this.grid.setSearchparams(searchParams);
+		  }
 }

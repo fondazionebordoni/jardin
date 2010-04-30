@@ -119,5 +119,7 @@ public class EventList {
   public static final EventType UploadInsert = new EventType();
 
   public static final EventType InsertStore = new EventType();  
+  
+  public static final EventType UpdateCorrelatedResultset = new EventType();
 
 }

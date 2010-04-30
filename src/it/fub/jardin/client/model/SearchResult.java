@@ -6,8 +6,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class SearchResult implements IsSerializable {
   
-  private int resultsetId;
-  
+  private int resultSetId;
+  private int parentResultSetId;
+ 
   public SearchResult() {
     super();
   }
@@ -17,16 +18,28 @@ public class SearchResult implements IsSerializable {
   /**
    * @param resultsetId the resultsetId to set
    */
-  public void setResultsetId(int resultsetId) {
-    this.resultsetId = resultsetId;
+  public void setResultSetId(int resultSetId) {
+    this.resultSetId = resultSetId;
   }
 
   /**
    * @return the resultsetId
    */
-  public int getResultsetId() {
-    return resultsetId;
+  public int getResultSetId() {
+    return resultSetId;
   }
+  
+ 
+  public void setParentResultSetId(int parentResultSetId) {
+	    this.parentResultSetId = parentResultSetId;
+  }
+
+	  /**
+	   * @return the resultsetId
+	   */
+	  public int getParentResultSetId() {
+	    return parentResultSetId;
+	  }
 
   /**
    * @param store the store to set

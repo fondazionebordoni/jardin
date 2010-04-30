@@ -18,6 +18,7 @@ import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public interface ManagerService extends RemoteService {
 	 */
 	public List<EventTypeSerializable> getEvents();
 
-	public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
+	public HeaderPreferenceList getGridViews(Integer userId, RsIdAndParentRsId rsIds)
 			throws HiddenException;
 
 	public List<Integer> getHeaderUserPreference(Integer id,
@@ -98,7 +99,7 @@ public interface ManagerService extends RemoteService {
 	public void sendMessage(Message message) throws HiddenException,
 			VisibleException;
 
-	public Integer setObjects(Integer resultsetId,
+	public Integer setObjects(Integer resultsetId, Integer parentResultsetId,
 			List<BaseModelData> newItemList) throws HiddenException;
 
 	public Integer updateObjects(Integer resultsetId,

@@ -54,7 +54,7 @@ public class AddRowForm extends Window {
   Button button;
   // SearchParams searchData;
   ResultsetImproved resultset;
-
+  ResultsetImproved parentResultset;
   private JardinGrid grid;
 
   /**
@@ -71,6 +71,7 @@ public class AddRowForm extends Window {
     this.setLayout(new FitLayout());
 
     this.resultset = (ResultsetImproved) grid.getResultset();
+    this.parentResultset = (ResultsetImproved) grid.getParentResultset();
 
     /* Creazione FormPanel */
     formPanel = new FormPanel();
@@ -126,7 +127,8 @@ public class AddRowForm extends Window {
 
   }
 
-  private void setAssistedFormPanel() {
+  @SuppressWarnings("unchecked")
+private void setAssistedFormPanel() {
     for (ResultsetField field : this.resultset.getFields()) {
 
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
@@ -321,7 +323,7 @@ public class AddRowForm extends Window {
           }
         }
         newItemList.add(newItem);
-        commitChangesAsync(resultset.getId(), newItemList);
+        commitChangesAsync(resultset.getId(),parentResultset.getId(), newItemList);
       }
     });
 
@@ -333,7 +335,7 @@ public class AddRowForm extends Window {
    * @param resultset
    * @param items
    */
-  private void commitChangesAsync(final Integer resultset,
+  private void commitChangesAsync(final Integer resultsetId, final Integer parentResultsetId,
       List<BaseModelData> items) {
 
     final MessageBox waitbox =
@@ -354,7 +356,7 @@ public class AddRowForm extends Window {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
-          SearchParams sp = new SearchParams(resultset);
+          SearchParams sp = new SearchParams(resultsetId, parentResultsetId);
           List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
           BaseModelData bm = new BaseModelData();
 
@@ -372,7 +374,7 @@ public class AddRowForm extends Window {
     };
 
     /* Make the call */
-    service.setObjects(resultset, items, callback);
+    service.setObjects(resultsetId, parentResultsetId, items, callback);
   }
 
 }

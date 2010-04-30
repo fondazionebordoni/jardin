@@ -18,6 +18,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -89,7 +90,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 		User user = getCurrentUser();
 		if (template.getInfo().compareTo(Template.DEFAULT.getInfo()) == 0) {
 			ResultsetImproved resultset = user.getResultsetFromId(searchParams
-					.getResultsetId());
+					.getResultSetId());
 			try {
 				FileUtils.prepareDefaultTemplate(resultset, xsl, columns);
 			} catch (IOException e) {
@@ -152,9 +153,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 	}
 
 	// TODO get user from thread id
-	public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
+	public HeaderPreferenceList getGridViews(Integer userId, RsIdAndParentRsId rsIds)
 			throws HiddenException {
-		return dbUtils.getHeaderUserPreferenceList(userId, resultsetId);
+		return dbUtils.getHeaderUserPreferenceList(userId, rsIds);
 	}
 
 	// TODO get user from thread id
@@ -278,7 +279,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
 	}
 
-	public Integer setObjects(Integer resultsetId,
+	public Integer setObjects(Integer resultsetId, Integer parentResultsetId,
 			List<BaseModelData> newItemList) throws HiddenException {
 
 		log("Setting records...");

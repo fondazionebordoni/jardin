@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 public class JardinGrid extends Grid<BaseModelData> {
 
   private ResultsetImproved resultset;
+  private ResultsetImproved parentResultset;
   // private JardinRowEditor<BaseModelData> editor;
   private RowEditor<BaseModelData> editor;
   private SearchParams searchparams;
@@ -48,12 +49,14 @@ public class JardinGrid extends Grid<BaseModelData> {
    private ListStore<BaseModelData> store;
 
   public JardinGrid(final ListStore<BaseModelData> store,
-      final JardinColumnModel cm, final ResultsetImproved resultset) {
+      final JardinColumnModel cm, 
+      final ResultsetImproved resultset,
+      final ResultsetImproved parentResultset ) {
     super(store, cm);
 
      this.store = store;
     this.resultset = resultset;
-
+    this.parentResultset = parentResultset;
     this.setBorders(false);
     this.setStripeRows(true);
     // this.setClicksToEdit(ClicksToEdit.TWO);
@@ -154,9 +157,49 @@ public class JardinGrid extends Grid<BaseModelData> {
               be.getGrid().getSelectionModel().select(selected, true);
             } else
               be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
-          }
-        });
+            
+			// result Set Correlati
+			//recuperare LaPrimariKey della Riga
+			final ModelData selectedRow = (ModelData) be.getGrid()
+			.getSelectionModel().getSelection().get(0);
 
+			User user = ((JardinController) Dispatcher.get()
+			.getControllers().get(0)).getUser();
+			List<ResultsetImproved> resultsets = user.getResultsets();
+			for (final ResultsetImproved rs : resultsets) {
+				for (final IncomingForeignKeyInformation fk : resultset
+						.getForeignKeyIn()) {
+
+					if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
+						//System.out.println(rs.getAlias() + "(" + rs.getId()
+						//		+ ")" + "->" + rs.getName() + "="
+						//		+ fk.getLinkingTable());
+
+						final String linkedTable = fk.getLinkingTable();
+						final String linkedField = fk.getLinkingField();
+						final String field = fk.getField();
+
+						final IncomingForeignKeyInformation fkIN = new IncomingForeignKeyInformation(
+								linkedTable, linkedField, field);
+						fkIN.setFieldValue("" + selectedRow.get(field));
+
+						fkIN.setResultsetId(resultset.getId());					
+						fkIN.setInterestedResultset(rs);
+
+//						fkIN.setParentResultsetId(yyyyyyyyyyyy);
+//						fkIN.setInterestedParentResultset( xxxxxxxxxxxxxx   );
+						
+						
+						Dispatcher.forwardEvent( EventList.UpdateCorrelatedResultset, fkIN);
+					}
+				}						
+			}
+			//SearchParams searchParams = new SearchParams(resultsetId);
+			//jardinTabItem.setSearchOfOtherChildren(searchparams);
+
+          }
+        });       
+    
     this.addListener(Events.Render, new Listener<GridEvent<BaseModelData>>() {
 
       public void handleEvent(GridEvent<BaseModelData> be) {
@@ -206,6 +249,10 @@ public class JardinGrid extends Grid<BaseModelData> {
   public ResultsetImproved getResultset() {
     return this.resultset;
   }
+ 
+  public ResultsetImproved getParentResultset() {
+	    return this.parentResultset;
+	  }
 
   public void setResultsetImproved(ResultsetImproved rs) {
     this.resultset = rs;

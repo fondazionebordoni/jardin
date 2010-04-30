@@ -31,7 +31,17 @@ public class CorrelatedResulSetsArea extends DockLayoutPanel {
 		return false;
 	}
 
-	
+	public ResultSetGui getResultSetGuiByResultSetId(int resultSetId){
+		int l =resultSetGuiArray .size();
+		for (int i = 0 ; i < l ; i++) {
+			ResultSetGui  currResultSetGui = resultSetGuiArray.get(i);		
+			if (currResultSetGui.getResultSetId() == resultSetId ) {
+				return currResultSetGui;
+			} 
+		}
+		return null;
+	}
+
 	void removeResultSetbyIncomingKeysRelativeResultSetId(int incomingKeysRelativeResultSetId){
 		removeAllObjects();;
 		int l = resultSetGuiArray.size();
