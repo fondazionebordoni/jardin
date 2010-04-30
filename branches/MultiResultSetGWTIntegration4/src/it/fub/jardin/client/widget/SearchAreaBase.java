@@ -35,7 +35,7 @@ public class SearchAreaBase extends HtmlContainer {
   private String tooltip;
   private String tooltipAccurate;
 
-  public SearchAreaBase(ResultsetImproved resultset) {
+  public SearchAreaBase(ResultsetImproved resultset,ResultsetImproved parentResultset) {
 
     this.fieldNames = new ArrayList<String>();
     this.tooltip =
@@ -62,7 +62,7 @@ public class SearchAreaBase extends HtmlContainer {
     this.setHtml(header);
     this.setWidth("100%");
 
-    this.searchParams = new SearchParams(resultset.getId());
+    this.searchParams = new SearchParams(resultset.getId(), parentResultset.getId());
 
     setFields();
     setButtons();

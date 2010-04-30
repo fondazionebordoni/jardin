@@ -57,7 +57,8 @@ public class FieldCreator {
    * @param labelWidth
    * @return una widget per la gestione del campo del resultset
    */
-  public static/* TODO deve restituire <T extends Field> al posto di Field */Field<?> getField(
+  @SuppressWarnings("unchecked")
+public static/* TODO deve restituire <T extends Field> al posto di Field */Field<?> getField(
       final ResultsetField field, List<String> values, boolean combo, int labelWidth,
       boolean textarea) {
     Field<?> result = null;
@@ -113,7 +114,8 @@ public class FieldCreator {
           /////////////////////////
           Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
-            public void handleEvent(BaseEvent be) {
+            @SuppressWarnings("unchecked")
+			public void handleEvent(BaseEvent be) {
 
               final MessageBox wait =
                   MessageBox.wait(

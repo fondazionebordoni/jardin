@@ -36,10 +36,10 @@ public class SearchAreaAdvanced extends FormPanel {
   private SearchParams searchParams;
   private List<Field<?>> fieldList;
 
-  public SearchAreaAdvanced(final ResultsetImproved resultset) {
+  public SearchAreaAdvanced(final ResultsetImproved resultset, final ResultsetImproved parentResultset) {
 
     this.resultset = resultset;
-    this.searchParams = new SearchParams(resultset.getId());
+    this.searchParams = new SearchParams(resultset.getId(), parentResultset.getId());
     this.fieldList = new ArrayList<Field<?>>();
     this.addStyleName("search-area-advanced");
 

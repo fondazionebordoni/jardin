@@ -11,6 +11,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.Tool;
+import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 public class JardinGridToolBar extends ToolBar {
 
   private ResultsetImproved resultset;
+  private ResultsetImproved parentResultset;
   // TODO Eliminare riferimenti a grid: dovrebbe bastare il resultset
   private JardinGrid grid;
   private SimpleComboBox<String> searchfield;
@@ -68,8 +70,14 @@ public class JardinGridToolBar extends ToolBar {
   // TODO Modificare il costruttore: passare solo l'id del resultset
   public void setGrid(JardinGrid grid) {
     this.resultset = grid.getResultset();
+    this.parentResultset = grid.getParentResultset();
     this.searchId = "grid-toolbar-" + resultset.getId();
-    this.searchParams = new SearchParams(resultset.getId());
+    if (parentResultset == null) {
+	   this.searchParams = new SearchParams(resultset.getId(), 0);
+	} else {
+	    this.searchParams = new SearchParams(resultset.getId(), parentResultset.getId());
+
+	}
     this.grid = grid;
 
     this.fieldNames = new ArrayList<String>();
@@ -428,7 +436,9 @@ public class JardinGridToolBar extends ToolBar {
     SelectionListener listener = new SelectionListener() {
       @Override
       public void componentSelected(ComponentEvent ce) {
-        Dispatcher.forwardEvent(e, resultset.getId());
+    	  RsIdAndParentRsId rsIds = new RsIdAndParentRsId (resultset.getId(), parentResultset.getId());
+    	  //Dispatcher.forwardEvent(e, resultset.getId());
+    	  Dispatcher.forwardEvent(e, rsIds);
       }
     };
     return listener;

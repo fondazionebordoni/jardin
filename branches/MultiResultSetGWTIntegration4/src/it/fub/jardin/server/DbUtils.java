@@ -18,6 +18,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 import it.fub.jardin.client.widget.UploadDialog;
 
 import java.io.BufferedReader;
@@ -207,7 +208,8 @@ public class DbUtils {
 
     boolean like = !(searchParams.getAccurate());
 
-    Integer id = searchParams.getResultsetId();
+    Integer resultSetId = searchParams.getResultSetId();
+    Integer parentResultSetId = searchParams.getParentResultSetId();
     List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
 
     /*
@@ -216,7 +218,7 @@ public class DbUtils {
 
     Map<String, String> fields = getMapFromListModelData(fieldList);
 
-    String query = dbProperties.getStatement(id);
+    String query = dbProperties.getStatement(resultSetId);
     // query = "SELECT * FROM " + query + " WHERE 1";
 
     /*
@@ -242,7 +244,7 @@ public class DbUtils {
           while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
             query +=
-                fieldTest(dbProperties.getFieldList(id), "OR", token, like);
+                fieldTest(dbProperties.getFieldList(resultSetId), "OR", token, like);
           }
         }
 
@@ -266,7 +268,7 @@ public class DbUtils {
       }
     }
 
-    Log.debug("Search Query: " + query);
+    // Log.debug("Search Query: " + query);
     return query;
   }
 
@@ -277,7 +279,9 @@ public class DbUtils {
 
     boolean like = !(searchParams.getAccurate());
 
-    Integer id = searchParams.getResultsetId();
+//    Integer id = searchParams.getResultsetId();
+    Integer resultSetId = searchParams.getResultSetId();
+    Integer parentResultSetId = searchParams.getParentResultSetId();
     List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
 
     /*
@@ -286,7 +290,7 @@ public class DbUtils {
 
     Map<String, String> fields = getMapFromListModelData(fieldList);
 
-    String query = dbProperties.getStatement(id);
+    String query = dbProperties.getStatement(resultSetId);
     // query = "SELECT * FROM " + query + " WHERE 1";
 
     int startPartialQuery = query.toLowerCase().indexOf("from");
@@ -315,7 +319,7 @@ public class DbUtils {
           while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
             query +=
-                fieldTest(dbProperties.getFieldList(id), "OR", token, like);
+                fieldTest(dbProperties.getFieldList(resultSetId), "OR", token, like);
           }
         }
 
@@ -339,7 +343,7 @@ public class DbUtils {
       }
     }
 
-    Log.debug("Search Query: " + query);
+    // Log.debug("Search Query: " + query);
     return query;
   }
 
@@ -723,7 +727,7 @@ public class DbUtils {
         int num = ps.executeUpdate();
         if (num > 0) {
           String toLog = "INSERT (" + ps.toString() + ")";
-          Log.debug(toLog);
+          // Log.debug(toLog);
           log(toLog);
         }
         result += num;
@@ -802,7 +806,7 @@ public class DbUtils {
    * connection.prepareStatement(query); int i = 1; for (String property :
    * record.getPropertyNames()) { ps.setObject(i++, record.get(property)); }
    * 
-   * Log.debug("Query DELETE: " + ps); int num = ps.executeUpdate(); if (num >
+   * // Log.debug("Query DELETE: " + ps); int num = ps.executeUpdate(); if (num >
    * 0) { log("DELETE (" + ps.toString() + ")"); } result += num; } } catch
    * (Exception e) { Log.warn("Errore SQL", e); throw new
    * HiddenException("Errore durante l'eliminazione dei record"); } finally {
@@ -860,7 +864,7 @@ public class DbUtils {
           i++;
         }
 
-        Log.debug("Query DELETE: " + ps);
+        // Log.debug("Query DELETE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
           log("DELETE (" + ps.toString() + ")");
@@ -959,7 +963,7 @@ public class DbUtils {
     try {
       result = ps.executeQuery();
     } catch (SQLException e) {
-      Log.debug("User validation query: " + ps.toString());
+      // Log.debug("User validation query: " + ps.toString());
       throw new VisibleException("Errore durante l'interrogazione su database");
     }
 
@@ -1465,8 +1469,13 @@ public class DbUtils {
     return esito;
   }
 
+  
+  
+  
+  // TODO DANIELE cutomizzare per resultSet e parentresultSet !!!!!!!
+  
   public HeaderPreferenceList getHeaderUserPreferenceList(Integer idUser,
-      Integer idResultset) throws HiddenException {
+      RsIdAndParentRsId rsIds) throws HiddenException {
 
     HeaderPreferenceList hp = new HeaderPreferenceList();
     Connection connection = dbConnectionHandler.getConn();
@@ -1475,7 +1484,7 @@ public class DbUtils {
             + T_HEADERPREFERENCE + " hp JOIN " + T_FIELDINPREFERENCE + " fip "
             + "ON hp.id=fip.id_headerpreference) JOIN " + T_FIELD
             + " f ON fip.id_field=f.id WHERE hp.id_user='" + idUser
-            + "' AND f.id_resultset='" + idResultset + "' GROUP BY namepref";
+            + "' AND f.id_resultset='" + rsIds.getResultSetId() + "' GROUP BY namepref";
 
     try {
       ResultSet result = doQuery(connection, query);
@@ -1488,7 +1497,7 @@ public class DbUtils {
       }
 
       hp.setUserPref(userPref);
-      hp.setResultsetId(idResultset);
+      hp.setResultsetId(rsIds.getResultSetId());
 
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
@@ -1610,7 +1619,7 @@ public class DbUtils {
        * } } colsCheck.add(present); }
        * 
        * if (colsCheck.contains(false)) { recordLine = null;
-       * Log.debug("Una delle colonne non è stata riconosciuta!"); }
+       * // Log.debug("Una delle colonne non è stata riconosciuta!"); }
        */
       // recordLine = in.readLine();
       CSVParser csvp = new CSVParser(in);
@@ -1648,7 +1657,7 @@ public class DbUtils {
       }
 
       // while (recordLine != null) {
-      // Log.debug(recordLine);
+      // // Log.debug(recordLine);
       // // if (validateLine(rsmd, recordLine)) {
       // recordList.add(createRecord(rsmd, recordLine, columns, ts, fs));
       // // } else
@@ -1792,7 +1801,7 @@ public class DbUtils {
             i++;
           }
         }
-        Log.debug("Query UPDATE: " + ps);
+        // Log.debug("Query UPDATE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
           log("UPDATE (" + ps.toString() + ")");
@@ -1829,7 +1838,7 @@ public class DbUtils {
         "SELECT address_statement, data_statement, link_id FROM " + T_NOTIFY
             + " WHERE id_resultset = '" + resultsetId + "'";
 
-    Log.debug("query: " + query);
+    // Log.debug("query: " + query);
 
     ResultSet result = doQuery(connection, query);
     while (result.next()) {
@@ -1837,7 +1846,7 @@ public class DbUtils {
       String address_statement = result.getString(1);
       String data_statement = result.getString(2);
       String bmdid = result.getString(3);
-      // Log.debug("bmdid"+bmdid);
+      // // Log.debug("bmdid"+bmdid);
 
       for (BaseModelData record : newItemList) {
         if (record.get(bmdid) != null) {
@@ -1853,7 +1862,7 @@ public class DbUtils {
               testo +=
                   md.getColumnLabel(i) + ": " + resultData.getString(i) + "\n";
             }
-            Log.debug("\nmessaggio:\n" + testo);
+            // Log.debug("\nmessaggio:\n" + testo);
             testo += "\n";
           }
 
@@ -1862,7 +1871,7 @@ public class DbUtils {
           ps.setInt(1, id_table);
           ResultSet resultAddress = ps.executeQuery();
           while (resultAddress.next()) {
-            Log.debug("mailto: " + resultAddress.getString(1));
+            // Log.debug("mailto: " + resultAddress.getString(1));
             if (!(resultAddress.getString(1) == null)) {
               try {
                 MailUtility.sendMail(resultAddress.getString(1), mitt, oggetto,
@@ -1901,7 +1910,7 @@ public class DbUtils {
       // TODO Title could be NULL -> check sql
       ps.setString(1, message.getTitle());
       ps.setString(2, message.getBody());
-      Log.debug(message.toString());
+      // Log.debug(message.toString());
 
       DateFormat df =
           new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -1940,7 +1949,7 @@ public class DbUtils {
         for (int i = 1; i <= resultWidth; i++) {
           String key = result.getMetaData().getColumnLabel(i);
           row.set(key, result.getObject(i));
-          // Log.debug(key + "=" + result.getObject(i));
+          // // Log.debug(key + "=" + result.getObject(i));
         }
       }
     } catch (SQLException e) {

@@ -14,7 +14,6 @@ public class IncomingForeignKeyInformation implements IsSerializable{
 	private String fieldValue;
 	private Integer resultsetId;
 	private ResultsetImproved interestedResultset;
-
 	@SuppressWarnings("unused")
 	private IncomingForeignKeyInformation() {
 	}

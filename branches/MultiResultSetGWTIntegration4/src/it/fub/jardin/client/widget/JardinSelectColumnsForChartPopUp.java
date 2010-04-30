@@ -30,6 +30,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
   final Button button;
   // SearchParams searchData;
   ResultsetImproved resultset;
+  ResultsetImproved parentResultset;
 
   private JardinGrid grid;
 
@@ -48,6 +49,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
     this.setLayout(new FitLayout());
 
     this.resultset = (ResultsetImproved) grid.getResultset();
+    this.parentResultset = (ResultsetImproved) grid.getParentResultset();
 
     /* Creazione FormPanel */
     formPanel = new FormPanel();
@@ -100,6 +102,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
         ArrayList<String> dataToChart = new ArrayList<String>();
         dataToChart.add(ct);
         dataToChart.add("" + resultset.getId());
+        dataToChart.add("" + parentResultset.getId());
         dataToChart.add(lbTitle.getValue(lbTitle.getSelectedIndex()));
         dataToChart.add(lbValue.getValue(lbValue.getSelectedIndex()));
         Dispatcher.forwardEvent(EventList.ShowChart, dataToChart);

@@ -15,6 +15,8 @@ import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.model.SearchResult;
+import it.fub.jardin.client.testLayoutGWTPKG.ResultSetGui;
+import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinSelectColumnsForChartPopUp;
@@ -90,7 +92,7 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.LoginError);
     registerEventTypes(EventList.Refresh);
     registerEventTypes(EventList.Init);
-    registerEventTypes(EventList.CreateUI);
+    //registerEventTypes(EventList.CreateUI);
     registerEventTypes(EventList.Search);
     registerEventTypes(EventList.CommitChanges);
     registerEventTypes(EventList.AddRow);
@@ -119,7 +121,8 @@ public class JardinController extends Controller {
     registerEventTypes(EventList.GetPlugins);
     registerEventTypes(EventList.GotPlugins);
     registerEventTypes(EventList.ViewPlugin);
-  }
+	registerEventTypes(EventList.UpdateCorrelatedResultset);
+ }
 
   public void initialize() {
     view = new JardinView(this);
@@ -159,8 +162,8 @@ public class JardinController extends Controller {
       }
     } else if (t == EventList.LoginError) {
       onLoginError(event);
-    } else if (t == EventList.CreateUI) {
-      onCreateUI();
+//    } else if (t == EventList.CreateUI) {
+//      onCreateUI();
     } else if (t == EventList.Search) {
       if (event.getData() instanceof SearchParams) {
         SearchParams searchParams = (SearchParams) event.getData();
@@ -248,22 +251,22 @@ public class JardinController extends Controller {
         Log.error("Errore nei dati di EventList.ExportSomeRowSomeColumns");
       }
     } else if (t == EventList.ShowAllColumns) {
-      if (event.getData() instanceof Integer) {
-        onShowAllColumns((Integer) event.getData());
+      if (event.getData() instanceof RsIdAndParentRsId) {
+        onShowAllColumns((RsIdAndParentRsId) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowAllColumns
         Log.error("Errore nei dati di EventList.ShowAllColumns");
       }
     } else if (t == EventList.SaveGridView) {
-      if (event.getData() instanceof Integer) {
-        onSaveGridView((Integer) event.getData());
+      if (event.getData() instanceof RsIdAndParentRsId) {
+        onSaveGridView((RsIdAndParentRsId) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SaveGridView
         Log.error("Errore nei dati di EventList.SaveGridView");
       }
     } else if (t == EventList.GetGridViews) {
-      if (event.getData() instanceof Integer) {
-        onGetGridViews((Integer) event.getData());
+      if (event.getData() instanceof RsIdAndParentRsId) {
+        onGetGridViews((RsIdAndParentRsId) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.GetGridViews
         Log.error("Errore nei dati di EventList.GetGridViews");
@@ -369,7 +372,10 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.ViewPlugin
         Log.error("Errore nei dati di EventList.ViewPlugin");
       } 
-    }  
+    } else if (t == EventList.UpdateCorrelatedResultset) {
+		onViewLinkedResultsetForCorrelatedResultset((IncomingForeignKeyInformation) event
+				.getData());
+	}  
   }
 
   private void onNewMessage() {
@@ -544,7 +550,8 @@ public class JardinController extends Controller {
         new MessageBox().wait("Caricamento dati", "Attendere prego...",
             "Loading...");
     // TODO Modificare per gestire il solo resultsetId come parametro
-    if (user.getResultsetFromId(searchParams.getResultsetId()).isRead()) {
+    // TODO Modificare per gestire anche i diritti di accesso alpadre
+    if (user.getResultsetFromId(searchParams.getResultSetId()).isRead()) {
 
       // ///////////////////////////////////////////
       // alla griglia servono i searchParams
@@ -588,7 +595,8 @@ public class JardinController extends Controller {
       });
 
       SearchResult searchResult = new SearchResult();
-      searchResult.setResultsetId(searchParams.getResultsetId());
+      searchResult.setResultSetId(searchParams.getResultSetId());
+      searchResult.setParentResultSetId(searchParams.getParentResultSetId());
       searchResult.setStore(store);
       forwardToView(view, EventList.Searched, searchResult);
       // ///////////////////////////////////////////
@@ -684,9 +692,9 @@ public class JardinController extends Controller {
     }
   }
 
-  private void onRemoveRows(int resultset) {
-    if (user.getResultsetFromId(resultset).isDelete()) {
-      final JardinGrid grid = view.getItemByResultsetId(resultset).getGrid();
+  private void onRemoveRows(int resultSetId) {
+    if (user.getResultsetFromId(resultSetId).isDelete()) {
+      final JardinGrid grid = view.getResultSetGui(resultSetId).getGrid();
 
       final List<BaseModelData> selectedRows =
           grid.getSelectionModel().getSelection();
@@ -723,7 +731,7 @@ public class JardinController extends Controller {
         };
 
         /* Make the call */
-        service.removeObjects(resultset, selectedRows, callback);
+        service.removeObjects(resultSetId, selectedRows, callback);
       } else {
         Info.display("Informazione", "Selezionare almeno una riga", "");
       }
@@ -752,7 +760,7 @@ public class JardinController extends Controller {
   // boolean allStore = dataForExport.get("allStore");
   // String fs = dataForExport.get("fs");
   // String ts = dataForExport.get("ts");
-  private void onExport(int resultset, boolean allRows, boolean allStore,
+  private void onExport(int resultSetId,  boolean allRows, boolean allStore,
       boolean allColumns) {
 
     final MessageBox waitBox =
@@ -761,14 +769,14 @@ public class JardinController extends Controller {
 
     /* Nome del file da creare */
     String filename =
-        user.getResultsetFromId(resultset).getAlias().replace(" ", "_");
+        user.getResultsetFromId(resultSetId).getAlias().replace(" ", "_");
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
      * grid (config dei record da esportare, colonne visibili e criteri di
      * ricerca)
      */
-    JardinTabItem item = view.getItemByResultsetId(resultset);
+    ResultSetGui item = view.getResultSetGui(resultSetId);
 
     /* Prendi il formato di esportazione */
     JardinGridToolBar toolbar = item.getToolbar();
@@ -829,15 +837,15 @@ public class JardinController extends Controller {
         columns, searchParams, fs, ts, callback);
   }
 
-  private void onShowAllColumns(int resultset) {
-    forwardToView(view, EventList.ShowAllColumns, resultset);
+  private void onShowAllColumns( RsIdAndParentRsId rsIds ) {
+    forwardToView(view, EventList.ShowAllColumns, rsIds );
   }
 
-  private void onSaveGridView(int resultset) {
-    forwardToView(view, EventList.SaveGridView, resultset);
+  private void onSaveGridView(RsIdAndParentRsId rsIds ) {
+    forwardToView(view, EventList.SaveGridView, rsIds);
   }
 
-  private void onGetGridViews(int resultset) {
+  private void onGetGridViews(RsIdAndParentRsId rsIds) {
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
@@ -854,7 +862,7 @@ public class JardinController extends Controller {
           }
         };
 
-    service.getGridViews(user.getUid(), resultset, callback);
+    service.getGridViews(user.getUid(), rsIds, callback);
   }
 
   private void onUploadTemplate(int resultset) {
@@ -893,16 +901,16 @@ public class JardinController extends Controller {
         grid.getUserPreferenceHeaderId(), callback);
   }
 
-  private void onJungle(final int resultset) {
+  private void onJungle(final int resultSetId) {
     /* Nome del file da creare */
-    String filename = user.getResultsetFromId(resultset).getAlias();
+    String filename = user.getResultsetFromId(resultSetId).getAlias();
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
      * grid (config dei record da esportare, colonne visibili e criteri di
      * ricerca)
      */
-    JardinTabItem item = view.getItemByResultsetId(resultset);
+    ResultSetGui item = view.getResultSetGui(resultSetId);
 
     /* Prendi la griglia */
     JardinGrid grid = item.getGrid();
@@ -931,7 +939,7 @@ public class JardinController extends Controller {
       public void onSuccess(String result) {
         if (result != null && result.length() > 0) {
           Jungle j =
-              new Jungle(user.getResultsetFromId(resultset), columns, result);
+              new Jungle(user.getResultsetFromId(resultSetId), columns, result);
           j.show();
         } else {
           Log.warn("File d'esportazione vuoto");
@@ -952,8 +960,8 @@ public class JardinController extends Controller {
    * @param type
    * @param resultset
    */
-  private void onSelectColumnsForChart(ChartType ct, Integer resultset) {
-    JardinTabItem item = view.getItemByResultsetId(resultset);
+  private void onSelectColumnsForChart(ChartType ct, Integer resultSetId) {
+	 ResultSetGui item = view.getResultSetGui(resultSetId);
     JardinGrid grid = item.getGrid();
 
     JardinSelectColumnsForChartPopUp popup =
@@ -978,12 +986,13 @@ public class JardinController extends Controller {
      * grid (config dei record da esportare, colonne visibili e criteri di
      * ricerca)
      */
-    Integer resultset = Integer.valueOf(dataToChart.get(1));
+    Integer resultSetId = Integer.valueOf(dataToChart.get(1));
     String title = dataToChart.get(2);
     String value = dataToChart.get(3);
     ChartType type = ChartType.valueOf(dataToChart.get(0));
 
-    JardinTabItem item = view.getItemByResultsetId(resultset);
+    //ResultSetGui item = view.getMainResultSetGuiByResultsetId(resultset);
+    ResultSetGui item = view.getResultSetGui(resultSetId);
 
     /* Prendi la griglia */
     JardinGrid grid = item.getGrid();
@@ -998,7 +1007,7 @@ public class JardinController extends Controller {
     Chart chart = new Chart(url);
     chart.setBorders(false);
 
-    String resultsetAlias = user.getResultsetFromId(resultset).getAlias();
+    String resultsetAlias = user.getResultsetFromId(resultSetId).getAlias();
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
 
@@ -1050,24 +1059,6 @@ public class JardinController extends Controller {
     // TODO Auto-generated method stub
   }
 
-  private void onViewLinkedResultset(IncomingForeignKeyInformation ifki) {
-    ResultsetImproved rs = ifki.getInterestedResultset();
-    SearchParams searchParams = new SearchParams(rs.getId());
-    searchParams.setAccurate(true);
-    List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-    SearchStringParser parser =
-        new SearchStringParser(ifki.getLinkingField() + ":\""
-            + ifki.getFieldValue() + "\"");
-
-    Map<String, String> searchMap = parser.getSearchMap();
-    for (String key : parser.getSearchMap().keySet()) {
-      BaseModelData m = new BaseModelData();
-      m.set(key, searchMap.get(key));
-      queryFieldList.add(m);
-    }
-    searchParams.setFieldsValuesList(queryFieldList);
-    Dispatcher.forwardEvent(EventList.Search, searchParams);
-  }
 
   private void onGetPlugins(Integer data) {
     ResultsetImproved rs = user.getResultsetFromId(data);
@@ -1091,9 +1082,65 @@ public class JardinController extends Controller {
     service.getPlugins(user.getGid(), rs.getId(), callback);
 
   }
+	private SearchParams onViewLinkedResultset(IncomingForeignKeyInformation ifki) {
+		//String linkedTable = ifki.getLinkingTable();
+		ResultsetImproved rs = ifki.getInterestedResultset();
+//		ResultsetImproved parentRs = ifki.getInterestedParentResultset();
+
+		SearchParams searchParams = new SearchParams( ifki.getInterestedResultset().getId(), ifki.getResultsetId()  );
+		searchParams.setAccurate(true);
+		List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+
+		SearchStringParser parser = new SearchStringParser(ifki
+				.getLinkingField()
+				+ ":" + ifki.getFieldValue());
+
+		Map<String, String> searchMap = parser.getSearchMap();
+		for (String key : parser.getSearchMap().keySet()) {
+			// TODO migliorare la gestione per il case insensitive
+			key = key.toLowerCase();
+			BaseModelData m = new BaseModelData();
+			m.set(key, searchMap.get(key));
+			queryFieldList.add(m);
+		}
+		searchParams.setFieldsValuesList(queryFieldList);
+		return searchParams;
+		///Dispatcher.forwardEvent(EventList.Search, searchParams);
+	}
+	
+	private void onViewLinkedResultsetForNewTab(IncomingForeignKeyInformation ifki) {
+		SearchParams searchParams = onViewLinkedResultset( ifki);
+		Dispatcher.forwardEvent(EventList.Search, searchParams);
+	}
+
+	
+	private void onViewLinkedResultsetForCorrelatedResultset(IncomingForeignKeyInformation ifki) {
+			SearchParams searchParams = onViewLinkedResultset( ifki);
+			Dispatcher.forwardEvent(EventList.Search, searchParams);			
+	}
+
+//  private void onViewLinkedResultsetForCorrelatedResultset(IncomingForeignKeyInformation ifki) {
+//		SearchParams searchParams = onViewLinkedResultset( ifki);
+//		Dispatcher.forwardEvent(EventList.Search, searchParams);			
+//  }
+//
+//  private void onViewLinkedResultset(IncomingForeignKeyInformation ifki) {
+//	    ResultsetImproved rs = ifki.getInterestedResultset();
+//	    SearchParams searchParams = new SearchParams(rs.getId(), 0);
+//	    searchParams.setAccurate(true);
+//	    List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+//	    SearchStringParser parser =
+//	        new SearchStringParser(ifki.getLinkingField() + ":\""
+//	            + ifki.getFieldValue() + "\"");
+//
+//	    Map<String, String> searchMap = parser.getSearchMap();
+//	    for (String key : parser.getSearchMap().keySet()) {
+//	      BaseModelData m = new BaseModelData();
+//	      m.set(key, searchMap.get(key));
+//	      queryFieldList.add(m);
+//	    }
+//	    searchParams.setFieldsValuesList(queryFieldList);
+//	    Dispatcher.forwardEvent(EventList.Search, searchParams);
+//	  }
   
-  private void getResultsetFromAlias (String alias){
-	  
-  
-  }
 }

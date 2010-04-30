@@ -16,6 +16,7 @@ import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public interface ManagerServiceAsync {
 
   void getEvents(AsyncCallback<List<EventTypeSerializable>> callback);
 
-  public void getGridViews(Integer userId, Integer resultsetId,
+  public void getGridViews(Integer userId, RsIdAndParentRsId rsIds ,
       AsyncCallback<HeaderPreferenceList> callback);
 
   public void getHeaderUserPreference(Integer id,
@@ -72,7 +73,7 @@ public interface ManagerServiceAsync {
   // TODO implement USER direct messages
   public void sendMessage(Message message, AsyncCallback callback);
 
-  public void setObjects(Integer resultset, List<BaseModelData> newItemList,
+  public void setObjects(Integer resultsetId, Integer parentResultsetId, List<BaseModelData> newItemList,
       AsyncCallback<Integer> asyncCallback);
 
   public void setUserResultsetHeaderPreferencesNoDefault(Integer integer,

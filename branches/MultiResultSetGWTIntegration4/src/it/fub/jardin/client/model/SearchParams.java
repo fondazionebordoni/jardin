@@ -13,8 +13,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class SearchParams implements IsSerializable {
 
-	private int resultsetId;
-	
+	private int resultSetId;
+	private int parentResultSetId;
 	private boolean limit = true;
 
 	private List<BaseModelData> fieldsValuesList;
@@ -26,17 +26,22 @@ public class SearchParams implements IsSerializable {
 		// (with any access modifier) or no constructor at all.
 	}
 
-	public SearchParams(int resultsetId) {
+	public SearchParams(int resultSetId, int parentResultSetId) {
 		super();
-		this.resultsetId = resultsetId;
+		this.resultSetId = resultSetId;
+		this.parentResultSetId = parentResultSetId;
 	}
 
-	public int getResultsetId() {
-		return resultsetId;
+	public int getResultSetId() {
+		return resultSetId;
 	}
 
-	public void setResultsetId(Integer resultsetId) {
-		this.resultsetId = resultsetId;
+	public int getParentResultSetId() {
+		return parentResultSetId;
+	}
+
+	public void setResultSetId(Integer resultSetId) {
+		this.resultSetId = resultSetId;
 	}
 
 	/**
