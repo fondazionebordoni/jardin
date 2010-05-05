@@ -114,7 +114,6 @@ public static/* TODO deve restituire <T extends Field> al posto di Field */Field
           /////////////////////////
           Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
-            @SuppressWarnings("unchecked")
 			public void handleEvent(BaseEvent be) {
 
               final MessageBox wait =

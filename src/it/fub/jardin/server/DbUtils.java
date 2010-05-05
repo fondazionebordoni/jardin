@@ -20,6 +20,7 @@ import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 import it.fub.jardin.client.widget.UploadDialog;
+import it.fub.jardin.server.AdvancedSqlConnection.ConnType;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,6 +34,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,7 +58,7 @@ import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 /**
  * @author acozzolino
- * 
+ *
  */
 public class DbUtils {
 
@@ -112,22 +114,22 @@ public class DbUtils {
     Log.info("[" + this.user.getUsername() + "] " + message);
   }
 
-  public static ResultSet doQuery(Connection connection, String query)
-      throws SQLException {
-
-    PreparedStatement ps =
-        (PreparedStatement) connection.prepareStatement(query);
-    return ps.executeQuery();
-  }
-
-  private ResultSet doUpdate(Connection connection, String query)
-      throws SQLException {
-    Statement update =
-        connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-            ResultSet.CONCUR_READ_ONLY);
-    update.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-    return update.getGeneratedKeys();
-  }
+//  public static ResultSet doQuery(Connection connection, String query)
+//      throws SQLException {
+//
+//    PreparedStatement ps =
+//        (PreparedStatement) connection.prepareStatement(query);
+//    return ps.executeQuery();
+//  }
+//
+//  private ResultSet doUpdate(Connection connection, String query)
+//      throws SQLException {
+//    Statement update =
+//        connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+//            ResultSet.CONCUR_READ_ONLY);
+//    update.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+//    return update.getGeneratedKeys();
+//  }
 
   private void updateLoginCount(int userId, int loginCount)
       throws SQLException, HiddenException {
@@ -141,13 +143,17 @@ public class DbUtils {
       ps.setInt(1, loginCount);
       ps.setInt(2, userId);
       ps.executeUpdate();
+      ps.close();
     } catch (SQLException e) {
-      throw e;
+    	e.printStackTrace();
+    	throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+    	 dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
   }
 
+
+  
   public void updateUserProperties(User user) throws HiddenException {
     Connection connection = dbConnectionHandler.getConn();
     String query =
@@ -158,48 +164,56 @@ public class DbUtils {
             + "', telephone='" + user.getTelephone() + "', id_group='"
             + user.getGid() + "' WHERE id = '" + user.getUid() + "'";
     try {
-      doUpdate(connection, query);
+      Statement st =
+      connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+          ResultSet.CONCUR_READ_ONLY);
+      st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+      //update.getGeneratedKeys();
+      //doUpdate(connection, query);
+      st.close();
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il salvataggio delle preferenze");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
   }
 
-  public List<Integer> getUserResultsetHeaderPrefereces(Integer uid,
-      Integer rsid) {
-    String query =
-        "SELECT fip.id_field as fieldid FROM " + "(((" + T_FIELD + " f JOIN "
-            + T_FIELDINPREFERENCE + " fip " + "ON (fip.id_field=f.id)) "
-            + "JOIN " + T_HEADERPREFERENCE + " hp ON "
-            + "(hp.id=fip.id_headerpreference)) " + "JOIN " + T_USER + " u "
-            + "ON (hp.id_user=u.id)) " + "WHERE u.id = '" + uid
-            + "' AND f.id_resultset='" + rsid + "'";
-
-    Connection connection = null;
-    try {
-      connection = dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
-      // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
-
-    List<Integer> hp = new ArrayList<Integer>();
-    try {
-      ResultSet resultset = doQuery(connection, query);
-      while (resultset.next()) {
-        hp.add(resultset.getInt("fieldid"));
-      }
-    } catch (SQLException e) {
-      // TODO throw a HiddenException to be caught by caller
-      Log.error("Error on loading user resultset preferences", e);
-    }
-
-    dbConnectionHandler.closeConn(connection);
-    return hp;
-  }
+//  public List<Integer> getUserResultsetHeaderPrefereces(Integer uid,
+//      Integer rsid) {
+//    String query =
+//        "SELECT fip.id_field as fieldid FROM " + "(((" + T_FIELD + " f JOIN "
+//            + T_FIELDINPREFERENCE + " fip " + "ON (fip.id_field=f.id)) "
+//            + "JOIN " + T_HEADERPREFERENCE + " hp ON "
+//            + "(hp.id=fip.id_headerpreference)) " + "JOIN " + T_USER + " u "
+//            + "ON (hp.id_user=u.id)) " + "WHERE u.id = '" + uid
+//            + "' AND f.id_resultset='" + rsid + "'";
+//
+//    Connection connection = null;
+//    try {
+//      connection = dbConnectionHandler.getConn();
+//    } catch (HiddenException e) {
+//      // TODO re-throw HiddenException to be caught by caller
+//      Log.error("Error con database connection", e);
+//    }
+//
+//    List<Integer> hp = new ArrayList<Integer>();
+//    try {
+//      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+//      ResultSet result = ps.executeQuery();
+//      while (result.next()) {
+//        hp.add(result.getInt("fieldid"));
+//      }
+//    } catch (SQLException e) {
+//      // TODO throw a HiddenException to be caught by caller
+//      Log.error("Error on loading user resultset preferences", e);
+//    }
+//
+//    dbConnectionHandler.freeConn(connection, ConnType.normal);
+//    return hp;
+//  }
 
   private String createSearchQuery(PagingLoadConfig config,
       SearchParams searchParams) throws SQLException {
@@ -209,7 +223,7 @@ public class DbUtils {
     boolean like = !(searchParams.getAccurate());
 
     Integer resultSetId = searchParams.getResultSetId();
-    Integer parentResultSetId = searchParams.getParentResultSetId();
+    //Integer parentResultSetId = searchParams.getParentResultSetId();
     List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
 
     /*
@@ -281,7 +295,7 @@ public class DbUtils {
 
 //    Integer id = searchParams.getResultsetId();
     Integer resultSetId = searchParams.getResultSetId();
-    Integer parentResultSetId = searchParams.getParentResultSetId();
+    //Integer parentResultSetId = searchParams.getParentResultSetId();
     List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
 
     /*
@@ -410,15 +424,16 @@ public class DbUtils {
     try {
       String query = createSearchQuery(config, searchParams);
       connection = dbConnectionHandler.getConn();
-      ResultSet result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
       int resultWidth = result.getMetaData().getColumnCount();
-      log(query);
-      ResultSet res =
-          connection.getMetaData().getColumns(null, null,
-              result.getMetaData().getTableName(1), null);
+      //log(query);
+      
+      String tableName = result.getMetaData().getTableName(1);
+      ResultSet columnsResultSet = connection.getMetaData().getColumns(null, null,tableName , null);
 
       HashTable types = new HashTable();
-      while (res.next()) {
+      while (columnsResultSet.next()) {
         // System.out.println(
         // "  "+res.getString("TABLE_SCHEM")
         // + ", "+res.getString("TABLE_NAME")
@@ -426,7 +441,7 @@ public class DbUtils {
         // + ", "+res.getString("TYPE_NAME")
         // + ", "+res.getInt("COLUMN_SIZE")
         // + ", "+res.getString("NULLABLE"));
-        types.put(res.getString("COLUMN_NAME"), res.getString("TYPE_NAME"));
+        types.put(columnsResultSet.getString("COLUMN_NAME"), columnsResultSet.getString("TYPE_NAME"));
       }
 
       while (result.next()) {
@@ -479,9 +494,10 @@ public class DbUtils {
         records.add(map);
       }
     } catch (Exception e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
     return records;
   }
@@ -514,14 +530,16 @@ public class DbUtils {
     try {
       String query = createSearchQueryForCount(null, searchParams);
 
-      ResultSet result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query);
+      ResultSet result = ps.executeQuery();
       result.next();
       recordSize = result.getInt(1);
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException("Errore durante l'interrogazione del database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
 
     return recordSize;
@@ -541,7 +559,7 @@ public class DbUtils {
       throws HiddenException, SQLException {
     // TODO modificare la funzione: creare un oggetto per i raggruppamenti
     Connection connection = dbConnectionHandler.getConn();
-    String groupingQuery =
+    String query =
         "SELECT DISTINCT " + T_GROUPING + ".id as id, " + T_GROUPING
             + ".name as name, " + T_GROUPING + ".alias as alias " + "FROM ("
             + T_GROUPING + " JOIN " + T_FIELD + " ON " + T_GROUPING + ".id = "
@@ -550,7 +568,8 @@ public class DbUtils {
 
     List<BaseModelData> groups = new ArrayList<BaseModelData>();
     try {
-      ResultSet result = doQuery(connection, groupingQuery);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
       while (result.next()) {
         BaseModelData m = new BaseModelData();
         m.set("id", result.getInt("id"));
@@ -558,9 +577,10 @@ public class DbUtils {
         groups.add(m);
       }
     } catch (SQLException e) {
-      throw e;
+    	e.printStackTrace();
+    	throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
     return groups;
   }
@@ -582,16 +602,18 @@ public class DbUtils {
           "SELECT DISTINCT `" + fieldName + "` FROM " + resultset
               + " ORDER BY `" + fieldName + "` ASC";
       System.out.println(query);
-      ResultSet res = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query);
+      ResultSet res = ps.executeQuery();
       while (res.next()) {
         BaseModelData m = new BaseModelData();
         m.set(fieldName, res.getString(fieldName));
         autoCompleteList.add(m);
       }
     } catch (SQLException e) {
-      throw e;
+    	e.printStackTrace();
+    	throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
     return autoCompleteList;
   }
@@ -611,7 +633,8 @@ public class DbUtils {
       // return getValuesOfAField(dbProperties.getStatement(resultsetId),
       // fieldName);
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei valori di campo");
     }
@@ -658,7 +681,8 @@ public class DbUtils {
             + T_MESSAGES + " m WHERE m.type = 'ALL' ) ORDER BY date DESC";
 
     try {
-      ResultSet result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
       while (result.next()) {
         int id = result.getInt("id");
         String title = result.getString("title");
@@ -671,34 +695,35 @@ public class DbUtils {
         messages.add(w);
       }
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei messaggi di utente");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
     return messages;
   }
 
   public int setObjects(Integer resultsetId, List<BaseModelData> records)
       throws HiddenException {
-
     log("<START> Setting records");
-
     int result = 0;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = dbConnectionHandler.getFreeExclusiveNormalConnection();
     final String sep = ",";
-
     String tableName = null;
     // String set = "";
-    try {
-      ResultSetMetaData metadata =
-          dbProperties.getResultsetMetadata(connection, resultsetId);
-      tableName = metadata.getTableName(1);
+    try {     
+		String query = dbProperties.getStatement(resultsetId);
+		PreparedStatement ps = (PreparedStatement) connection
+				.prepareStatement(query);
+		ResultSet res = ps.executeQuery();
+		ResultSetMetaData metadata = res.getMetaData();
+       tableName = metadata.getTableName(1);
       connection.setAutoCommit(false);
       for (BaseModelData record : records) {
         String set = "";
-        int columns = record.getPropertyNames().size();
+        //int columns = record.getPropertyNames().size();
         for (String property : record.getPropertyNames()) {
           set += "`" + property + "`=?" + sep;
         }
@@ -707,24 +732,24 @@ public class DbUtils {
         // String query =
         // "INSERT INTO `" + tableName + "` SET " + set
         // + " ON DUPLICATE KEY UPDATE " + set;
-        String query = "INSERT INTO `" + tableName + "` SET " + set;
+        String query2 = "INSERT INTO `" + tableName + "` SET " + set;
 
-        PreparedStatement ps =
-            (PreparedStatement) connection.prepareStatement(query);
+        PreparedStatement ps2 =
+            (PreparedStatement) connection.prepareStatement(query2);
         int i = 1;
         for (String property : record.getPropertyNames()) {
           Object value = record.get(property);
           if (value != null && String.valueOf(value).length() > 0) {
-            ps.setObject(i, record.get(property));
+            ps2.setObject(i, record.get(property));
             // ps.setObject(i + columns, record.get(property));
           } else {
-            ps.setNull(i, java.sql.Types.NULL);
+            ps2.setNull(i, java.sql.Types.NULL);
             // ps.setNull(i + columns, java.sql.Types.NULL);
           }
           i++;
         }
         // System.out.println(ps.toString());
-        int num = ps.executeUpdate();
+        int num = ps2.executeUpdate();
         if (num > 0) {
           String toLog = "INSERT (" + ps.toString() + ")";
           // Log.debug(toLog);
@@ -772,13 +797,14 @@ public class DbUtils {
         // TODO Auto-generated catch block
         e1.printStackTrace();
       }
+      e.printStackTrace();
       Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il salvataggio delle modifiche:\n"
               + e.getLocalizedMessage());
     } finally {
       log("<END> Setting records");
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeExclusiveNormalConnection(connection, ConnType.normal);
     }
     return result;
   }
@@ -810,7 +836,7 @@ public class DbUtils {
    * 0) { log("DELETE (" + ps.toString() + ")"); } result += num; } } catch
    * (Exception e) { Log.warn("Errore SQL", e); throw new
    * HiddenException("Errore durante l'eliminazione dei record"); } finally {
-   * log("<END> Removing objects"); dbConnectionHandler.closeConn(connection); }
+   * log("<END> Removing objects"); dbConnectionHandler.closeConn(connection, ConnType.normal); }
    * return result; }
    */
 
@@ -825,9 +851,14 @@ public class DbUtils {
     String query = new String(""), appChiavePrimaria = "";
     PreparedStatement ps = null;
     try {
+		String query2 = dbProperties.getStatement(resultsetId);
+		PreparedStatement ps2 = (PreparedStatement) connection
+				.prepareStatement(query2);
+		ResultSet res2 = ps2.executeQuery();
+		ResultSetMetaData metadata = res2.getMetaData();
 
-      ResultSetMetaData metadata =
-          dbProperties.getResultsetMetadata(connection, resultsetId);
+//      ResultSetMetaData metadata =
+//          dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
       // Ciclo per gestire più cancellazioni nella stessa invocazione
       List<BaseModelData> primaryKeyList =
@@ -872,11 +903,12 @@ public class DbUtils {
         resCode += num;
       }
     } catch (Exception e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException("Errore durante l'eliminazione dei record");
     } finally {
       log("<END> Removing objects");
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
 
     return (new Integer(resCode));
@@ -930,52 +962,30 @@ public class DbUtils {
   // }
 
   public User getUser(Credentials credentials) throws VisibleException {
-
     String username = credentials.getUsername();
     String password = credentials.getPassword();
-
     ResultSet result;
-
-    Connection connection;
+    Connection connection = null;
     try {
       connection = dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
-      throw new VisibleException(e.getLocalizedMessage());
-    }
-
-    String query =
+      String query =
         "SELECT u.id, u.name, u.surname, u.email, u.office, "
             + "u.telephone, u.status AS userstatus, u.lastlogintime, "
             + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
             + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
             + "WHERE username = ? and password = PASSWORD(?)";
-
     PreparedStatement ps;
-    try {
       ps = connection.prepareStatement(query);
       ps.setString(1, username);
       ps.setString(2, password);
-    } catch (SQLException e) {
-      throw new VisibleException("Errore nella query "
-          + "per la verifica di username e password");
-    }
-
-    try {
       result = ps.executeQuery();
-    } catch (SQLException e) {
-      // Log.debug("User validation query: " + ps.toString());
-      throw new VisibleException("Errore durante l'interrogazione su database");
-    }
-
     int rows = 0;
-    try {
-      while (result.next()) {
+       while (result.next()) {
         rows++;
         if (rows > 1) {
           throw new VisibleException("Errore nel database degli utenti: "
               + "due account con username e password uguali");
         }
-
         /* Creazione dell'utente con i dati del database */
         int uid = result.getInt("id");
         int gid = result.getInt("groupid");
@@ -987,17 +997,13 @@ public class DbUtils {
         String telephone = result.getString("telephone");
         int status = result.getInt("userstatus");
         int login = result.getInt("logincount");
-
         // String lastlogintime = result.getString("lastlogintime");
         DateFormat df =
             DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
         String last = df.format(new Date());
-
         /* Carica le preferenze dell'utente */
         List<ResultsetImproved> resultsets = getUserResultsetImproved(uid, gid);
-
         List<Message> messages = new ArrayList<Message>();
-
         updateLoginCount(uid, ++login);
 
         User user =
@@ -1005,16 +1011,25 @@ public class DbUtils {
                 surname, group, email, office, telephone, status, login, last,
                 resultsets, messages);
         this.user = user;
+        ps.close();
         return user;
       }
+      throw new VisibleException("Errore di accesso: username o password errati");     
+    } catch (SQLException e) {
+    	e.printStackTrace();
+    	throw new VisibleException("Errore nella query "
+                + "per la verifica di username e password");
+    } catch (HiddenException e) {
+    	e.printStackTrace();
+    	throw new VisibleException(e.getLocalizedMessage());
     } catch (Exception e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new VisibleException("Errore di accesso "
           + "al risultato dell'interrogazione su database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+    	dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
-    throw new VisibleException("Errore di accesso: username o password errati");
   }
 
   /**
@@ -1041,7 +1056,8 @@ public class DbUtils {
         matrix.addField(fieldId, values);
       }
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei valori dei campi");
     }
@@ -1060,14 +1076,16 @@ public class DbUtils {
             + " f ON res.id = f.id WHERE f.id_resultset = " + resultsetId;
 
     try {
-      ResultSet result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
       while (result.next()) {
         fieldList.put(result.getInt("id"), result.getString("name"));
       }
     } catch (SQLException e) {
-      throw e;
+    	e.printStackTrace();
+    	throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
     return fieldList;
   }
@@ -1092,10 +1110,11 @@ public class DbUtils {
       // "SELECT * FROM " + dbProperties.getStatement(resultsetId)
       // + " WHERE 0";
       String query = dbProperties.getStatement(resultsetId);
-      ResultSet resultset = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
 
       for (Integer fieldId : rsf.keySet()) {
-        String foreignKey = getForeignKeyForAField(rsf.get(fieldId), resultset);
+        String foreignKey = getForeignKeyForAField(rsf.get(fieldId), result);
         String fkTName;
         String fkFName;
         List<BaseModelData> autoCompleteList = new ArrayList<BaseModelData>();
@@ -1114,11 +1133,12 @@ public class DbUtils {
         }
       }
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei valori dei vincoli");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
 
     return matrix;
@@ -1144,17 +1164,20 @@ public class DbUtils {
         "SELECT statement FROM " + T_RESULTSET + " WHERE id = '" + resultsetId
             + "' ";
     try {
-      ResultSet res = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet res = ps.executeQuery();
       while (res.next()) {
         queryStatement = res.getString("statement");
       }
-      ResultSet result = doQuery(connection, queryStatement);
-      if ((result != null) && (result.getMetaData().getColumnCount() > 1)) {
+      ps.close();
+      PreparedStatement ps2 =(PreparedStatement) connection.prepareStatement(queryStatement); 
+      ResultSet result = ps2.executeQuery();
+       if ((result != null) && (result.getMetaData().getColumnCount() > 1)) {
         tableName = result.getMetaData().getTableName(1);
         // System.out.println("que: " + queryStatement);
         // System.out.println("t-name: " + tableName);
       }
-
+       ps2.close();
       // è una vista
       if (tableName == null) {
         return null;
@@ -1170,7 +1193,9 @@ public class DbUtils {
       String queryFKIn =
           "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_COLUMN_NAME FROM KEY_COLUMN_USAGE where TABLE_SCHEMA = '"
               + db + "' AND REFERENCED_TABLE_NAME = '" + tableName + "'";
-      ResultSet resultFKIn = doQuery(connectionInformationSchema, queryFKIn);
+      PreparedStatement ps3 =(PreparedStatement) connectionInformationSchema.prepareStatement(queryFKIn); 
+      ResultSet resultFKIn = ps3.executeQuery();
+      //ResultSet resultFKIn = doQuery(connectionInformationSchema, queryFKIn);
 
       listaIfki = new ArrayList<IncomingForeignKeyInformation>();
 
@@ -1192,15 +1217,18 @@ public class DbUtils {
         }
 
       }
+      ps3.close();
+      return listaIfki;
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle foreign keys entranti");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.info);
     }
 
-    return listaIfki;
+    
   }
 
   /**
@@ -1266,9 +1294,13 @@ public class DbUtils {
       List<BaseModelData> PKs = null;
       ArrayList<String> UKs = new ArrayList<String>();
 
-      ResultSet result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query);
+      ResultSet result = ps.executeQuery();
+      int kk = 0;
       while (result.next()) {
-        String statement = result.getString("statement");
+    	  kk++;
+    	  System.out.println("getUserResultsetImproved" + kk);
+    	  String statement = result.getString("statement");
         Integer id = Integer.valueOf(result.getInt("resourceid"));
         Integer resultsetid = Integer.valueOf(result.getInt("resultsetid"));
         boolean defaultheader = result.getBoolean("defaultheader");
@@ -1353,29 +1385,30 @@ public class DbUtils {
       for (int i = 0; i < resultSetList.size(); i++) {
         for (int j = 0; j < resultFieldList.size(); j++) {
           if (resultFieldList.get(j).getResultsetid() == resultSetList.get(i).getId()) {
-
             // aggiunta dell'eventuale foreignKEY
-            resultFieldList.get(j).setForeignKey(
-                dbProperties.getForeignKey(resultSetList.get(i).getName(),
-                    resultFieldList.get(j).getName()));
+        	String iResultSetName = resultSetList.get(i).getName();
+        	String jresultFieldName = resultFieldList.get(j).getName();
+        	String foreignKey = dbProperties.getForeignKey(iResultSetName, jresultFieldName );
+        	resultFieldList.get(j).setForeignKey(  foreignKey );
             resultSetList.get(i).addField(resultFieldList.get(j));
           }
         }
-
         // aggiunta delle eventuali foreignKEY entranti
-        resultSetList.get(i).setForeignKeyIn(
-            this.getForeignKeyInForATable(resultSetList.get(i).getId(),
-                resultSetList));
+        int iresultSetId = resultSetList.get(i).getId();
+        ArrayList <IncomingForeignKeyInformation> iResultSetForeignKeyArrayList = this.getForeignKeyInForATable(iresultSetId, resultSetList);
+        resultSetList.get(i).setForeignKeyIn( iResultSetForeignKeyArrayList);
       }
+      
+      ps.close();
+      return resultSetList;
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
-
-    return resultSetList;
   }
 
   /**
@@ -1397,7 +1430,10 @@ public class DbUtils {
     String querytoolbar =
         "SELECT tools FROM " + T_TOOLBAR + " WHERE " + " id_resultset = "
             + rsid + " AND id_group = " + groupid + " LIMIT 0,1";
-    ResultSet resulttoolbar = doQuery(connection, querytoolbar);
+    
+    //ResultSet resulttoolbar = doQuery(connection, querytoolbar);
+    PreparedStatement ps4 =(PreparedStatement) connection.prepareStatement(querytoolbar); 
+    ResultSet resulttoolbar = ps4.executeQuery();
 
     while (resulttoolbar.next()) {
       toolbar = resulttoolbar.getString("tools");
@@ -1410,11 +1446,10 @@ public class DbUtils {
         tools.add(getTool(t));
       }
     }
-
     return tools;
-
   }
 
+  
   private Tool getTool(String t) {
     if (t.compareTo(Tool.MODIFY.toString()) == 0) {
       return Tool.MODIFY;
@@ -1446,7 +1481,12 @@ public class DbUtils {
             + creationDate + "')";
 
     try {
-      ResultSet newRes = doUpdate(connection, createHeaderPreference);
+      //ResultSet newRes = doUpdate(connection, createHeaderPreference);
+      Statement update1 =
+          connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+              ResultSet.CONCUR_READ_ONLY);
+      update1.executeUpdate(createHeaderPreference, Statement.RETURN_GENERATED_KEYS);
+      ResultSet newRes = update1.getGeneratedKeys();                 
       newRes.next();
       Integer headerPrefId = newRes.getInt(1);
 
@@ -1455,15 +1495,21 @@ public class DbUtils {
         String newPreferences =
             "INSERT INTO " + T_FIELDINPREFERENCE + " VALUES ('" + headerPrefId
                 + "', '" + listfields.get(i) + "')";
-        doUpdate(connection, newPreferences);
+        //doUpdate(connection, newPreferences);
+        Statement update2 =
+            connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY);
+            update2.executeUpdate(newPreferences, Statement.RETURN_GENERATED_KEYS);
+            //update.getGeneratedKeys();        
       }
     } catch (SQLException e) {
       esito = false;
+      e.printStackTrace();
       Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
 
     return esito;
@@ -1487,7 +1533,8 @@ public class DbUtils {
             + "' AND f.id_resultset='" + rsIds.getResultSetId() + "' GROUP BY namepref";
 
     try {
-      ResultSet result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
       List<BaseModelData> userPref = new ArrayList<BaseModelData>();
 
       while (result.next()) {
@@ -1500,11 +1547,12 @@ public class DbUtils {
       hp.setResultsetId(rsIds.getResultSetId());
 
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
     return hp;
   }
@@ -1520,16 +1568,18 @@ public class DbUtils {
             + userPreferenceHeaderId + "' AND hp.id_user='" + idUser + "'";
 
     try {
-      ResultSet result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
       while (result.next()) {
         fieldInPref.add(result.getInt("fieldid"));
       }
     } catch (SQLException e) {
-      Log.warn("Errore SQL", e);
+    	e.printStackTrace();
+    	Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
 
     return fieldInPref;
@@ -1551,19 +1601,19 @@ public class DbUtils {
       throw new HiddenException("file " + importFile.getName() + " non trovato");
     }
 
-    Connection connection = dbConnectionHandler.getConn();
-    ResultSetMetaData rsmd = null;
+//    Connection connection = dbConnectionHandler.getConn();
+//    ResultSetMetaData rsmd = null;
+//
+//    try {
+//      rsmd = dbProperties.getResultsetMetadata(connection, resultsetId);
+//    } catch (SQLException e) {
+//      // TODO Auto-generated catch block
+//      e.printStackTrace();
+//      throw new HiddenException(
+//          "impossibile recuperare metadati per resultset: " + resultsetId);
+//    }
 
-    try {
-      rsmd = dbProperties.getResultsetMetadata(connection, resultsetId);
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      throw new HiddenException(
-          "impossibile recuperare metadati per resultset: " + resultsetId);
-    }
-
-    String recordLine;
+    //String recordLine;
     String[] columns = null;
     List<BaseModelData> recordList = new ArrayList<BaseModelData>();
     ArrayList<String> regExSpecialChars = new ArrayList<String>();
@@ -1647,8 +1697,9 @@ public class DbUtils {
           }
           recordList.add(bm);
         }
-      } catch (ArrayIndexOutOfBoundsException ex) {
-        Log.warn("Troppi campi nel file: " + t.length + " alla riga " + (lineFailed+1), ex);
+      } catch (ArrayIndexOutOfBoundsException e) {
+    	  e.printStackTrace();
+    	  Log.warn("Troppi campi nel file: " + t.length + " alla riga " + (lineFailed+1), e);
         throw new VisibleException("Troppi campi nel file: " + t.length
             + " alla riga " + (lineFailed+1));
       } catch (IOException e) {
@@ -1679,48 +1730,32 @@ public class DbUtils {
     return opCode;
   }
 
-  // private BaseModelData createRecord(ResultSetMetaData rsmd, String
-  // recordLine,
-  // String[] columns, String textSeparator, String fieldSeparator)
-  // throws HiddenException {
-  //
-  // BaseModelData bm = new BaseModelData();
-  //
-  // for (int i = 0; i < columns.length; i++) {
-  // if (i < recordLine.split(fieldSeparator).length) {
-  // // String value = recordLine.split("\\|")[i].replaceAll("^\"|\"$", "");
-  // String value = recordLine.split(fieldSeparator)[i];
-  // System.out.println(value);
-  // if (value.length()>2){
-  // value = value.substring(1, value.length() - 1);
-  // } else {
-  // value=null;
-  // System.out.println("------------------");
-  // }
-  // System.out.println(value);
-  // bm.set(columns[i], value);
-  // }
-  // }
-  // return bm;
-  // }
+  /**
+   * Put a Java Object in a PreparedStatement. Return the number of transferred
+   * Objects.
+   * 
+   * @param ps
+   *          The PreparedStatement to modify
+   * @param i
+   *          The index in which to put the Java Object
+   * @param value
+   *          The Object to put in the PreparedStatement
+   * @return Number of transferred Objects (1 if all went OK, 0 otherwise). Tip:
+   *         you can use this value to increment index pointer.
+   * @throws SQLException
+   */
+  private Integer putJavaObjectInPs(PreparedStatement ps, Integer i, Object value)
+      throws SQLException {
 
-  // private boolean validateLine(ResultSetMetaData rsmd, String recordLine)
-  // throws HiddenException {
-  //
-  // boolean valid = false;
-  // try {
-  //
-  // if (recordLine.split("\\|").length == rsmd.getColumnCount()) {
-  // valid = true;
-  // }
-  // } catch (SQLException e) {
-  // // TODO Auto-generated catch block
-  // e.printStackTrace();
-  // throw new HiddenException("problemi nella lettura dei metadata per il rs");
-  // }
-  //
-  // return true;
-  // }
+    // TODO Warning!
+    if (value != null && value.toString().length() > 0) {
+      ps.setObject(i, value);
+    } else {
+      ps.setNull(i, Types.NULL);
+    }
+
+    return 1;
+  }
 
   /*
    * invocata solo in caso di duplicate key entry per la setObject: si suppone
@@ -1729,17 +1764,23 @@ public class DbUtils {
   public Integer updateObjects(Integer resultsetId,
       List<BaseModelData> newItemList, String condition) throws HiddenException {
 
-    log("<START> Setting records");
+    //log("<START> Setting records");
 
     int result = 0;
     Connection connection = dbConnectionHandler.getConn();
     final String sep = ",";
-
+    boolean defaultPrimaryKeys = condition.equalsIgnoreCase("$-notspec-$");
     try {
-      ResultSetMetaData metadata =
-          dbProperties.getResultsetMetadata(connection, resultsetId);
+		String query2 = dbProperties.getStatement(resultsetId);
+		PreparedStatement ps2 = (PreparedStatement) connection
+				.prepareStatement(query2);
+		ResultSet res2 = ps2.executeQuery();
+		ResultSetMetaData metadata = res2.getMetaData();
+//      ResultSetMetaData metadata =
+//          dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
-
+   // TODO Creare un oggetto per la memorizzazione colonna->valore
+      
       List<BaseModelData> PKs =
           dbProperties.getResultsetPrimaryKeys(resultsetId);
 
@@ -1748,29 +1789,30 @@ public class DbUtils {
       for (BaseModelData record : newItemList) {
 
         boolean conditionFounded = false;
-        if (condition.compareToIgnoreCase(new String("$-notspec-$")) == 0) {
+        if (defaultPrimaryKeys) {
+        	conditionFounded = true;
+        	
           // richiesta di update da griglia o dettaglio
           for (BaseModelData pk : PKs) {
-            PKset =
-                PKset.concat((String) pk.get("PK_NAME") + "="
-                    + record.get((String) pk.get("PK_NAME")) + " AND ");
-          }
-
-          PKset = PKset.substring(0, PKset.length() - 5);
-
-          conditionFounded = true;
-
+        	  PKset += (String) pk.get("PK_NAME") + "=? AND ";
+          }          
+          PKset = PKset.substring(0, PKset.length() - 5); // Strips " AND "
+        	  
         } else {
-          PKset = condition + " = " + record.get(condition);
+          //PKset = condition + " = " + record.get(condition);
+        	PKset = condition + "=? ";
         }
         String set = "";
         Collection<String> properties = record.getPropertyNames();
 
         for (String property : properties) {
-          if (property.compareToIgnoreCase(condition) != 0) {
-            set += "`" + property + "` =? " + sep;
+        	if (property.equalsIgnoreCase(condition)) {
+          //if (property.compareToIgnoreCase(condition) != 0) {
+        		conditionFounded = true;
+        		//set += "`" + property + "` =? " + sep;
           } else {
-            conditionFounded = true;
+        	  set += "`" + property + "`=? " + sep;
+        	  //conditionFounded = true;
           }
         }
 
@@ -1787,20 +1829,24 @@ public class DbUtils {
         PreparedStatement ps =
             (PreparedStatement) connection.prepareStatement(query);
         int i = 1;
-        for (String property : properties) {
-          // System.out.println(i+" "+record.getPropertyNames().size()+" "+property+" "+record.get(property)+" ");
-          if (property.compareToIgnoreCase(condition) != 0) {
-            if (record.get(property) != null
-                && String.valueOf(record.get(property)).length() > 0) {
-              ;
-              ps.setObject(i, record.get(property));
-            } else {
-              ps.setNull(i, java.sql.Types.NULL);
-              // ps.setObject(i + columns, record.get(property));
-            }
-            i++;
+        /* Set prepared statement values for changing fields */
+        for (String property : properties) { 
+        	if (!property.equalsIgnoreCase(condition)) {
+        		i += putJavaObjectInPs(ps, i, record.get(property));
           }
         }
+        
+        /* Set prepared statement values for where condition fields */
+        if (defaultPrimaryKeys) {
+          for (BaseModelData pk : PKs) {
+            Object value = record.get((String) pk.get("PK_NAME"));
+            i += putJavaObjectInPs(ps, i, value);
+          }
+        } else {
+          Object value = record.get(condition);
+          i += putJavaObjectInPs(ps, i, value);
+        }     
+        
         // Log.debug("Query UPDATE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
@@ -1822,7 +1868,7 @@ public class DbUtils {
           + e.getLocalizedMessage());
     } finally {
       log("<END> Setting records");
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
     return result;
   }
@@ -1840,7 +1886,8 @@ public class DbUtils {
 
     // Log.debug("query: " + query);
 
-    ResultSet result = doQuery(connection, query);
+    PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+    ResultSet result = ps.executeQuery();
     while (result.next()) {
       String testo = "";
       String address_statement = result.getString(1);
@@ -1866,10 +1913,10 @@ public class DbUtils {
             testo += "\n";
           }
 
-          PreparedStatement ps =
+          PreparedStatement ps2 =
               (PreparedStatement) connection.prepareStatement(address_statement);
-          ps.setInt(1, id_table);
-          ResultSet resultAddress = ps.executeQuery();
+          ps2.setInt(1, id_table);
+          ResultSet resultAddress = ps2.executeQuery();
           while (resultAddress.next()) {
             // Log.debug("mailto: " + resultAddress.getString(1));
             if (!(resultAddress.getString(1) == null)) {
@@ -1878,7 +1925,8 @@ public class DbUtils {
                     testo);
 
               } catch (MessagingException e) {
-                Log.info("Invio non riuscito!");
+            	  e.printStackTrace();
+            	  Log.info("Invio non riuscito!");
                 Log.info("MessagingException: ");
                 Log.info(e.toString());
               }
@@ -1922,10 +1970,11 @@ public class DbUtils {
       ps.setInt(6, message.getRecipient());
       ps.executeUpdate();
     } catch (SQLException e) {
-      Log.error("Error during new message insertion", e);
+    	e.printStackTrace();
+    	Log.error("Error during new message insertion", e);
       throw new VisibleException("Impossibile salvare il messaggio");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      dbConnectionHandler.freeConn(connection, ConnType.normal);
     }
   }
 
@@ -1939,10 +1988,13 @@ public class DbUtils {
         "SELECT * FROM (" + queryStatement + ") AS entry WHERE " + linkingField
             + " = '" + linkingValue + "' LIMIT 1";
     Connection connection = dbConnectionHandler.getConn();
-    ResultSet result;
+    //ResultSet result;
     BaseModelData row = new BaseModelData();
     try {
-      result = doQuery(connection, query);
+      //result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
+      
       int resultWidth = result.getMetaData().getColumnCount();
       while (result.next()) {
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
@@ -1955,7 +2007,7 @@ public class DbUtils {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    dbConnectionHandler.freeConn(connection, ConnType.normal);
     ArrayList<BaseModelData> infoToView = new ArrayList<BaseModelData>();
     infoToView.add(data);
     infoToView.add(row);
@@ -1966,16 +2018,19 @@ public class DbUtils {
     String query =
         "SELECT statement FROM " + T_RESULTSET + " WHERE id = " + rsid;
     Connection connection = dbConnectionHandler.getConn();
-    ResultSet result;
+    //ResultSet result;
     String queryStatement = null;
     try {
-      result = doQuery(connection, query);
+      //result = doQuery(connection, query);
+      PreparedStatement ps = (PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
+      
       result.next();
       queryStatement = result.getString(1);
     } catch (SQLException e) {
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    dbConnectionHandler.freeConn(connection, ConnType.normal);
     return queryStatement;
   }
 
@@ -1988,8 +2043,10 @@ public class DbUtils {
             + "' AND id_group = '" + gid + "'";
     Connection connection = dbConnectionHandler.getConn();
     try {
-      ResultSet result;
-      result = doQuery(connection, query);
+      //ResultSet result;
+      //result = doQuery(connection, query);
+      PreparedStatement ps =(PreparedStatement) connection.prepareStatement(query); 
+      ResultSet result = ps.executeQuery();
       while (result.next()) {
         Plugin plugin =
             new Plugin(result.getString("name"),
@@ -2003,7 +2060,7 @@ public class DbUtils {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    dbConnectionHandler.freeConn(connection, ConnType.normal);
     return plugins;
   }
 }

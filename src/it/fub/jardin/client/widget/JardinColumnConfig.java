@@ -5,7 +5,6 @@ package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.ResultsetField;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -24,7 +23,7 @@ public class JardinColumnConfig extends ColumnConfig {
   private int fieldId;
   private boolean isKey;
   private boolean isUnique;
-  private ArrayList<String> values;
+ // private ArrayList<String> values;
 
   // private String foreignKey;
 

@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.Record.RecordUpdate;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -477,14 +476,14 @@ public class ResultSetGui extends DockLayoutPanel {
 		    // //////////////////////////////////////////////////////////////////////////////////
 		  }
 
-		  private class WaitPanel extends ContentPanel {
-		    public WaitPanel() {
-		      super();
-		      this.setStyleName("wait");
-		      this.setHeaderVisible(false);
-		      this.setBodyBorder(false);
-		    }
-		  }
+//		  private class WaitPanel extends ContentPanel {
+//		    public WaitPanel() {
+//		      super();
+//		      this.setStyleName("wait");
+//		      this.setHeaderVisible(false);
+//		      this.setBodyBorder(false);
+//		    }
+//		  }
 
 		  public void updatePreference(HeaderPreferenceList data) {
 		    toolbar.updatePreferenceButton(data);

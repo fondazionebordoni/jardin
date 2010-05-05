@@ -15,8 +15,8 @@ public class Plugin implements IsSerializable {
   private int rsId;
   private int GId;
 
-  private Plugin() {
-  }
+//  private Plugin() {
+//  }
 
   public Plugin(String pluginName, String configFile, String type,
       String note, int pluginId, int rsId, int gId) {

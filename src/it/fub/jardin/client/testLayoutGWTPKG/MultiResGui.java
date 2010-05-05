@@ -2,9 +2,6 @@ package it.fub.jardin.client.testLayoutGWTPKG;
 
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.ResultsetImproved;
-import it.fub.jardin.client.model.SearchParams;
-import it.fub.jardin.client.model.SearchResult;
-
 import java.util.ArrayList;
 import java.util.Random;
 
