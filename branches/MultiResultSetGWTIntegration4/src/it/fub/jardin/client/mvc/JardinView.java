@@ -14,15 +14,9 @@ import it.fub.jardin.client.testLayoutGWTPKG.MultiResGui;
 import it.fub.jardin.client.testLayoutGWTPKG.ResultSetGui;
 import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 import it.fub.jardin.client.widget.HeaderArea;
-import it.fub.jardin.client.widget.JardinColumnModel;
-import it.fub.jardin.client.widget.JardinDetail;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinGridToolBar;
-import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.LoginDialog;
-import it.fub.jardin.client.widget.SearchAreaAdvanced;
-import it.fub.jardin.client.widget.SearchAreaBase;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +30,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -61,12 +53,12 @@ public class JardinView extends View {
   public static final String DETAIL_AREA = "detail-area";
   public static final String SEARCH_AREA = "search-area";
   public static final String SEARCH_AREA_ADVANCED = "search-area-advanced";
-  private static final String ITEM_PREFIX = "item-id-";
+//  private static final String ITEM_PREFIX = "item-id-";
 
   private JardinController controller;
   private Viewport viewport;
   // private ContentPanel search;
-  private TabPanel main;
+//  private TabPanel main;
   private HeaderArea header;
   private LoginDialog dialog;
 	DockLayoutPanel mainDlp;

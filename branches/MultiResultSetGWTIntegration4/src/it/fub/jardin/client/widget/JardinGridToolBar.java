@@ -431,7 +431,7 @@ public class JardinGridToolBar extends ToolBar {
     this.add(preferenceButton);
   }
 
-  @SuppressWarnings("unchecked")
+//  @SuppressWarnings("unchecked")
   private SelectionListener getListenerWithGrid(final EventType e) {
     SelectionListener listener = new SelectionListener() {
       @Override

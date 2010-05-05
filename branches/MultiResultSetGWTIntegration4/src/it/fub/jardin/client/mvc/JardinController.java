@@ -20,7 +20,6 @@ import it.fub.jardin.client.testLayoutGWTPKG.RsIdAndParentRsId;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinSelectColumnsForChartPopUp;
-import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.Jungle;
 import it.fub.jardin.client.widget.UploadDialog;
 import java.util.ArrayList;
@@ -504,46 +503,46 @@ public class JardinController extends Controller {
     forwardToView(view, EventList.Init, user);
   }
 
-  private void onCreateUI() {
-    /* Vedi sequence diagram init_sd.pic */
-
-    /* Per ogni resultset carica da service le sue proprietà */
-    for (ResultsetImproved resultset : this.user.getResultsets()) {
-      final Integer resultsetId = resultset.getId();
-      /* Avvisa la view che si sta creando un nuovo resultset */
-      forwardToView(view, EventList.NewResultset, resultsetId);
-      //forwardToView(view, EventList.GotValuesOfFields, resultsetId);
-      // forwardToView(view, EventList.gotValuesOfForeignKeys,
-      // resultsetId);
-
-      // final ManagerServiceAsync service =
-      // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-      //
-      // /*
-      // * Carica i valori dei vincoli di integrità referenziale attualmente
-      // * presenti: sever per il binding dei campi del dettaglio e per il row
-      // * editor
-      // */
-      //
-      // AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
-      // new AsyncCallback<FieldsMatrix>() {
-      // public void onFailure(Throwable caught) {
-      // Dispatcher.forwardEvent(EventList.Error,
-      // caught.getLocalizedMessage());
-      // }
-      //
-      // public void onSuccess(FieldsMatrix fieldsMatrix) {
-      // ResultsetImproved rs = user.getResultsetFromId(resultsetId);
-      // rs.setForeignKeyList(fieldsMatrix);
-      // forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
-      // }
-      // };
-      //
-      // service.getValuesOfForeignKeys(resultsetId,
-      // callbackValuesOfForeignKeys);
-      forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
-    }
-  }
+//  private void onCreateUI() {
+//    /* Vedi sequence diagram init_sd.pic */
+//
+//    /* Per ogni resultset carica da service le sue proprietà */
+//    for (ResultsetImproved resultset : this.user.getResultsets()) {
+//      final Integer resultsetId = resultset.getId();
+//      /* Avvisa la view che si sta creando un nuovo resultset */
+//      forwardToView(view, EventList.NewResultset, resultsetId);
+//      //forwardToView(view, EventList.GotValuesOfFields, resultsetId);
+//      // forwardToView(view, EventList.gotValuesOfForeignKeys,
+//      // resultsetId);
+//
+//      // final ManagerServiceAsync service =
+//      // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//      //
+//      // /*
+//      // * Carica i valori dei vincoli di integrità referenziale attualmente
+//      // * presenti: sever per il binding dei campi del dettaglio e per il row
+//      // * editor
+//      // */
+//      //
+//      // AsyncCallback<FieldsMatrix> callbackValuesOfForeignKeys =
+//      // new AsyncCallback<FieldsMatrix>() {
+//      // public void onFailure(Throwable caught) {
+//      // Dispatcher.forwardEvent(EventList.Error,
+//      // caught.getLocalizedMessage());
+//      // }
+//      //
+//      // public void onSuccess(FieldsMatrix fieldsMatrix) {
+//      // ResultsetImproved rs = user.getResultsetFromId(resultsetId);
+//      // rs.setForeignKeyList(fieldsMatrix);
+//      // forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
+//      // }
+//      // };
+//      //
+//      // service.getValuesOfForeignKeys(resultsetId,
+//      // callbackValuesOfForeignKeys);
+//      forwardToView(view, EventList.GotValuesOfForeignKeys, resultsetId);
+//    }
+//  }
 
   private void onSearch(final SearchParams searchParams) {
     final MessageBox waitBox =
@@ -1084,7 +1083,7 @@ public class JardinController extends Controller {
   }
 	private SearchParams onViewLinkedResultset(IncomingForeignKeyInformation ifki) {
 		//String linkedTable = ifki.getLinkingTable();
-		ResultsetImproved rs = ifki.getInterestedResultset();
+		//ResultsetImproved rs = ifki.getInterestedResultset();
 //		ResultsetImproved parentRs = ifki.getInterestedParentResultset();
 
 		SearchParams searchParams = new SearchParams( ifki.getInterestedResultset().getId(), ifki.getResultsetId()  );
@@ -1108,10 +1107,10 @@ public class JardinController extends Controller {
 		///Dispatcher.forwardEvent(EventList.Search, searchParams);
 	}
 	
-	private void onViewLinkedResultsetForNewTab(IncomingForeignKeyInformation ifki) {
-		SearchParams searchParams = onViewLinkedResultset( ifki);
-		Dispatcher.forwardEvent(EventList.Search, searchParams);
-	}
+//	private void onViewLinkedResultsetForNewTab(IncomingForeignKeyInformation ifki) {
+//		SearchParams searchParams = onViewLinkedResultset( ifki);
+//		Dispatcher.forwardEvent(EventList.Search, searchParams);
+//	}
 
 	
 	private void onViewLinkedResultsetForCorrelatedResultset(IncomingForeignKeyInformation ifki) {
