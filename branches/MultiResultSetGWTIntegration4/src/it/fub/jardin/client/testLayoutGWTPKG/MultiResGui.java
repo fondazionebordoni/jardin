@@ -35,7 +35,7 @@ public class MultiResGui extends DockLayoutPanel{
 		//mainResultSet = new ResultSetSilly(0, random.nextBoolean());
 		//this.mainResultSet = mainResultSet;
 		//createCorrelatedRs();
-		mainResultSetGui = new ResultSetGui(mainResultSet,null, true);
+		mainResultSetGui = new ResultSetGui(mainResultSet,null, true, this);
 		correlatedResultSetButtonsFlowPanel = createMultiRsButtons();
 		vertCorrelatedResulSetsArea = new CorrelatedResulSetsArea (false);
 		horizCorrelatedResulSetsArea = new CorrelatedResulSetsArea (true);
@@ -56,6 +56,18 @@ public class MultiResGui extends DockLayoutPanel{
 		} else {
 			return rsGui2; 
 		}		
+	}
+
+	public boolean correlatedResultSetIsShown(int resultSetId){
+			ResultSetGui currResultSetGui = vertCorrelatedResulSetsArea.getResultSetGuiByResultSetId(resultSetId);		
+			if (currResultSetGui!= null) {
+				return true;
+			} 
+			currResultSetGui = horizCorrelatedResulSetsArea.getResultSetGuiByResultSetId(resultSetId);		
+			if (currResultSetGui!= null) {
+				return true;
+			} 
+		return false;
 	}
 
 	private void placeObjectsMultiRsButtoBarBottom(){			
@@ -134,7 +146,7 @@ public class MultiResGui extends DockLayoutPanel{
 	
 	private void createNewCorrelatedResultSetGui (ResultsetImproved rs){
 		//ResultSetSilly rs = mainResultSet.getCorrelatedResultSet(incomingKeysRelativeResultSetId);
-		ResultSetGui newResultSetGui = new ResultSetGui(rs ,mainResultSetGui.getResultSetImproved(), false);			
+		ResultSetGui newResultSetGui = new ResultSetGui(rs ,mainResultSetGui.getResultSetImproved(), false, this);			
 		if (newResultSetGui.isLarge) {
 			horizCorrelatedResulSetsArea.insertNonExistentNewResultSetGui(newResultSetGui);
 		} else {

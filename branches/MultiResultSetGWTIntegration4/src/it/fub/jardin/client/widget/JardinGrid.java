@@ -10,6 +10,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.mvc.JardinController;
+import it.fub.jardin.client.testLayoutGWTPKG.ResultSetGui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,18 +46,20 @@ public class JardinGrid extends Grid<BaseModelData> {
   private RowEditor<BaseModelData> editor;
   private SearchParams searchparams;
   private Integer userPreferenceHeaderId;
-
+  private ResultSetGui resultSetGui;
 //   private ListStore<BaseModelData> store;
 
   public JardinGrid(final ListStore<BaseModelData> store,
       final JardinColumnModel cm, 
       final ResultsetImproved resultset,
-      final ResultsetImproved parentResultset ) {
+      final ResultsetImproved parentResultset,
+      final ResultSetGui resultSetGui ) {
     super(store, cm);
 
      this.store = store;
     this.resultset = resultset;
     this.parentResultset = parentResultset;
+    this.resultSetGui = resultSetGui;
     this.setBorders(false);
     this.setStripeRows(true);
     // this.setClicksToEdit(ClicksToEdit.TWO);
@@ -156,44 +159,51 @@ public class JardinGrid extends Grid<BaseModelData> {
               selected.add(store.getAt(be.getRowIndex()));
               be.getGrid().getSelectionModel().select(selected, true);
             } else
-              be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
+              if (parentResultset == null){ 
+            	  be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
             
-			// result Set Correlati
-			//recuperare LaPrimariKey della Riga
-			final ModelData selectedRow = (ModelData) be.getGrid()
-			.getSelectionModel().getSelection().get(0);
-
-			User user = ((JardinController) Dispatcher.get()
-			.getControllers().get(0)).getUser();
-			List<ResultsetImproved> resultsets = user.getResultsets();
-			for (final ResultsetImproved rs : resultsets) {
-				for (final IncomingForeignKeyInformation fk : resultset
-						.getForeignKeyIn()) {
-
-					if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
-						//System.out.println(rs.getAlias() + "(" + rs.getId()
-						//		+ ")" + "->" + rs.getName() + "="
-						//		+ fk.getLinkingTable());
-
-						final String linkedTable = fk.getLinkingTable();
-						final String linkedField = fk.getLinkingField();
-						final String field = fk.getField();
-
-						final IncomingForeignKeyInformation fkIN = new IncomingForeignKeyInformation(
-								linkedTable, linkedField, field);
-						fkIN.setFieldValue("" + selectedRow.get(field));
-
-						fkIN.setResultsetId(resultset.getId());					
-						fkIN.setInterestedResultset(rs);
-
-//						fkIN.setParentResultsetId(yyyyyyyyyyyy);
-//						fkIN.setInterestedParentResultset( xxxxxxxxxxxxxx   );
+				// result Set Correlati
+				//recuperare LaPrimariKey della Riga
+				final ModelData selectedRow = (ModelData) be.getGrid()
+				.getSelectionModel().getSelection().get(0);
+	
+				User user = ((JardinController) Dispatcher.get()
+				.getControllers().get(0)).getUser();
+				List<ResultsetImproved> resultsets = user.getResultsets();
+				for (final ResultsetImproved rs : resultsets) {
+					for (final IncomingForeignKeyInformation fk : resultset
+							.getForeignKeyIn()) {
 						
-						
-						Dispatcher.forwardEvent( EventList.UpdateCorrelatedResultset, fkIN);
-					}
-				}						
-			}
+						ResultsetImproved interestedResultSetImproved = fk.getInterestedResultset();
+						int resultSetId = interestedResultSetImproved.getId();
+						if ( resultSetGui.correlatedResultSetIsShown(resultSetId) ){
+	
+							if (rs.getName().compareTo(fk.getLinkingTable()) == 0) {
+								//System.out.println(rs.getAlias() + "(" + rs.getId()
+								//		+ ")" + "->" + rs.getName() + "="
+								//		+ fk.getLinkingTable());
+		
+								final String linkedTable = fk.getLinkingTable();
+								final String linkedField = fk.getLinkingField();
+								final String field = fk.getField();
+		
+								final IncomingForeignKeyInformation fkIN = new IncomingForeignKeyInformation(
+										linkedTable, linkedField, field);
+								fkIN.setFieldValue("" + selectedRow.get(field));
+		
+								fkIN.setResultsetId(resultset.getId());					
+								fkIN.setInterestedResultset(rs);
+		
+		//						fkIN.setParentResultsetId(yyyyyyyyyyyy);
+		//						fkIN.setInterestedParentResultset( xxxxxxxxxxxxxx   );
+								
+								
+								Dispatcher.forwardEvent( EventList.UpdateCorrelatedResultset, fkIN);
+							}
+						}
+					}						
+				}
+              }
 			//SearchParams searchParams = new SearchParams(resultsetId);
 			//jardinTabItem.setSearchOfOtherChildren(searchparams);
 

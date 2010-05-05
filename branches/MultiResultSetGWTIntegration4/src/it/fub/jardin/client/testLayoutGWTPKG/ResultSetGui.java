@@ -72,13 +72,17 @@ public class ResultSetGui extends DockLayoutPanel {
 	SearchAreaAdvanced searchAreaAdvanced;
     private static final int PAGESIZE = 20;
 	PagingToolBar pagingToolbar; // = new PagingToolBar(PAGESIZE);
+	MultiResGui parentMultiResultSetGui;
 	
-	
-	public ResultSetGui(ResultsetImproved resultSetSilly, ResultsetImproved mainParentResultSetImproved, boolean  itsRootResultSet){
+	public ResultSetGui(ResultsetImproved resultSetSilly, 
+						ResultsetImproved mainParentResultSetImproved, 
+						boolean  itsRootResultSet,
+						MultiResGui parentMultiResultSetGui){
 		super(Unit.EM);	
 		this.resultSetImproved = resultSetSilly;
 		this.mainParentResultSetImproved = mainParentResultSetImproved;
 		this.isRootResultSet = itsRootResultSet;
+		this.parentMultiResultSetGui = parentMultiResultSetGui;
 //		if (resultSetSilly.id == 0){
 		if (itsRootResultSet){
 			this.setStylePrimaryName("mainArea");
@@ -270,11 +274,15 @@ public class ResultSetGui extends DockLayoutPanel {
 		}
 	}
 	
+	public boolean correlatedResultSetIsShown(int resultSetId){
+		return parentMultiResultSetGui.correlatedResultSetIsShown(resultSetId);
+	}	
+	
 	private void createCentralGrid2(){	
 	    if (grid == null){
 			ListStore<BaseModelData> store = new ListStore<BaseModelData>();
 		    JardinColumnModel cm = new JardinColumnModel(resultSetImproved);
-		    this.grid = new JardinGrid(store, cm, resultSetImproved, mainParentResultSetImproved);
+		    this.grid = new JardinGrid(store, cm, resultSetImproved, mainParentResultSetImproved, this);
 	    }	    
 	}
 	
