@@ -274,73 +274,13 @@ public class DbUtils {
   private String createSearchQueryForCount(PagingLoadConfig config,
       SearchParams searchParams) throws SQLException {
 
-    // TODO like può essere recuperato, se necessario, da searchParams;
-
-    boolean like = !(searchParams.getAccurate());
-
-    Integer id = searchParams.getResultsetId();
-    List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
-
-    /*
-     * Trasformazione di List<BaseModelData> in Map<String, String>
-     */
-
-    Map<String, String> fields = getMapFromListModelData(fieldList);
-
-    String query = dbProperties.getStatement(id);
-    // query = "SELECT * FROM " + query + " WHERE 1";
+    String query = createSearchQuery(config, searchParams);
 
     int startPartialQuery = query.toLowerCase().indexOf("from");
     String partialQuery = query.substring(startPartialQuery);
     query = "SELECT COUNT(*) " + partialQuery;
-    /*
-     * Gestione parte WHERE della query
-     */
 
-    for (String key : fields.keySet()) {
-      String value = fields.get(key);
-
-      if (value.length() > 0) {
-        StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
-
-        if (key.compareTo(SPECIAL_FIELD) != 0) {
-          /* Gestione campo normale */
-          query += " AND (0";
-          while (stringTokenizer.hasMoreTokens()) {
-            String token = stringTokenizer.nextToken();
-            query += fieldTest(key, "OR", token, like);
-          }
-          query += ")";
-        } else {
-          /* Gestione campo speciale */
-          while (stringTokenizer.hasMoreTokens()) {
-            String token = stringTokenizer.nextToken();
-            query +=
-                fieldTest(dbProperties.getFieldList(id), "OR", token, like);
-          }
-        }
-
-      }
-    }
-
-    /*
-     * Gestione configurazione di ricerca (SORT e LIMIT)
-     */
-    if (config != null) {
-      if (config.getSortInfo().getSortField() != null) {
-        query +=
-            " ORDER BY `" + config.getSortInfo().getSortField() + "` "
-                + config.getSortInfo().getSortDir();
-      }
-
-      if (config.getLimit() != -1) {
-        query +=
-            " LIMIT " + ((PagingLoadConfig) config).getOffset() + ","
-                + ((PagingLoadConfig) config).getLimit();
-      }
-    }
-
-    Log.debug("Search Query: " + query);
+    Log.debug("Count Query: " + query);
     return query;
   }
 
@@ -375,10 +315,9 @@ public class DbUtils {
 
   private String fieldTest(String field, String operation, String value,
       boolean like) {
-    String operator = " = ";
+    String operator = " LIKE ";
     String wrapper = "";
     if (like) {
-      operator = " LIKE ";
       wrapper = "%";
     }
     value = '"' + wrapper + value + wrapper + '"';
@@ -436,7 +375,8 @@ public class DbUtils {
           if (((String) types.get(key)).compareToIgnoreCase("VARBINARY") == 0) {
             value = new String(result.getBytes(i));
           } else if (((String) types.get(key)).compareToIgnoreCase("bigdecimal") == 0) {
-            // value = ((BigDecimal) result.getObject(i)).floatValue();
+            // value = ((BigDecimal)
+            // result.getObject(i)).floatValue();
             value = result.getBigDecimal(i).floatValue();
           } else if (((String) types.get(key)).compareToIgnoreCase("DATE") == 0) {
             value = result.getDate(i);
@@ -453,17 +393,21 @@ public class DbUtils {
             value = result.getString(i);
           }
           // }
-          // TODO Inserire un controllo di compatibilità di conversione dati
+          // TODO Inserire un controllo di compatibilità di
+          // conversione dati
           // SQL->JDBC
-          // Eg. se DATE non è una data ammissibile (eg. 0000-00-00) viene
+          // Eg. se DATE non è una data ammissibile (eg. 0000-00-00)
+          // viene
           // sollevata un'eccezione e la query non prosegue
 
           // Object value = result.getObject(i);
           // if (value != null) {
           // if (value instanceof BigDecimal) {
           // value = ((BigDecimal) value).floatValue();
-          // } else if (value.getClass().toString().contains("class [B")) {
-          // // TODO trovare un modo migliore per accorgersi che il l'oggetto
+          // } else if
+          // (value.getClass().toString().contains("class [B")) {
+          // // TODO trovare un modo migliore per accorgersi che il
+          // l'oggetto
           // // recuperato sia un byte[]
           // value = new String(result.getBytes(i));
           // } else {
@@ -1583,12 +1527,14 @@ public class DbUtils {
       if (tipologia.compareToIgnoreCase("fix") == 0) {
         // TODO gestione campo a lunghezza fissa da db!
       } else {
-        // if (ts == null || ts == "" || ts.compareToIgnoreCase("null") == 0) {
+        // if (ts == null || ts == "" || ts.compareToIgnoreCase("null")
+        // == 0) {
         // // import solo split senza replaceAll
         // columns = recordLine.split(fs);
         // } else {
         // // import normale
-        // recordLine = recordLine.substring(1, recordLine.length() - 1);
+        // recordLine = recordLine.substring(1, recordLine.length() -
+        // 1);
         // if (regExSpecialChars.contains(fs)) {
         // fs = "\\" + fs;
         // }
@@ -1632,7 +1578,8 @@ public class DbUtils {
           // System.out.println("lunghezza riga: " + t.length);
           // System.out.print("" + csvp.lastLineNumber() + ":");
           for (int i = 0; i < t.length; i++) {
-            // System.out.println("valorizzazione campo: " + columns[i] + " = "
+            // System.out.println("valorizzazione campo: " +
+            // columns[i] + " = "
             // + t[i]);
             bm.set(columns[i], t[i]);
             // System.out.println("\"" + t[i] + "\";");
@@ -1677,8 +1624,8 @@ public class DbUtils {
    *         you can use this value to increment index pointer.
    * @throws SQLException
    */
-  private Integer putJavaObjectInPs(PreparedStatement ps, Integer i, Object value)
-      throws SQLException {
+  private Integer putJavaObjectInPs(PreparedStatement ps, Integer i,
+      Object value) throws SQLException {
 
     // TODO Warning!
     if (value != null && value.toString().length() > 0) {
@@ -1725,7 +1672,8 @@ public class DbUtils {
           for (BaseModelData pk : PKs) {
             PKset += (String) pk.get("PK_NAME") + "=? AND ";
           }
-          PKset = PKset.substring(0, PKset.length() - 5); // Strips " AND "
+          PKset = PKset.substring(0, PKset.length() - 5); // Strips
+          // " AND "
 
         } else {
           PKset = condition + "=? ";
