@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -21,9 +35,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
 
-/**
- * @author mavellino
- */
 public class JardinSelectColumnsForChartPopUp extends Window {
 
   final FormPanel formPanel;
@@ -31,12 +42,12 @@ public class JardinSelectColumnsForChartPopUp extends Window {
   // SearchParams searchData;
   ResultsetImproved resultset;
 
-  private JardinGrid grid;
+  private final JardinGrid grid;
 
   /**
    * Create a new Detail Area for Impianti printing all available fields
    */
-  public JardinSelectColumnsForChartPopUp(JardinGrid grid, final String ct) {
+  public JardinSelectColumnsForChartPopUp(final JardinGrid grid, final String ct) {
 
     this.grid = grid;
 
@@ -47,13 +58,13 @@ public class JardinSelectColumnsForChartPopUp extends Window {
     this.setHeading("Selezione le colonne");
     this.setLayout(new FitLayout());
 
-    this.resultset = (ResultsetImproved) grid.getResultset();
+    this.resultset = grid.getResultset();
 
     /* Creazione FormPanel */
-    formPanel = new FormPanel();
-    formPanel.setBodyBorder(false);
-    formPanel.setHeaderVisible(false);
-    formPanel.setScrollMode(Scroll.AUTO);
+    this.formPanel = new FormPanel();
+    this.formPanel.setBodyBorder(false);
+    this.formPanel.setHeaderVisible(false);
+    this.formPanel.setScrollMode(Scroll.AUTO);
 
     final ListBox lbTitle = new ListBox();
     lbTitle.setVisibleItemCount(1);
@@ -67,7 +78,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
 
     /* Recupero le informazioni sui campi */
     BaseModelData fieldsInfo = new BaseModelData();
-    for (ResultsetField field : resultset.getFields()) {
+    for (ResultsetField field : this.resultset.getFields()) {
       fieldsInfo.set(field.getName(), field.getType());
       // System.out.println(field.getType());
     }
@@ -76,40 +87,41 @@ public class JardinSelectColumnsForChartPopUp extends Window {
     for (int i = 0; i < cm.getColumnCount(); i++) {
       if (!(cm.getColumn(i).isHidden())) {
         lbTitle.addItem(cm.getColumn(i).getId());
-        if (fieldsInfo.get(cm.getColumn(i).getId()).toString().compareToIgnoreCase(
-            "int") == 0
-            || fieldsInfo.get(cm.getColumn(i).getId()).toString().compareToIgnoreCase(
-                "real") == 0) {
+        if ((fieldsInfo.get(cm.getColumn(i).getId()).toString().compareToIgnoreCase(
+            "int") == 0)
+            || (fieldsInfo.get(cm.getColumn(i).getId()).toString().compareToIgnoreCase(
+                "real") == 0)) {
           lbValue.addItem(cm.getColumn(i).getId());
         }
       }
     }
-    //formPanel.addText("Verranno visualizzate solo le prime 50 righe.<br /><br />");
-    formPanel.addText("Colonna titolo:<br />");
-    formPanel.add(lbTitle);
-    formPanel.addText("<br />Colonna valore:<br />");
-    formPanel.add(lbValue);
-    formPanel.addText("<br />");
-    button = new Button("Crea grafico");
-    formPanel.add(button);
+    // formPanel.addText("Verranno visualizzate solo le prime 50 righe.<br /><br />");
+    this.formPanel.addText("Colonna titolo:<br />");
+    this.formPanel.add(lbTitle);
+    this.formPanel.addText("<br />Colonna valore:<br />");
+    this.formPanel.add(lbValue);
+    this.formPanel.addText("<br />");
+    this.button = new Button("Crea grafico");
+    this.formPanel.add(this.button);
 
-    button.addClickHandler(new ClickHandler() {
+    this.button.addClickHandler(new ClickHandler() {
 
       @Override
-      public void onClick(ClickEvent event) {
+      public void onClick(final ClickEvent event) {
         ArrayList<String> dataToChart = new ArrayList<String>();
         dataToChart.add(ct);
-        dataToChart.add("" + resultset.getId());
+        dataToChart.add(""
+            + JardinSelectColumnsForChartPopUp.this.resultset.getId());
         dataToChart.add(lbTitle.getValue(lbTitle.getSelectedIndex()));
         dataToChart.add(lbValue.getValue(lbValue.getSelectedIndex()));
         Dispatcher.forwardEvent(EventList.ShowChart, dataToChart);
         //
-        removeAll();
-        hide();
+        JardinSelectColumnsForChartPopUp.this.removeAll();
+        JardinSelectColumnsForChartPopUp.this.hide();
       }
     });
 
-    add(formPanel);
+    this.add(this.formPanel);
 
   }
 }

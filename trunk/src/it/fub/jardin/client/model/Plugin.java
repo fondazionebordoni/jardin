@@ -1,10 +1,24 @@
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.fub.jardin.client.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-/**
- * @author mavellino
- * 
- */
+
 public class Plugin implements IsSerializable {
 
   private String pluginName;
@@ -15,73 +29,72 @@ public class Plugin implements IsSerializable {
   private int rsId;
   private int GId;
 
-  private Plugin() {
-  }
-
-  public Plugin(String pluginName, String configFile, String type,
-      String note, int pluginId, int rsId, int gId) {
+  public Plugin(final String pluginName, final String configFile,
+      final String type, final String note, final int pluginId, final int rsId,
+      final int gId) {
     this.pluginName = pluginName;
     this.configFile = configFile;
     this.type = type;
     this.note = note;
     this.pluginId = pluginId;
     this.rsId = rsId;
-    GId = gId;
-  }
-  
-  public String getPluginName() {
-    return pluginName;
+    this.GId = gId;
   }
 
-  public void setPluginName(String pluginName, String configFile, String type) {
+  public String getPluginName() {
+    return this.pluginName;
+  }
+
+  public void setPluginName(final String pluginName, final String configFile,
+      final String type) {
     this.pluginName = pluginName;
   }
 
   public String getConfigFile() {
-    return configFile;
+    return this.configFile;
   }
 
-  public void setConfigFile(String configFile) {
+  public void setConfigFile(final String configFile) {
     this.configFile = configFile;
   }
 
   public String getType() {
-    return type;
+    return this.type;
   }
 
-  public void setType(String type) {
+  public void setType(final String type) {
     this.type = type;
   }
 
   public String getNote() {
-    return note;
+    return this.note;
   }
 
-  public void setNote(String note) {
+  public void setNote(final String note) {
     this.note = note;
   }
 
   public int getPluginId() {
-    return pluginId;
+    return this.pluginId;
   }
 
-  public void setPluginId(int pluginId) {
+  public void setPluginId(final int pluginId) {
     this.pluginId = pluginId;
   }
 
   public int getRsId() {
-    return rsId;
+    return this.rsId;
   }
 
-  public void setRsId(int rsId) {
+  public void setRsId(final int rsId) {
     this.rsId = rsId;
   }
 
   public int getGId() {
-    return GId;
+    return this.GId;
   }
 
-  public void setGId(int gId) {
-    GId = gId;
+  public void setGId(final int gId) {
+    this.GId = gId;
   }
 }

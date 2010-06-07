@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -19,14 +36,10 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 
-/**
- * @author gpantanetti
- * 
- */
 public class LoginDialog extends Dialog {
 
-  private TextField<String> username;
-  private TextField<String> password;
+  private final TextField<String> username;
+  private final TextField<String> password;
   private Button login;
   private Status status;
 
@@ -45,9 +58,11 @@ public class LoginDialog extends Dialog {
     this.setResizable(false);
 
     KeyListener keyListener = new KeyListener() {
-      public void componentKeyUp(ComponentEvent event) {
-        if (isValid() && (event.getKeyCode() == KeyCodes.KEY_ENTER)) {
-          submit();
+      @Override
+      public void componentKeyUp(final ComponentEvent event) {
+        if (LoginDialog.this.isValid()
+            && (event.getKeyCode() == KeyCodes.KEY_ENTER)) {
+          LoginDialog.this.submit();
         }
       }
     };
@@ -56,42 +71,43 @@ public class LoginDialog extends Dialog {
     this.username.setMinLength(4);
     this.username.setFieldLabel("Username");
     this.username.addKeyListener(keyListener);
-    this.add(username);
+    this.add(this.username);
 
     this.password = new TextField<String>();
     this.password.setMinLength(4);
     this.password.setPassword(true);
     this.password.setFieldLabel("Password");
     this.password.addKeyListener(keyListener);
-    this.add(password);
+    this.add(this.password);
 
-    this.setFocusWidget(username);
+    this.setFocusWidget(this.username);
   }
 
   @Override
   protected void createButtons() {
-    ButtonBar bb = getButtonBar();
+    ButtonBar bb = this.getButtonBar();
     bb.removeAll();
     bb.setAlignment(HorizontalAlignment.LEFT);
 
-    status = new Status();
-    status.setText("Inserire Username e Password");
-    bb.add(status);
+    this.status = new Status();
+    this.status.setText("Inserire Username e Password");
+    bb.add(this.status);
     bb.add(new FillToolItem());
 
-    login = new Button("Login");
-    login.setEnabled(false);
-    login.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        submit();
+    this.login = new Button("Login");
+    this.login.setEnabled(false);
+    this.login.addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
+        LoginDialog.this.submit();
       }
     });
-    bb.add(login);
+    bb.add(this.login);
 
   }
 
-  protected boolean hasValue(TextField<String> field) {
-    return field.getValue() != null && field.getValue().length() > 0;
+  protected boolean hasValue(final TextField<String> field) {
+    return (field.getValue() != null) && (field.getValue().length() > 0);
   }
 
   /**
@@ -101,23 +117,25 @@ public class LoginDialog extends Dialog {
    *         quattro caratteri. false altrimenti
    */
   protected boolean isValid() {
-    if (hasValue(username) && username.getValue().length() > 3
-        && hasValue(password) && password.getValue().length() > 3) {
-      status.setText("Premere Invio o il bottone Login");
-      login.setEnabled(true);
+    if (this.hasValue(this.username) && (this.username.getValue().length() > 3)
+        && this.hasValue(this.password)
+        && (this.password.getValue().length() > 3)) {
+      this.status.setText("Premere Invio o il bottone Login");
+      this.login.setEnabled(true);
       return true;
     } else {
-      status.setText("Inserire Username e Password");
-      login.setEnabled(false);
+      this.status.setText("Inserire Username e Password");
+      this.login.setEnabled(false);
     }
     return false;
   }
 
   private void submit() {
-    status.setBusy("Verifica Username e Password...");
-    login.setEnabled(false);
+    this.status.setBusy("Verifica Username e Password...");
+    this.login.setEnabled(false);
 
-    Credentials c = new Credentials(username.getValue(), password.getValue());
+    Credentials c =
+        new Credentials(this.username.getValue(), this.password.getValue());
     Dispatcher.forwardEvent(EventList.CheckUser, c);
   }
 

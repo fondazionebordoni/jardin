@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -43,9 +57,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-/**
- * @author acozzolino
- */
 public class AddRowForm extends Window {
 
   List<Field<?>> fieldList = new ArrayList<Field<?>>();
@@ -55,12 +66,12 @@ public class AddRowForm extends Window {
   // SearchParams searchData;
   ResultsetImproved resultset;
 
-  private JardinGrid grid;
+  private final JardinGrid grid;
 
   /**
    * Create a new Detail Area for Impianti printing all available fields
    */
-  public AddRowForm(JardinGrid grid) {
+  public AddRowForm(final JardinGrid grid) {
 
     this.grid = grid;
 
@@ -70,14 +81,14 @@ public class AddRowForm extends Window {
     this.setHeading("Inserimento nuovo elemento");
     this.setLayout(new FitLayout());
 
-    this.resultset = (ResultsetImproved) grid.getResultset();
+    this.resultset = grid.getResultset();
 
     /* Creazione FormPanel */
-    formPanel = new FormPanel();
-    formPanel.setBodyBorder(false);
-    formPanel.setLabelWidth(350);
-    formPanel.setHeaderVisible(false);
-    formPanel.setScrollMode(Scroll.AUTO);
+    this.formPanel = new FormPanel();
+    this.formPanel.setBodyBorder(false);
+    this.formPanel.setLabelWidth(350);
+    this.formPanel.setHeaderVisible(false);
+    this.formPanel.setScrollMode(Scroll.AUTO);
 
     Radio radio1 = new Radio();
     radio1.setBoxLabel("Yes");
@@ -94,35 +105,35 @@ public class AddRowForm extends Window {
     group.add(radio1);
     group.add(radio2);
 
-    formPanel.add(group);
+    this.formPanel.add(group);
 
     group.addListener(Events.Change, new Listener<ComponentEvent>() {
 
-      public void handleEvent(ComponentEvent be) {
+      public void handleEvent(final ComponentEvent be) {
         Radio selected = group.getValue();
         // MessageBox.alert("selezione", "selezionato: "
         // + selected.getData("valore"), null);
 
         if (((String) selected.getData("valore")).compareToIgnoreCase("yes") == 0) {
-          formPanel.removeAll();
-          setAssistedFormPanel();
-          layout();
+          AddRowForm.this.formPanel.removeAll();
+          AddRowForm.this.setAssistedFormPanel();
+          AddRowForm.this.layout();
         } else {
-          formPanel.removeAll();
-          setUnAssistedFormPanel();
-          layout();
+          AddRowForm.this.formPanel.removeAll();
+          AddRowForm.this.setUnAssistedFormPanel();
+          AddRowForm.this.layout();
         }
       }
 
     });
 
-    setAssistedFormPanel();
+    this.setAssistedFormPanel();
     // for (final ResultsetField field : this.resultset.getFields()) {
 
-    add(formPanel);
-    setButtons();
+    this.add(this.formPanel);
+    this.setButtons();
 
-    show();
+    this.show();
 
   }
 
@@ -138,31 +149,30 @@ public class AddRowForm extends Window {
           PF.setEnabled(false);
         }
 
-
-        fieldList.add(PF);
-        formPanel.add(PF);
+        this.fieldList.add(PF);
+        this.formPanel.add(PF);
 
       } else {
-        if (((String) field.getType()).compareToIgnoreCase("TIME") == 0) {
+        if ((field.getType()).compareToIgnoreCase("TIME") == 0) {
           TimeField textField = new TimeField();
-          textField.setName((String) field.getName());
-          textField.setFieldLabel((String) field.getAlias());
+          textField.setName(field.getName());
+          textField.setFieldLabel(field.getAlias());
           textField.setFormat(DateTimeFormat.getFormat("kk:mm:ss"));
 
-          fieldList.add(textField);
-          formPanel.add(textField);
+          this.fieldList.add(textField);
+          this.formPanel.add(textField);
 
           if (!field.getInsertperm()) {
             textField.setEnabled(false);
             textField.setValue(null);
           }
 
-        } else if (((String) field.getType()).compareToIgnoreCase("DATE") == 0
-            || ((String) field.getType()).compareToIgnoreCase("DATETIME") == 0) {
+        } else if (((field.getType()).compareToIgnoreCase("DATE") == 0)
+            || ((field.getType()).compareToIgnoreCase("DATETIME") == 0)) {
 
           DateField textField = new DateField();
-          textField.setName((String) field.getName());
-          textField.setFieldLabel((String) field.getAlias());
+          textField.setName(field.getName());
+          textField.setFieldLabel(field.getAlias());
           textField.getPropertyEditor().setFormat(
               DateTimeFormat.getFormat("dd/MM/y"));
           java.util.Date date = new java.util.Date();
@@ -173,21 +183,21 @@ public class AddRowForm extends Window {
             textField.setValue(null);
           }
 
-          fieldList.add(textField);
-          formPanel.add(textField);
+          this.fieldList.add(textField);
+          this.formPanel.add(textField);
 
-        } else if ((((String) field.getType()).compareToIgnoreCase("BLOB") == 0)
-            || (((String) field.getType()).compareToIgnoreCase("TEXT") == 0)) {
+        } else if (((field.getType()).compareToIgnoreCase("BLOB") == 0)
+            || ((field.getType()).compareToIgnoreCase("TEXT") == 0)) {
           TextArea textField = new TextArea();
-          textField.setName((String) field.getName());
-          textField.setFieldLabel((String) field.getAlias());
-          fieldList.add(textField);
-          formPanel.add(textField);
+          textField.setName(field.getName());
+          textField.setFieldLabel(field.getAlias());
+          this.fieldList.add(textField);
+          this.formPanel.add(textField);
         } else {
 
           TextField<String> textField = new TextField<String>();
-          textField.setName((String) field.getName());
-          textField.setFieldLabel((String) field.getAlias());
+          textField.setName(field.getName());
+          textField.setFieldLabel(field.getAlias());
 
           if (!field.getInsertperm()) {
             textField.setEnabled(false);
@@ -199,8 +209,8 @@ public class AddRowForm extends Window {
             textField.setValue(null);
           }
 
-          fieldList.add(textField);
-          formPanel.add(textField);
+          this.fieldList.add(textField);
+          this.formPanel.add(textField);
         }
       }
     }
@@ -212,7 +222,7 @@ public class AddRowForm extends Window {
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
 
         ParametricField PF =
-            new ParametricField(grid.getResultset().getId(),
+            new ParametricField(this.grid.getResultset().getId(),
                 field.getForeignKey().split("\\.")[1], field.getName(),
                 field.getAlias());
 
@@ -222,30 +232,30 @@ public class AddRowForm extends Window {
 
         // if (!field.getDeleteperm()) {
 
-        fieldList.add(PF);
-        formPanel.add(PF);
+        this.fieldList.add(PF);
+        this.formPanel.add(PF);
 
       } else {
-        if (((String) field.getType()).compareToIgnoreCase("TIME") == 0) {
+        if ((field.getType()).compareToIgnoreCase("TIME") == 0) {
           TimeField textField = new TimeField();
-          textField.setName((String) field.getName());
-          textField.setFieldLabel((String) field.getAlias());
+          textField.setName(field.getName());
+          textField.setFieldLabel(field.getAlias());
           textField.setFormat(DateTimeFormat.getFormat("kk:mm:ss"));
 
-          fieldList.add(textField);
-          formPanel.add(textField);
+          this.fieldList.add(textField);
+          this.formPanel.add(textField);
 
           if (!field.getInsertperm()) {
             textField.setEnabled(false);
             textField.setValue(null);
           }
 
-        } else if (((String) field.getType()).compareToIgnoreCase("DATE") == 0
-            || ((String) field.getType()).compareToIgnoreCase("DATETIME") == 0) {
+        } else if (((field.getType()).compareToIgnoreCase("DATE") == 0)
+            || ((field.getType()).compareToIgnoreCase("DATETIME") == 0)) {
 
           DateField textField = new DateField();
-          textField.setName((String) field.getName());
-          textField.setFieldLabel((String) field.getAlias());
+          textField.setName(field.getName());
+          textField.setFieldLabel(field.getAlias());
           java.util.Date date = new java.util.Date();
           textField.setValue(date);
 
@@ -254,22 +264,22 @@ public class AddRowForm extends Window {
             textField.setValue(null);
           }
 
-          fieldList.add(textField);
-          formPanel.add(textField);
+          this.fieldList.add(textField);
+          this.formPanel.add(textField);
 
         } else {
 
           TextField<String> textField = new TextField<String>();
-          textField.setName((String) field.getName());
-          textField.setFieldLabel((String) field.getAlias());
+          textField.setName(field.getName());
+          textField.setFieldLabel(field.getAlias());
 
           if (!field.getInsertperm()) {
             textField.setEnabled(false);
             textField.setValue(null);
           }
 
-          fieldList.add(textField);
-          formPanel.add(textField);
+          this.fieldList.add(textField);
+          this.formPanel.add(textField);
         }
       }
     }
@@ -277,14 +287,14 @@ public class AddRowForm extends Window {
 
   private void setButtons() {
     ButtonBar buttonBar = new ButtonBar();
-    button = new Button("Aggiungi", new SelectionListener<ButtonEvent>() {
+    this.button = new Button("Aggiungi", new SelectionListener<ButtonEvent>() {
 
       @Override
-      public void componentSelected(ButtonEvent ce) {
+      public void componentSelected(final ButtonEvent ce) {
 
         List<BaseModelData> newItemList = new ArrayList<BaseModelData>();
         BaseModelData newItem = new BaseModelData();
-        for (Field<?> field : fieldList) {
+        for (Field<?> field : AddRowForm.this.fieldList) {
 
           String property = field.getName();
 
@@ -321,11 +331,12 @@ public class AddRowForm extends Window {
           }
         }
         newItemList.add(newItem);
-        commitChangesAsync(resultset.getId(), newItemList);
+        AddRowForm.this.commitChangesAsync(AddRowForm.this.resultset.getId(),
+            newItemList);
       }
     });
 
-    buttonBar.add(button);
+    buttonBar.add(this.button);
     this.setBottomComponent(buttonBar);
   }
 
@@ -334,7 +345,7 @@ public class AddRowForm extends Window {
    * @param items
    */
   private void commitChangesAsync(final Integer resultset,
-      List<BaseModelData> items) {
+      final List<BaseModelData> items) {
 
     final MessageBox waitbox =
         MessageBox.wait("Attendere", "Salvataggio in corso...", "");
@@ -345,12 +356,12 @@ public class AddRowForm extends Window {
 
     /* Set up the callback */
     AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-      public void onFailure(Throwable caught) {
+      public void onFailure(final Throwable caught) {
         waitbox.close();
         Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
       }
 
-      public void onSuccess(Integer result) {
+      public void onSuccess(final Integer result) {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
@@ -361,7 +372,7 @@ public class AddRowForm extends Window {
           bm.set("searchField", "");
           queryFieldList.add(bm);
           sp.setFieldsValuesList(queryFieldList);
-          hide();
+          AddRowForm.this.hide();
           Dispatcher.forwardEvent(EventList.Search, sp);
 
         } else {

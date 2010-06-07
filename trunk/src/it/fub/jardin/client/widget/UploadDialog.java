@@ -1,22 +1,33 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.bcel.generic.NEW;
 
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -26,12 +37,9 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -43,10 +51,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.RadioButton;
 
-/**
- * @author acozzolino
- * 
- */
 public class UploadDialog extends Window {
 
   private static final String ACTION = GWT.getModuleBaseURL() + "upload";
@@ -85,7 +89,7 @@ public class UploadDialog extends Window {
    * di esportazione dei dati
    */
   public static final String TYPE_TEMPLATE = "template";
-  
+
   private MessageBox waitBox = new MessageBox();
 
   /**
@@ -101,7 +105,7 @@ public class UploadDialog extends Window {
    * @param resultset
    *          Il resulset in cui avviene l'upload del file
    */
-  public UploadDialog(User user, final String type, final int resultset) {
+  public UploadDialog(final User user, final String type, final int resultset) {
     final FormPanel panel = new FormPanel();
     panel.setFrame(true);
 
@@ -121,22 +125,23 @@ public class UploadDialog extends Window {
     panel.setLabelWidth(150);
     panel.setFieldWidth(280);
 
-    if ((type.compareTo(TYPE_IMPORT) == 0) || (type.compareTo(TYPE_INSERT) == 0)) {
-      
+    if ((type.compareTo(TYPE_IMPORT) == 0)
+        || (type.compareTo(TYPE_INSERT) == 0)) {
+
       panel.addText("Scegliere il tipo di import:");
-      
+
       final RadioButton limit = new RadioButton("limit");
       limit.setText("Delimitati da separatori");
       limit.setValue(true);
       panel.add(limit);
-      
+
       panel.addText("");
-      
+
       final RadioButton fix = new RadioButton("fix");
       fix.setText("Lunghezza fissa");
       fix.setEnabled(false);
       panel.add(fix);
-      
+
       final TextField<String> fieldSeparator = new TextField<String>();
       fieldSeparator.setName("fieldSep");
       fieldSeparator.setWidth(20);
@@ -162,16 +167,16 @@ public class UploadDialog extends Window {
 
       limit.addClickHandler(new ClickHandler() {
         @Override
-        public void onClick(ClickEvent arg0) {
+        public void onClick(final ClickEvent arg0) {
           fieldSeparator.show();
           textSeparator.show();
           fix.setValue(false);
         }
       });
-      
+
       fix.addClickHandler(new ClickHandler() {
         @Override
-        public void onClick(ClickEvent arg0) {
+        public void onClick(final ClickEvent arg0) {
           fieldSeparator.hide();
           textSeparator.hide();
           limit.setValue(false);
@@ -199,12 +204,12 @@ public class UploadDialog extends Window {
 
     }
 
-    if (type.compareTo(TYPE_IMPORT) == 0){
+    if (type.compareTo(TYPE_IMPORT) == 0) {
       SimpleComboBox<String> conditions = new SimpleComboBox<String>();
       ResultsetImproved rsi = user.getResultsetFromId(resultset);
       List<ResultsetField> fields = rsi.getFields();
       for (ResultsetField field : fields) {
-        if (field.getIsPK() || field.isUnique()){
+        if (field.getIsPK() || field.isUnique()) {
           conditions.add(field.getName());
         }
       }
@@ -216,7 +221,7 @@ public class UploadDialog extends Window {
       conditions.setAllowBlank(false);
       panel.add(conditions);
     }
-    
+
     HiddenField<String> importType = new HiddenField<String>();
     importType.setName(FIELD_TYPE);
     importType.setValue(type);
@@ -241,30 +246,30 @@ public class UploadDialog extends Window {
     Button btn = new Button("Invia");
     btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
       @Override
-      public void componentSelected(ButtonEvent ce) {
+      public void componentSelected(final ButtonEvent ce) {
         if (!panel.isValid()) {
           return;
         }
-        waitBox =
-            MessageBox.wait("Caricamento dati",
-            "Attendere prego...", "Loading...");
+        UploadDialog.this.waitBox =
+            MessageBox.wait("Caricamento dati", "Attendere prego...",
+                "Loading...");
         panel.submit();
       }
     });
     panel.addButton(btn);
 
     panel.addListener(Events.Submit, new Listener<FormEvent>() {
-      
 
-      public void handleEvent(FormEvent fe) {
-        hide();
+      public void handleEvent(final FormEvent fe) {
+        UploadDialog.this.hide();
         String message = fe.getResultHtml();
         message = message.replaceAll("<(.)?pre>", "");
         if (message.contains(SUCCESS)) {
           message = message.replaceAll(SUCCESS, "");
-          if ((type.compareTo(TYPE_IMPORT) == 0) || (type.compareTo(TYPE_INSERT) == 0)) {
+          if ((type.compareTo(TYPE_IMPORT) == 0)
+              || (type.compareTo(TYPE_INSERT) == 0)) {
             Dispatcher.forwardEvent(EventList.UpdateStore, resultset);
-            waitBox.close();
+            UploadDialog.this.waitBox.close();
           } else if (type.compareTo(TYPE_TEMPLATE) == 0) {
             Dispatcher.forwardEvent(EventList.UpdateTemplates, resultset);
           }
@@ -272,7 +277,7 @@ public class UploadDialog extends Window {
         } else {
           Dispatcher.forwardEvent(EventList.Error, message);
         }
-        waitBox.close();
+        UploadDialog.this.waitBox.close();
       }
 
     });

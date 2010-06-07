@@ -1,0 +1,67 @@
+Jardin License Information
+==========================
+
+Jardin (Java AJAX Relational Databases Navigator)
+Copyright (c) 2009, 2010 Jardin Development Group <jardin.project@gmail.com>
+
+Jardin is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Jardin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+
+License Information regarding bundled third-party software
+==========================================================
+
+The following third party software is distributed with Jardin and is provided
+under other licenses and/or has source available from other locations.
+
+- Google Web Toolkit
+  License: Apache License v. 2.0
+  Source code availtability: http://code.google.com/webtoolkit/
+  
+- Ext GWT
+  License: GNU General Public License v. 3.0
+  Source code availtability: http://www.extjs.com/products/gwt/
+
+- MySQL Connector/J
+  License: GNU General Public License v. 2.0
+  Source code availtability: http://www.mysql.com/products/connector/
+
+- Apache Commons
+  License: Apache License v. 2.0
+  Source code availtability: http://commons.apache.org/
+
+- Apache Avalon
+  License: Apache License v. 2.0
+  Source code availtability: http://avalon.apache.org
+
+- Apache XML Project
+  License: Apache License v. 2.0
+  Source code availtability: http://xml.apache.org/
+
+- Mort Bay Consulting (http://www.mortbay.com/)
+- Fred Sauer (http://allen-sauer.com/gwt/)
+
+- Smart GWT
+  License: GNU Lesser General Public License v. 3.0
+  Source code availtability: http://code.google.com/p/smartgwt/
+
+- Ostermiller Utils
+  License: GNU General Public License v. 2.0
+  Source code availability: http://ostermiller.org/utils/
+
+- Javamail
+  License:
+    Common Development and Distribution License v. 1.0,
+    BSD License,
+    GNU General Public License v. 2.0
+  Source code availability: http://kenai.com/projects/javamail
+  

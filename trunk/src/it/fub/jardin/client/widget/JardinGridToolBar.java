@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -41,10 +55,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.KeyCodes;
 
-/**
- * @author gpantanetti
- * 
- */
 public class JardinGridToolBar extends ToolBar {
 
   private ResultsetImproved resultset;
@@ -55,27 +65,27 @@ public class JardinGridToolBar extends ToolBar {
   private List<String> fieldNames;
   private MenuItem preferenceMenuItem;
   private SimpleComboBox<Template> comboTemplate;
-  private TextField<String> fs = new TextField<String>();
-  private SimpleComboBox<String> ts = new SimpleComboBox<String>();
+  private final TextField<String> fs = new TextField<String>();
+  private final SimpleComboBox<String> ts = new SimpleComboBox<String>();
   private Button buttonMenuPlugins =
       new Button("Plugin", IconHelper.createStyle("icon-plugin"),
-          getListenerWithGrid(EventList.GetPlugins));
+          this.getListenerWithGrid(EventList.GetPlugins));
   private SearchParams searchParams;
   private String tooltip;
   private String searchId;
   private CheckMenuItem accurate;
 
   // TODO Modificare il costruttore: passare solo l'id del resultset
-  public void setGrid(JardinGrid grid) {
+  public void setGrid(final JardinGrid grid) {
     this.resultset = grid.getResultset();
-    this.searchId = "grid-toolbar-" + resultset.getId();
-    this.searchParams = new SearchParams(resultset.getId());
+    this.searchId = "grid-toolbar-" + this.resultset.getId();
+    this.searchParams = new SearchParams(this.resultset.getId());
     this.grid = grid;
 
     this.fieldNames = new ArrayList<String>();
     this.tooltip =
         "Per una ricerca avanzata &egrave; possibile usare le seguenti parole chiave:<br/>";
-    for (ResultsetField f : resultset.getFields()) {
+    for (ResultsetField f : this.resultset.getFields()) {
       String fieldName = f.getName();
       this.fieldNames.add(fieldName);
       this.tooltip += "<b>" + fieldName + "</b>; ";
@@ -124,20 +134,21 @@ public class JardinGridToolBar extends ToolBar {
       }
     }
 
-    this.add(buttonMenuPlugins);
+    this.add(this.buttonMenuPlugins);
   }
 
   private void addSearch() {
     this.searchfield = new SimpleComboBox<String>() {
       @Override
-      public void doQuery(String q, boolean forceAll) {
+      public void doQuery(String q, final boolean forceAll) {
         int index = q.lastIndexOf(' ', q.length() - 2);
         q = q.substring(index + 1);
         super.doQuery(q, forceAll);
       }
 
       @Override
-      protected void onSelect(SimpleComboValue<String> model, int index) {
+      protected void onSelect(final SimpleComboValue<String> model,
+          final int index) {
         String value = this.getRawValue();
         int i = value.lastIndexOf(' ', value.length() - 2);
         value = value.substring(0, i + 1);
@@ -152,34 +163,34 @@ public class JardinGridToolBar extends ToolBar {
     this.searchfield.setName(SPECIAL_FIELD);
     this.searchfield.setFieldLabel("Cerca");
     // this.searchfield.setEmptyText("Cerca");
-    this.searchfield.setToolTip(tooltip);
+    this.searchfield.setToolTip(this.tooltip);
     this.searchfield.setWidth("24em");
     this.searchfield.addKeyListener(new KeyListener() {
       @Override
       public void componentKeyPress(final ComponentEvent event) {
         if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
-          search(false);
+          JardinGridToolBar.this.search(false);
         }
       }
     });
 
-    this.add(searchfield);
+    this.add(this.searchfield);
     this.addSearchButtons();
   }
 
   private void addSearchButtons() {
 
-    final String SEARCH = searchId + "-search";
-    final String SEARCH_ALL = searchId + "-searchall";
+    final String SEARCH = this.searchId + "-search";
+    final String SEARCH_ALL = this.searchId + "-searchall";
 
     SelectionListener<ButtonEvent> listener =
         new SelectionListener<ButtonEvent>() {
           @Override
-          public void componentSelected(ButtonEvent te) {
+          public void componentSelected(final ButtonEvent te) {
             if (te.getButton().getId().compareTo(SEARCH) == 0) {
-              search(false);
+              JardinGridToolBar.this.search(false);
             } else if (te.getButton().getId().compareTo(SEARCH_ALL) == 0) {
-              search(true);
+              JardinGridToolBar.this.search(true);
             }
           }
         };
@@ -214,12 +225,12 @@ public class JardinGridToolBar extends ToolBar {
    *          se avviare o no la ricerca su tutti i valori del resultset.
    *          Impostare a true per visualizzare tutti i record del resultset
    */
-  private void search(boolean searchAll) {
+  private void search(final boolean searchAll) {
     String s = this.searchfield.getRawValue().trim();
 
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
-    if (!searchAll && s.length() > 0) {
+    if (!searchAll && (s.length() > 0)) {
       SearchStringParser parser = new SearchStringParser(s);
 
       String specialSearchValue = parser.getSpecialSearchValue();
@@ -231,7 +242,7 @@ public class JardinGridToolBar extends ToolBar {
 
       Map<String, String> searchMap = parser.getSearchMap();
       for (String key : parser.getSearchMap().keySet()) {
-        for (String k : fieldNames) {
+        for (String k : this.fieldNames) {
           if (k.equalsIgnoreCase(key)) {
             BaseModelData m = new BaseModelData();
             m.set(key, searchMap.get(key));
@@ -241,9 +252,9 @@ public class JardinGridToolBar extends ToolBar {
       }
     }
 
-    searchParams.setFieldsValuesList(queryFieldList);
-    searchParams.setAccurate(accurate.isChecked());
-    Dispatcher.forwardEvent(EventList.Search, searchParams);
+    this.searchParams.setFieldsValuesList(queryFieldList);
+    this.searchParams.setAccurate(this.accurate.isChecked());
+    Dispatcher.forwardEvent(EventList.Search, this.searchParams);
   }
 
   @SuppressWarnings("unchecked")
@@ -251,18 +262,18 @@ public class JardinGridToolBar extends ToolBar {
 
     // TODO Non inserire il bottone se l'azione non è consentita
 
-    if (resultset.isInsert()) {
+    if (this.resultset.isInsert()) {
       this.add(new Button("Aggiungi riga", IconHelper.createStyle("icon-add"),
-          getListenerWithGrid(EventList.AddRow)));
+          this.getListenerWithGrid(EventList.AddRow)));
     } else {
       // this.add(new Button("Aggiungi riga",
       // IconHelper.createStyle("icon-add-disabled")));
     }
 
-    if (resultset.isDelete()) {
+    if (this.resultset.isDelete()) {
       this.add(new Button("Rimuovi righe",
           IconHelper.createStyle("icon-delete"),
-          getListenerWithGrid(EventList.RemoveRows)));
+          this.getListenerWithGrid(EventList.RemoveRows)));
     } else {
       // this.add(new Button("Rimuovi righe",
       // IconHelper.createStyle("icon-delete-disabled")));
@@ -273,7 +284,7 @@ public class JardinGridToolBar extends ToolBar {
   private void addExportActions() {
 
     Template defaultTemplate = new Template(Template.DEFAULT);
-    defaultTemplate.setXsl(resultset.getId() + "_default.xsl");
+    defaultTemplate.setXsl(this.resultset.getId() + "_default.xsl");
 
     // campi dei separatori per l'export
     this.fs.setName("fs");
@@ -314,17 +325,17 @@ public class JardinGridToolBar extends ToolBar {
 
       @Override
       public void selectionChanged(
-          SelectionChangedEvent<SimpleComboValue<Template>> se) {
+          final SelectionChangedEvent<SimpleComboValue<Template>> se) {
         // System.out.println("template->"+se.getSelectedItem().getValue());
         if (se.getSelectedItem().getValue().toString().compareToIgnoreCase(
             "CSV") == 0) {
           // abilito i campi per la specifica dei separatori
-          ts.setEnabled(true);
-          fs.setEnabled(true);
+          JardinGridToolBar.this.ts.setEnabled(true);
+          JardinGridToolBar.this.fs.setEnabled(true);
         } else {
           // disabilito i campi per la specifica dei separatori
-          ts.setEnabled(false);
-          fs.setEnabled(false);
+          JardinGridToolBar.this.ts.setEnabled(false);
+          JardinGridToolBar.this.fs.setEnabled(false);
         }
       }
 
@@ -336,33 +347,33 @@ public class JardinGridToolBar extends ToolBar {
 
     menu.add(new MenuItem("Tutta la griglia, tutte le colonne",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportAllStoreAllColumns)));
+        this.getListenerWithGrid(EventList.ExportAllStoreAllColumns)));
 
     menu.add(new MenuItem("Tutta la griglia, le colonne visibili",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportAllStoreSomeColumns)));
+        this.getListenerWithGrid(EventList.ExportAllStoreSomeColumns)));
 
     menu.add(new MenuItem("La griglia visibile, tutte le colonne",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportSomeStoreAllColumns)));
+        this.getListenerWithGrid(EventList.ExportSomeStoreAllColumns)));
 
     menu.add(new MenuItem("La griglia visibile, le colonne visibili",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportSomeStoreSomeColumns)));
+        this.getListenerWithGrid(EventList.ExportSomeStoreSomeColumns)));
 
     menu.add(new MenuItem("Le righe selezionate, tutte le colonne",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportSomeRowsAllColumns)));
+        this.getListenerWithGrid(EventList.ExportSomeRowsAllColumns)));
 
     menu.add(new MenuItem("Le righe selezionate, le colonne visibili",
         IconHelper.createStyle("icon-table-save"),
-        getListenerWithGrid(EventList.ExportSomeRowsSomeColumns)));
+        this.getListenerWithGrid(EventList.ExportSomeRowsSomeColumns)));
 
     menu.add(new SeparatorMenuItem());
 
     menu.add(new MenuItem("Aggiungi template (file XSL)",
         IconHelper.createStyle("icon-add"),
-        getListenerWithGrid(EventList.UploadTemplate)));
+        this.getListenerWithGrid(EventList.UploadTemplate)));
 
     Button button =
         new Button("Esporta", IconHelper.createStyle("icon-export"));
@@ -379,7 +390,7 @@ public class JardinGridToolBar extends ToolBar {
 
     MenuItem update =
         new MenuItem("Aggiorna", IconHelper.createStyle("icon-table-update"),
-            getListenerWithGrid(EventList.UploadImport));
+            this.getListenerWithGrid(EventList.UploadImport));
     update.setToolTip("Se si carica un file contente uno più record già presenti "
         + "nel DB, il sistema aggiornerà tali record con i nuovi valori "
         + "contenuti nel file stesso.\n"
@@ -389,7 +400,7 @@ public class JardinGridToolBar extends ToolBar {
 
     MenuItem add =
         new MenuItem("Inserisci", IconHelper.createStyle("icon-table-insert"),
-            getListenerWithGrid(EventList.UploadInsert));
+            this.getListenerWithGrid(EventList.UploadInsert));
     menu.add(add);
 
     b.setMenu(menu);
@@ -406,18 +417,18 @@ public class JardinGridToolBar extends ToolBar {
 
     menu.add(new MenuItem("Mostra tutte le colonne",
         IconHelper.createStyle("icon-table-show-all"),
-        getListenerWithGrid(EventList.ShowAllColumns)));
+        this.getListenerWithGrid(EventList.ShowAllColumns)));
 
     menu.add(new MenuItem("Salva visualizzazione",
         IconHelper.createStyle("icon-table-save-view"),
-        getListenerWithGrid(EventList.SaveGridView)));
+        this.getListenerWithGrid(EventList.SaveGridView)));
 
-    preferenceMenuItem =
+    this.preferenceMenuItem =
         new MenuItem("Visualizzazioni d'utente",
             IconHelper.createStyle("icon-table-user"),
-            getListenerWithGrid(EventList.GetGridViews));
+            this.getListenerWithGrid(EventList.GetGridViews));
     // preferenceMenuItem.disable();
-    menu.add(preferenceMenuItem);
+    menu.add(this.preferenceMenuItem);
 
     preferenceButton.setMenu(menu);
     this.add(preferenceButton);
@@ -427,8 +438,8 @@ public class JardinGridToolBar extends ToolBar {
   private SelectionListener getListenerWithGrid(final EventType e) {
     SelectionListener listener = new SelectionListener() {
       @Override
-      public void componentSelected(ComponentEvent ce) {
-        Dispatcher.forwardEvent(e, resultset.getId());
+      public void componentSelected(final ComponentEvent ce) {
+        Dispatcher.forwardEvent(e, JardinGridToolBar.this.resultset.getId());
       }
     };
     return listener;
@@ -436,8 +447,8 @@ public class JardinGridToolBar extends ToolBar {
 
   public void updatePreferenceButton(final HeaderPreferenceList data) {
     Menu userPreferenceMenu = new Menu();
-    preferenceMenuItem.enable();
-    preferenceMenuItem.setSubMenu(userPreferenceMenu);
+    this.preferenceMenuItem.enable();
+    this.preferenceMenuItem.setSubMenu(userPreferenceMenu);
 
     for (int i = 0; i < data.getUserPref().size(); i++) {
       final String prefName =
@@ -449,9 +460,10 @@ public class JardinGridToolBar extends ToolBar {
       r.addSelectionListener(new SelectionListener<MenuEvent>() {
 
         @Override
-        public void componentSelected(MenuEvent ce) {
-          grid.setUserPreferenceHeaderId(prefId);
-          Dispatcher.forwardEvent(EventList.UpdateColumnModel, grid);
+        public void componentSelected(final MenuEvent ce) {
+          JardinGridToolBar.this.grid.setUserPreferenceHeaderId(prefId);
+          Dispatcher.forwardEvent(EventList.UpdateColumnModel,
+              JardinGridToolBar.this.grid);
         }
 
       });
@@ -465,18 +477,18 @@ public class JardinGridToolBar extends ToolBar {
   }
 
   public char getTextSeparator() {
-    String sep = ts.getSimpleValue();
+    String sep = this.ts.getSimpleValue();
     if ((sep != null) && (sep.compareTo("") != 0)) {
-      return ts.getSimpleValue().charAt(0);
+      return this.ts.getSimpleValue().charAt(0);
     } else {
       return '\0';
     }
   }
 
   public char getFieldSeparator() {
-    String sep = fs.getValue();
+    String sep = this.fs.getValue();
     if ((sep != null) && (sep.compareTo("") != 0)) {
-      return fs.getValue().charAt(0);
+      return this.fs.getValue().charAt(0);
     } else {
       return '\0';
     }
@@ -484,7 +496,7 @@ public class JardinGridToolBar extends ToolBar {
 
   private void addAnalisysButton() {
     this.add(new Button("Analisi", IconHelper.createStyle("icon-grid"),
-        getListenerWithGrid(EventList.Jungle)));
+        this.getListenerWithGrid(EventList.Jungle)));
   }
 
   private void addChartButton() {
@@ -493,11 +505,11 @@ public class JardinGridToolBar extends ToolBar {
     Menu menu = new Menu();
 
     menu.add(new MenuItem("Torta", IconHelper.createStyle("icon-chart-pie"),
-        getListenerWithGrid(EventList.ShowPieChart)));
+        this.getListenerWithGrid(EventList.ShowPieChart)));
 
     menu.add(new MenuItem("Istogramma",
         IconHelper.createStyle("icon-chart-bar"),
-        getListenerWithGrid(EventList.ShowBarChart)));
+        this.getListenerWithGrid(EventList.ShowBarChart)));
 
     button.setMenu(menu);
     this.add(button);
@@ -505,10 +517,10 @@ public class JardinGridToolBar extends ToolBar {
   }
 
   public Button getButtonMenuPlugins() {
-    return buttonMenuPlugins;
+    return this.buttonMenuPlugins;
   }
 
-  public void setButtonMenuPlugins(Button buttonMenuPlugins) {
+  public void setButtonMenuPlugins(final Button buttonMenuPlugins) {
     this.buttonMenuPlugins = buttonMenuPlugins;
   }
 

@@ -1,18 +1,28 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
-/**
- * @author gpantanetti
- * 
- */
 public class ExtendedMultiFieldPattern<F extends Field<D>, D extends CharSequence>
     extends ExtendedMultiField<F, D> {
 
-  private int valueLength;
+  private final int valueLength;
   private boolean isDBK = false;
 
   public ExtendedMultiFieldPattern() {
@@ -20,12 +30,12 @@ public class ExtendedMultiFieldPattern<F extends Field<D>, D extends CharSequenc
     this.valueLength = 2;
   }
 
-  public ExtendedMultiFieldPattern(int value) {
+  public ExtendedMultiFieldPattern(final int value) {
     super();
     this.valueLength = value;
   }
 
-  public ExtendedMultiFieldPattern(int value, boolean isdbk) {
+  public ExtendedMultiFieldPattern(final int value, final boolean isdbk) {
     super();
     this.valueLength = value;
     this.isDBK = isdbk;
@@ -43,7 +53,7 @@ public class ExtendedMultiFieldPattern<F extends Field<D>, D extends CharSequenc
     }
 
     // Fai il parsing del valore del campo
-    if (isDBK) {
+    if (this.isDBK) {
       String DbKPattern = new String("");
       int erpLimit = ((String) pattern).indexOf("$");
 
@@ -53,7 +63,7 @@ public class ExtendedMultiFieldPattern<F extends Field<D>, D extends CharSequenc
 
       pattern = (D) newPattern;
 
-      if (this.getAll().size() != pattern.length() / (3 * valueLength)) {
+      if (this.getAll().size() != pattern.length() / (3 * this.valueLength)) {
         this.get(0).setValue(pattern);
         return;
       }
@@ -69,19 +79,19 @@ public class ExtendedMultiFieldPattern<F extends Field<D>, D extends CharSequenc
       for (int i = 0; i < this.getAll().size(); i++) {
         F tf = this.get(i);
         String val =
-            (String) DbKPattern.subSequence(i * valueLength, (i + 1)
-                * valueLength);
+            (String) DbKPattern.subSequence(i * this.valueLength, (i + 1)
+                * this.valueLength);
         tf.setRawValue(((Object) (erp - (Integer.valueOf((val.trim())) + 30))).toString());
       }
     } else {
-      if (this.getAll().size() != pattern.length() / valueLength) {
+      if (this.getAll().size() != pattern.length() / this.valueLength) {
         this.get(0).setValue(pattern);
         return;
       }
       for (int i = 0; i < this.getAll().size(); i++) {
         F tf = this.get(i);
-        tf.setValue((D) pattern.subSequence(i * valueLength, (i + 1)
-            * valueLength));
+        tf.setValue((D) pattern.subSequence(i * this.valueLength, (i + 1)
+            * this.valueLength));
       }
     }
   }

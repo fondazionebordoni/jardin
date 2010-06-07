@@ -1,14 +1,24 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-/**
- * @author gpantanetti
- * 
- */
 public class Template implements IsSerializable {
 
   private String ext;
@@ -37,14 +47,15 @@ public class Template implements IsSerializable {
    * @param info
    * @param xsl
    */
-  public Template(String ext, String name, String info, String xsl) {
+  public Template(final String ext, final String name, final String info,
+      final String xsl) {
     this.ext = ext;
     this.name = name;
     this.info = info;
     this.xsl = xsl;
   }
 
-  public Template(Template template) {
+  public Template(final Template template) {
     this.ext = template.getExt();
     this.name = template.getName();
     this.info = template.getInfo();
@@ -52,26 +63,27 @@ public class Template implements IsSerializable {
   }
 
   public String getExt() {
-    return ext;
+    return this.ext;
   }
 
   public String getName() {
-    return name;
+    return this.name;
   }
 
   public String getInfo() {
-    return info;
+    return this.info;
   }
 
   public String getXsl() {
-    return xsl;
+    return this.xsl;
   }
 
-  public void setXsl(String xsl) {
+  public void setXsl(final String xsl) {
     this.xsl = xsl;
   }
 
+  @Override
   public String toString() {
-    return name;
+    return this.name;
   }
 }

@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
@@ -54,10 +68,6 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
-/**
- * @author acozzolino
- * 
- */
 public class DbUtils {
 
   DbConnectionHandler dbConnectionHandler;
@@ -66,7 +76,7 @@ public class DbUtils {
 
   public DbUtils() {
     this.dbProperties = new DbProperties();
-    this.dbConnectionHandler = dbProperties.getConnectionHandler();
+    this.dbConnectionHandler = this.dbProperties.getConnectionHandler();
   }
 
   private static final String SPECIAL_FIELD = "searchField";
@@ -108,19 +118,19 @@ public class DbUtils {
    * @param message
    *          il messaggio da loggare
    */
-  private void log(String message) {
+  private void log(final String message) {
     Log.info("[" + this.user.getUsername() + "] " + message);
   }
 
-  public static ResultSet doQuery(Connection connection, String query)
-      throws SQLException {
+  public static ResultSet doQuery(final Connection connection,
+      final String query) throws SQLException {
 
     PreparedStatement ps =
         (PreparedStatement) connection.prepareStatement(query);
     return ps.executeQuery();
   }
 
-  private ResultSet doUpdate(Connection connection, String query)
+  private ResultSet doUpdate(final Connection connection, final String query)
       throws SQLException {
     Statement update =
         connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
@@ -129,9 +139,9 @@ public class DbUtils {
     return update.getGeneratedKeys();
   }
 
-  private void updateLoginCount(int userId, int loginCount)
+  private void updateLoginCount(final int userId, final int loginCount)
       throws SQLException, HiddenException {
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     String query =
         "UPDATE " + T_USER
             + " SET logincount=?, lastlogintime=NOW() WHERE id=?";
@@ -144,12 +154,12 @@ public class DbUtils {
     } catch (SQLException e) {
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
   }
 
-  public void updateUserProperties(User user) throws HiddenException {
-    Connection connection = dbConnectionHandler.getConn();
+  public void updateUserProperties(final User user) throws HiddenException {
+    Connection connection = this.dbConnectionHandler.getConn();
     String query =
         "UPDATE " + T_USER + " SET" + " password=PASSWORD('"
             + user.getPassword() + "'), name='" + user.getName()
@@ -158,18 +168,18 @@ public class DbUtils {
             + "', telephone='" + user.getTelephone() + "', id_group='"
             + user.getGid() + "' WHERE id = '" + user.getUid() + "'";
     try {
-      doUpdate(connection, query);
+      this.doUpdate(connection, query);
     } catch (SQLException e) {
       Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il salvataggio delle preferenze");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
   }
 
-  public List<Integer> getUserResultsetHeaderPrefereces(Integer uid,
-      Integer rsid) {
+  public List<Integer> getUserResultsetHeaderPrefereces(final Integer uid,
+      final Integer rsid) {
     String query =
         "SELECT fip.id_field as fieldid FROM " + "(((" + T_FIELD + " f JOIN "
             + T_FIELDINPREFERENCE + " fip " + "ON (fip.id_field=f.id)) "
@@ -180,7 +190,7 @@ public class DbUtils {
 
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -197,12 +207,12 @@ public class DbUtils {
       Log.error("Error on loading user resultset preferences", e);
     }
 
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     return hp;
   }
 
-  private String createSearchQuery(PagingLoadConfig config,
-      SearchParams searchParams) throws SQLException {
+  private String createSearchQuery(final PagingLoadConfig config,
+      final SearchParams searchParams) throws SQLException {
 
     // TODO like può essere recuperato, se necessario, da searchParams;
 
@@ -215,9 +225,9 @@ public class DbUtils {
      * Trasformazione di List<BaseModelData> in Map<String, String>
      */
 
-    Map<String, String> fields = getMapFromListModelData(fieldList);
+    Map<String, String> fields = this.getMapFromListModelData(fieldList);
 
-    String query = dbProperties.getStatement(id);
+    String query = this.dbProperties.getStatement(id);
     // query = "SELECT * FROM " + query + " WHERE 1";
 
     /*
@@ -235,7 +245,7 @@ public class DbUtils {
           query += " AND (0";
           while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
-            query += fieldTest(key, "OR", token, like);
+            query += this.fieldTest(key, "OR", token, like);
           }
           query += ")";
         } else {
@@ -243,7 +253,8 @@ public class DbUtils {
           while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
             query +=
-                fieldTest(dbProperties.getFieldList(id), "OR", token, like);
+                this.fieldTest(this.dbProperties.getFieldList(id), "OR", token,
+                    like);
           }
         }
 
@@ -271,10 +282,10 @@ public class DbUtils {
     return query;
   }
 
-  private String createSearchQueryForCount(PagingLoadConfig config,
-      SearchParams searchParams) throws SQLException {
+  private String createSearchQueryForCount(final PagingLoadConfig config,
+      final SearchParams searchParams) throws SQLException {
 
-    String query = createSearchQuery(config, searchParams);
+    String query = this.createSearchQuery(config, searchParams);
 
     int startPartialQuery = query.toLowerCase().indexOf("from");
     String partialQuery = query.substring(startPartialQuery);
@@ -293,8 +304,8 @@ public class DbUtils {
    *         ricerca del valore <i>value</i> in tutti i campi desiderati
    *         combinati con l'operazione <i>operation</i>
    */
-  private String fieldTest(List<String> fields, String operation, String value,
-      boolean like) {
+  private String fieldTest(final List<String> fields, final String operation,
+      final String value, final boolean like) {
     String result = "";
 
     if (operation.compareToIgnoreCase("OR") == 0) {
@@ -306,15 +317,15 @@ public class DbUtils {
     }
 
     for (String field : fields) {
-      result += fieldTest(field, operation, value, like);
+      result += this.fieldTest(field, operation, value, like);
     }
     result += ")";
 
     return result;
   }
 
-  private String fieldTest(String field, String operation, String value,
-      boolean like) {
+  private String fieldTest(String field, final String operation, String value,
+      final boolean like) {
     String operator = " LIKE ";
     String wrapper = "";
     if (like) {
@@ -338,30 +349,23 @@ public class DbUtils {
    * @return
    */
   // TODO Spostare la gestione dell'eccezione al chiamante della funzione
-  public List<BaseModelData> getObjects(PagingLoadConfig config,
-      SearchParams searchParams) {
+  public List<BaseModelData> getObjects(final PagingLoadConfig config,
+      final SearchParams searchParams) {
 
     List<BaseModelData> records = new ArrayList<BaseModelData>();
     Connection connection = null;
     try {
-      String query = createSearchQuery(config, searchParams);
-      connection = dbConnectionHandler.getConn();
+      String query = this.createSearchQuery(config, searchParams);
+      connection = this.dbConnectionHandler.getConn();
       ResultSet result = doQuery(connection, query);
       int resultWidth = result.getMetaData().getColumnCount();
-      log(query);
+      this.log(query);
       ResultSet res =
           connection.getMetaData().getColumns(null, null,
               result.getMetaData().getTableName(1), null);
 
       HashTable types = new HashTable();
       while (res.next()) {
-        // System.out.println(
-        // "  "+res.getString("TABLE_SCHEM")
-        // + ", "+res.getString("TABLE_NAME")
-        // + ", "+res.getString("COLUMN_NAME")
-        // + ", "+res.getString("TYPE_NAME")
-        // + ", "+res.getInt("COLUMN_SIZE")
-        // + ", "+res.getString("NULLABLE"));
         types.put(res.getString("COLUMN_NAME"), res.getString("TYPE_NAME"));
       }
 
@@ -422,7 +426,7 @@ public class DbUtils {
     } catch (Exception e) {
       Log.warn("Errore SQL", e);
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return records;
   }
@@ -433,7 +437,7 @@ public class DbUtils {
    * univoche (è il caso dei parametri di ricerca)
    */
   private Map<String, String> getMapFromListModelData(
-      List<BaseModelData> fieldList) {
+      final List<BaseModelData> fieldList) {
 
     Map<String, String> map = new HashMap<String, String>();
 
@@ -448,12 +452,13 @@ public class DbUtils {
     return map;
   }
 
-  public int countObjects(SearchParams searchParams) throws HiddenException {
+  public int countObjects(final SearchParams searchParams)
+      throws HiddenException {
     int recordSize = 0;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     try {
-      String query = createSearchQueryForCount(null, searchParams);
+      String query = this.createSearchQueryForCount(null, searchParams);
 
       ResultSet result = doQuery(connection, query);
       result.next();
@@ -462,7 +467,7 @@ public class DbUtils {
       Log.warn("Errore SQL", e);
       throw new HiddenException("Errore durante l'interrogazione del database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return recordSize;
@@ -478,10 +483,10 @@ public class DbUtils {
    * @throws HiddenException
    * @throws SQLException
    */
-  public List<BaseModelData> getReGroupings(int resultSetId)
+  public List<BaseModelData> getReGroupings(final int resultSetId)
       throws HiddenException, SQLException {
     // TODO modificare la funzione: creare un oggetto per i raggruppamenti
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     String groupingQuery =
         "SELECT DISTINCT " + T_GROUPING + ".id as id, " + T_GROUPING
             + ".name as name, " + T_GROUPING + ".alias as alias " + "FROM ("
@@ -501,7 +506,7 @@ public class DbUtils {
     } catch (SQLException e) {
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return groups;
   }
@@ -514,10 +519,10 @@ public class DbUtils {
    * @throws SQLException
    * @throws HiddenException
    */
-  private List<BaseModelData> getValuesOfAField(String resultset,
-      String fieldName) throws SQLException, HiddenException {
+  private List<BaseModelData> getValuesOfAField(final String resultset,
+      final String fieldName) throws SQLException, HiddenException {
     List<BaseModelData> autoCompleteList = new ArrayList<BaseModelData>();
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     try {
       String query =
           "SELECT DISTINCT `" + fieldName + "` FROM " + resultset
@@ -532,7 +537,7 @@ public class DbUtils {
     } catch (SQLException e) {
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return autoCompleteList;
   }
@@ -544,11 +549,11 @@ public class DbUtils {
    *         resultset. Serve a riempire i combobox per l'autocompletamento
    * @throws HiddenException
    */
-  public List<BaseModelData> getValuesOfAField(int resultsetId, String fieldName)
-      throws HiddenException {
+  public List<BaseModelData> getValuesOfAField(final int resultsetId,
+      final String fieldName) throws HiddenException {
     try {
-      return getValuesOfAField(dbProperties.getResultSetName(resultsetId),
-          fieldName);
+      return this.getValuesOfAField(
+          this.dbProperties.getResultSetName(resultsetId), fieldName);
       // return getValuesOfAField(dbProperties.getStatement(resultsetId),
       // fieldName);
     } catch (SQLException e) {
@@ -566,10 +571,10 @@ public class DbUtils {
    * @throws HiddenException
    * @throws SQLException
    */
-  public List<BaseModelData> getValuesOfAFieldFromTableName(String tableName,
-      String fieldName) throws HiddenException {
+  public List<BaseModelData> getValuesOfAFieldFromTableName(
+      final String tableName, final String fieldName) throws HiddenException {
     try {
-      return getValuesOfAField("`" + tableName + "`", fieldName);
+      return this.getValuesOfAField("`" + tableName + "`", fieldName);
     } catch (SQLException e) {
       e.printStackTrace();
       throw new HiddenException("Errore con i valori della chiave primaria "
@@ -577,7 +582,7 @@ public class DbUtils {
     }
   }
 
-  private MessageType getMessageType(String type) {
+  private MessageType getMessageType(final String type) {
 
     for (MessageType m : MessageType.values()) {
       if (type.compareToIgnoreCase(m.toString()) == 0) {
@@ -588,9 +593,9 @@ public class DbUtils {
     return null;
   }
 
-  public List<Message> getUserMessages(int uid) throws HiddenException {
+  public List<Message> getUserMessages(final int uid) throws HiddenException {
     List<Message> messages = new ArrayList<Message>();
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     String query =
         "(SELECT m.* FROM " + T_MESSAGES + " m JOIN " + T_USER + " u "
@@ -605,7 +610,7 @@ public class DbUtils {
         String title = result.getString("title");
         String body = result.getString("body");
         Date date = result.getDate("date");
-        MessageType type = getMessageType(result.getString("type"));
+        MessageType type = this.getMessageType(result.getString("type"));
         int sender = result.getInt("sender");
         int recipient = result.getInt("recipient");
         Message w = new Message(id, title, body, date, type, sender, recipient);
@@ -616,25 +621,25 @@ public class DbUtils {
       throw new HiddenException(
           "Errore durante il recupero dei messaggi di utente");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return messages;
   }
 
-  public int setObjects(Integer resultsetId, List<BaseModelData> records)
-      throws HiddenException {
+  public int setObjects(final Integer resultsetId,
+      final List<BaseModelData> records) throws HiddenException {
 
-    log("<START> Setting records");
+    this.log("<START> Setting records");
 
     int result = 0;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     final String sep = ",";
 
     String tableName = null;
     // String set = "";
     try {
       ResultSetMetaData metadata =
-          dbProperties.getResultsetMetadata(connection, resultsetId);
+          this.dbProperties.getResultsetMetadata(connection, resultsetId);
       tableName = metadata.getTableName(1);
       connection.setAutoCommit(false);
       for (BaseModelData record : records) {
@@ -655,7 +660,7 @@ public class DbUtils {
         int i = 1;
         for (String property : record.getPropertyNames()) {
           Object value = record.get(property);
-          if (value != null && String.valueOf(value).length() > 0) {
+          if ((value != null) && (String.valueOf(value).length() > 0)) {
             ps.setObject(i, record.get(property));
             // ps.setObject(i + columns, record.get(property));
           } else {
@@ -669,7 +674,7 @@ public class DbUtils {
         if (num > 0) {
           String toLog = "INSERT (" + ps.toString() + ")";
           Log.debug(toLog);
-          log(toLog);
+          this.log(toLog);
         }
         result += num;
       }
@@ -718,8 +723,8 @@ public class DbUtils {
           "Errore durante il salvataggio delle modifiche:\n"
               + e.getLocalizedMessage());
     } finally {
-      log("<END> Setting records");
-      dbConnectionHandler.closeConn(connection);
+      this.log("<END> Setting records");
+      this.dbConnectionHandler.closeConn(connection);
     }
     return result;
   }
@@ -756,23 +761,23 @@ public class DbUtils {
    */
 
   // Cancella una riga dalla tabella
-  public Integer removeObjects(Integer resultsetId, List<BaseModelData> records)
-      throws HiddenException {
+  public Integer removeObjects(final Integer resultsetId,
+      final List<BaseModelData> records) throws HiddenException {
 
     int resCode = 0;
 
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     String query = new String(""), appChiavePrimaria = "";
     PreparedStatement ps = null;
     try {
 
       ResultSetMetaData metadata =
-          dbProperties.getResultsetMetadata(connection, resultsetId);
+          this.dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
       // Ciclo per gestire più cancellazioni nella stessa invocazione
       List<BaseModelData> primaryKeyList =
-          dbProperties.getPrimaryKeys(tableName);
+          this.dbProperties.getPrimaryKeys(tableName);
       if (primaryKeyList.size() <= 0) {
         throw new HiddenException(
             "La tabella non contiene chiavi primarie: impossibile operare!");
@@ -808,7 +813,7 @@ public class DbUtils {
         Log.debug("Query DELETE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
-          log("DELETE (" + ps.toString() + ")");
+          this.log("DELETE (" + ps.toString() + ")");
         }
         resCode += num;
       }
@@ -816,8 +821,8 @@ public class DbUtils {
       Log.warn("Errore SQL", e);
       throw new HiddenException("Errore durante l'eliminazione dei record");
     } finally {
-      log("<END> Removing objects");
-      dbConnectionHandler.closeConn(connection);
+      this.log("<END> Removing objects");
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return (new Integer(resCode));
@@ -830,8 +835,8 @@ public class DbUtils {
    *         parametro, se esiste. Se non esiste, ritorna una stringa vuota.
    * @throws SQLException
    */
-  private String getForeignKeyForAField(String fieldName, ResultSet result)
-      throws SQLException {
+  private String getForeignKeyForAField(final String fieldName,
+      final ResultSet result) throws SQLException {
 
     String foreignKey = null;
     String tableName = null;
@@ -843,11 +848,11 @@ public class DbUtils {
       }
     }
 
-    if (tableName == null || tableName.length() <= 0) {
+    if ((tableName == null) || (tableName.length() <= 0)) {
       return null;
     }
 
-    for (BaseModelData fk : dbProperties.getForeignKeys(tableName)) {
+    for (BaseModelData fk : this.dbProperties.getForeignKeys(tableName)) {
       if (fk.get("FIELD").toString().compareTo(fieldName) == 0) {
         foreignKey = fk.get("FOREIGN_KEY");
         break;
@@ -870,7 +875,7 @@ public class DbUtils {
   // return dbProperties.getForeignKeys(resultsetName);
   // }
 
-  public User getUser(Credentials credentials) throws VisibleException {
+  public User getUser(final Credentials credentials) throws VisibleException {
 
     String username = credentials.getUsername();
     String password = credentials.getPassword();
@@ -879,7 +884,7 @@ public class DbUtils {
 
     Connection connection;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       throw new VisibleException(e.getLocalizedMessage());
     }
@@ -935,11 +940,12 @@ public class DbUtils {
         String last = df.format(new Date());
 
         /* Carica le preferenze dell'utente */
-        List<ResultsetImproved> resultsets = getUserResultsetImproved(uid, gid);
+        List<ResultsetImproved> resultsets =
+            this.getUserResultsetImproved(uid, gid);
 
         List<Message> messages = new ArrayList<Message>();
 
-        updateLoginCount(uid, ++login);
+        this.updateLoginCount(uid, ++login);
 
         User user =
             new User(uid, gid, new Credentials(username, password), name,
@@ -953,7 +959,7 @@ public class DbUtils {
       throw new VisibleException("Errore di accesso "
           + "al risultato dell'interrogazione su database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     throw new VisibleException("Errore di accesso: username o password errati");
   }
@@ -966,15 +972,15 @@ public class DbUtils {
    *         dei campi
    * @throws HiddenException
    */
-  public FieldsMatrix getValuesOfFields(Integer resultsetId)
+  public FieldsMatrix getValuesOfFields(final Integer resultsetId)
       throws HiddenException {
     FieldsMatrix matrix = new FieldsMatrix();
 
     try {
-      HashMap<Integer, String> rsf = getResultsetFields(resultsetId);
+      HashMap<Integer, String> rsf = this.getResultsetFields(resultsetId);
       for (Integer fieldId : rsf.keySet()) {
         List<BaseModelData> autoCompleteList =
-            getValuesOfAField(resultsetId, rsf.get(fieldId));
+            this.getValuesOfAField(resultsetId, rsf.get(fieldId));
         List<String> values = new ArrayList<String>();
         for (BaseModelData fieldValue : autoCompleteList) {
           values.add((String) fieldValue.get(rsf.get(fieldId)));
@@ -990,11 +996,11 @@ public class DbUtils {
     return matrix;
   }
 
-  private HashMap<Integer, String> getResultsetFields(int resultsetId)
+  private HashMap<Integer, String> getResultsetFields(final int resultsetId)
       throws SQLException, HiddenException {
     HashMap<Integer, String> fieldList = new HashMap<Integer, String>();
 
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     String query =
         "SELECT res.id as id, res.name as name FROM " + T_RESOURCE
             + " res JOIN " + T_FIELD
@@ -1008,7 +1014,7 @@ public class DbUtils {
     } catch (SQLException e) {
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return fieldList;
   }
@@ -1021,30 +1027,32 @@ public class DbUtils {
    *         dei campi
    * @throws HiddenException
    */
-  public FieldsMatrix getValuesOfForeignKeys(Integer resultsetId)
+  public FieldsMatrix getValuesOfForeignKeys(final Integer resultsetId)
       throws HiddenException {
 
     FieldsMatrix matrix = new FieldsMatrix();
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     try {
-      HashMap<Integer, String> rsf = getResultsetFields(resultsetId);
+      HashMap<Integer, String> rsf = this.getResultsetFields(resultsetId);
       // String query =
       // "SELECT * FROM " + dbProperties.getStatement(resultsetId)
       // + " WHERE 0";
-      String query = dbProperties.getStatement(resultsetId);
+      String query = this.dbProperties.getStatement(resultsetId);
       ResultSet resultset = doQuery(connection, query);
 
       for (Integer fieldId : rsf.keySet()) {
-        String foreignKey = getForeignKeyForAField(rsf.get(fieldId), resultset);
+        String foreignKey =
+            this.getForeignKeyForAField(rsf.get(fieldId), resultset);
         String fkTName;
         String fkFName;
         List<BaseModelData> autoCompleteList = new ArrayList<BaseModelData>();
-        if (foreignKey != null && foreignKey.length() > 0) {
+        if ((foreignKey != null) && (foreignKey.length() > 0)) {
           fkTName = foreignKey.split("\\.")[0];
           fkFName = foreignKey.split("\\.")[1];
 
-          autoCompleteList = getValuesOfAFieldFromTableName(fkTName, fkFName);
+          autoCompleteList =
+              this.getValuesOfAFieldFromTableName(fkTName, fkFName);
 
           List<String> values = new ArrayList<String>();
           for (BaseModelData fieldValue : autoCompleteList) {
@@ -1059,7 +1067,7 @@ public class DbUtils {
       throw new HiddenException(
           "Errore durante il recupero dei valori dei vincoli");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return matrix;
@@ -1075,11 +1083,11 @@ public class DbUtils {
    */
 
   public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(
-      Integer resultsetId, List<ResultsetImproved> resultSetList)
+      final Integer resultsetId, final List<ResultsetImproved> resultSetList)
       throws HiddenException {
     ArrayList<IncomingForeignKeyInformation> listaIfki;
     String tableName = null;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     String queryStatement = null;
     String query =
         "SELECT statement FROM " + T_RESULTSET + " WHERE id = '" + resultsetId
@@ -1105,9 +1113,9 @@ public class DbUtils {
         return null;
       }
 
-      String db = dbConnectionHandler.getDB();
+      String db = this.dbConnectionHandler.getDB();
       Connection connectionInformationSchema =
-          dbConnectionHandler.getConnDbInformationSchema();
+          this.dbConnectionHandler.getConnDbInformationSchema();
       String queryFKIn =
           "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_COLUMN_NAME FROM KEY_COLUMN_USAGE where TABLE_SCHEMA = '"
               + db + "' AND REFERENCED_TABLE_NAME = '" + tableName + "'";
@@ -1138,7 +1146,7 @@ public class DbUtils {
       throw new HiddenException(
           "Errore durante il recupero delle foreign keys entranti");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return listaIfki;
@@ -1152,11 +1160,11 @@ public class DbUtils {
    *         l'utente passato come parametro ha permesso 'read' uguale a 1
    * @throws HiddenException
    */
-  public List<ResultsetImproved> getUserResultsetImproved(Integer uid,
-      Integer gid) throws HiddenException {
+  public List<ResultsetImproved> getUserResultsetImproved(final Integer uid,
+      final Integer gid) throws HiddenException {
 
     List<ResultsetImproved> resultSetList = new ArrayList<ResultsetImproved>();
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     // recupero i nomi delle view
     ArrayList<String> views = new ArrayList<String>();
@@ -1228,7 +1236,7 @@ public class DbUtils {
         if (statement != null) {
           /* Gestione di un RESULTSET */
 
-          ArrayList<Tool> tools = getToolbar(rsid, groupid);
+          ArrayList<Tool> tools = this.getToolbar(rsid, groupid);
 
           ResultsetImproved res = null;
           if (views.contains(name)) {
@@ -1243,7 +1251,7 @@ public class DbUtils {
           }
           resultSetList.add(res);
 
-          List<BaseModelData> groupings = getReGroupings(id);
+          List<BaseModelData> groupings = this.getReGroupings(id);
           for (BaseModelData grouping : groupings) {
             ResultsetFieldGroupings rfg =
                 new ResultsetFieldGroupings((Integer) grouping.get("id"),
@@ -1252,8 +1260,8 @@ public class DbUtils {
             res.addFieldGroupings(rfg);
           }
 
-          PKs = dbProperties.getPrimaryKeys(name);
-          UKs = dbProperties.getUniqueKeys(name);
+          PKs = this.dbProperties.getPrimaryKeys(name);
+          UKs = this.dbProperties.getUniqueKeys(name);
 
         } else {
           /* Gestione di un CAMPO di un resultset */
@@ -1297,7 +1305,7 @@ public class DbUtils {
 
             // aggiunta dell'eventuale foreignKEY
             resultFieldList.get(j).setForeignKey(
-                dbProperties.getForeignKey(resultSetList.get(i).getName(),
+                this.dbProperties.getForeignKey(resultSetList.get(i).getName(),
                     resultFieldList.get(j).getName()));
             resultSetList.get(i).addField(resultFieldList.get(j));
           }
@@ -1313,7 +1321,7 @@ public class DbUtils {
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return resultSetList;
@@ -1328,13 +1336,13 @@ public class DbUtils {
    * @throws HiddenException
    * @throws SQLException
    */
-  private ArrayList<Tool> getToolbar(Integer rsid, Integer groupid)
+  private ArrayList<Tool> getToolbar(final Integer rsid, final Integer groupid)
       throws HiddenException, SQLException {
 
     ArrayList<Tool> tools = new ArrayList<Tool>();
     String toolbar = null;
 
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     String querytoolbar =
         "SELECT tools FROM " + T_TOOLBAR + " WHERE " + " id_resultset = "
             + rsid + " AND id_group = " + groupid + " LIMIT 0,1";
@@ -1348,7 +1356,7 @@ public class DbUtils {
       StringTokenizer st = new StringTokenizer(toolbar);
       while (st.hasMoreTokens()) {
         String t = st.nextToken();
-        tools.add(getTool(t));
+        tools.add(this.getTool(t));
       }
     }
 
@@ -1356,7 +1364,7 @@ public class DbUtils {
 
   }
 
-  private Tool getTool(String t) {
+  private Tool getTool(final String t) {
     if (t.compareTo(Tool.MODIFY.toString()) == 0) {
       return Tool.MODIFY;
     } else if (t.compareTo(Tool.ANALISYS.toString()) == 0) {
@@ -1373,11 +1381,12 @@ public class DbUtils {
     return null;
   }
 
-  public boolean setUserResultsetHeaderPreferencesNoDefault(Integer userid,
-      Integer resultsetId, ArrayList<Integer> listfields, String value)
+  public boolean setUserResultsetHeaderPreferencesNoDefault(
+      final Integer userid, final Integer resultsetId,
+      final ArrayList<Integer> listfields, final String value)
       throws HiddenException {
     boolean esito = true;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
     String creationDate = formatter.format(new Date());
@@ -1387,7 +1396,7 @@ public class DbUtils {
             + creationDate + "')";
 
     try {
-      ResultSet newRes = doUpdate(connection, createHeaderPreference);
+      ResultSet newRes = this.doUpdate(connection, createHeaderPreference);
       newRes.next();
       Integer headerPrefId = newRes.getInt(1);
 
@@ -1396,7 +1405,7 @@ public class DbUtils {
         String newPreferences =
             "INSERT INTO " + T_FIELDINPREFERENCE + " VALUES ('" + headerPrefId
                 + "', '" + listfields.get(i) + "')";
-        doUpdate(connection, newPreferences);
+        this.doUpdate(connection, newPreferences);
       }
     } catch (SQLException e) {
       esito = false;
@@ -1404,17 +1413,17 @@ public class DbUtils {
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return esito;
   }
 
-  public HeaderPreferenceList getHeaderUserPreferenceList(Integer idUser,
-      Integer idResultset) throws HiddenException {
+  public HeaderPreferenceList getHeaderUserPreferenceList(final Integer idUser,
+      final Integer idResultset) throws HiddenException {
 
     HeaderPreferenceList hp = new HeaderPreferenceList();
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     String query =
         "SELECT hp.id as idpref, hp.name as namepref FROM " + "("
             + T_HEADERPREFERENCE + " hp JOIN " + T_FIELDINPREFERENCE + " fip "
@@ -1440,15 +1449,15 @@ public class DbUtils {
       throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return hp;
   }
 
-  public List<Integer> getHeaderUserPreference(Integer idUser,
-      Integer userPreferenceHeaderId) throws HiddenException {
+  public List<Integer> getHeaderUserPreference(final Integer idUser,
+      final Integer userPreferenceHeaderId) throws HiddenException {
     List<Integer> fieldInPref = new ArrayList<Integer>();
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     String query =
         "SELECT fip.id_field as fieldid  " + "FROM " + T_HEADERPREFERENCE
             + " hp JOIN " + T_FIELDINPREFERENCE + " fip "
@@ -1465,17 +1474,18 @@ public class DbUtils {
       throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return fieldInPref;
   }
 
-  public int importFile(Credentials credentials, int resultsetId,
-      File importFile, String ts, String fs, String tipologia, String type,
-      String condition) throws HiddenException, VisibleException, SQLException {
+  public int importFile(final Credentials credentials, final int resultsetId,
+      final File importFile, final String ts, final String fs,
+      final String tipologia, final String type, final String condition)
+      throws HiddenException, VisibleException, SQLException {
 
-    getUser(credentials);
+    this.getUser(credentials);
 
     int opCode = 0;
     BufferedReader in = null;
@@ -1487,11 +1497,11 @@ public class DbUtils {
       throw new HiddenException("file " + importFile.getName() + " non trovato");
     }
 
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     ResultSetMetaData rsmd = null;
 
     try {
-      rsmd = dbProperties.getResultsetMetadata(connection, resultsetId);
+      rsmd = this.dbProperties.getResultsetMetadata(connection, resultsetId);
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -1603,9 +1613,9 @@ public class DbUtils {
           + importFile.getName());
     }
     if (type.compareToIgnoreCase(UploadDialog.TYPE_INSERT) == 0) {
-      opCode = setObjects(resultsetId, recordList);
+      opCode = this.setObjects(resultsetId, recordList);
     } else {
-      opCode = updateObjects(resultsetId, recordList, condition);
+      opCode = this.updateObjects(resultsetId, recordList, condition);
     }
     return opCode;
   }
@@ -1624,11 +1634,11 @@ public class DbUtils {
    *         you can use this value to increment index pointer.
    * @throws SQLException
    */
-  private Integer putJavaObjectInPs(PreparedStatement ps, Integer i,
-      Object value) throws SQLException {
+  private Integer putJavaObjectInPs(final PreparedStatement ps,
+      final Integer i, final Object value) throws SQLException {
 
     // TODO Warning!
-    if (value != null && value.toString().length() > 0) {
+    if ((value != null) && (value.toString().length() > 0)) {
       ps.setObject(i, value);
     } else {
       ps.setNull(i, Types.NULL);
@@ -1641,24 +1651,25 @@ public class DbUtils {
    * invocata solo in caso di duplicate key entry per la setObject: si suppone
    * quindi che la chiave primaria non sia stata alterata
    */
-  public Integer updateObjects(Integer resultsetId,
-      List<BaseModelData> newItemList, String condition) throws HiddenException {
+  public Integer updateObjects(final Integer resultsetId,
+      final List<BaseModelData> newItemList, final String condition)
+      throws HiddenException {
 
-    log("<START> Setting records");
+    this.log("<START> Setting records");
 
     int result = 0;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     final String sep = ",";
     boolean defaultPrimaryKeys = condition.equalsIgnoreCase("$-notspec-$");
 
     try {
       ResultSetMetaData metadata =
-          dbProperties.getResultsetMetadata(connection, resultsetId);
+          this.dbProperties.getResultsetMetadata(connection, resultsetId);
       String tableName = metadata.getTableName(1);
 
       // TODO Creare un oggetto per la memorizzazione colonna->valore
       List<BaseModelData> PKs =
-          dbProperties.getResultsetPrimaryKeys(resultsetId);
+          this.dbProperties.getResultsetPrimaryKeys(resultsetId);
 
       String PKset = "";
       connection.setAutoCommit(false);
@@ -1706,7 +1717,7 @@ public class DbUtils {
         /* Set prepared statement values for changing fields */
         for (String property : properties) {
           if (!property.equalsIgnoreCase(condition)) {
-            i += putJavaObjectInPs(ps, i, record.get(property));
+            i += this.putJavaObjectInPs(ps, i, record.get(property));
           }
         }
 
@@ -1714,17 +1725,17 @@ public class DbUtils {
         if (defaultPrimaryKeys) {
           for (BaseModelData pk : PKs) {
             Object value = record.get((String) pk.get("PK_NAME"));
-            i += putJavaObjectInPs(ps, i, value);
+            i += this.putJavaObjectInPs(ps, i, value);
           }
         } else {
           Object value = record.get(condition);
-          i += putJavaObjectInPs(ps, i, value);
+          i += this.putJavaObjectInPs(ps, i, value);
         }
 
         Log.debug("Query UPDATE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
-          log("UPDATE (" + ps.toString() + ")");
+          this.log("UPDATE (" + ps.toString() + ")");
         }
         result += num;
       }
@@ -1741,18 +1752,19 @@ public class DbUtils {
       throw new HiddenException("Errore durante l'aggiornamento del record:\n"
           + e.getLocalizedMessage());
     } finally {
-      log("<END> Setting records");
-      dbConnectionHandler.closeConn(connection);
+      this.log("<END> Setting records");
+      this.dbConnectionHandler.closeConn(connection);
     }
     return result;
   }
 
-  public void notifyChanges(Integer resultsetId, List<BaseModelData> newItemList)
-      throws SQLException, HiddenException {
+  public void notifyChanges(final Integer resultsetId,
+      final List<BaseModelData> newItemList) throws SQLException,
+      HiddenException {
     Integer id_table = 0;
     String mitt = "notReplyJardin@fub.it";
     String oggetto = "Situazione pratica";
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     String query =
         "SELECT address_statement, data_statement, link_id FROM " + T_NOTIFY
@@ -1814,7 +1826,7 @@ public class DbUtils {
     }
   }
 
-  public void sendMessage(Message message) throws HiddenException,
+  public void sendMessage(final Message message) throws HiddenException,
       VisibleException {
 
     String query =
@@ -1822,7 +1834,7 @@ public class DbUtils {
             + T_MESSAGES
             + " (title, body, date, type, sender, recipient) VALUES (?, ?, ?, ?, ?, ?)";
 
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     PreparedStatement ps;
     try {
@@ -1845,20 +1857,20 @@ public class DbUtils {
       Log.error("Error during new message insertion", e);
       throw new VisibleException("Impossibile salvare il messaggio");
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
   }
 
-  public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data)
+  public ArrayList<BaseModelData> getPopUpDetailEntry(final BaseModelData data)
       throws HiddenException {
     ResultsetImproved rs = data.get("RSLINKED");
     String linkingField = data.get("FK");
     String linkingValue = "" + data.get("VALUE");
-    String queryStatement = getStatementByResultsetId(rs.getId());
+    String queryStatement = this.getStatementByResultsetId(rs.getId());
     String query =
         "SELECT * FROM (" + queryStatement + ") AS entry WHERE " + linkingField
             + " = '" + linkingValue + "' LIMIT 1";
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     ResultSet result;
     BaseModelData row = new BaseModelData();
     try {
@@ -1875,17 +1887,18 @@ public class DbUtils {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     ArrayList<BaseModelData> infoToView = new ArrayList<BaseModelData>();
     infoToView.add(data);
     infoToView.add(row);
     return infoToView;
   }
 
-  public String getStatementByResultsetId(Integer rsid) throws HiddenException {
+  public String getStatementByResultsetId(final Integer rsid)
+      throws HiddenException {
     String query =
         "SELECT statement FROM " + T_RESULTSET + " WHERE id = " + rsid;
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     ResultSet result;
     String queryStatement = null;
     try {
@@ -1895,18 +1908,19 @@ public class DbUtils {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     return queryStatement;
   }
 
-  public ArrayList<Plugin> getPlugin(int gid, int rsid) throws HiddenException {
+  public ArrayList<Plugin> getPlugin(final int gid, final int rsid)
+      throws HiddenException {
     ArrayList<Plugin> plugins = new ArrayList<Plugin>();
     String query =
         "SELECT id_group, id_resultset, name, configurationfile, type, note, id FROM "
             + T_PLUGIN + " INNER JOIN " + T_PLUGINASSOCIATION
             + " ON (id_plugin = id) WHERE id_resultset = '" + rsid
             + "' AND id_group = '" + gid + "'";
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
     try {
       ResultSet result;
       result = doQuery(connection, query);
@@ -1923,7 +1937,7 @@ public class DbUtils {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     return plugins;
   }
 }

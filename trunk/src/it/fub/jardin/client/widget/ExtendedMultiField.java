@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import java.util.ArrayList;
@@ -22,9 +36,6 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
-/**
- * @author gpantanetti
- */
 public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSequence>
     extends Field<D> {
 
@@ -51,9 +62,9 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * Creates a new checkbox group.
    */
   public ExtendedMultiField() {
-    fields = new ArrayList<F>();
-    baseStyle = "x-form-group";
-    invalidStyle = "none";
+    this.fields = new ArrayList<F>();
+    this.baseStyle = "x-form-group";
+    this.invalidStyle = "none";
   }
 
   /**
@@ -64,14 +75,15 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * @param fields
    *          the field(s) to add
    */
-  public ExtendedMultiField(String fieldLabel, F... fields) {
+  public ExtendedMultiField(final String fieldLabel, final F... fields) {
     this();
-    setFieldLabel(fieldLabel);
+    this.setFieldLabel(fieldLabel);
     for (F f : fields) {
-      add(f);
+      this.add(f);
     }
   }
 
+  @Override
   public abstract void setValue(D value);
 
   /**
@@ -80,15 +92,15 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * @param field
    *          the field to add
    */
-  public void add(F field) {
-    assertPreRender();
-    fields.add(field);
+  public void add(final F field) {
+    this.assertPreRender();
+    this.fields.add(field);
   }
 
   @Override
   public void disable() {
     super.disable();
-    for (Field<?> field : fields) {
+    for (Field<?> field : this.fields) {
       field.disable();
     }
   }
@@ -96,7 +108,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
   @Override
   public void enable() {
     super.enable();
-    for (Field<?> field : fields) {
+    for (Field<?> field : this.fields) {
       field.enable();
     }
   }
@@ -108,8 +120,8 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    *          the index
    * @return the field
    */
-  public F get(int index) {
-    return fields.get(index);
+  public F get(final int index) {
+    return this.fields.get(index);
   }
 
   /**
@@ -118,7 +130,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * @return the fields
    */
   public List<F> getAll() {
-    return new ArrayList<F>(fields);
+    return new ArrayList<F>(this.fields);
   }
 
   /**
@@ -128,7 +140,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * @uml.property name="orientation"
    */
   public Orientation getOrientation() {
-    return (orientation);
+    return (this.orientation);
   }
 
   /**
@@ -138,7 +150,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * @uml.property name="spacing"
    */
   public int getSpacing() {
-    return spacing;
+    return this.spacing;
   }
 
   /**
@@ -148,7 +160,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * @uml.property name="validator"
    */
   public Validator getValidator() {
-    return validator;
+    return this.validator;
   }
 
   /**
@@ -158,13 +170,13 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    * @uml.property name="resizeFields"
    */
   public boolean isResizeFields() {
-    return resizeFields;
+    return this.resizeFields;
   }
 
   @Override
   public boolean isValid() {
     boolean ret = super.isValid();
-    for (Field<?> f : fields) {
+    for (Field<?> f : this.fields) {
       if (!f.isValid()) {
         return false;
       }
@@ -173,18 +185,18 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
   }
 
   @Override
-  public void onBrowserEvent(Event event) {
+  public void onBrowserEvent(final Event event) {
 
   }
 
   @Override
-  public void onComponentEvent(ComponentEvent ce) {
+  public void onComponentEvent(final ComponentEvent ce) {
 
   }
 
   @Override
   public void reset() {
-    for (Field<?> f : fields) {
+    for (Field<?> f : this.fields) {
       f.reset();
     }
   }
@@ -196,13 +208,13 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    *          the orientation
    * @uml.property name="orientation"
    */
-  public void setOrientation(Orientation orientation) {
+  public void setOrientation(final Orientation orientation) {
     this.orientation = orientation;
   }
 
   @Override
-  public void setReadOnly(boolean readOnly) {
-    for (Field<?> field : fields) {
+  public void setReadOnly(final boolean readOnly) {
+    for (Field<?> field : this.fields) {
       field.setReadOnly(readOnly);
     }
   }
@@ -214,7 +226,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    *          true to resize children
    * @uml.property name="resizeFields"
    */
-  public void setResizeFields(boolean resizeFields) {
+  public void setResizeFields(final boolean resizeFields) {
     this.resizeFields = resizeFields;
   }
 
@@ -227,7 +239,7 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    *          the spacing in pixels
    * @uml.property name="spacing"
    */
-  public void setSpacing(int spacing) {
+  public void setSpacing(final int spacing) {
     this.spacing = spacing;
   }
 
@@ -238,52 +250,53 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
    *          the validator
    * @uml.property name="validator"
    */
-  public void setValidator(Validator validator) {
+  public void setValidator(final Validator validator) {
     this.validator = validator;
   }
 
   @Override
   protected void doAttachChildren() {
-    ComponentHelper.doAttach(lc);
+    ComponentHelper.doAttach(this.lc);
   }
 
   @Override
   protected void doDetachChildren() {
-    ComponentHelper.doDetach(lc);
+    ComponentHelper.doDetach(this.lc);
   }
 
   @Override
   protected El getInputEl() {
-    if (fields.size() > 0) {
-      return fields.get(0).el();
+    if (this.fields.size() > 0) {
+      return this.fields.get(0).el();
     }
     return super.getInputEl();
   }
 
   @Override
-  protected void onRender(Element target, int index) {
-    boolean vertical = orientation == Orientation.VERTICAL;
+  protected void onRender(final Element target, final int index) {
+    boolean vertical = this.orientation == Orientation.VERTICAL;
     if (vertical) {
-      lc = new VerticalPanel();
+      this.lc = new VerticalPanel();
     } else {
-      lc = new HorizontalPanel();
+      this.lc = new HorizontalPanel();
     }
-    if (GXT.isIE)
-      lc.setStyleAttribute("position", "relative");
+    if (GXT.isIE) {
+      this.lc.setStyleAttribute("position", "relative");
+    }
 
-    for (int i = 0, len = fields.size(); i < len; i++) {
-      Field<?> f = fields.get(i);
-      boolean last = i == (fields.size() - 1);
+    for (int i = 0, len = this.fields.size(); i < len; i++) {
+      Field<?> f = this.fields.get(i);
+      boolean last = i == (this.fields.size() - 1);
       TableData data = (TableData) ComponentHelper.getLayoutData(f);
       if (data == null) {
         data = new TableData();
       }
       String style = "position: static;";
 
-      if (vertical && !last && spacing > 0) {
-        style += "paddingBottom:" + spacing + ";";
-      } else if (!vertical && spacing > 0) {
-        style += "paddingRight:" + spacing + ";";
+      if (vertical && !last && (this.spacing > 0)) {
+        style += "paddingBottom:" + this.spacing + ";";
+      } else if (!vertical && (this.spacing > 0)) {
+        style += "paddingRight:" + this.spacing + ";";
       }
       data.setStyle(style);
 
@@ -297,25 +310,25 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
       c.setLayout(layout);
       c.add(f);
 
-      lc.add(c, data);
+      this.lc.add(c, data);
     }
 
-    lc.render(target, index);
-    setElement(lc.getElement());
+    this.lc.render(target, index);
+    this.setElement(this.lc.getElement());
   }
 
   @Override
-  protected void onResize(int width, int height) {
+  protected void onResize(final int width, final int height) {
     super.onResize(width, height);
-    if (resizeFields) {
-      if (orientation == Orientation.HORIZONTAL) {
-        int w = width / fields.size();
-        w -= (fields.size() * spacing);
-        for (Field<?> f : fields) {
+    if (this.resizeFields) {
+      if (this.orientation == Orientation.HORIZONTAL) {
+        int w = width / this.fields.size();
+        w -= (this.fields.size() * this.spacing);
+        for (Field<?> f : this.fields) {
           f.setWidth(w);
         }
       } else {
-        for (Field<?> f : fields) {
+        for (Field<?> f : this.fields) {
           f.setWidth(width);
         }
       }
@@ -323,17 +336,17 @@ public abstract class ExtendedMultiField<F extends Field<?>, D extends CharSeque
   }
 
   @Override
-  protected boolean validateValue(String value) {
+  protected boolean validateValue(final String value) {
     // validate multi field
-    if (validator != null) {
-      String msg = validator.validate(this, value);
+    if (this.validator != null) {
+      String msg = this.validator.validate(this, value);
       if (msg != null) {
-        markInvalid(msg);
+        this.markInvalid(msg);
         return false;
       }
     }
 
-    clearInvalid();
+    this.clearInvalid();
     return true;
   }
 }

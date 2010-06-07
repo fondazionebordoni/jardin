@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -14,7 +28,6 @@ import it.fub.jardin.client.mvc.JardinController;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -34,25 +47,18 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuBar;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
-/**
- * @author gpantanetti
- * 
- */
 public class JardinGrid extends Grid<BaseModelData> {
 
   private ResultsetImproved resultset;
   // private JardinRowEditor<BaseModelData> editor;
-  private RowEditor<BaseModelData> editor;
+  private final RowEditor<BaseModelData> editor;
   private SearchParams searchparams;
   private Integer userPreferenceHeaderId;
-
-   private ListStore<BaseModelData> store;
 
   public JardinGrid(final ListStore<BaseModelData> store,
       final JardinColumnModel cm, final ResultsetImproved resultset) {
     super(store, cm);
 
-     this.store = store;
     this.resultset = resultset;
 
     this.setBorders(false);
@@ -72,7 +78,7 @@ public class JardinGrid extends Grid<BaseModelData> {
     this.setContextMenu(m);
 
     this.addListener(Events.ContextMenu, new Listener<GridEvent>() {
-      public void handleEvent(GridEvent be) {
+      public void handleEvent(final GridEvent be) {
         m.removeAll();
         m.setWidth(300);
 
@@ -105,7 +111,7 @@ public class JardinGrid extends Grid<BaseModelData> {
                 m.add(item);
 
                 item.addListener(Events.Select, new Listener<BaseEvent>() {
-                  public void handleEvent(BaseEvent be) {
+                  public void handleEvent(final BaseEvent be) {
                     Dispatcher.forwardEvent(EventList.ViewPopUpDetail, fk);
                   }
                 });
@@ -132,7 +138,7 @@ public class JardinGrid extends Grid<BaseModelData> {
               new MenuItem("Visualizza corrispondenze in "
                   + fk.getInterestedResultset().getAlias());
           mitem.addListener(Events.Select, new Listener() {
-            public void handleEvent(BaseEvent be) {
+            public void handleEvent(final BaseEvent be) {
 
               // Log.debug(linkedTable + "." + linkedField + "->" + field + "="
               // + selectedRow.get(field));
@@ -147,23 +153,24 @@ public class JardinGrid extends Grid<BaseModelData> {
 
     this.addListener(Events.CellClick,
         new Listener<GridEvent<BaseModelData>>() {
-          public void handleEvent(GridEvent<BaseModelData> be) {
+          public void handleEvent(final GridEvent<BaseModelData> be) {
             if (be.isControlKey()) {
               List<BaseModelData> selected =
                   be.getGrid().getSelectionModel().getSelectedItems();
               selected.add(store.getAt(be.getRowIndex()));
               be.getGrid().getSelectionModel().select(selected, true);
-            } else
+            } else {
               be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
+            }
           }
         });
 
     this.addListener(Events.Render, new Listener<GridEvent<BaseModelData>>() {
 
-      public void handleEvent(GridEvent<BaseModelData> be) {
+      public void handleEvent(final GridEvent<BaseModelData> be) {
         // TODO Auto-generated method stub
-        ((JardinGridView) getView()).setGridHeader();
-        ((JardinGridView) getView()).getHeader().setToolTip(
+        ((JardinGridView) JardinGrid.this.getView()).setGridHeader();
+        ((JardinGridView) JardinGrid.this.getView()).getHeader().setToolTip(
             "La colonna in grassetto sottolineato è la chiave primaria della tabella");
       }
 
@@ -172,10 +179,9 @@ public class JardinGrid extends Grid<BaseModelData> {
     // Set del valore dei SimpleComboBox
     this.addListener(Events.CellDoubleClick,
         new Listener<GridEvent<BaseModelData>>() {
-          public void handleEvent(GridEvent<BaseModelData> be) {
+          public void handleEvent(final GridEvent<BaseModelData> be) {
             final ModelData selectedRow =
-                (ModelData) be.getGrid().getSelectionModel().getSelection().get(
-                    0);
+                be.getGrid().getSelectionModel().getSelection().get(0);
             for (final ResultsetField field : resultset.getFields()) {
               if (cm.getColumnById(field.getName()).getEditor().getField() instanceof SimpleComboBox) {
 
@@ -200,7 +206,7 @@ public class JardinGrid extends Grid<BaseModelData> {
 
     this.editor = new RowEditor<BaseModelData>();
     this.editor.setClicksToEdit(ClicksToEdit.TWO);
-    this.addPlugin(editor);
+    this.addPlugin(this.editor);
 
   }
 
@@ -208,7 +214,7 @@ public class JardinGrid extends Grid<BaseModelData> {
     return this.resultset;
   }
 
-  public void setResultsetImproved(ResultsetImproved rs) {
+  public void setResultsetImproved(final ResultsetImproved rs) {
     this.resultset = rs;
   }
 
@@ -242,7 +248,7 @@ public class JardinGrid extends Grid<BaseModelData> {
     new AddRowForm(this);
   }
 
-  public void viewDetailPopUp(ArrayList<BaseModelData> data) {
+  public void viewDetailPopUp(final ArrayList<BaseModelData> data) {
     new JardinDetailPopUp(data);
   }
 
@@ -257,7 +263,7 @@ public class JardinGrid extends Grid<BaseModelData> {
    * @param searchparams
    *          the searchparams to set
    */
-  public void setSearchparams(SearchParams searchparams) {
+  public void setSearchparams(final SearchParams searchparams) {
     this.searchparams = searchparams;
   }
 
@@ -265,11 +271,11 @@ public class JardinGrid extends Grid<BaseModelData> {
    * @return the searchparams
    */
   public SearchParams getSearchparams() {
-    return searchparams;
+    return this.searchparams;
   }
 
-  public void saveGridView(User user, String value) {
-    JardinColumnModel columnModel = (JardinColumnModel) getColumnModel();
+  public void saveGridView(final User user, final String value) {
+    JardinColumnModel columnModel = (JardinColumnModel) this.getColumnModel();
     ArrayList<Integer> headerFields = new ArrayList<Integer>();
     for (int i = 0; i < columnModel.getColumnCount(); i++) {
       if (!columnModel.getColumn(i).isHidden()) {
@@ -277,7 +283,7 @@ public class JardinGrid extends Grid<BaseModelData> {
       }
     }
 
-    user.setResultsetHeaderPreferencesNoDefault(resultset.getId(),
+    user.setResultsetHeaderPreferencesNoDefault(this.resultset.getId(),
         headerFields, value);
   }
 
@@ -285,7 +291,7 @@ public class JardinGrid extends Grid<BaseModelData> {
    * @param userPreferenceHeaderId
    *          the userPreferenceHeaderId to set
    */
-  public void setUserPreferenceHeaderId(Integer userPreferenceHeaderId) {
+  public void setUserPreferenceHeaderId(final Integer userPreferenceHeaderId) {
     this.userPreferenceHeaderId = userPreferenceHeaderId;
   }
 
@@ -293,14 +299,14 @@ public class JardinGrid extends Grid<BaseModelData> {
    * @return the userPreferenceHeaderId
    */
   public Integer getUserPreferenceHeaderId() {
-    return userPreferenceHeaderId;
+    return this.userPreferenceHeaderId;
   }
 
-  public void updateGridHeader(List<Integer> result) {
+  public void updateGridHeader(final List<Integer> result) {
     JardinColumnModel cm = (JardinColumnModel) this.getColumnModel();
 
     for (int i = 0; i < cm.getColumnCount(); i++) {
-      if (isInList(cm.getColumn(i).getFieldId(), result)) {
+      if (this.isInList(cm.getColumn(i).getFieldId(), result)) {
         cm.setHidden(i, false);
       } else {
         cm.setHidden(i, true);
@@ -312,7 +318,7 @@ public class JardinGrid extends Grid<BaseModelData> {
     Info.display("Informazione", "Impostata visualizzazione richiesta");
   }
 
-  private Boolean isInList(Integer searched, List<Integer> list) {
+  private Boolean isInList(final Integer searched, final List<Integer> list) {
     // boolean found = false;
     for (Integer i : list) {
       if (i.compareTo(searched) == 0) {

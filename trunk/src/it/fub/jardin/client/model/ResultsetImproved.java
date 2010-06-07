@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.fub.jardin.client.model;
 
 import java.util.ArrayList;
@@ -5,9 +22,6 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-/**
- * @author acozzolino
- */
 public class ResultsetImproved implements IsSerializable {
 
   private static final long serialVersionUID = 3478598676129553498L;
@@ -32,6 +46,7 @@ public class ResultsetImproved implements IsSerializable {
   private FieldsMatrix valuesList;
   /* Lista delle foreignKey entranti */
   private ArrayList<IncomingForeignKeyInformation> foreignKeyIn;
+
   /* Lista delle delle foreignkey */
 
   @SuppressWarnings("unused")
@@ -51,9 +66,9 @@ public class ResultsetImproved implements IsSerializable {
    * @param insert
    * @param toolbar
    */
-  public ResultsetImproved(int id, String name, String alias, String statement,
-      boolean readperm, boolean delete, boolean modify, boolean insert,
-      ArrayList<Tool> tools) {
+  public ResultsetImproved(final int id, final String name, final String alias,
+      final String statement, final boolean readperm, final boolean delete,
+      final boolean modify, final boolean insert, final ArrayList<Tool> tools) {
     super();
     this.id = id;
     this.name = name;
@@ -65,24 +80,24 @@ public class ResultsetImproved implements IsSerializable {
     this.insert = insert;
     this.tools = tools;
 
-    fields = new ArrayList<ResultsetField>();
-    fieldGroupings = new ArrayList<ResultsetFieldGroupings>();
+    this.fields = new ArrayList<ResultsetField>();
+    this.fieldGroupings = new ArrayList<ResultsetFieldGroupings>();
   }
 
   public int getId() {
-    return id;
+    return this.id;
   }
 
   public String getName() {
-    return name;
+    return this.name;
   }
 
   public String getAlias() {
-    return alias;
+    return this.alias;
   }
 
   public String getStatement() {
-    return statement;
+    return this.statement;
   }
 
   public ArrayList<Tool> getTools() {
@@ -90,94 +105,96 @@ public class ResultsetImproved implements IsSerializable {
   }
 
   public boolean isRead() {
-    return read;
+    return this.read;
   }
 
   public boolean isDelete() {
-    return delete;
+    return this.delete;
   }
 
   public boolean isModify() {
-    return modify;
+    return this.modify;
   }
 
   public boolean isInsert() {
-    return insert;
+    return this.insert;
   }
 
   public List<ResultsetField> getFields() {
-    return fields;
+    return this.fields;
   }
 
   public List<ResultsetFieldGroupings> getFieldGroupings() {
-    return fieldGroupings;
+    return this.fieldGroupings;
   }
 
   public FieldsMatrix getForeignKeyList() {
-    return foreignKeyList;
+    return this.foreignKeyList;
   }
-  
-  public ArrayList<IncomingForeignKeyInformation>  getForeignKeyIn() {
-    return foreignKeyIn;
+
+  public ArrayList<IncomingForeignKeyInformation> getForeignKeyIn() {
+    return this.foreignKeyIn;
   }
 
   public FieldsMatrix getValuesList() {
-    return valuesList;
+    return this.valuesList;
   }
 
-  public void setId(int id) {
+  public void setId(final int id) {
     this.id = id;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
-  public void setAlias(String alias) {
+  public void setAlias(final String alias) {
     this.alias = alias;
   }
 
-  public void setStatement(String statement) {
+  public void setStatement(final String statement) {
     this.statement = statement;
   }
 
-  public void setRead(boolean read) {
+  public void setRead(final boolean read) {
     this.read = read;
   }
 
-  public void setDelete(boolean delete) {
+  public void setDelete(final boolean delete) {
     this.delete = delete;
   }
 
-  public void setModify(boolean modify) {
+  public void setModify(final boolean modify) {
     this.modify = modify;
   }
 
-  public void setInsert(boolean insert) {
+  public void setInsert(final boolean insert) {
     this.insert = insert;
   }
 
-  public void setToolbar(ArrayList<Tool> tools) {
+  public void setToolbar(final ArrayList<Tool> tools) {
     this.tools = tools;
   }
 
-  public void setFields(List<ResultsetField> fields) {
+  public void setFields(final List<ResultsetField> fields) {
     this.fields = fields;
   }
 
-  public void setFieldGroupings(List<ResultsetFieldGroupings> fieldGroupings) {
+  public void setFieldGroupings(
+      final List<ResultsetFieldGroupings> fieldGroupings) {
     this.fieldGroupings = fieldGroupings;
   }
 
-  public void setForeignKeyList(FieldsMatrix foreignKeyList) {
+  public void setForeignKeyList(final FieldsMatrix foreignKeyList) {
     this.foreignKeyList = foreignKeyList;
   }
-  
-  public void setForeignKeyIn(ArrayList<IncomingForeignKeyInformation> foreignKeyIn) {
+
+  public void setForeignKeyIn(
+      final ArrayList<IncomingForeignKeyInformation> foreignKeyIn) {
     this.foreignKeyIn = foreignKeyIn;
   }
 
-  public void setValuesList(FieldsMatrix valuesList) {
+  public void setValuesList(final FieldsMatrix valuesList) {
     this.valuesList = valuesList;
   }
 
@@ -190,8 +207,8 @@ public class ResultsetImproved implements IsSerializable {
    * @return l'oggetto raggruppamento di campi desiderato o null se non presente
    *         nell'elenco dei raggruppamenti
    */
-  public ResultsetFieldGroupings getFieldGrouping(Integer fieldGroupingId) {
-    for (ResultsetFieldGroupings fg : getFieldGroupings()) {
+  public ResultsetFieldGroupings getFieldGrouping(final Integer fieldGroupingId) {
+    for (ResultsetFieldGroupings fg : this.getFieldGroupings()) {
       if (fg.getId() == fieldGroupingId) {
         return fg;
       }
@@ -204,7 +221,7 @@ public class ResultsetImproved implements IsSerializable {
    * 
    * @param fieldGrouping
    */
-  public void addFieldGroupings(ResultsetFieldGroupings fieldGrouping) {
+  public void addFieldGroupings(final ResultsetFieldGroupings fieldGrouping) {
     this.fieldGroupings.add(fieldGrouping);
   }
 
@@ -213,7 +230,7 @@ public class ResultsetImproved implements IsSerializable {
    * 
    * @param resultField
    */
-  public void addField(ResultsetField resultField) {
+  public void addField(final ResultsetField resultField) {
     this.fields.add(resultField);
   }
 

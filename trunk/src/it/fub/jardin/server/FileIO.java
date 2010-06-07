@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.server;
 
 import java.io.BufferedInputStream;
@@ -26,7 +40,7 @@ import java.io.Writer;
 public class FileIO {
 
   /** Copy a file from one filename to another */
-  public static void copyFile(String inName, String outName)
+  public static void copyFile(final String inName, final String outName)
       throws FileNotFoundException, IOException {
     BufferedInputStream is =
         new BufferedInputStream(new FileInputStream(inName));
@@ -37,39 +51,41 @@ public class FileIO {
   }
 
   /** Copy a file from an opened InputStream to an opened OutputStream */
-  public static void copyFile(InputStream is, OutputStream os, boolean close)
-      throws IOException {
+  public static void copyFile(final InputStream is, final OutputStream os,
+      final boolean close) throws IOException {
     int b; // the byte read from the file
     while ((b = is.read()) != -1) {
       os.write(b);
     }
     is.close();
-    if (close)
+    if (close) {
       os.close();
+    }
   }
 
   /** Copy a file from an opened Reader to an opened Writer */
-  public static void copyFile(Reader is, Writer os, boolean close)
-      throws IOException {
+  public static void copyFile(final Reader is, final Writer os,
+      final boolean close) throws IOException {
     int b; // the byte read from the file
     while ((b = is.read()) != -1) {
       os.write(b);
     }
     is.close();
-    if (close)
+    if (close) {
       os.close();
+    }
   }
 
   /** Copy a file from a filename to a PrintWriter. */
-  public static void copyFile(String inName, PrintWriter pw, boolean close)
-      throws FileNotFoundException, IOException {
+  public static void copyFile(final String inName, final PrintWriter pw,
+      final boolean close) throws FileNotFoundException, IOException {
     BufferedReader ir = new BufferedReader(new FileReader(inName));
     copyFile(ir, pw, close);
   }
 
   /** Open a file and read the first line from it. */
-  public static String readLine(String inName) throws FileNotFoundException,
-      IOException {
+  public static String readLine(final String inName)
+      throws FileNotFoundException, IOException {
     BufferedReader is = new BufferedReader(new FileReader(inName));
     String line = null;
     line = is.readLine();
@@ -85,7 +101,7 @@ public class FileIO {
    * name suggests, use my own buffer instead of letting the BufferedReader
    * allocate and use the buffer.
    */
-  public void copyFileBuffered(String inName, String outName)
+  public void copyFileBuffered(final String inName, final String outName)
       throws FileNotFoundException, IOException {
     InputStream is = new FileInputStream(inName);
     OutputStream os = new FileOutputStream(outName);
@@ -99,7 +115,7 @@ public class FileIO {
   }
 
   /** Read the entire content of a Reader into a String */
-  public static String readerToString(Reader is) throws IOException {
+  public static String readerToString(final Reader is) throws IOException {
     StringBuffer sb = new StringBuffer();
     char[] b = new char[BLKSIZ];
     int n;
@@ -112,7 +128,8 @@ public class FileIO {
   }
 
   /** Read the content of a Stream into a String */
-  public static String inputStreamToString(InputStream is) throws IOException {
+  public static String inputStreamToString(final InputStream is)
+      throws IOException {
     return readerToString(new InputStreamReader(is));
   }
 }
