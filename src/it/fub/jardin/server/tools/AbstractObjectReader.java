@@ -1,21 +1,19 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* $Id$ */
 
 package it.fub.jardin.server.tools;
 
@@ -42,7 +40,7 @@ public abstract class AbstractObjectReader implements XMLReader {
   private static final String NS_PREFIXES =
       "http://xml.org/sax/features/namespace-prefixes";
 
-  private Map<String, Boolean> features =
+  private final Map<String, Boolean> features =
       new java.util.HashMap<String, Boolean>();
   private ContentHandler orgHandler;
 
@@ -64,8 +62,8 @@ public abstract class AbstractObjectReader implements XMLReader {
    * Constructor for the AbstractObjectReader object
    */
   public AbstractObjectReader() {
-    setFeature(NAMESPACES, false);
-    setFeature(NS_PREFIXES, false);
+    this.setFeature(NAMESPACES, false);
+    this.setFeature(NS_PREFIXES, false);
   }
 
   /* ============ XMLReader interface ============ */
@@ -80,7 +78,7 @@ public abstract class AbstractObjectReader implements XMLReader {
   /**
    * @see org.xml.sax.XMLReader#setContentHandler(ContentHandler)
    */
-  public void setContentHandler(ContentHandler handler) {
+  public void setContentHandler(final ContentHandler handler) {
     this.orgHandler = handler;
     this.handler = new EasyGenerationContentHandlerProxy(handler);
   }
@@ -97,7 +95,7 @@ public abstract class AbstractObjectReader implements XMLReader {
    * @see org.xml.sax.XMLReader#setErrorHandler(ErrorHandler)
    * @uml.property name="errorHandler"
    */
-  public void setErrorHandler(ErrorHandler handler) {
+  public void setErrorHandler(final ErrorHandler handler) {
     this.errorHandler = handler;
   }
 
@@ -111,7 +109,7 @@ public abstract class AbstractObjectReader implements XMLReader {
   /**
    * @see org.xml.sax.XMLReader#setDTDHandler(DTDHandler)
    */
-  public void setDTDHandler(DTDHandler handler) {
+  public void setDTDHandler(final DTDHandler handler) {
   }
 
   /**
@@ -124,27 +122,28 @@ public abstract class AbstractObjectReader implements XMLReader {
   /**
    * @see org.xml.sax.XMLReader#setEntityResolver(EntityResolver)
    */
-  public void setEntityResolver(EntityResolver resolver) {
+  public void setEntityResolver(final EntityResolver resolver) {
   }
 
   /**
    * @see org.xml.sax.XMLReader#getProperty(String)
    */
-  public Object getProperty(java.lang.String name) {
+  public Object getProperty(final java.lang.String name) {
     return null;
   }
 
   /**
    * @see org.xml.sax.XMLReader#setProperty(String, Object)
    */
-  public void setProperty(java.lang.String name, java.lang.Object value) {
+  public void setProperty(final java.lang.String name,
+      final java.lang.Object value) {
   }
 
   /**
    * @see org.xml.sax.XMLReader#getFeature(String)
    */
-  public boolean getFeature(java.lang.String name) {
-    return ((Boolean) features.get(name)).booleanValue();
+  public boolean getFeature(final java.lang.String name) {
+    return (this.features.get(name)).booleanValue();
   }
 
   /**
@@ -153,7 +152,7 @@ public abstract class AbstractObjectReader implements XMLReader {
    * @return boolean true if enabled
    */
   protected boolean isNamespaces() {
-    return getFeature(NAMESPACES);
+    return this.getFeature(NAMESPACES);
   }
 
   /**
@@ -162,20 +161,20 @@ public abstract class AbstractObjectReader implements XMLReader {
    * @return boolean true if enabled
    */
   protected boolean isNamespacePrefixes() {
-    return getFeature(NS_PREFIXES);
+    return this.getFeature(NS_PREFIXES);
   }
 
   /**
    * @see org.xml.sax.XMLReader#setFeature(String, boolean)
    */
-  public void setFeature(java.lang.String name, boolean value) {
+  public void setFeature(final java.lang.String name, final boolean value) {
     this.features.put(name, new Boolean(value));
   }
 
   /**
    * @see org.xml.sax.XMLReader#parse(String)
    */
-  public void parse(String systemId) throws IOException, SAXException {
+  public void parse(final String systemId) throws IOException, SAXException {
     throw new SAXException(this.getClass().getName()
         + " cannot be used with system identifiers (URIs)");
   }

@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
@@ -20,26 +34,24 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.core.client.GWT;
 
-/**
- * @author acozzolino
- */
 public class JardinGridView extends GridView {
 
-  private RnfMessages mess;
-  private ResultsetImproved resultset;
-  private JardinColumnModel cm;
+  private final RnfMessages mess;
+  private final ResultsetImproved resultset;
+  private final JardinColumnModel cm;
 
-  public JardinGridView(ResultsetImproved resultset, JardinColumnModel cm) {
+  public JardinGridView(final ResultsetImproved resultset,
+      final JardinColumnModel cm) {
     this.mess = (RnfMessages) GWT.create(RnfMessages.class);
     this.resultset = resultset;
     this.cm = cm;
-    
+
   }
 
-  private void restrictMenu(Menu columns) {
+  private void restrictMenu(final Menu columns) {
     int count = 0;
-    for (int i = 0, len = cm.getColumnCount(); i < len; i++) {
-      if (!cm.isHidden(i) && !cm.isFixed(i)) {
+    for (int i = 0, len = this.cm.getColumnCount(); i < len; i++) {
+      if (!this.cm.isHidden(i) && !this.cm.isFixed(i)) {
         count++;
       }
     }
@@ -63,13 +75,15 @@ public class JardinGridView extends GridView {
     final Menu menu = new Menu();
     List<ResultsetFieldGroupings> groups = this.resultset.getFieldGroupings();
 
-    if (cm.isSortable(colIndex)) {
+    if (this.cm.isSortable(colIndex)) {
       MenuItem item = new MenuItem();
       item.setText(GXT.MESSAGES.gridView_sortAscText());
       item.setIconStyle("my-icon-asc");
       item.addSelectionListener(new SelectionListener<MenuEvent>() {
-        public void componentSelected(MenuEvent ce) {
-          ds.sort(cm.getDataIndex(colIndex), SortDir.ASC);
+        @Override
+        public void componentSelected(final MenuEvent ce) {
+          JardinGridView.this.ds.sort(
+              JardinGridView.this.cm.getDataIndex(colIndex), SortDir.ASC);
         }
 
       });
@@ -79,15 +93,17 @@ public class JardinGridView extends GridView {
       item.setText(GXT.MESSAGES.gridView_sortDescText());
       item.setIconStyle("my-icon-desc");
       item.addSelectionListener(new SelectionListener<MenuEvent>() {
-        public void componentSelected(MenuEvent ce) {
-          ds.sort(cm.getDataIndex(colIndex), SortDir.DESC);
+        @Override
+        public void componentSelected(final MenuEvent ce) {
+          JardinGridView.this.ds.sort(
+              JardinGridView.this.cm.getDataIndex(colIndex), SortDir.DESC);
         }
       });
       menu.add(item);
     }
 
     if (groups != null) {
-      int numFields = cm.getColumnCount();
+      int numFields = this.cm.getColumnCount();
       int numMenu = groups.size();
 
       int i = 0;
@@ -109,30 +125,32 @@ public class JardinGridView extends GridView {
         MenuItem columns = new MenuItem();
         Integer groupingId = groups.get(j).getId();
         String groupingAlias = groups.get(j).getAlias();
-        columns.setText(mess.gridHeaderColumnsMessage(groupingAlias));
+        columns.setText(this.mess.gridHeaderColumnsMessage(groupingAlias));
         columns.setIconStyle("x-cols-icon");
 
         final Menu columnMenu = new Menu();
 
         addCounter = 0;
         i = x;
-        while (i < numFields && !exit) {
+        while ((i < numFields) && !exit) {
 
-          if (cm.getColumn(x).getGroupingId() == groupingId.intValue()) {
-            if (cm.getColumnHeader(x) == null
-                || cm.getColumnHeader(x).equals("") || cm.isFixed(x)) {
+          if (this.cm.getColumn(x).getGroupingId() == groupingId.intValue()) {
+            if ((this.cm.getColumnHeader(x) == null)
+                || this.cm.getColumnHeader(x).equals("") || this.cm.isFixed(x)) {
               continue;
             }
             final int fcol = x;
             final CheckMenuItem check = new CheckMenuItem();
             check.setHideOnClick(false);
-            check.setText(cm.getColumnHeader(x));
+            check.setText(this.cm.getColumnHeader(x));
             // check.setText(cm.getColumnId(x));
-            check.setChecked(!cm.isHidden(x));
+            check.setChecked(!this.cm.isHidden(x));
             check.addSelectionListener(new SelectionListener<MenuEvent>() {
-              public void componentSelected(MenuEvent ce) {
-                cm.setHidden(fcol, !cm.isHidden(fcol));
-                restrictMenu(columnMenu);
+              @Override
+              public void componentSelected(final MenuEvent ce) {
+                JardinGridView.this.cm.setHidden(fcol,
+                    !JardinGridView.this.cm.isHidden(fcol));
+                JardinGridView.this.restrictMenu(columnMenu);
               }
             });
             columnMenu.add(check);
@@ -153,7 +171,7 @@ public class JardinGridView extends GridView {
           x++;
         }
 
-        restrictMenu(columnMenu);
+        this.restrictMenu(columnMenu);
         if (columnMenu.getItemCount() > 0) {
           columns.setSubMenu(columnMenu);
           menu.add(columns);
@@ -167,10 +185,10 @@ public class JardinGridView extends GridView {
 
   public void setGridHeader() {
     // TODO aggiunta per sottolineare la foreignkey
-    for (int i = 0; i < cm.getColumnCount(); i++) {
-      if ((cm.getColumn(i).isKey()) || (cm.getColumn(i).isUnique())) {
-        getHeader().setHeader(i,
-            "<u><b>" + cm.getColumn(i).getHeader() + "</u></b>");
+    for (int i = 0; i < this.cm.getColumnCount(); i++) {
+      if ((this.cm.getColumn(i).isKey()) || (this.cm.getColumn(i).isUnique())) {
+        this.getHeader().setHeader(i,
+            "<u><b>" + this.cm.getColumn(i).getHeader() + "</u></b>");
       }
     }
   }

@@ -1,10 +1,27 @@
-package it.fub.jardin.client.widget;
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-import java.util.List;
+package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.JungleRecords;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
+
+import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -14,7 +31,6 @@ import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.smartgwt.client.widgets.grid.ListGrid;
@@ -22,9 +38,10 @@ import com.smartgwt.client.widgets.grid.ListGridField;
 
 public class Jungle extends Dialog {
 
-  private ListGrid grid;
+  private final ListGrid grid;
 
-  public Jungle(ResultsetImproved resultset, List<String> cm , String xml) {
+  public Jungle(final ResultsetImproved resultset, final List<String> cm,
+      final String xml) {
     this.setMaximizable(true);
     this.setHeading("Jungle (Jardin warehousing): " + resultset.getAlias());
     this.setWidth(500);
@@ -32,11 +49,11 @@ public class Jungle extends Dialog {
     this.setLayout(new FitLayout());
 
     ToolBar toolBar = new ToolBar();
-    toolBar.add(formulaButton());
-    toolBar.add(summaryButton());
+    toolBar.add(this.formulaButton());
+    toolBar.add(this.summaryButton());
     this.setTopComponent(toolBar);
 
-    this.grid = getGrid(resultset, cm);
+    this.grid = this.getGrid(resultset, cm);
     this.grid.setDataSource(new JungleRecords(resultset, xml));
     this.grid.setAutoFetchData(true);
     // this.grid.resizeTo(this.getWidth(), this.getHeight());
@@ -44,8 +61,8 @@ public class Jungle extends Dialog {
     this.add(this.grid);
 
     Listener<WindowEvent> listener = new Listener<WindowEvent>() {
-      public void handleEvent(WindowEvent be) {
-        grid.resizeTo(be.getWidth() - 14, be.getHeight());
+      public void handleEvent(final WindowEvent be) {
+        Jungle.this.grid.resizeTo(be.getWidth() - 14, be.getHeight());
       }
     };
 
@@ -56,8 +73,8 @@ public class Jungle extends Dialog {
   private Button formulaButton() {
     SelectionListener l = new SelectionListener() {
       @Override
-      public void componentSelected(ComponentEvent ce) {
-        grid.addFormulaField();
+      public void componentSelected(final ComponentEvent ce) {
+        Jungle.this.grid.addFormulaField();
       }
     };
 
@@ -67,15 +84,16 @@ public class Jungle extends Dialog {
   private Button summaryButton() {
     SelectionListener l = new SelectionListener() {
       @Override
-      public void componentSelected(ComponentEvent ce) {
-        grid.addSummaryField();
+      public void componentSelected(final ComponentEvent ce) {
+        Jungle.this.grid.addSummaryField();
       }
     };
 
     return new Button("Summary", IconHelper.createStyle("icon-summary"), l);
   }
 
-  private ListGrid getGrid(ResultsetImproved resultset, List<String> columns) {
+  private ListGrid getGrid(final ResultsetImproved resultset,
+      final List<String> columns) {
     ListGrid grid = new ListGrid();
     ListGridField[] list = new ListGridField[resultset.getFields().size()];
 

@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.fub.jardin.client;
 
 import it.fub.jardin.client.model.EventTypeSerializable;
@@ -24,29 +41,37 @@ public class EventList {
 
   public static final EventType ExportAllStoreSomeColumns = new EventType();
 
-  public static final EventType ExportSomeStoreAllColumns = new EventType();
-
-  public static final EventType ExportSomeStoreSomeColumns = new EventType();
-
   public static final EventType ExportSomeRowsAllColumns = new EventType();
 
   public static final EventType ExportSomeRowsSomeColumns = new EventType();
+
+  public static final EventType ExportSomeStoreAllColumns = new EventType();
+
+  public static final EventType ExportSomeStoreSomeColumns = new EventType();
 
   public static final EventType Get = new EventType();
 
   public static final EventType GetGridViews = new EventType();
 
+  public static final EventType GetPlugins = new EventType();
+
   public static final EventType GotExport = new EventType();
 
   public static final EventType GotHeaderPreference = new EventType();
+
+  public static final EventType GotPlugins = new EventType();
 
   public static final EventType GotValuesOfFields = new EventType();
 
   public static final EventType GotValuesOfForeignKeys = new EventType();
 
+  public static final EventType GotValuesOfForeignKeysIn = new EventType();
+
   public static final EventType Init = new EventType();
 
   public static final EventType InsertNewRecord = new EventType();
+
+  public static final EventType InsertStore = new EventType();
 
   public static final EventType Jungle = new EventType();
 
@@ -55,6 +80,9 @@ public class EventList {
   public static final EventType LoginError = new EventType();
 
   public static final EventType LoginErrorDisplay = new EventType();
+
+  public static final EventTypeSerializable NewMessage =
+      new EventTypeSerializable(95);
 
   public static final EventType NewResultset = new EventType();
 
@@ -66,8 +94,6 @@ public class EventList {
 
   public static final EventType ResultSetsSearch = new EventType();
 
-  public static final EventType GotValuesOfForeignKeysIn = new EventType();
-
   public static final EventType SaveChangesCommit = new EventType();
 
   public static final EventType SaveChangesRequest = new EventType();
@@ -78,12 +104,16 @@ public class EventList {
 
   public static final EventType SearchCompravendita = new EventType();
 
+  public static final EventType Searched = new EventType();
+
   public static final EventTypeSerializable SendMessage =
       new EventTypeSerializable(75);
 
   public static final EventType ShowAllColumns = new EventType();
 
   public static final EventType ShowBarChart = new EventType();
+
+  public static final EventType ShowChart = new EventType();
 
   public static final EventType ShowItem = new EventType();
 
@@ -97,27 +127,14 @@ public class EventList {
 
   public static final EventType UploadImport = new EventType();
 
-  public static final EventType UploadTemplate = new EventType();
+  public static final EventType UploadInsert = new EventType();
 
-  public static final EventTypeSerializable NewMessage =
-      new EventTypeSerializable(95);
+  public static final EventType UploadTemplate = new EventType();
 
   public static final EventType ViewLinkedTable = new EventType();
 
-  public static final EventType ViewPopUpDetail = new EventType();
-
-  public static final EventType ShowChart = new EventType();
-
-  public static final EventType GetPlugins = new EventType();
-
-  public static final EventType GotPlugins = new EventType();
-
   public static final EventType ViewPlugin = new EventType();
 
-  public static final EventType Searched = new EventType();
-
-  public static final EventType UploadInsert = new EventType();
-
-  public static final EventType InsertStore = new EventType();
+  public static final EventType ViewPopUpDetail = new EventType();
 
 }

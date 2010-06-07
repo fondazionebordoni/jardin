@@ -1,10 +1,20 @@
 /*
- * Ext GWT - Ext for GWT
- * Copyright(c) 2007, 2008, Ext JS, LLC.
- * licensing@extjs.com
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
- * http://extjs.com/license
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client;
 
 import it.fub.jardin.client.model.Credentials;
@@ -87,6 +97,7 @@ public interface ManagerServiceAsync {
   public void getPlugins(int gid, int rsid,
       AsyncCallback<ArrayList<Plugin>> callback);
 
-  public void updateObjects(Integer resultsetId, List<BaseModelData> newItemList,
-		String condition, AsyncCallback<Integer> callback);
+  public void updateObjects(Integer resultsetId,
+      List<BaseModelData> newItemList, String condition,
+      AsyncCallback<Integer> callback);
 }

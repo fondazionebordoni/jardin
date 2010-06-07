@@ -1,25 +1,22 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* $Id$ */
 
 package it.fub.jardin.server.tools;
 
-//SAX
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
@@ -38,7 +35,7 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
   /** An empty Attributes object used when no attributes are needed. */
   public static final Attributes EMPTY_ATTS = new AttributesImpl();
 
-  private ContentHandler target;
+  private final ContentHandler target;
 
   /**
    * Main constructor.
@@ -46,7 +43,7 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
    * @param forwardTo
    *          ContentHandler to forward the SAX event to.
    */
-  public EasyGenerationContentHandlerProxy(ContentHandler forwardTo) {
+  public EasyGenerationContentHandlerProxy(final ContentHandler forwardTo) {
     this.target = forwardTo;
   }
 
@@ -58,8 +55,8 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
    * @throws SAXException
    *           Any SAX exception, possibly wrapping another exception.
    */
-  public void startElement(String name) throws SAXException {
-    startElement(name, EMPTY_ATTS);
+  public void startElement(final String name) throws SAXException {
+    this.startElement(name, EMPTY_ATTS);
   }
 
   /**
@@ -73,8 +70,9 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
    * @throws SAXException
    *           Any SAX exception, possibly wrapping another exception.
    */
-  public void startElement(String name, Attributes atts) throws SAXException {
-    startElement(null, name, name, atts);
+  public void startElement(final String name, final Attributes atts)
+      throws SAXException {
+    this.startElement(null, name, name, atts);
   }
 
   /**
@@ -85,8 +83,8 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
    * @throws SAXException
    *           Any SAX exception, possibly wrapping another exception.
    */
-  public void characters(String s) throws SAXException {
-    target.characters(s.toCharArray(), 0, s.length());
+  public void characters(final String s) throws SAXException {
+    this.target.characters(s.toCharArray(), 0, s.length());
   }
 
   /**
@@ -97,8 +95,8 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
    * @throws SAXException
    *           Any SAX exception, possibly wrapping another exception.
    */
-  public void endElement(String name) throws SAXException {
-    endElement(null, name, name);
+  public void endElement(final String name) throws SAXException {
+    this.endElement(null, name, name);
   }
 
   /**
@@ -111,8 +109,9 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
    * @throws SAXException
    *           Any SAX exception, possibly wrapping another exception.
    */
-  public void element(String name, String value) throws SAXException {
-    element(name, value, EMPTY_ATTS);
+  public void element(final String name, final String value)
+      throws SAXException {
+    this.element(name, value, EMPTY_ATTS);
   }
 
   /**
@@ -128,13 +127,13 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
    * @throws SAXException
    *           Any SAX exception, possibly wrapping another exception.
    */
-  public void element(String name, String value, Attributes atts)
-      throws SAXException {
-    startElement(name, atts);
+  public void element(final String name, final String value,
+      final Attributes atts) throws SAXException {
+    this.startElement(name, atts);
     if (value != null) {
-      characters(value.toCharArray(), 0, value.length());
+      this.characters(value.toCharArray(), 0, value.length());
     }
-    endElement(name);
+    this.endElement(name);
   }
 
   /* =========== ContentHandler interface =========== */
@@ -142,74 +141,76 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
   /**
    * @see org.xml.sax.ContentHandler#setDocumentLocator(Locator)
    */
-  public void setDocumentLocator(Locator locator) {
-    target.setDocumentLocator(locator);
+  public void setDocumentLocator(final Locator locator) {
+    this.target.setDocumentLocator(locator);
   }
 
   /**
    * @see org.xml.sax.ContentHandler#startDocument()
    */
   public void startDocument() throws SAXException {
-    target.startDocument();
+    this.target.startDocument();
   }
 
   /**
    * @see org.xml.sax.ContentHandler#endDocument()
    */
   public void endDocument() throws SAXException {
-    target.endDocument();
+    this.target.endDocument();
   }
 
   /**
    * @see org.xml.sax.ContentHandler#startPrefixMapping(String, String)
    */
-  public void startPrefixMapping(String prefix, String uri) throws SAXException {
-    target.startPrefixMapping(prefix, uri);
+  public void startPrefixMapping(final String prefix, final String uri)
+      throws SAXException {
+    this.target.startPrefixMapping(prefix, uri);
   }
 
   /**
    * @see org.xml.sax.ContentHandler#endPrefixMapping(String)
    */
-  public void endPrefixMapping(String prefix) throws SAXException {
-    target.endPrefixMapping(prefix);
+  public void endPrefixMapping(final String prefix) throws SAXException {
+    this.target.endPrefixMapping(prefix);
   }
 
   /**
    * @see org.xml.sax.ContentHandler#startElement(String, String, String,
    *      Attributes)
    */
-  public void startElement(String namespaceURI, String localName, String qName,
-      Attributes atts) throws SAXException {
-    target.startElement(namespaceURI, localName, qName, atts);
+  public void startElement(final String namespaceURI, final String localName,
+      final String qName, final Attributes atts) throws SAXException {
+    this.target.startElement(namespaceURI, localName, qName, atts);
   }
 
   /**
    * @see org.xml.sax.ContentHandler#endElement(String, String, String)
    */
-  public void endElement(String namespaceURI, String localName, String qName)
-      throws SAXException {
-    target.endElement(namespaceURI, localName, qName);
+  public void endElement(final String namespaceURI, final String localName,
+      final String qName) throws SAXException {
+    this.target.endElement(namespaceURI, localName, qName);
   }
 
   /**
    * @see org.xml.sax.ContentHandler#characters(char[], int, int)
    */
-  public void characters(char[] ch, int start, int length) throws SAXException {
-    target.characters(ch, start, length);
+  public void characters(final char[] ch, final int start, final int length)
+      throws SAXException {
+    this.target.characters(ch, start, length);
   }
 
   /**
    * @see org.xml.sax.ContentHandler#ignorableWhitespace(char[], int, int)
    */
-  public void ignorableWhitespace(char[] ch, int start, int length)
-      throws SAXException {
-    target.ignorableWhitespace(ch, start, length);
+  public void ignorableWhitespace(final char[] ch, final int start,
+      final int length) throws SAXException {
+    this.target.ignorableWhitespace(ch, start, length);
   }
 
   /**
    * @see org.xml.sax.ContentHandler#processingInstruction(String, String)
    */
-  public void processingInstruction(String target, String data)
+  public void processingInstruction(final String target, final String data)
       throws SAXException {
     this.target.processingInstruction(target, data);
   }
@@ -217,8 +218,8 @@ public class EasyGenerationContentHandlerProxy implements ContentHandler {
   /**
    * @see org.xml.sax.ContentHandler#skippedEntity(String)
    */
-  public void skippedEntity(String name) throws SAXException {
-    target.skippedEntity(name);
+  public void skippedEntity(final String name) throws SAXException {
+    this.target.skippedEntity(name);
   }
 
 }

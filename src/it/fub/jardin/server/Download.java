@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.server;
 
 import java.io.BufferedInputStream;
@@ -15,16 +29,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * @author gpantanetti
- * 
- */
 public class Download extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
 
-  protected void doGet(HttpServletRequest req, HttpServletResponse res)
-      throws ServletException, IOException {
+  @Override
+  protected void doGet(final HttpServletRequest req,
+      final HttpServletResponse res) throws ServletException, IOException {
 
     BufferedInputStream in = null;
     BufferedOutputStream out = null;
@@ -34,16 +45,16 @@ public class Download extends HttpServlet {
         new File(this.getServletContext().getRealPath("/")
             + req.getParameter("file"));
     if (!f.exists()) {
-      printError(res, "File " + f.getName() + " doesn't exist");
+      this.printError(res, "File " + f.getName() + " doesn't exist");
       return;
     }
     if (!f.canRead()) {
-      printError(res, "Can't read file " + f.getName());
+      this.printError(res, "Can't read file " + f.getName());
       return;
     }
 
     /* Stampa il file in output */
-    res.setContentType(getMimeType(f.getName()));
+    res.setContentType(this.getMimeType(f.getName()));
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Content-Disposition", "attachment; filename=" + f.getName());
 
@@ -73,11 +84,12 @@ public class Download extends HttpServlet {
 
   }
 
+  @Override
   public String getServletInfo() {
     return "Download Servlet for Jardin (c) 2009 Fondazione Ugo Bordoni";
   }
 
-  private void printError(HttpServletResponse res, String error)
+  private void printError(final HttpServletResponse res, final String error)
       throws IOException {
     res.setContentType("text/html");
     res.setHeader("pragma", "no-cache");
@@ -95,33 +107,34 @@ public class Download extends HttpServlet {
    * 
    * @return String MIMEtype
    */
-  private String getMimeType(String filename) {
+  private String getMimeType(final String filename) {
     String format = filename.substring(filename.lastIndexOf('.'));
 
-    if (format.equalsIgnoreCase("pdf")) // check the out type
+    if (format.equalsIgnoreCase("pdf")) {
       return "application/pdf";
-    else if (format.equalsIgnoreCase("wav"))
+    } else if (format.equalsIgnoreCase("wav")) {
       return "audio/wav";
-    else if (format.equalsIgnoreCase("gif"))
+    } else if (format.equalsIgnoreCase("gif")) {
       return "image/gif";
-    else if (format.equalsIgnoreCase("jpg"))
+    } else if (format.equalsIgnoreCase("jpg")) {
       return "image/jpeg";
-    else if (format.equalsIgnoreCase("bmp"))
+    } else if (format.equalsIgnoreCase("bmp")) {
       return "image/bmp";
-    else if (format.equalsIgnoreCase("png"))
+    } else if (format.equalsIgnoreCase("png")) {
       return "image/x-png";
-    else if (format.equalsIgnoreCase("avi"))
+    } else if (format.equalsIgnoreCase("avi")) {
       return "video/avi";
-    else if (format.equalsIgnoreCase("mpg"))
+    } else if (format.equalsIgnoreCase("mpg")) {
       return "video/mpeg";
-    else if (format.equalsIgnoreCase("html"))
+    } else if (format.equalsIgnoreCase("html")) {
       return "text/html";
-    else if (format.equalsIgnoreCase("xml"))
+    } else if (format.equalsIgnoreCase("xml")) {
       return "text/xml";
-    else if (format.equalsIgnoreCase("csv"))
+    } else if (format.equalsIgnoreCase("csv")) {
       return "text/csv";
-    else
+    } else {
       return null;
+    }
   }
 
 }

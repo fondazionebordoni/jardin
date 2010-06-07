@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -18,19 +32,15 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
-/**
- * @author gpantanetti
- * 
- */
 public class HeaderArea extends HtmlContainer {
 
   private final String aboutMessage =
       "<b>Fondazione Ugo Bordoni<br>" + "JARDiN Manager<br></b>"
           + "Versione 0.9.7.3";
 
-  private User user;
+  private final User user;
 
-  public HeaderArea(User user) {
+  public HeaderArea(final User user) {
     this.user = user;
     String header =
         "<div id='" + JardinView.HEADER_AREA + "'>" + "<div id='"
@@ -49,11 +59,12 @@ public class HeaderArea extends HtmlContainer {
 
     Button about = new Button("Info");
     about.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
         MessageBox m = new MessageBox();
         m.setMinWidth(400);
         m.setTitle("Info");
-        m.setMessage(aboutMessage);
+        m.setMessage(HeaderArea.this.aboutMessage);
         m.setIcon(MessageBox.INFO);
         m.show();
       }
@@ -62,7 +73,8 @@ public class HeaderArea extends HtmlContainer {
 
     Button help = new Button("Aiuto");
     help.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
         w.setIconStyle("icon-book");
         w.setHeading("Aiuto");
@@ -77,7 +89,8 @@ public class HeaderArea extends HtmlContainer {
 
     Button faq = new Button("FAQ");
     faq.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
         w.setIconStyle("icon-book");
         w.setHeading("FAQ");
@@ -92,7 +105,8 @@ public class HeaderArea extends HtmlContainer {
 
     Button calc = new Button("Calcolatrice");
     calc.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
         w.setHeading("Calcolatrice");
         w.setModal(false);
@@ -107,7 +121,8 @@ public class HeaderArea extends HtmlContainer {
 
     Button calendar = new Button("Calendario");
     calendar.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
         w.setHeading("Calendario");
         w.setModal(false);
@@ -121,7 +136,7 @@ public class HeaderArea extends HtmlContainer {
     toolbar.add(calendar);
 
     final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
-      public void handleEvent(MessageBoxEvent ce) {
+      public void handleEvent(final MessageBoxEvent ce) {
         Button btn = ce.getButtonClicked();
         if (btn.getText().compareToIgnoreCase("yes") == 0) {
           Dispatcher.forwardEvent(EventList.Refresh);
@@ -131,17 +146,19 @@ public class HeaderArea extends HtmlContainer {
 
     Button exit = new Button("Uscita");
     exit.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
         MessageBox.confirm("Uscita", "Sei sicuro?", l);
       }
     });
     toolbar.add(exit);
 
-    final Window window = new UserWindow(user);
-    final Button welcome = new Button(user.getUsername());
+    final Window window = new UserWindow(this.user);
+    final Button welcome = new Button(this.user.getUsername());
     welcome.setId(JardinView.HEADER_AREA + "-welcome");
     welcome.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
         window.show();
       }
     });

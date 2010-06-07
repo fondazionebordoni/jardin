@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
@@ -23,10 +37,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-/**
- * @author acozzolino
- * 
- */
 public class Upload extends HttpServlet {
   private static final long serialVersionUID = 6098745782027999297L;
   private static final int MAX_SIZE = 30 * 1024 * 1024; // 30MB
@@ -39,7 +49,9 @@ public class Upload extends HttpServlet {
   private String condition = null;
   private String tipologia;
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response)
+  @Override
+  public void doPost(final HttpServletRequest request,
+      final HttpServletResponse response)
   /* throws ServletException, IOException */{
 
     // Create a factory for disk-based file items
@@ -63,9 +75,9 @@ public class Upload extends HttpServlet {
         FileItem item = (FileItem) iter.next();
 
         if (item.isFormField()) {
-          processFormField(item);
+          this.processFormField(item);
         } else {
-          m = processUploadedFile(item);
+          m = this.processUploadedFile(item);
         }
       }
       response.setContentType("text/plain");
@@ -83,7 +95,7 @@ public class Upload extends HttpServlet {
    * @param item
    *          il singolo campo ricevuto dal dialog di upload
    */
-  private void processFormField(FileItem item) {
+  private void processFormField(final FileItem item) {
     String name = item.getFieldName();
     String value = item.getString();
     if (name.compareTo(UploadDialog.FIELD_TYPE) == 0) {
@@ -123,19 +135,19 @@ public class Upload extends HttpServlet {
    *         risultato positivo è preceduto dalla stringa definita nelle
    *         proprietà statiche del dialog di upload
    */
-  private String processUploadedFile(FileItem item) {
-    if (!isContentTypeAcceptable(item)) {
+  private String processUploadedFile(final FileItem item) {
+    if (!this.isContentTypeAcceptable(item)) {
       return "Errore. Il file da caricare non è di un tipo consentito";
     }
-    if (!isSizeAcceptable(item)) {
+    if (!this.isSizeAcceptable(item)) {
       return "Errore. Il file da caricare è troppo grande. Dimensione massima di upload: "
           + MAX_SIZE + " byte";
     }
-    if (ts.length() != 1) {
+    if (this.ts.length() != 1) {
       return "Il separatore di testo deve essere composto da un carattere";
-    } else if (fs.length() != 1) {
+    } else if (this.fs.length() != 1) {
       return "Il separatore di campo deve essere composto da un carattere";
-    } else if (ts.compareToIgnoreCase(fs) == 0) {
+    } else if (this.ts.compareToIgnoreCase(this.fs) == 0) {
       return "Il separatore di campo e il separatore di testo non possono essere uguali";
     }
 
@@ -167,13 +179,15 @@ public class Upload extends HttpServlet {
 
         /* Decisione delle azioni da eseguire con il file */
         if (this.type.compareToIgnoreCase(UploadDialog.TYPE_IMPORT) == 0) {
-          (new DbUtils()).importFile(this.credentials, this.resultset, f, ts,
-              fs, tipologia, UploadDialog.TYPE_IMPORT, condition);
+          (new DbUtils()).importFile(this.credentials, this.resultset, f,
+              this.ts, this.fs, this.tipologia, UploadDialog.TYPE_IMPORT,
+              this.condition);
           return UploadDialog.SUCCESS
               + "Importazione dati avvenuta con successo";
         } else if (this.type.compareToIgnoreCase(UploadDialog.TYPE_INSERT) == 0) {
-          (new DbUtils()).importFile(this.credentials, this.resultset, f, ts,
-              fs, tipologia, UploadDialog.TYPE_INSERT, condition);
+          (new DbUtils()).importFile(this.credentials, this.resultset, f,
+              this.ts, this.fs, this.tipologia, UploadDialog.TYPE_INSERT,
+              this.condition);
           return UploadDialog.SUCCESS
               + "Importazione dati avvenuta con successo";
         } else {
@@ -196,11 +210,11 @@ public class Upload extends HttpServlet {
     }
   }
 
-  private boolean isSizeAcceptable(FileItem item) {
+  private boolean isSizeAcceptable(final FileItem item) {
     return item.getSize() <= MAX_SIZE;
   }
 
-  private boolean isContentTypeAcceptable(FileItem item) {
+  private boolean isContentTypeAcceptable(final FileItem item) {
     return true;
     // return item.getContentType().equals(ACCEPTABLE_CONTENT_TYPE);
   }

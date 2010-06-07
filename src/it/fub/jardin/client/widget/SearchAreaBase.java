@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -28,14 +45,14 @@ public class SearchAreaBase extends HtmlContainer {
 
   private static final String SPECIAL_FIELD = "searchField";
   private TextField<String> field;
-  private CheckBox accurate = new CheckBox();
-  private List<String> fieldNames;
-  private String searchId;
-  private SearchParams searchParams;
+  private final CheckBox accurate = new CheckBox();
+  private final List<String> fieldNames;
+  private final String searchId;
+  private final SearchParams searchParams;
   private String tooltip;
-  private String tooltipAccurate;
+  private final String tooltipAccurate;
 
-  public SearchAreaBase(ResultsetImproved resultset) {
+  public SearchAreaBase(final ResultsetImproved resultset) {
 
     this.fieldNames = new ArrayList<String>();
     this.tooltip =
@@ -56,16 +73,17 @@ public class SearchAreaBase extends HtmlContainer {
     this.searchId = "search-area-" + resultset.getId();
 
     String header =
-        "<div id='" + searchId + "-box' class='search-box'>" + "<div id='"
-            + searchId + "-text'  class='search-text'></div>" + "<div id='"
-            + searchId + "-toolbar'  class='search-button'></div>" + "</div>";
+        "<div id='" + this.searchId + "-box' class='search-box'>" + "<div id='"
+            + this.searchId + "-text'  class='search-text'></div>"
+            + "<div id='" + this.searchId
+            + "-toolbar'  class='search-button'></div>" + "</div>";
     this.setHtml(header);
     this.setWidth("100%");
 
     this.searchParams = new SearchParams(resultset.getId());
 
-    setFields();
-    setButtons();
+    this.setFields();
+    this.setButtons();
   }
 
   private void setFields() {
@@ -75,32 +93,32 @@ public class SearchAreaBase extends HtmlContainer {
     this.field.setWidth(300);
     this.field.setFieldLabel("Ricerca");
     this.field.setEmptyText("inserisci il testo...");
-    this.field.setToolTip(tooltip);
+    this.field.setToolTip(this.tooltip);
     this.field.addKeyListener(new KeyListener() {
       @Override
       public void componentKeyPress(final ComponentEvent event) {
         if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
-          search(false);
+          SearchAreaBase.this.search(false);
         }
       }
     });
 
-    this.add(field, "#" + searchId + "-text");
+    this.add(this.field, "#" + this.searchId + "-text");
   }
 
   private void setButtons() {
 
-    final String SEARCH = searchId + "-search";
-    final String SEARCH_ALL = searchId + "-searchall";
+    final String SEARCH = this.searchId + "-search";
+    final String SEARCH_ALL = this.searchId + "-searchall";
 
     SelectionListener<ButtonEvent> listener =
         new SelectionListener<ButtonEvent>() {
           @Override
-          public void componentSelected(ButtonEvent te) {
+          public void componentSelected(final ButtonEvent te) {
             if (te.getButton().getId().compareTo(SEARCH) == 0) {
-              search(false);
+              SearchAreaBase.this.search(false);
             } else if (te.getButton().getId().compareTo(SEARCH_ALL) == 0) {
-              search(true);
+              SearchAreaBase.this.search(true);
             }
           }
         };
@@ -109,7 +127,7 @@ public class SearchAreaBase extends HtmlContainer {
 
     this.accurate.setValue(true);
     this.accurate.setStyleAttribute("margin-top", "10px");
-    this.accurate.setToolTip(tooltipAccurate);
+    this.accurate.setToolTip(this.tooltipAccurate);
     hp.add(this.accurate);
 
     LabelField lblAccurate = new LabelField("ricerca accurata");
@@ -127,7 +145,7 @@ public class SearchAreaBase extends HtmlContainer {
     searchAll.addSelectionListener(listener);
     hp.add(searchAll);
 
-    this.add(hp, "#" + searchId + "-toolbar");
+    this.add(hp, "#" + this.searchId + "-toolbar");
   }
 
   /**
@@ -137,12 +155,12 @@ public class SearchAreaBase extends HtmlContainer {
    *          se avviare o no la ricerca su tutti i valori del resultset.
    *          Impostare a true per visualizzare tutti i record del resultset
    */
-  private void search(boolean searchAll) {
-    String s = field.getRawValue().trim();
+  private void search(final boolean searchAll) {
+    String s = this.field.getRawValue().trim();
 
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
-    if (!searchAll && s.length() > 0) {
+    if (!searchAll && (s.length() > 0)) {
       SearchStringParser parser = new SearchStringParser(s);
 
       String specialSearchValue = parser.getSpecialSearchValue();
@@ -154,7 +172,7 @@ public class SearchAreaBase extends HtmlContainer {
 
       Map<String, String> searchMap = parser.getSearchMap();
       for (String key : parser.getSearchMap().keySet()) {
-        for (String k : fieldNames) {
+        for (String k : this.fieldNames) {
           if (k.equalsIgnoreCase(key)) {
             BaseModelData m = new BaseModelData();
             m.set(key, searchMap.get(key));
@@ -164,8 +182,8 @@ public class SearchAreaBase extends HtmlContainer {
       }
     }
 
-    searchParams.setFieldsValuesList(queryFieldList);
-    searchParams.setAccurate(accurate.getValue());
-    Dispatcher.forwardEvent(EventList.Search, searchParams);
+    this.searchParams.setFieldsValuesList(queryFieldList);
+    this.searchParams.setAccurate(this.accurate.getValue());
+    Dispatcher.forwardEvent(EventList.Search, this.searchParams);
   }
 }

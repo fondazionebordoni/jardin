@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.VisibleException;
@@ -51,8 +65,6 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 
 /**
  * Static Class for writing/reading files.
- * 
- * @author gpantanetti
  */
 public class FileUtils {
 
@@ -60,8 +72,9 @@ public class FileUtils {
   // public static final char CSV_WRAPPER = '"';
   public static final char CSV_REPLACER = '?';
 
-  public static String createReport(String file, String xsl, Template template,
-      List<BaseModelData> records, List<String> columns, char fs, char ts)
+  public static String createReport(final String file, final String xsl,
+      final Template template, final List<BaseModelData> records,
+      final List<String> columns, final char fs, final char ts)
       throws VisibleException {
     try {
       // TODO Possibile che non ci sia un modo migliore? Vedi EventList
@@ -94,7 +107,7 @@ public class FileUtils {
     }
   }
 
-  private static File createTempFile(String file, String ext)
+  private static File createTempFile(final String file, final String ext)
       throws IOException {
 
     File f = new File(file);
@@ -128,8 +141,9 @@ public class FileUtils {
    * @return full path for the created CSV file
    * @throws IOException
    */
-  private static void writeCsvReport(File f, List<BaseModelData> records,
-      List<String> columns, char fs, char ts) throws IOException {
+  private static void writeCsvReport(final File f,
+      final List<BaseModelData> records, final List<String> columns,
+      final char fs, final char ts) throws IOException {
 
     char separator = fs;
     char wrapper = ts;
@@ -152,7 +166,7 @@ public class FileUtils {
         Collection<String> c = new ArrayList<String>();
         for (String property : columns) {
           String value = String.valueOf(record.get(property));
-          if (value == null || value.compareToIgnoreCase("null") == 0) {
+          if ((value == null) || (value.compareToIgnoreCase("null") == 0)) {
             value = "";
           }
           c.add(value);
@@ -167,8 +181,8 @@ public class FileUtils {
     }
   }
 
-  private static String collection2Csv(Collection<String> c, char separator,
-      char wrapper, char replacer) {
+  private static String collection2Csv(final Collection<String> c,
+      final char separator, final char wrapper, final char replacer) {
     String s = "";
 
     for (String v : c) {
@@ -191,8 +205,9 @@ public class FileUtils {
 
   }
 
-  private static void writeXmlReport(File f, List<BaseModelData> records,
-      List<String> columns) throws IOException, TransformerException {
+  private static void writeXmlReport(final File f,
+      final List<BaseModelData> records, final List<String> columns)
+      throws IOException, TransformerException {
 
     // Setup XSLT
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -209,8 +224,9 @@ public class FileUtils {
     transformer.transform(src, res);
   }
 
-  private static void writePdfReport(File f, List<BaseModelData> records,
-      File xsl) throws MalformedURLException, IOException, URISyntaxException,
+  private static void writePdfReport(final File f,
+      final List<BaseModelData> records, final File xsl)
+      throws MalformedURLException, IOException, URISyntaxException,
       TransformerException, FOPException {
 
     Log.debug("Template: " + xsl.getAbsolutePath());
@@ -261,8 +277,8 @@ public class FileUtils {
     }
   }
 
-  public static void prepareDefaultTemplate(ResultsetImproved resultset,
-      String xsl, List<String> columns) throws IOException {
+  public static void prepareDefaultTemplate(final ResultsetImproved resultset,
+      final String xsl, final List<String> columns) throws IOException {
 
     final String TITLE = "$$TITLE$$";
     final String ROW_BEGIN = "$$ROW_BEGIN$$";

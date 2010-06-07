@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -23,18 +40,15 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 
-/**
- * @author gpantanetti
- */
 public class SearchAreaAdvanced extends FormPanel {
 
   private static int defaultWidth = 120;
   private static int labelWidth = 130;
   private static int padding = 0;
 
-  private ResultsetImproved resultset;
-  private SearchParams searchParams;
-  private List<Field<?>> fieldList;
+  private final ResultsetImproved resultset;
+  private final SearchParams searchParams;
+  private final List<Field<?>> fieldList;
 
   public SearchAreaAdvanced(final ResultsetImproved resultset) {
 
@@ -49,8 +63,8 @@ public class SearchAreaAdvanced extends FormPanel {
     this.setWidth("100%");
     this.setLayout(new FlowLayout());
 
-    createSearchSet();
-    setButtons();
+    this.createSearchSet();
+    this.setButtons();
   }
 
   private void createSearchSet() {
@@ -81,18 +95,18 @@ public class SearchAreaAdvanced extends FormPanel {
         }
 
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
-        
+
         boolean combo = field.getSearchgrouping() == 0;
         // Field f = FieldCreator.getField(field, values, combo);
-              
+
         List<String> values = new ArrayList<String>();
-        
+
         Field<?> f;
         if (combo) {
-          //System.out.println(field.getAlias() + ": combo");
+          // System.out.println(field.getAlias() + ": combo");
           f = FieldCreator.getField(field, values, true, true);
-//              new ParametricField(resultset.getId(), field.getName(),
-//                  field.getName(), field.getAlias());
+          // new ParametricField(resultset.getId(), field.getName(),
+          // field.getName(), field.getAlias());
         } else {
           f = new TextField<String>();
           f.setName(field.getName());
@@ -140,27 +154,28 @@ public class SearchAreaAdvanced extends FormPanel {
     this.addButton(new Button("Cerca", new SelectionListener<ButtonEvent>() {
 
       @Override
-      public void componentSelected(ButtonEvent ce) {
+      public void componentSelected(final ButtonEvent ce) {
         List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
-        for (Field<?> field : fieldList) {
+        for (Field<?> field : SearchAreaAdvanced.this.fieldList) {
           String value = field.getRawValue();
-          if (value != null && value.length() > 0) {
+          if ((value != null) && (value.length() > 0)) {
             BaseModelData m = new BaseModelData();
             m.set(field.getName(), value);
             queryFieldList.add(m);
           }
         }
 
-        searchParams.setFieldsValuesList(queryFieldList);
-        Dispatcher.forwardEvent(EventList.Search, searchParams);
+        SearchAreaAdvanced.this.searchParams.setFieldsValuesList(queryFieldList);
+        Dispatcher.forwardEvent(EventList.Search,
+            SearchAreaAdvanced.this.searchParams);
       }
     }));
 
     this.addButton(new Button("Cancella", new SelectionListener<ButtonEvent>() {
       @Override
-      public void componentSelected(ButtonEvent ce) {
-        for (Field<?> field : fieldList) {
+      public void componentSelected(final ButtonEvent ce) {
+        for (Field<?> field : SearchAreaAdvanced.this.fieldList) {
           field.reset();
         }
       }

@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
@@ -16,20 +30,16 @@ import java.util.List;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
-/**
- * @author acozzolino
- * 
- */
 public class DbProperties {
 
-  private DbConnectionHandler dbConnectionHandler;
+  private final DbConnectionHandler dbConnectionHandler;
 
   public DbProperties() {
     this.dbConnectionHandler = new DbConnectionHandler();
   }
 
   public DbConnectionHandler getConnectionHandler() {
-    return dbConnectionHandler;
+    return this.dbConnectionHandler;
   }
 
   /**
@@ -37,12 +47,13 @@ public class DbProperties {
    * @return lista delle chiavi primarie della tabella <i>table</i>
    * @throws SQLException
    */
-  public List<BaseModelData> getPrimaryKeys(String table) throws SQLException {
+  public List<BaseModelData> getPrimaryKeys(final String table)
+      throws SQLException {
     List<BaseModelData> primaryKeys = new ArrayList<BaseModelData>();
 
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -66,17 +77,18 @@ public class DbProperties {
       Log.warn("Errore durante il lookup per le chiavi primarie");
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return primaryKeys;
   }
 
-  public List<BaseModelData> getForeignKeys(String table) throws SQLException {
+  public List<BaseModelData> getForeignKeys(final String table)
+      throws SQLException {
     List<BaseModelData> foreignKeys = new ArrayList<BaseModelData>();
 
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -101,15 +113,15 @@ public class DbProperties {
       Log.warn("Errore durante il lookup per i vincoli di integrità");
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return foreignKeys;
   }
 
-  public String getForeignKey(String table, String field) {
+  public String getForeignKey(final String table, final String field) {
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -123,27 +135,27 @@ public class DbProperties {
           dbmt.getImportedKeys(connection.getCatalog(), null, table);
       while (infoForeignKey.next()) {
         if (infoForeignKey.getString("FKCOLUMN_NAME").compareToIgnoreCase(field) == 0) {
-          dbConnectionHandler.closeConn(connection);
+          this.dbConnectionHandler.closeConn(connection);
           return infoForeignKey.getString("PKTABLE_NAME") + "."
               + infoForeignKey.getString("PKCOLUMN_NAME");
         }
       }
     } catch (SQLException e) {
       // TODO Auto-generated catch block
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     return "";
 
   }
 
-  public ArrayList<String> getUniqueKeys(String table) {
+  public ArrayList<String> getUniqueKeys(final String table) {
     Connection connection = null;
     ArrayList<String> uniqueKeys = new ArrayList<String>();
     try {
 
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -160,19 +172,19 @@ public class DbProperties {
       }
     } catch (SQLException e) {
       // TODO Auto-generated catch block
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
       e.printStackTrace();
     }
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     return uniqueKeys;
 
   }
 
-  public List<String> getFieldList(int resultset) {
+  public List<String> getFieldList(final int resultset) {
 
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -180,7 +192,8 @@ public class DbProperties {
 
     List<String> result = new ArrayList<String>();
     try {
-      ResultSetMetaData metadata = getResultsetMetadata(connection, resultset);
+      ResultSetMetaData metadata =
+          this.getResultsetMetadata(connection, resultset);
 
       for (int i = 1; i <= metadata.getColumnCount(); i++) {
         String column = metadata.getColumnName(i);
@@ -189,7 +202,7 @@ public class DbProperties {
     } catch (SQLException e) {
       Log.warn("Impossibile recuperare i metadata del resultset " + resultset);
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return result;
 
@@ -204,10 +217,10 @@ public class DbProperties {
    * @return
    * @throws SQLException
    */
-  public ResultSetMetaData getResultsetMetadata(Connection connection,
-      int resultset) throws SQLException {
+  public ResultSetMetaData getResultsetMetadata(final Connection connection,
+      final int resultset) throws SQLException {
     // String query = "SELECT * FROM " + getStatement(resultset) + " WHERE 0";
-    String query = getStatement(resultset);
+    String query = this.getStatement(resultset);
     ResultSet result = DbUtils.doQuery(connection, query);
     return result.getMetaData();
   }
@@ -218,11 +231,11 @@ public class DbProperties {
    *         parametro
    * @throws SQLException
    */
-  public String getStatement(int resultset) throws SQLException {
+  public String getStatement(final int resultset) throws SQLException {
     String statement;
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -248,7 +261,7 @@ public class DbProperties {
     } catch (SQLException e) {
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return statement;
@@ -260,11 +273,11 @@ public class DbProperties {
    *         parametro
    * @throws SQLException
    */
-  public String getResultSetName(int resultset) throws SQLException {
+  public String getResultSetName(final int resultset) throws SQLException {
     String rsName;
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
@@ -289,19 +302,20 @@ public class DbProperties {
     } catch (SQLException e) {
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
 
     return rsName;
   }
 
-  public int getTableNumber(int resultsetId) throws HiddenException,
+  public int getTableNumber(final int resultsetId) throws HiddenException,
       SQLException {
     int tableNumber = 0;
 
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
-    ResultSetMetaData metadata = getResultsetMetadata(connection, resultsetId);
+    ResultSetMetaData metadata =
+        this.getResultsetMetadata(connection, resultsetId);
     int columns = metadata.getColumnCount();
 
     String lastName = null;
@@ -311,22 +325,23 @@ public class DbProperties {
         lastName = metadata.getTableName(i);
       }
     }
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     return tableNumber;
 
   }
 
-  public List<String> getResultsetTableList(int resultsetId)
+  public List<String> getResultsetTableList(final int resultsetId)
       throws SQLException {
     Connection connection = null;
     try {
-      connection = dbConnectionHandler.getConn();
+      connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
       Log.error("Error con database connection", e);
     }
 
-    ResultSetMetaData metadata = getResultsetMetadata(connection, resultsetId);
+    ResultSetMetaData metadata =
+        this.getResultsetMetadata(connection, resultsetId);
 
     String lastName = "";
     List<String> tableList = new ArrayList<String>();
@@ -337,19 +352,19 @@ public class DbProperties {
       }
     }
 
-    dbConnectionHandler.closeConn(connection);
+    this.dbConnectionHandler.closeConn(connection);
     return tableList;
   }
 
-  public List<BaseModelData> getResultsetForeignKeys(int resultsetId)
+  public List<BaseModelData> getResultsetForeignKeys(final int resultsetId)
       throws SQLException, HiddenException {
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     List<BaseModelData> foreignKeys = new ArrayList<BaseModelData>();
     try {
       DatabaseMetaData dbmt = connection.getMetaData();
 
-      for (String table : getResultsetTableList(resultsetId)) {
+      for (String table : this.getResultsetTableList(resultsetId)) {
         ResultSet infoForeignKey =
             dbmt.getImportedKeys(connection.getCatalog(), null, table);
 
@@ -368,20 +383,20 @@ public class DbProperties {
       Log.warn("Errore durante il lookup per i vincoli di integrità");
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return foreignKeys;
   }
 
-  public List<BaseModelData> getResultsetPrimaryKeys(int resultsetId)
+  public List<BaseModelData> getResultsetPrimaryKeys(final int resultsetId)
       throws SQLException, HiddenException {
     List<BaseModelData> primaryKeys = new ArrayList<BaseModelData>();
-    Connection connection = dbConnectionHandler.getConn();
+    Connection connection = this.dbConnectionHandler.getConn();
 
     try {
       DatabaseMetaData dbmt = connection.getMetaData();
 
-      for (String table : getResultsetTableList(resultsetId)) {
+      for (String table : this.getResultsetTableList(resultsetId)) {
         ResultSet infoPrimaryKey =
             dbmt.getPrimaryKeys(connection.getCatalog(), null, table);
 
@@ -399,7 +414,7 @@ public class DbProperties {
       Log.warn("Errore durante il lookup per le chiavi primarie");
       throw e;
     } finally {
-      dbConnectionHandler.closeConn(connection);
+      this.dbConnectionHandler.closeConn(connection);
     }
     return primaryKeys;
   }

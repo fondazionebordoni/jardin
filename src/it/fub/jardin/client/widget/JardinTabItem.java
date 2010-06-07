@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
+ * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -32,14 +49,11 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
-/**
- * @author gpantanetti
- */
 public class JardinTabItem extends TabItem {
 
   private static final int PAGESIZE = 20;
   private static final int MARGIN = 2;
-  private ContentPanel main;
+  private final ContentPanel main;
   private ContentPanel west;
   private ContentPanel center;
   private ContentPanel center_center;
@@ -49,7 +63,7 @@ public class JardinTabItem extends TabItem {
   private FormPanel detail;
   private FormBinding formbinding;
 
-  public JardinTabItem(ResultsetImproved resultset) {
+  public JardinTabItem(final ResultsetImproved resultset) {
     super(resultset.getAlias());
 
     this.setClosable(false);
@@ -99,8 +113,8 @@ public class JardinTabItem extends TabItem {
     this.center_center.setHeaderVisible(false);
     // this.center_center.setLayoutOnChange(true);
     this.center_center.add(new WaitPanel());
-    toolbar = new JardinGridToolBar();
-    this.center_center.setTopComponent(toolbar);
+    this.toolbar = new JardinGridToolBar();
+    this.center_center.setTopComponent(this.toolbar);
     this.center_center.setBottomComponent(new PagingToolBar(PAGESIZE));
 
     BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
@@ -129,7 +143,7 @@ public class JardinTabItem extends TabItem {
     this.center.add(this.center_south, data);
   }
 
-  public void addSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
+  public void addSearchAreaAdvanced(final SearchAreaAdvanced searchAreaAdvanced) {
     this.west.expand();
     this.west.removeAll();
     this.west.add(searchAreaAdvanced);
@@ -149,7 +163,7 @@ public class JardinTabItem extends TabItem {
     return this.grid;
   }
 
-  public void setGrid(JardinGrid grid) {
+  public void setGrid(final JardinGrid grid) {
     this.grid = grid;
     this.center_center.removeAll();
     JardinGridToolBar toolbar =
@@ -158,7 +172,7 @@ public class JardinTabItem extends TabItem {
     this.center_center.add(grid);
   }
 
-  public void addDetail(JardinDetail detail) {
+  public void addDetail(final JardinDetail detail) {
     this.detail = detail;
     this.center_south.expand();
     this.center_south.removeAll();
@@ -198,16 +212,17 @@ public class JardinTabItem extends TabItem {
 
     this.grid.getStore().addListener(Store.Update,
         new Listener<StoreEvent<BaseModelData>>() {
-          public void handleEvent(StoreEvent<BaseModelData> be) {
+          public void handleEvent(final StoreEvent<BaseModelData> be) {
             if (be.getOperation() == RecordUpdate.EDIT) {
-              Dispatcher.forwardEvent(EventList.CommitChanges, grid);
+              Dispatcher.forwardEvent(EventList.CommitChanges,
+                  JardinTabItem.this.grid);
             }
-            formbinding.bind(grid.getSelectionModel().getSelectedItem());
+            JardinTabItem.this.formbinding.bind(JardinTabItem.this.grid.getSelectionModel().getSelectedItem());
           }
         });
 
     /* Binding con il nuovo store */
-    formbinding.setStore(this.grid.getStore());
+    this.formbinding.setStore(this.grid.getStore());
 
     // this.grid.getSelectionModel().addListener(Events.SelectionChange,
     // new Listener<SelectionChangedEvent<BaseModelData>>() {
@@ -223,10 +238,10 @@ public class JardinTabItem extends TabItem {
     // ////////////////////////////////////////////////////////////////////////////////
     this.grid.getSelectionModel().addListener(Events.SelectionChange,
         new Listener<SelectionChangedEvent<BaseModelData>>() {
-          public void handleEvent(SelectionChangedEvent<BaseModelData> be) {
+          public void handleEvent(final SelectionChangedEvent<BaseModelData> be) {
             if (be.getSelection().size() > 0) {
               BaseModelData record = be.getSelection().get(0);
-              for (final Field field : detail.getFields()) {
+              for (final Field field : JardinTabItem.this.detail.getFields()) {
                 if (field instanceof SimpleComboBox) {
                   if (record.get(field.getName()) instanceof Integer) {
                     Integer defaultValue = record.get(field.getName());
@@ -241,9 +256,9 @@ public class JardinTabItem extends TabItem {
                   }
                 }
               }
-              formbinding.bind(record);
+              JardinTabItem.this.formbinding.bind(record);
             } else {
-              formbinding.unbind();
+              JardinTabItem.this.formbinding.unbind();
             }
           }
         });
@@ -259,8 +274,8 @@ public class JardinTabItem extends TabItem {
     }
   }
 
-  public void updatePreference(HeaderPreferenceList data) {
-    toolbar.updatePreferenceButton(data);
+  public void updatePreference(final HeaderPreferenceList data) {
+    this.toolbar.updatePreferenceButton(data);
   }
 
 }

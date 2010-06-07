@@ -1,33 +1,39 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.ResultsetField;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.TriggerField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
-/**
- * @author acozzolino
- */
 public class JardinColumnConfig extends ColumnConfig {
 
-  private int groupingId;
+  private final int groupingId;
   private int fieldId;
   private boolean isKey;
   private boolean isUnique;
-  private ArrayList<String> values;
-
-  // private String foreignKey;
 
   /**
    * Creazione di un ColumnConfig che rispecchia le caratteristiche del campo
@@ -38,7 +44,8 @@ public class JardinColumnConfig extends ColumnConfig {
    * @param values
    *          i valori assumibili
    */
-  public JardinColumnConfig(ResultsetField field, List<String> values) {
+  public JardinColumnConfig(final ResultsetField field,
+      final List<String> values) {
     // public JardinColumnConfig(ResultsetField field) {
     // TODO inserire larghezza campo di default in field?
     super(field.getName(), field.getAlias(), 120);
@@ -50,20 +57,18 @@ public class JardinColumnConfig extends ColumnConfig {
     /* Gestione modifica del campo */
     if (field.getModifyperm()) {
       // final Field f = FieldCreator.getField(field, values, true);
-      
-      
+
       final Field f = FieldCreator.getField(field, values, 0, false);
-//      final Field<?> f = FieldCreator.getField(field, values, 0, true);
+      // final Field<?> f = FieldCreator.getField(field, values, 0, true);
 
       CellEditor editor = null;
 
-      
       if (f instanceof SimpleComboBox) {
         if (field.getType().compareToIgnoreCase("int") == 0) {
           ((SimpleComboBox) f).setEditable(false);
-          editor = new CellEditor((SimpleComboBox) f) {
+          editor = new CellEditor(f) {
             @Override
-            public Object preProcessValue(Object value) {
+            public Object preProcessValue(final Object value) {
               if (value == null) {
                 return value;
               }
@@ -71,7 +76,7 @@ public class JardinColumnConfig extends ColumnConfig {
             }
 
             @Override
-            public Object postProcessValue(Object value) {
+            public Object postProcessValue(final Object value) {
               if (value == null) {
                 return value;
               }
@@ -80,9 +85,9 @@ public class JardinColumnConfig extends ColumnConfig {
           };
         } else {
           ((SimpleComboBox) f).setEditable(false);
-          editor = new CellEditor((SimpleComboBox) f) {
+          editor = new CellEditor(f) {
             @Override
-            public Object preProcessValue(Object value) {
+            public Object preProcessValue(final Object value) {
               if (value == null) {
                 return value;
               }
@@ -90,7 +95,7 @@ public class JardinColumnConfig extends ColumnConfig {
             }
 
             @Override
-            public Object postProcessValue(Object value) {
+            public Object postProcessValue(final Object value) {
               if (value == null) {
                 return value;
               }
@@ -127,14 +132,14 @@ public class JardinColumnConfig extends ColumnConfig {
   }
 
   public int getGroupingId() {
-    return groupingId;
+    return this.groupingId;
   }
 
   /**
    * @param fieldId
    *          the fieldId to set
    */
-  public void setFieldId(int fieldId) {
+  public void setFieldId(final int fieldId) {
     this.fieldId = fieldId;
   }
 
@@ -142,14 +147,14 @@ public class JardinColumnConfig extends ColumnConfig {
    * @return the fieldId
    */
   public int getFieldId() {
-    return fieldId;
+    return this.fieldId;
   }
 
   /**
    * @param isKey
    *          the isKey to set
    */
-  public void setKey(boolean isKey) {
+  public void setKey(final boolean isKey) {
     this.isKey = isKey;
   }
 
@@ -157,14 +162,14 @@ public class JardinColumnConfig extends ColumnConfig {
    * @return the isKey
    */
   public boolean isKey() {
-    return isKey;
+    return this.isKey;
   }
-  
+
   /**
    * @param isKey
    *          the isKey to set
    */
-  public void setUnique(boolean isUnique) {
+  public void setUnique(final boolean isUnique) {
     this.isUnique = isUnique;
   }
 
@@ -172,7 +177,7 @@ public class JardinColumnConfig extends ColumnConfig {
    * @return the isUnique
    */
   public boolean isUnique() {
-    return isUnique;
+    return this.isUnique;
   }
 
 }

@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.mvc;
 
 import it.fub.jardin.client.EventList;
@@ -44,9 +58,6 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
 
-/**
- * @author gpantanetti
- */
 public class JardinView extends View {
 
   public static final String HEADER_AREA = "header-area";
@@ -63,7 +74,7 @@ public class JardinView extends View {
   private HeaderArea header;
   private LoginDialog dialog;
 
-  public JardinView(Controller controller) {
+  public JardinView(final Controller controller) {
     super(controller);
     if (controller instanceof JardinController) {
       this.controller = (JardinController) controller;
@@ -71,84 +82,84 @@ public class JardinView extends View {
   }
 
   @Override
-  protected void handleEvent(AppEvent event) {
+  protected void handleEvent(final AppEvent event) {
     EventType t = event.getType();
     if (t == EventList.Login) {
       if (event.getData() instanceof String) {
-        login((String) event.getData());
+        this.login((String) event.getData());
       } else {
-        login(null);
+        this.login(null);
       }
     } else if (t == EventList.Init) {
-      dialog.hide();
-      initUI();
+      this.dialog.hide();
+      this.initUI();
     } else if (t == EventList.Refresh) {
       this.viewport.removeAll();
       Dispatcher.forwardEvent(new AppEvent(EventList.Login));
     } else if (t == EventList.LoginError) {
-      dialog.hide();
+      this.dialog.hide();
       String message;
       if (event.getData() instanceof String) {
         message = (String) event.getData();
       } else {
         message = "Errore durante l'accesso";
       }
-      loginError(message);
+      this.loginError(message);
     } else if (t == EventList.NewResultset) {
       if (event.getData() instanceof Integer) {
-        newResultset((Integer) event.getData());
+        this.newResultset((Integer) event.getData());
       }
     } else if (t == EventList.GotValuesOfFields) {
       if (event.getData() instanceof Integer) {
-        gotValuesOfFields((Integer) event.getData());
+        this.gotValuesOfFields((Integer) event.getData());
       }
     } else if (t == EventList.GotValuesOfForeignKeys) {
       if (event.getData() instanceof Integer) {
-        gotValuesOfForeignKeys((Integer) event.getData());
+        this.gotValuesOfForeignKeys((Integer) event.getData());
       }
     } else if (t == EventList.Searched) {
       if (event.getData() instanceof SearchResult) {
-        onSearched((SearchResult) event.getData());
+        this.onSearched((SearchResult) event.getData());
       }
       /*
        * Gestione eventi della toolbar
        */
     } else if (t == EventList.Search) {
       if (event.getData() instanceof SearchParams) {
-        onSearch((SearchParams) event.getData());
+        this.onSearch((SearchParams) event.getData());
       }
       /*
        * Gestione eventi della toolbar
        */
     } else if (t == EventList.AddRow) {
       if (event.getData() instanceof Integer) {
-        onAddRow((Integer) event.getData());
+        this.onAddRow((Integer) event.getData());
       }
     } else if (t == EventList.ViewPopUpDetail) {
       if (event.getData() instanceof ArrayList<?>) {
-        onViewPopUpDetail((ArrayList<BaseModelData>) event.getData());
+        this.onViewPopUpDetail((ArrayList<BaseModelData>) event.getData());
       }
     } else if (t == EventList.ShowAllColumns) {
       if (event.getData() instanceof Integer) {
-        onShowAllColumns((Integer) event.getData());
+        this.onShowAllColumns((Integer) event.getData());
       }
     } else if (t == EventList.SaveGridView) {
       if (event.getData() instanceof Integer) {
-        onSaveGridView((Integer) event.getData());
+        this.onSaveGridView((Integer) event.getData());
       }
     } else if (t == EventList.GotHeaderPreference) {
-      updatePreferenceListMenu((HeaderPreferenceList) event.getData());
+      this.updatePreferenceListMenu((HeaderPreferenceList) event.getData());
     } else if (t == EventList.GotPlugins) {
-      updatePluginsMenu((ArrayList<Plugin>) event.getData());
+      this.updatePluginsMenu((ArrayList<Plugin>) event.getData());
     } else if (t == EventList.ViewPlugin) {
-      viewPlugin((String) event.getData());
+      this.viewPlugin((String) event.getData());
       /*
        * Altri eventi
        */
     }
   }
 
-  private void viewPlugin(String data) {
+  private void viewPlugin(final String data) {
     Window w = new Window();
     w.setHeading("Jardin Plugin");
     w.setModal(false);
@@ -161,9 +172,9 @@ public class JardinView extends View {
 
   }
 
-  private void updatePluginsMenu(ArrayList<Plugin> plugins) {
-    if (plugins != null && plugins.size() > 0) {
-      JardinTabItem item = getItemByResultsetId(plugins.get(0).getRsId());
+  private void updatePluginsMenu(final ArrayList<Plugin> plugins) {
+    if ((plugins != null) && (plugins.size() > 0)) {
+      JardinTabItem item = this.getItemByResultsetId(plugins.get(0).getRsId());
       JardinGridToolBar jgtb = item.getToolbar();
       Menu menuPlugins = new Menu();
 
@@ -172,7 +183,7 @@ public class JardinView extends View {
 
         mi.addSelectionListener(new SelectionListener() {
           @Override
-          public void componentSelected(ComponentEvent ce) {
+          public void componentSelected(final ComponentEvent ce) {
             Dispatcher.forwardEvent(EventList.ViewPlugin,
                 plugin.getConfigFile());
           }
@@ -184,31 +195,31 @@ public class JardinView extends View {
     }
   }
 
-  private void onShowAllColumns(int resultset) {
-    JardinTabItem item = getItemByResultsetId(resultset);
+  private void onShowAllColumns(final int resultset) {
+    JardinTabItem item = this.getItemByResultsetId(resultset);
     item.getGrid().showAllColumns();
   }
 
-  private void onAddRow(int resultset) {
-    JardinTabItem item = getItemByResultsetId(resultset);
+  private void onAddRow(final int resultset) {
+    JardinTabItem item = this.getItemByResultsetId(resultset);
     item.getGrid().addRow();
   }
 
-  private void onViewPopUpDetail(ArrayList<BaseModelData> infoToView) {
+  private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {
     BaseModelData data = infoToView.get(0);
     Integer rsId = data.get("RSID");
-    JardinTabItem item = getItemByResultsetId(rsId);
+    JardinTabItem item = this.getItemByResultsetId(rsId);
     item.getGrid().viewDetailPopUp(infoToView);
   }
 
   private void initUI() {
-    viewport = new Viewport();
-    viewport.setLayout(new RowLayout(Orientation.VERTICAL));
+    this.viewport = new Viewport();
+    this.viewport.setLayout(new RowLayout(Orientation.VERTICAL));
 
-    createHeader();
-    createMain();
+    this.createHeader();
+    this.createMain();
 
-    RootPanel.get().add(viewport);
+    RootPanel.get().add(this.viewport);
     Dispatcher.forwardEvent(EventList.CreateUI);
   }
 
@@ -239,7 +250,8 @@ public class JardinView extends View {
    *          l'id del resultset
    * @return un TabItem o null se non esiste
    */
-  public synchronized JardinTabItem getItemByResultsetId(Integer resultsetId) {
+  public synchronized JardinTabItem getItemByResultsetId(
+      final Integer resultsetId) {
     if (this.main.getItemByItemId(ITEM_PREFIX + resultsetId) instanceof JardinTabItem) {
       JardinTabItem item =
           (JardinTabItem) this.main.getItemByItemId(ITEM_PREFIX + resultsetId);
@@ -251,65 +263,64 @@ public class JardinView extends View {
     }
   }
 
-  private void login(String loginMessage) {
+  private void login(final String loginMessage) {
 
-    dialog = new LoginDialog();
-    dialog.setClosable(false);
-    dialog.show();
+    this.dialog = new LoginDialog();
+    this.dialog.setClosable(false);
+    this.dialog.show();
 
     if (loginMessage != null) {
       MessageBox.alert("Attenzione", loginMessage, null);
     }
   }
 
-  private void loginError(String message) {
+  private void loginError(final String message) {
     final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
-      public void handleEvent(MessageBoxEvent we) {
+      public void handleEvent(final MessageBoxEvent we) {
         Dispatcher.forwardEvent(new AppEvent(EventList.Login));
       }
     };
     MessageBox.alert("Errore", message, l);
   }
 
-  private void newResultset(Integer resultsetId) {
+  private void newResultset(final Integer resultsetId) {
     /* Prendi le proprietà del resultset in base all'id dall'utente */
     ResultsetImproved resultset =
-        controller.getUser().getResultsetFromId(resultsetId);
+        this.controller.getUser().getResultsetFromId(resultsetId);
     JardinTabItem item = new JardinTabItem(resultset);
     item.setId(ITEM_PREFIX + resultsetId);
     this.main.add(item);
   }
 
-  private synchronized void gotValuesOfFields(Integer resultsetId) {
+  private synchronized void gotValuesOfFields(final Integer resultsetId) {
     ResultsetImproved resultset =
-        controller.getUser().getResultsetFromId(resultsetId);
+        this.controller.getUser().getResultsetFromId(resultsetId);
 
     /* Creazione dell'area di ricerca avanzata */
     SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
 
-    JardinTabItem item = getItemByResultsetId(resultsetId);
+    JardinTabItem item = this.getItemByResultsetId(resultsetId);
     if (item != null) {
       /* Aggiungere la ricerca avanzata al tabitem */
       item.addSearchAreaAdvanced(searchAreaAdvanced);
     }
   }
 
-  private synchronized void gotValuesOfForeignKeys(Integer resultsetId) {
+  private synchronized void gotValuesOfForeignKeys(final Integer resultsetId) {
     ResultsetImproved resultset =
-        controller.getUser().getResultsetFromId(resultsetId);
+        this.controller.getUser().getResultsetFromId(resultsetId);
 
     /* Creazione della griglia */
     ListStore<BaseModelData> store = new ListStore<BaseModelData>();
     JardinColumnModel cm = new JardinColumnModel(resultset);
     JardinGrid grid = new JardinGrid(store, cm, resultset);
 
-    /* Creazione dell'area di ricerca semplice */
-    SearchAreaBase searchAreaBase = new SearchAreaBase(resultset);
+    new SearchAreaBase(resultset);
 
     /* Creazione del dettaglio */
     JardinDetail detail = new JardinDetail(resultset);
 
-    JardinTabItem item = getItemByResultsetId(resultsetId);
+    JardinTabItem item = this.getItemByResultsetId(resultsetId);
     if (item != null) {
       /* Aggiungere la griglia al tabItem */
       item.setGrid(grid);
@@ -328,9 +339,10 @@ public class JardinView extends View {
     }
   }
 
-  private void onSearch(SearchParams searchParams) {
+  private void onSearch(final SearchParams searchParams) {
     // TODO Auto-generated method stub
-    JardinTabItem item = getItemByResultsetId(searchParams.getResultsetId());
+    JardinTabItem item =
+        this.getItemByResultsetId(searchParams.getResultsetId());
     if (item != null) {
       if (item.getGrid() != null) {
         item.getGrid().setSearchparams(searchParams);
@@ -338,8 +350,8 @@ public class JardinView extends View {
     }
   }
 
-  private void onSearched(SearchResult result) {
-    JardinTabItem item = getItemByResultsetId(result.getResultsetId());
+  private void onSearched(final SearchResult result) {
+    JardinTabItem item = this.getItemByResultsetId(result.getResultsetId());
 
     if (item != null) {
       if (item.getGrid() != null) {
@@ -351,18 +363,18 @@ public class JardinView extends View {
     }
   }
 
-  private void onSaveGridView(int resultset) {
-    final JardinGrid grid = getItemByResultsetId(resultset).getGrid();
+  private void onSaveGridView(final int resultset) {
+    final JardinGrid grid = this.getItemByResultsetId(resultset).getGrid();
     final MessageBox box = MessageBox.prompt("Nome", "Salva visualizzazione");
     box.addCallback(new Listener<MessageBoxEvent>() {
-      public void handleEvent(MessageBoxEvent be) {
-        grid.saveGridView(controller.getUser(), be.getValue());
+      public void handleEvent(final MessageBoxEvent be) {
+        grid.saveGridView(JardinView.this.controller.getUser(), be.getValue());
       }
     });
   }
 
-  private void updatePreferenceListMenu(HeaderPreferenceList data) {
-    JardinTabItem item = getItemByResultsetId(data.getResultsetId());
+  private void updatePreferenceListMenu(final HeaderPreferenceList data) {
+    JardinTabItem item = this.getItemByResultsetId(data.getResultsetId());
     if (item != null) {
       /* Aggiungere la ricerca avanzata al tabitem */
       item.updatePreference(data);

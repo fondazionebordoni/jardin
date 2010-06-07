@@ -1,5 +1,18 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package it.fub.jardin.client.model;
@@ -18,10 +31,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-/**
- * @author acozzolino
- * 
- */
 public class User implements IsSerializable {
 
   private static final long serialVersionUID = 1L;
@@ -69,10 +78,11 @@ public class User implements IsSerializable {
    * @param messages
    *          Message messages' list
    */
-  public User(int uid, int gid, Credentials credentials, String name,
-      String surname, String group, String email, String office,
-      String telephone, int status, int login, String last,
-      List<ResultsetImproved> resultsets, List<Message> messages) {
+  public User(final int uid, final int gid, final Credentials credentials,
+      final String name, final String surname, final String group,
+      final String email, final String office, final String telephone,
+      final int status, final int login, final String last,
+      final List<ResultsetImproved> resultsets, final List<Message> messages) {
     super();
     this.uid = uid;
     this.gid = gid;
@@ -90,64 +100,64 @@ public class User implements IsSerializable {
     this.messages = messages;
     this.events = new ArrayList<EventTypeSerializable>();
   }
-  
-  public void addEvent(EventTypeSerializable event) {
+
+  public void addEvent(final EventTypeSerializable event) {
     this.events.add(event);
   }
 
   public void cleanEvents() {
     this.events = new ArrayList<EventTypeSerializable>();
   }
-  
+
   public Credentials getCredentials() {
-    return credentials;
+    return this.credentials;
   }
 
   public String getEmail() {
-    return email;
+    return this.email;
   }
 
   public List<EventTypeSerializable> getEvents() {
-    return events;
+    return this.events;
   }
-  
+
   public String getFullName() {
-    return getName() + " " + getSurname();
+    return this.getName() + " " + this.getSurname();
   }
 
   public int getGid() {
-    return gid;
+    return this.gid;
   }
 
   public String getGroup() {
-    return group;
+    return this.group;
   }
 
   public String getLast() {
-    return last;
+    return this.last;
   }
 
   public int getLogin() {
-    return login;
+    return this.login;
   }
 
   public List<Message> getMessages() {
-    return messages;
+    return this.messages;
   }
-  
+
   public String getName() {
-    return name;
+    return this.name;
   }
 
   public String getOffice() {
-    return office;
+    return this.office;
   }
 
   public String getPassword() {
-    return getCredentials().getPassword();
+    return this.getCredentials().getPassword();
   }
 
-  public ResultsetImproved getResultsetFromId(int resultsetId) {
+  public ResultsetImproved getResultsetFromId(final int resultsetId) {
     ResultsetImproved res = null;
     for (ResultsetImproved r : this.getResultsets()) {
       if (r.getId() == resultsetId) {
@@ -157,55 +167,55 @@ public class User implements IsSerializable {
     return res;
   }
 
-	public List<ResultsetImproved> getResultsets() {
-    return resultsets;
+  public List<ResultsetImproved> getResultsets() {
+    return this.resultsets;
   }
 
   public int getStatus() {
-    return status;
+    return this.status;
   }
 
   public String getSurname() {
-    return surname;
+    return this.surname;
   }
 
   public String getTelephone() {
-    return telephone;
+    return this.telephone;
   }
 
   public int getUid() {
-    return uid;
+    return this.uid;
   }
 
   public String getUsername() {
-    return getCredentials().getUsername();
+    return this.getCredentials().getUsername();
   }
 
-  public void setEmail(String email) {
+  public void setEmail(final String email) {
     this.email = email;
   }
-  
-  public void setMessages(List<Message> messages) {
+
+  public void setMessages(final List<Message> messages) {
     this.messages = messages;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
-  public void setOffice(String office) {
+  public void setOffice(final String office) {
     this.office = office;
   }
 
-  public void setPassword(String password) {
-    getCredentials().setPassword(password);
+  public void setPassword(final String password) {
+    this.getCredentials().setPassword(password);
   }
 
   /**
    * Aggiorna le preferenze dell'utente
    */
   public void setResultsetHeaderPreferencesNoDefault(final Integer resultsetId,
-      ArrayList<Integer> headerFields, String value) {
+      final ArrayList<Integer> headerFields, final String value) {
 
     final MessageBox waitbox =
         MessageBox.wait("Attendere",
@@ -217,12 +227,12 @@ public class User implements IsSerializable {
 
     /* Set up the callback */
     AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
-      public void onFailure(Throwable caught) {
+      public void onFailure(final Throwable caught) {
         waitbox.close();
         Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
       }
 
-      public void onSuccess(Boolean result) {
+      public void onSuccess(final Boolean result) {
         waitbox.close();
         if (result) {
           // TODO Aggiornare solamente le preferenze del resultset in questione
@@ -236,15 +246,15 @@ public class User implements IsSerializable {
     };
 
     /* Make the call */
-    service.setUserResultsetHeaderPreferencesNoDefault(getUid(), resultsetId,
-        headerFields, value, callback);
+    service.setUserResultsetHeaderPreferencesNoDefault(this.getUid(),
+        resultsetId, headerFields, value, callback);
   }
 
-  public void setSurname(String surname) {
+  public void setSurname(final String surname) {
     this.surname = surname;
   }
 
-  public void setTelephone(String telephone) {
+  public void setTelephone(final String telephone) {
     this.telephone = telephone;
   }
 
@@ -253,13 +263,13 @@ public class User implements IsSerializable {
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-      public void onFailure(Throwable caught) {
+      public void onFailure(final Throwable caught) {
         Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
       }
 
-      public void onSuccess(Integer result) {
+      public void onSuccess(final Integer result) {
         Info.display("Informazione", "Salvate preferenze per l'utente "
-            + getUsername());
+            + User.this.getUsername());
       }
     };
 

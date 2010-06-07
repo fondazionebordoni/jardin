@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.ResultsetField;
@@ -21,13 +35,13 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 
 public class JardinDetail extends FormPanel {
 
-  private static final int defaultWidth = 270; //width dei campi
+  private static final int defaultWidth = 270; // width dei campi
   private static final int labelWidth = 170;
   private static final int padding = 0;
 
-  private ResultsetImproved resultset;
+  private final ResultsetImproved resultset;
 
-  public JardinDetail(ResultsetImproved resultset) {
+  public JardinDetail(final ResultsetImproved resultset) {
 
     this.resultset = resultset;
     this.addStyleName(JardinView.DETAIL_AREA);
@@ -61,7 +75,7 @@ public class JardinDetail extends FormPanel {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
         List<String> values = new ArrayList<String>();
-        //resultset.getForeignKeyList().getValues(field.getId());
+        // resultset.getForeignKeyList().getValues(field.getId());
         // Field f = FieldCreator.getField(field, values, true, labelWidth);
         // Field f = FieldCreator.getField(field,0);
         Field<?> f = FieldCreator.getField(field, values, 0, true);

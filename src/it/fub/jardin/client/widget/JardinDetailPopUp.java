@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -15,11 +29,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -39,13 +51,9 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-/**
- * @author mavellino
- */
 public class JardinDetailPopUp extends Window {
 
   List<Field<?>> fieldList = new ArrayList<Field<?>>();
@@ -62,7 +70,7 @@ public class JardinDetailPopUp extends Window {
   /**
    * Create a new Detail Area for Impianti printing all available fields
    */
-  public JardinDetailPopUp(ArrayList<BaseModelData> infoToView) {
+  public JardinDetailPopUp(final ArrayList<BaseModelData> infoToView) {
 
     /* Impostazione caratteristiche di Window */
     this.setSize(650, 550);
@@ -81,22 +89,22 @@ public class JardinDetailPopUp extends Window {
     this.resultset = rs;
 
     /* Creazione FormPanel */
-    formPanel = new FormPanel();
-    formPanel.setBodyBorder(false);
-    formPanel.setLabelWidth(350);
-    formPanel.setHeaderVisible(false);
-    formPanel.setScrollMode(Scroll.AUTO);
+    this.formPanel = new FormPanel();
+    this.formPanel.setBodyBorder(false);
+    this.formPanel.setLabelWidth(350);
+    this.formPanel.setHeaderVisible(false);
+    this.formPanel.setScrollMode(Scroll.AUTO);
 
-    setFormPanel(data, entry);
+    this.setFormPanel(data, entry);
 
-    add(formPanel);
-    setButtons();
+    this.add(this.formPanel);
+    this.setButtons();
 
-    show();
+    this.show();
 
   }
 
-  private void setFormPanel(BaseModelData data, BaseModelData entry) {
+  private void setFormPanel(final BaseModelData data, final BaseModelData entry) {
 
     for (ResultsetField field : this.resultset.getFields()) {
 
@@ -105,7 +113,7 @@ public class JardinDetailPopUp extends Window {
 
         List values = new ArrayList();
         Field f = FieldCreator.getField(field, values, 0, true);
-        fieldList.add(f);
+        this.fieldList.add(f);
         if (!field.getModifyperm()) {
           f.setEnabled(false);
         }
@@ -124,7 +132,7 @@ public class JardinDetailPopUp extends Window {
             ((SimpleComboBox<Integer>) f).add((Integer) entry.get(field.getName()));
             ((SimpleComboBox<Integer>) f).setSimpleValue((Integer) entry.get(field.getName()));
           } else {
-            ((SimpleComboBox<String>) f).add((String)entry.get(field.getName()));
+            ((SimpleComboBox<String>) f).add((String) entry.get(field.getName()));
             ((SimpleComboBox<String>) f).setSimpleValue((String) entry.get(field.getName()));
           }
         } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
@@ -136,20 +144,20 @@ public class JardinDetailPopUp extends Window {
             this.resultset.getFieldGrouping(field.getIdgrouping());
         /* Se il campo non ha raggruppamento l'aggancio a quello base */
         if (fieldGrouping == null) {
-          formPanel.add(f);
+          this.formPanel.add(f);
         } else {
           String fieldSetName = fieldGrouping.getName();
 
           /*
            * Se il fieldset non esiste lo creo e l'aggancio a pannello
            */
-          FieldSet fieldSet = fieldSetList.get(fieldSetName);
+          FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
           if (fieldSet == null) {
             fieldSet =
                 new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
                     labelWidth, padding);
-            fieldSetList.put(fieldSetName, fieldSet);
-            formPanel.add(fieldSet);
+            this.fieldSetList.put(fieldSetName, fieldSet);
+            this.formPanel.add(fieldSet);
           }
 
           /* Aggancio il campo al suo raggruppamento */
@@ -161,14 +169,14 @@ public class JardinDetailPopUp extends Window {
 
   private void setButtons() {
     ButtonBar buttonBar = new ButtonBar();
-    button = new Button("Salva", new SelectionListener<ButtonEvent>() {
+    this.button = new Button("Salva", new SelectionListener<ButtonEvent>() {
 
       @Override
-      public void componentSelected(ButtonEvent ce) {
+      public void componentSelected(final ButtonEvent ce) {
 
         List<BaseModelData> newItemList = new ArrayList<BaseModelData>();
         BaseModelData newItem = new BaseModelData();
-        for (Field<?> field : fieldList) {
+        for (Field<?> field : JardinDetailPopUp.this.fieldList) {
 
           String property = field.getName();
 
@@ -191,16 +199,17 @@ public class JardinDetailPopUp extends Window {
           }
           if (field.getValue() != null) {
             newItem.set(property, value);
-            //Log.debug("aggiunto item " + newItem.get(property));
+            // Log.debug("aggiunto item " + newItem.get(property));
           }
         }
         newItemList.add(newItem);
-        commitChangesAsync(resultset.getId(), newItemList);
+        JardinDetailPopUp.this.commitChangesAsync(
+            JardinDetailPopUp.this.resultset.getId(), newItemList);
       }
     });
 
-    buttonBar.add(button);
-    formPanel.setBottomComponent(buttonBar);
+    buttonBar.add(this.button);
+    this.formPanel.setBottomComponent(buttonBar);
   }
 
   /**
@@ -208,7 +217,7 @@ public class JardinDetailPopUp extends Window {
    * @param items
    */
   private void commitChangesAsync(final Integer resultset,
-      List<BaseModelData> items) {
+      final List<BaseModelData> items) {
 
     final MessageBox waitbox =
         MessageBox.wait("Attendere", "Salvataggio in corso...", "");
@@ -219,12 +228,12 @@ public class JardinDetailPopUp extends Window {
 
     /* Set up the callback */
     AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-      public void onFailure(Throwable caught) {
+      public void onFailure(final Throwable caught) {
         waitbox.close();
         Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
       }
 
-      public void onSuccess(Integer result) {
+      public void onSuccess(final Integer result) {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
@@ -235,7 +244,7 @@ public class JardinDetailPopUp extends Window {
           bm.set("searchField", "");
           queryFieldList.add(bm);
           sp.setFieldsValuesList(queryFieldList);
-          hide();
+          JardinDetailPopUp.this.hide();
           Dispatcher.forwardEvent(EventList.Search, sp);
 
         } else {

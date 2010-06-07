@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (c) 2010 Jardin Development Group <jardin.project@gmail.com>.
  * 
+ * Jardin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Jardin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
@@ -37,14 +51,10 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 
-/**
- * @author gpantanetti
- * 
- */
 public class TwitterPanel extends ContentPanel {
 
   private static final int MAX_CHARACTERS = 160;
-  private User user;
+  private final User user;
   private TextArea text;
   private Button send;
   private Status status;
@@ -52,7 +62,7 @@ public class TwitterPanel extends ContentPanel {
   private ContentPanel messageArea;
   private static final String TYPE = "TYPE";
 
-  public TwitterPanel(User user) {
+  public TwitterPanel(final User user) {
     this.user = user;
 
     this.setStyleName("twitter-area");
@@ -62,8 +72,8 @@ public class TwitterPanel extends ContentPanel {
     this.setFrame(false);
     this.setLayout(new RowLayout(Orientation.VERTICAL));
 
-    this.add(getSendArea(), new RowData(1, -1, new Margins(4)));
-    this.add(getMessageArea(), new RowData(1, 1, new Margins(0)));
+    this.add(this.getSendArea(), new RowData(1, -1, new Margins(4)));
+    this.add(this.getMessageArea(), new RowData(1, 1, new Margins(0)));
 
   }
 
@@ -75,14 +85,14 @@ public class TwitterPanel extends ContentPanel {
     area.setBodyBorder(false);
     area.setFrame(false);
 
-    messageArea = new ContentPanel(new RowLayout(Orientation.VERTICAL));
-    messageArea.setHeaderVisible(false);
-    messageArea.setBorders(false);
-    messageArea.setBodyBorder(false);
-    messageArea.setFrame(false);
-    messageArea.setScrollMode(Scroll.AUTOY);
-    messageArea.setStyleAttribute("font", "120% serif");
-    area.add(messageArea);
+    this.messageArea = new ContentPanel(new RowLayout(Orientation.VERTICAL));
+    this.messageArea.setHeaderVisible(false);
+    this.messageArea.setBorders(false);
+    this.messageArea.setBodyBorder(false);
+    this.messageArea.setFrame(false);
+    this.messageArea.setScrollMode(Scroll.AUTOY);
+    this.messageArea.setStyleAttribute("font", "120% serif");
+    area.add(this.messageArea);
 
     return area;
   }
@@ -97,12 +107,13 @@ public class TwitterPanel extends ContentPanel {
 
     Validator validator = new Validator() {
 
-      public String validate(Field<?> field, String value) {
+      public String validate(final Field<?> field, final String value) {
 
         boolean result =
-            (value != null && value.length() > 0 && value.length() <= MAX_CHARACTERS);
-        status.setText(String.valueOf(MAX_CHARACTERS - value.length()));
-        send.setEnabled(result);
+            ((value != null) && (value.length() > 0) && (value.length() <= MAX_CHARACTERS));
+        TwitterPanel.this.status.setText(String.valueOf(MAX_CHARACTERS
+            - value.length()));
+        TwitterPanel.this.send.setEnabled(result);
 
         if (result) {
           return null;
@@ -113,26 +124,27 @@ public class TwitterPanel extends ContentPanel {
     };
 
     KeyListener keyListener = new KeyListener() {
-      public void componentKeyUp(ComponentEvent event) {
-        text.validate();
+      @Override
+      public void componentKeyUp(final ComponentEvent event) {
+        TwitterPanel.this.text.validate();
 
         // Use Ctrl+Enter to send messages
-        if (text.isValid() && event.isControlKey()
+        if (TwitterPanel.this.text.isValid() && event.isControlKey()
             && (event.getKeyCode() == KeyCodes.KEY_ENTER)) {
-          submit();
+          TwitterPanel.this.submit();
         }
       }
     };
 
-    text = new TextArea();
-    text.setStyleAttribute("font", "110% serif");
+    this.text = new TextArea();
+    this.text.setStyleAttribute("font", "110% serif");
     // text.setEmptyText("Digitare qui il messaggio da inviare");
-    text.addKeyListener(keyListener);
-    text.setValidator(validator);
-    text.setMinLength(1);
-    text.setMaxLength(MAX_CHARACTERS);
+    this.text.addKeyListener(keyListener);
+    this.text.setValidator(validator);
+    this.text.setMinLength(1);
+    this.text.setMaxLength(MAX_CHARACTERS);
 
-    area.add(text);
+    area.add(this.text);
 
     /* Button bar */
     ButtonBar bb = area.getButtonBar();
@@ -140,19 +152,21 @@ public class TwitterPanel extends ContentPanel {
     bb.setAlignment(HorizontalAlignment.LEFT);
 
     /* Send button */
-    send = new Button("Invia");
-    send.setEnabled(false);
-    send.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        submit();
+    this.send = new Button("Invia");
+    this.send.setEnabled(false);
+    this.send.addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
+        TwitterPanel.this.submit();
       }
     });
 
     /* Update button */
     Button update = new Button("Aggiorna");
     update.addSelectionListener(new SelectionListener<ButtonEvent>() {
-      public void componentSelected(ButtonEvent ce) {
-        updateMessages();
+      @Override
+      public void componentSelected(final ButtonEvent ce) {
+        TwitterPanel.this.updateMessages();
       }
     });
 
@@ -166,34 +180,35 @@ public class TwitterPanel extends ContentPanel {
     radio2.setData(TYPE, MessageType.ALL);
     radio2.setBoxLabel("Tutti");
 
-    typeSelect = new RadioGroup("recipient");
-    typeSelect.add(radio);
-    typeSelect.add(radio2);
+    this.typeSelect = new RadioGroup("recipient");
+    this.typeSelect.add(radio);
+    this.typeSelect.add(radio2);
 
     /* Status label */
-    status = new Status();
-    status.setText(String.valueOf(MAX_CHARACTERS));
+    this.status = new Status();
+    this.status.setText(String.valueOf(MAX_CHARACTERS));
 
-    bb.add(typeSelect);
+    bb.add(this.typeSelect);
     bb.add(new FillToolItem());
-    bb.add(status);
-    bb.add(send);
+    bb.add(this.status);
+    bb.add(this.send);
     bb.add(update);
 
     return area;
   }
 
   private void submit() {
-    String body = text.getValue();
+    String body = this.text.getValue();
 
     // TODO manage recipient?
     // TODO eliminate title
-    MessageType type = (MessageType) typeSelect.getValue().getData(TYPE);
+    MessageType type = (MessageType) this.typeSelect.getValue().getData(TYPE);
     Message message = null;
     switch (type) {
     case GROUP:
       message =
-          new Message("Titolo messaggio", body, new Date(), type, user.getGid());
+          new Message("Titolo messaggio", body, new Date(), type,
+              this.user.getGid());
       break;
     case ALL:
       message = new Message("Titolo messaggio", body, new Date(), type, -1);
@@ -204,8 +219,8 @@ public class TwitterPanel extends ContentPanel {
 
     Log.debug(message.toString());
     Dispatcher.forwardEvent(EventList.SendMessage, message);
-    text.reset();
-    text.validate();
+    this.text.reset();
+    this.text.validate();
   }
 
   @Override
@@ -215,12 +230,12 @@ public class TwitterPanel extends ContentPanel {
   }
 
   private void updateMessages() {
-    messageArea.removeAll();
+    this.messageArea.removeAll();
 
     List<Message> m = this.user.getMessages();
 
     if (m.size() <= 0) {
-      messageArea.addText("<i>Nessuna comunicazione</i>");
+      this.messageArea.addText("<i>Nessuna comunicazione</i>");
     }
 
     for (Message w : m) {
@@ -243,11 +258,11 @@ public class TwitterPanel extends ContentPanel {
       }
       type = "<b>" + type + "</b>";
 
-      messageArea.addText("<p>" + type + " " + date + ": " + title + "<br>"
-          + body + "</p>");
+      this.messageArea.addText("<p>" + type + " " + date + ": " + title
+          + "<br>" + body + "</p>");
     }
 
-    messageArea.layout();
+    this.messageArea.layout();
   }
 
 }
