@@ -34,10 +34,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 
 public class HeaderArea extends HtmlContainer {
 
-  private final String aboutMessage =
-      "<b>Fondazione Ugo Bordoni<br>" + "JARDiN Manager<br></b>"
-          + "Versione 0.9.7.3";
-
   private final User user;
 
   public HeaderArea(final User user) {
@@ -61,12 +57,15 @@ public class HeaderArea extends HtmlContainer {
     about.addSelectionListener(new SelectionListener<ButtonEvent>() {
       @Override
       public void componentSelected(final ButtonEvent ce) {
-        MessageBox m = new MessageBox();
-        m.setMinWidth(400);
-        m.setTitle("Info");
-        m.setMessage(HeaderArea.this.aboutMessage);
-        m.setIcon(MessageBox.INFO);
-        m.show();
+        Window w = new Window();
+        w.setHeading("Info");
+        w.setModal(true);
+        w.setSize(460, 140);
+        w.setMaximizable(false);
+        w.setResizable(false);
+        w.setBodyBorder(false);
+        w.setUrl("help/about.xml");
+        w.show();
       }
     });
     toolbar.add(about);
@@ -117,7 +116,7 @@ public class HeaderArea extends HtmlContainer {
         w.show();
       }
     });
-    toolbar.add(calc);
+    // toolbar.add(calc);
 
     Button calendar = new Button("Calendario");
     calendar.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -133,7 +132,7 @@ public class HeaderArea extends HtmlContainer {
         w.show();
       }
     });
-    toolbar.add(calendar);
+    // toolbar.add(calendar);
 
     final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
       public void handleEvent(final MessageBoxEvent ce) {
