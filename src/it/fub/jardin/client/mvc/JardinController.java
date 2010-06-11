@@ -22,7 +22,6 @@ import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.SearchStringParser;
 import it.fub.jardin.client.model.Credentials;
-import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
@@ -497,12 +496,12 @@ public class JardinController extends Controller {
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
-    AsyncCallback<List<EventTypeSerializable>> callback =
-        new AsyncCallback<List<EventTypeSerializable>>() {
+    AsyncCallback<List<EventType>> callback =
+        new AsyncCallback<List<EventType>>() {
 
-          public void onSuccess(final List<EventTypeSerializable> eventTypes) {
+          public void onSuccess(final List<EventType> eventTypes) {
 
-            for (EventTypeSerializable eventType : eventTypes) {
+            for (EventType eventType : eventTypes) {
               JardinController.this.handleEvent(new AppEvent(eventType));
             }
             service.getEvents(this);

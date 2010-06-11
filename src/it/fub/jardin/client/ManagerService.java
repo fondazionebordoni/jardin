@@ -20,7 +20,6 @@ package it.fub.jardin.client;
 import it.fub.jardin.client.exception.HiddenException;
 import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
-import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Message;
@@ -35,6 +34,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 public interface ManagerService extends RemoteService {
@@ -47,7 +47,7 @@ public interface ManagerService extends RemoteService {
   /**
    * Sits on listening and gets events from server.
    */
-  public List<EventTypeSerializable> getEvents();
+  public List<EventType> getEvents();
 
   public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
       throws HiddenException;

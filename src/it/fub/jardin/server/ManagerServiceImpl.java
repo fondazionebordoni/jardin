@@ -22,7 +22,6 @@ import it.fub.jardin.client.ManagerService;
 import it.fub.jardin.client.exception.HiddenException;
 import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
-import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Message;
@@ -48,6 +47,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ManagerServiceImpl extends RemoteServiceServlet implements
@@ -140,9 +140,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return group;
   }
 
-  public List<EventTypeSerializable> getEvents() {
+  public List<EventType> getEvents() {
 
-    List<EventTypeSerializable> events = null;
+    List<EventType> events = null;
     User user = this.getCurrentUser();
     if (user != null) {
       while (user.getEvents().size() == 0) {
@@ -283,9 +283,6 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
     for (User user : users) {
       synchronized (user) {
-        // TODO throws java.lang.IllegalMonitorStateException: current
-        // thread
-        // not owner
         user.addEvent(EventList.NewMessage);
         user.notifyAll();
       }
