@@ -61,7 +61,9 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
@@ -70,6 +72,7 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
@@ -713,39 +716,59 @@ public class JardinController extends Controller {
       final List<BaseModelData> selectedRows =
           grid.getSelectionModel().getSelection();
 
-      if (selectedRows.size() > 0) {
-        final MessageBox waitbox =
-            MessageBox.wait("Attendere", "Eliminazione righe in corso...", "");
+      int numrows = selectedRows.size();
+      if (numrows > 0) {
 
-        /* Create the service proxy class */
-        final ManagerServiceAsync service =
-            (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+        String prompt = "Vuoi davvero eliminare ";
+        if (numrows > 1) {
+          prompt += numrows + " righe dal database?";
+        } else {
+          prompt += "la riga dal database?";
+        }
 
-        /* Set up the callback */
-        AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-          public void onFailure(final Throwable caught) {
-            waitbox.close();
-            Dispatcher.forwardEvent(EventList.Error,
-                caught.getLocalizedMessage());
-          }
+        final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
+          public void handleEvent(final MessageBoxEvent ce) {
+            Button btn = ce.getButtonClicked();
+            if (btn.getText().equalsIgnoreCase("yes")) {
+              final MessageBox waitbox =
+                  MessageBox.wait("Attendere", "Eliminazione in corso...", "");
 
-          public void onSuccess(final Integer result) {
-            waitbox.close();
-            if (result.intValue() <= 0) {
-              Dispatcher.forwardEvent(EventList.Error, "Nessuna riga eliminata");
-            } else {
-              ListStore<BaseModelData> store = grid.getStore();
-              for (BaseModelData row : selectedRows) {
-                store.remove(row);
-              }
-              store.commitChanges();
-              Info.display("Informazione", "Dati cancellati", "");
+              /* Create the service proxy class */
+              final ManagerServiceAsync service =
+                  (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+
+              /* Set up the callback */
+              AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+                public void onFailure(final Throwable caught) {
+                  waitbox.close();
+                  Dispatcher.forwardEvent(EventList.Error,
+                      caught.getLocalizedMessage());
+                }
+
+                public void onSuccess(final Integer result) {
+                  waitbox.close();
+                  if (result.intValue() <= 0) {
+                    Dispatcher.forwardEvent(EventList.Error,
+                        "Nessuna riga eliminata");
+                  } else {
+                    ListStore<BaseModelData> store = grid.getStore();
+                    for (BaseModelData row : selectedRows) {
+                      store.remove(row);
+                    }
+                    store.commitChanges();
+                    Info.display("Informazione", "Dati cancellati", "");
+                  }
+                }
+              };
+
+              /* Make the call */
+              service.removeObjects(resultset, selectedRows, callback);
             }
           }
         };
 
-        /* Make the call */
-        service.removeObjects(resultset, selectedRows, callback);
+        MessageBox.confirm("Attenzione", prompt, l);
+
       } else {
         Info.display("Informazione", "Selezionare almeno una riga", "");
       }
