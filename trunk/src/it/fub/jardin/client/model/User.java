@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -40,7 +41,7 @@ public class User implements IsSerializable {
   private String name, surname, group, email, office, telephone, last;
   private List<ResultsetImproved> resultsets;
   private List<Message> messages;
-  private List<EventTypeSerializable> events;
+  private List<EventType> events;
 
   @SuppressWarnings("unused")
   private User() {
@@ -98,15 +99,15 @@ public class User implements IsSerializable {
     this.last = last;
     this.resultsets = resultsets;
     this.messages = messages;
-    this.events = new ArrayList<EventTypeSerializable>();
+    this.events = new ArrayList<EventType>();
   }
 
-  public void addEvent(final EventTypeSerializable event) {
+  public void addEvent(final EventType event) {
     this.events.add(event);
   }
 
   public void cleanEvents() {
-    this.events = new ArrayList<EventTypeSerializable>();
+    this.events = new ArrayList<EventType>();
   }
 
   public Credentials getCredentials() {
@@ -117,7 +118,7 @@ public class User implements IsSerializable {
     return this.email;
   }
 
-  public List<EventTypeSerializable> getEvents() {
+  public List<EventType> getEvents() {
     return this.events;
   }
 

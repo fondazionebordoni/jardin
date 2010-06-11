@@ -17,8 +17,6 @@
 
 package it.fub.jardin.client;
 
-import it.fub.jardin.client.model.EventTypeSerializable;
-
 import com.extjs.gxt.ui.client.event.EventType;
 
 public class EventList {
@@ -81,8 +79,7 @@ public class EventList {
 
   public static final EventType LoginErrorDisplay = new EventType();
 
-  public static final EventTypeSerializable NewMessage =
-      new EventTypeSerializable(95);
+  public static final EventType NewMessage = new EventType();
 
   public static final EventType NewResultset = new EventType();
 
@@ -106,8 +103,7 @@ public class EventList {
 
   public static final EventType Searched = new EventType();
 
-  public static final EventTypeSerializable SendMessage =
-      new EventTypeSerializable(75);
+  public static final EventType SendMessage = new EventType();
 
   public static final EventType ShowAllColumns = new EventType();
 

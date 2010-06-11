@@ -18,7 +18,6 @@
 package it.fub.jardin.client;
 
 import it.fub.jardin.client.model.Credentials;
-import it.fub.jardin.client.model.EventTypeSerializable;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Message;
@@ -33,6 +32,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface ManagerServiceAsync {
@@ -42,7 +42,7 @@ public interface ManagerServiceAsync {
       List<String> columns, SearchParams searchParams, char fs, char ts,
       AsyncCallback<String> callback);
 
-  void getEvents(AsyncCallback<List<EventTypeSerializable>> callback);
+  void getEvents(AsyncCallback<List<EventType>> callback);
 
   public void getGridViews(Integer userId, Integer resultsetId,
       AsyncCallback<HeaderPreferenceList> callback);

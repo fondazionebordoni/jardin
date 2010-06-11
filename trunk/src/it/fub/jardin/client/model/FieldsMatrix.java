@@ -26,7 +26,7 @@ public class FieldsMatrix implements IsSerializable {
 
   private static final long serialVersionUID = 1L;
 
-  private final HashMap<Integer, List<String>> matrix;
+  private HashMap<Integer, List<String>> matrix;
 
   public FieldsMatrix() {
     this.matrix = new HashMap<Integer, List<String>>();
