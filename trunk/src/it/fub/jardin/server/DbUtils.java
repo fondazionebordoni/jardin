@@ -1097,6 +1097,10 @@ public class DbUtils {
       while (res.next()) {
         queryStatement = res.getString("statement");
       }
+      
+      // TO-DO: bisogna evitare di eseguire lo statement per recuperare info
+      // sulle foreignkey entranti
+      queryStatement = queryStatement + " LIMIT 0,1";
       ResultSet result = doQuery(connection, queryStatement);
       if ((result != null) && (result.getMetaData().getColumnCount() > 1)) {
         tableName = result.getMetaData().getTableName(1);
