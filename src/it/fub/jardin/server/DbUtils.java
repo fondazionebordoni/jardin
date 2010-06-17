@@ -1097,7 +1097,7 @@ public class DbUtils {
       while (res.next()) {
         queryStatement = res.getString("statement");
       }
-      
+
       // TO-DO: bisogna evitare di eseguire lo statement per recuperare info
       // sulle foreignkey entranti
       queryStatement = queryStatement + " LIMIT 0,1";
@@ -1561,18 +1561,6 @@ public class DbUtils {
         // }
       }
 
-      /*
-       * check nomi dei campi corretti
-       * 
-       * ArrayList<Boolean> colsCheck = new ArrayList<Boolean>(); for (String
-       * col : columns) { boolean present = false; for (int i = 0; i <
-       * rsmd.getColumnCount(); i++) { if
-       * (col.compareToIgnoreCase(rsmd.getColumnName(i)) == 0) { present = true;
-       * } } colsCheck.add(present); }
-       * 
-       * if (colsCheck.contains(false)) { recordLine = null;
-       * Log.debug("Una delle colonne non è stata riconosciuta!"); }
-       */
       // recordLine = in.readLine();
       CSVParser csvp = new CSVParser(in);
       String delim = new String(fs);
@@ -1583,7 +1571,39 @@ public class DbUtils {
       csvp.setCommentStart(commentDelims);
 
       String[] t = null;
-      columns = csvp.getLine();
+      columns = csvp.getLine(); // la prima riga deve contenere i nomi delle
+      // colonne
+      /*
+       * check nomi dei campi corretti
+       */
+      // for (String col : columns) {
+      // for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+      //
+      // if (col.compareToIgnoreCase(rsmd.getColumnName(i)) != 0) {
+      // throw new VisibleException("Attenzione!!! La colonna " + col
+      // + " non è riconosciuta!");
+      // }
+      // }
+      // }
+
+      ArrayList<String> colsCheck = new ArrayList<String>();
+      for (String col : columns) {
+        boolean present = false;
+        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+          if (col.compareToIgnoreCase(rsmd.getColumnName(i)) == 0) {
+            present = true;
+          }
+        }
+        if (!present) {
+          colsCheck.add(col);
+        }
+      }
+
+      if (colsCheck.size() != 0) {
+        throw new VisibleException("Attenzione!!! Colonna '" + colsCheck.get(0)
+            + "' non riconosciuta");
+      }
+
       int lineFailed = 0;
       try {
         while ((t = csvp.getLine()) != null) {
