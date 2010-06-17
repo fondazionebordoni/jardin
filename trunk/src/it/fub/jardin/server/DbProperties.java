@@ -221,7 +221,7 @@ public class DbProperties {
       final int resultset) throws SQLException {
     // String query = "SELECT * FROM " + getStatement(resultset) + " WHERE 0";
     String query = this.getStatement(resultset);
-    ResultSet result = DbUtils.doQuery(connection, query);
+    ResultSet result = DbUtils.doQuery(connection, query + " LIMIT 0,1");
     return result.getMetaData();
   }
 
