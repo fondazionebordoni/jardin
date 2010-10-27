@@ -152,7 +152,10 @@ public class JardinController extends Controller {
   @Override
   public void handleEvent(final AppEvent event) {
     EventType t = event.getType();
-
+//    System.out.println("CONTROLLER catturato evento: " + t.toString());
+//    if (t == EventList.GetPlugins) {
+//      System.out.println("CONTROLLER: catturato plugins " + t.toString());
+//    }
     if (t == EventList.Login) {
       this.forwardToView(this.view, EventList.Login, this.loginMessage());
     } else if (t == EventList.CheckUser) {
@@ -366,7 +369,7 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.SendMessage
         Log.error("Errore nei dati di EventList.SendMessage");
       }
-    } else if (t.getEventCode() == EventList.NewMessage.getEventCode()) {
+    } else if (t == EventList.NewMessage) {
       this.onNewMessage();
     } else if (t == EventList.ViewLinkedTable) {
       if (event.getData() instanceof IncomingForeignKeyInformation) {
@@ -376,6 +379,7 @@ public class JardinController extends Controller {
         Log.error("Errore nei dati di EventList.ViewLinkedTable");
       }
     } else if (t == EventList.GetPlugins) {
+//      System.out.println("CONTROLLER: richiesto menù plugins per " +event.getData().toString()+ "!!!");
       if (event.getData() instanceof Integer) {
         this.onGetPlugins((Integer) event.getData());
       } else {
@@ -1124,16 +1128,17 @@ public class JardinController extends Controller {
     final ManagerServiceAsync service =
         (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
-    AsyncCallback<ArrayList<Plugin>> callback =
-        new AsyncCallback<ArrayList<Plugin>>() {
+    AsyncCallback<List<Plugin>> callback =
+        new AsyncCallback<List<Plugin>>() {
           public void onFailure(final Throwable caught) {
             Dispatcher.forwardEvent(EventList.Error,
                 caught.getLocalizedMessage());
           }
 
-          public void onSuccess(final ArrayList<Plugin> result) {
+          public void onSuccess(final List<Plugin> result) {
             JardinController.this.forwardToView(JardinController.this.view,
                 EventList.GotPlugins, result);
+//            System.out.println("CONTROLLER: fine recupero plugin");
           }
         };
 

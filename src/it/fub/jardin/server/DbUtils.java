@@ -1936,15 +1936,16 @@ public class DbUtils {
     return queryStatement;
   }
 
-  public ArrayList<Plugin> getPlugin(final int gid, final int rsid)
+  public List<Plugin> getPlugin(final int gid, final int rsid)
       throws HiddenException {
-    ArrayList<Plugin> plugins = new ArrayList<Plugin>();
+    List<Plugin> plugins = new ArrayList<Plugin>();
     String query =
         "SELECT id_group, id_resultset, name, configurationfile, type, note, id FROM "
             + T_PLUGIN + " INNER JOIN " + T_PLUGINASSOCIATION
             + " ON (id_plugin = id) WHERE id_resultset = '" + rsid
             + "' AND id_group = '" + gid + "'";
     Connection connection = this.dbConnectionHandler.getConn();
+//    System.out.println("DBUTILS: recupero plugin");
     try {
       ResultSet result;
       result = doQuery(connection, query);

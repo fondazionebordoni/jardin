@@ -95,7 +95,7 @@ public interface ManagerServiceAsync {
       AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry);
 
   public void getPlugins(int gid, int rsid,
-      AsyncCallback<ArrayList<Plugin>> callback);
+      AsyncCallback<List<Plugin>> callback);
 
   public void updateObjects(Integer resultsetId,
       List<BaseModelData> newItemList, String condition,
