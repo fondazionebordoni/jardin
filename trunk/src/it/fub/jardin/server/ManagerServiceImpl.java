@@ -328,7 +328,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return this.dbUtils.getPopUpDetailEntry(data);
   }
 
-  public ArrayList<Plugin> getPlugins(final int gid, final int rsid)
+  public List<Plugin> getPlugins(final int gid, final int rsid)
       throws HiddenException {
     return this.dbUtils.getPlugin(gid, rsid);
   }

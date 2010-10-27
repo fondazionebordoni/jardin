@@ -119,6 +119,6 @@ public interface ManagerService extends RemoteService {
   public ArrayList<BaseModelData> getPopUpDetailEntry(BaseModelData data)
       throws HiddenException;
 
-  public ArrayList<Plugin> getPlugins(int gid, int rsid) throws HiddenException;
+  public List<Plugin> getPlugins(int gid, int rsid) throws HiddenException;
 
 }

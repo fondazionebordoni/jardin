@@ -19,8 +19,11 @@ package it.fub.jardin.client.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+
 public class Plugin implements IsSerializable {
 
+  private static final long serialVersionUID = -6542980077484895269L;
+  
   private String pluginName;
   private String configFile;
   private String type;
@@ -28,6 +31,12 @@ public class Plugin implements IsSerializable {
   private int pluginId;
   private int rsId;
   private int GId;
+  
+  @SuppressWarnings("unused")
+  private Plugin() {
+    // As of GWT 1.5, it must have a default (zero argument) constructor
+    // (with any access modifier) or no constructor at all.
+  }
 
   public Plugin(final String pluginName, final String configFile,
       final String type, final String note, final int pluginId, final int rsId,
