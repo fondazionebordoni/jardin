@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="about.xsl"?>
+<info>
+	<name>JARDiN</name>
+	<company>Fondazione Ugo Bordoni</company>
+	<version>1.6</version>
+	<svn revision="@revision@"></svn>
+</info>
