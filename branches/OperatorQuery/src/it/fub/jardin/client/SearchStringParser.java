@@ -30,7 +30,10 @@ public class SearchStringParser {
   private static final char space = ' ';
   private static final char separator = '|';
   private static final char wrapper = '"';
-  private static final char operator = ':';
+  private static final char operatorEqual = '=';
+  private static final char operatorGreater= '>';
+  private static final char operatorLesser= '<';
+  private static boolean compare = false;
 
   /**
    * @param string
@@ -39,7 +42,7 @@ public class SearchStringParser {
     this.searchMap = this.parse(string);
   }
 
-  private Map<String, String> parse(final String string) {
+  private Map<String, String> parse (final String string) {
 
     int state = 0;
     String key = null;
@@ -47,9 +50,12 @@ public class SearchStringParser {
     Map<String, String> result = new HashMap<String, String>();
 
     char c = ' ';
+    char c1= ' ';
     for (int i = 0; i < string.length(); i++) {
 
       c = string.charAt(i);
+      
+      // se c è = a <,>, =  .... valorizzi operator 
 
       switch (state) {
       /* Stato d'ingresso: consuma gli spazi */
@@ -70,10 +76,21 @@ public class SearchStringParser {
           value = "";
           state = 3;
           break;
-        case operator:
-          value = "" + c;
-          state = 4;
-          break;
+        case operatorEqual:	
+        	if(!compare)
+        		value = "" + c;
+        	state = 4;
+        	break;
+        case operatorGreater:
+        	compare = true;
+            value = "" + c;
+            state = 4;
+            break;  
+        case operatorLesser:
+        	compare = true;
+        	value = "" + c;
+            state = 4;
+            break;      
         default:
           value = "" + c;
           state = 1;
@@ -91,11 +108,35 @@ public class SearchStringParser {
           key = SPECIAL_KEY;
           state = 0;
           break;
-        case operator:
-          key = value;
-          value = null;
+        case operatorEqual:
+          // se l'operatore è = va bene, 
+        	if(!compare){
+        		key = value;
+        		value = null;
+        	}
+          compare = false;	
           state = 2;
           break;
+        case operatorGreater:
+        	compare = true;
+        	key = value;
+            value = null;
+            c1= string.charAt(i + 1);
+            if(c1==operatorEqual)
+            	state = 1;
+            else
+            	state = 2;
+            break;
+        case operatorLesser:
+        	compare = true;
+        	key = value;
+            value = null;
+            c1= string.charAt(i + 1);
+            if(c1==operatorEqual)
+            	state = 1;
+            else
+            	state = 2;
+            break;
         default:
           value += c;
           state = 1;
@@ -105,8 +146,9 @@ public class SearchStringParser {
       /* Stato di inizio lettura di un valore dopo aver letto una chiave */
       case 2:
         switch (c) {
+        
         case space:
-          value = key + operator;
+          value = key + operatorEqual;
           key = SPECIAL_KEY;
           state = 0;
           break;
@@ -153,7 +195,7 @@ public class SearchStringParser {
 
       if (value == null) {
         value = key;
-        if (c == operator) {
+        if (c == operatorEqual) {
           value += c;
         }
         key = SPECIAL_KEY;
@@ -169,7 +211,6 @@ public class SearchStringParser {
 
     return result;
   }
-
   /**
    * Restituisce la stringa di ricerca che non è associata ad alcuna parola
    * chiave
