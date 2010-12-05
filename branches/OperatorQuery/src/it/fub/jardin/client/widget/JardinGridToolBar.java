@@ -22,6 +22,7 @@ import it.fub.jardin.client.SearchStringParser;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.SearchOperator;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.Tool;
@@ -245,7 +246,9 @@ public class JardinGridToolBar extends ToolBar {
         for (String k : this.fieldNames) {
           if (k.equalsIgnoreCase(key)) {
             BaseModelData m = new BaseModelData();
-            m.set(key, searchMap.get(key));
+            SearchOperator listOperator  = new SearchOperator(key, searchMap.get(key), s);
+            m.set(key, listOperator);
+            // m.set(key, searchMap.get(key));
             queryFieldList.add(m);
           }
         }
