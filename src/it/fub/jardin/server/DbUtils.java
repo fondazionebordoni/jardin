@@ -29,6 +29,7 @@ import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.SearchOperator;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
@@ -225,8 +226,8 @@ public class DbUtils {
      * Trasformazione di List<BaseModelData> in Map<String, String>
      */
 
-    Map<String, String> fields = this.getMapFromListModelData(fieldList);
-
+  //  Map<String, String> fields = this.getMapFromListModelData(fieldList);
+    Map<String, SearchOperator> fields = this.getMapFromListModelData1(fieldList);
     String query = this.dbProperties.getStatement(id);
     // query = "SELECT * FROM " + query + " WHERE 1";
 
@@ -235,7 +236,12 @@ public class DbUtils {
      */
 
     for (String key : fields.keySet()) {
-      String value = fields.get(key);
+    	String value = fields.get(key).getValue();
+    	String comparer = fields.get(key).getOperator();
+    	System.out.println("valore di value " + value);
+    	System.out.println("valore di comparer " + comparer);
+
+    	//  String value = fields.get(key);
 
       if (value.length() > 0) {
         StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
@@ -245,7 +251,7 @@ public class DbUtils {
           query += " AND (0";
           while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
-            query += this.fieldTest(key, "OR", token, like);
+            query += this.fieldTest(key, "OR", token, like, comparer);
           }
           query += ")";
         } else {
@@ -254,7 +260,7 @@ public class DbUtils {
             String token = stringTokenizer.nextToken();
             query +=
                 this.fieldTest(this.dbProperties.getFieldList(id), "OR", token,
-                    like);
+                    like, comparer);
           }
         }
 
@@ -305,7 +311,7 @@ public class DbUtils {
    *         combinati con l'operazione <i>operation</i>
    */
   private String fieldTest(final List<String> fields, final String operation,
-      final String value, final boolean like) {
+      final String value, final boolean like, String comparer) {
     String result = "";
 
     if (operation.compareToIgnoreCase("OR") == 0) {
@@ -317,7 +323,7 @@ public class DbUtils {
     }
 
     for (String field : fields) {
-      result += this.fieldTest(field, operation, value, like);
+      result += this.fieldTest(field, operation, value, like, comparer);
     }
     result += ")";
 
@@ -325,8 +331,9 @@ public class DbUtils {
   }
 
   private String fieldTest(String field, final String operation, String value,
-      final boolean like) {
-    String operator = " LIKE ";
+      final boolean like,String comparer) {
+	String operator = comparer;
+	//   String operator = " LIKE ";
     String wrapper = "";
     if (like) {
       wrapper = "%";
@@ -451,7 +458,21 @@ public class DbUtils {
 
     return map;
   }
+  private Map<String, SearchOperator> getMapFromListModelData1(
+	      final List<BaseModelData> fieldList) {
 
+	    Map<String, SearchOperator> map = new HashMap<String, SearchOperator>();
+
+	    for (BaseModelData md : fieldList) {
+	      for (String key : md.getPropertyNames()) {
+	        if (md.get(key) instanceof SearchOperator) {
+	        	map.put(key, (SearchOperator)md.get(key));
+	        }
+	      }
+	    }
+
+	    return map;
+	  }
   public int countObjects(final SearchParams searchParams)
       throws HiddenException {
     int recordSize = 0;
