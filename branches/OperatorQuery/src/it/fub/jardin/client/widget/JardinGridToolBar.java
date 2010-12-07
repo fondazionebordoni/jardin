@@ -75,6 +75,7 @@ public class JardinGridToolBar extends ToolBar {
   private String tooltip;
   private String searchId;
   private CheckMenuItem accurate;
+  private String operator = "";
 
   // TODO Modificare il costruttore: passare solo l'id del resultset
   public void setGrid(final JardinGrid grid) {
@@ -228,6 +229,8 @@ public class JardinGridToolBar extends ToolBar {
    */
   private void search(final boolean searchAll) {
     String s = this.searchfield.getRawValue().trim();
+    String keyOperator = "";
+    
 
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
@@ -246,9 +249,9 @@ public class JardinGridToolBar extends ToolBar {
         for (String k : this.fieldNames) {
           if (k.equalsIgnoreCase(key)) {
             BaseModelData m = new BaseModelData();
-            SearchOperator listOperator  = new SearchOperator(key, searchMap.get(key), s);
-            m.set(key, listOperator);
-            // m.set(key, searchMap.get(key));
+            operator(key,searchMap.get(key),s);
+            keyOperator = key+"_operator_"+operator;
+            m.set(keyOperator, searchMap.get(key));
             queryFieldList.add(m);
           }
         }
@@ -520,5 +523,30 @@ public class JardinGridToolBar extends ToolBar {
   public void setButtonMenuPlugins(final Button buttonMenuPlugins) {
     this.buttonMenuPlugins = buttonMenuPlugins;
   }
-
+//Analizzo gli operatori
+	private void operator(String key, String value, String search)
+	{
+        int lenKey = key.length();
+        int indexKey = search.indexOf(key);
+        //System.out.println("lunghezza della chiave" + lenKey);
+        //System.out.println("lunghezza della dell'indice della chiave " + indexKey);
+        int lenValue = value.length();
+        int indexValue = search.indexOf(value);
+        //System.out.println("lunghezza della del valore" + lenValue);
+        //System.out.println("lunghezza della dell'indice del valore " + indexValue);
+        String operator = search.substring(lenKey - indexKey, indexValue);
+        int lenOperator = operator.length();
+        int indexOperator = operator.indexOf(operator);
+        //System.out.println("operatore " + operator);
+        //System.out.println("lenOperator " + lenOperator);
+        //System.out.println("indexOperator " + indexOperator);
+        String prova = operator.substring(lenOperator - 1, lenOperator);
+        //System.out.println("prova " + prova);
+        if(prova.equals("\""))
+        	operator = operator.substring(indexOperator, lenOperator-1);
+        //System.out.println("NEWoperatore " + operator);		
+        //setList(value,operator);
+        this.operator = operator;
+	
+	}
 }
