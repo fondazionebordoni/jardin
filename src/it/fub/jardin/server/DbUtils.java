@@ -226,8 +226,7 @@ public class DbUtils {
      * Trasformazione di List<BaseModelData> in Map<String, String>
      */
 
-  //  Map<String, String> fields = this.getMapFromListModelData(fieldList);
-    Map<String, SearchOperator> fields = this.getMapFromListModelData1(fieldList);
+    Map<String, String> fields = this.getMapFromListModelData(fieldList);
     String query = this.dbProperties.getStatement(id);
     // query = "SELECT * FROM " + query + " WHERE 1";
 
@@ -235,13 +234,15 @@ public class DbUtils {
      * Gestione parte WHERE della query
      */
 
-    for (String key : fields.keySet()) {
-    	String value = fields.get(key).getValue();
-    	String comparer = fields.get(key).getOperator();
-    	System.out.println("valore di value " + value);
-    	System.out.println("valore di comparer " + comparer);
+    for (String keyValue : fields.keySet()) {
 
-    	//  String value = fields.get(key);
+   	  String value = fields.get(keyValue);
+      String[] aKeyValue = keyValue.split("_operator_");
+      String key=aKeyValue[0];	
+      String comparer = aKeyValue[1];
+//      System.out.println("Chiave : " + key);
+//      System.out.println("Operatore : " + comparer);
+      
 
       if (value.length() > 0) {
         StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
@@ -331,7 +332,7 @@ public class DbUtils {
   }
 
   private String fieldTest(String field, final String operation, String value,
-      final boolean like,String comparer) {
+      final boolean like, String comparer) {
 	String operator = comparer;
 	//   String operator = " LIKE ";
     String wrapper = "";
@@ -458,7 +459,7 @@ public class DbUtils {
 
     return map;
   }
-  private Map<String, SearchOperator> getMapFromListModelData1(
+ /* private Map<String, SearchOperator> getMapFromListModelData1(
 	      final List<BaseModelData> fieldList) {
 
 	    Map<String, SearchOperator> map = new HashMap<String, SearchOperator>();
@@ -467,12 +468,14 @@ public class DbUtils {
 	      for (String key : md.getPropertyNames()) {
 	        if (md.get(key) instanceof SearchOperator) {
 	        	map.put(key, (SearchOperator)md.get(key));
+	        	
 	        }
 	      }
 	    }
 
 	    return map;
 	  }
+	  */
   public int countObjects(final SearchParams searchParams)
       throws HiddenException {
     int recordSize = 0;
