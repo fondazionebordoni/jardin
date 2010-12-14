@@ -74,6 +74,9 @@ public class JardinGridToolBar extends ToolBar {
   private String tooltip;
   private String searchId;
   private CheckMenuItem accurate;
+  private String operator = "";
+  private String valueOperator = "";
+  private String keyOperator = "";
 
   // TODO Modificare il costruttore: passare solo l'id del resultset
   public void setGrid(final JardinGrid grid) {
@@ -153,7 +156,7 @@ public class JardinGridToolBar extends ToolBar {
         int i = value.lastIndexOf(' ', value.length() - 2);
         value = value.substring(0, i + 1);
         super.onSelect(model, index);
-        this.setRawValue(value + model.getValue() + ":");
+        this.setRawValue(value + model.getValue() + "=");
       }
     };
     this.searchfield.setHideTrigger(true);
@@ -226,33 +229,36 @@ public class JardinGridToolBar extends ToolBar {
    *          Impostare a true per visualizzare tutti i record del resultset
    */
   private void search(final boolean searchAll) {
-    String s = this.searchfield.getRawValue().trim();
+		 keyOperator = "";
+	     operator="";
+		 valueOperator="";
+		 String s = this.searchfield.getRawValue().trim();
+	     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
-    List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+	    if (!searchAll && (s.length() > 0)) {
+	      SearchStringParser parser = new SearchStringParser(s);
 
-    if (!searchAll && (s.length() > 0)) {
-      SearchStringParser parser = new SearchStringParser(s);
+	      String specialSearchValue = parser.getSpecialSearchValue();
+	      if (specialSearchValue != null) {
+	        BaseModelData m = new BaseModelData();
+	        m.set(SPECIAL_FIELD, specialSearchValue);
+	        queryFieldList.add(m);
+	      }
 
-      String specialSearchValue = parser.getSpecialSearchValue();
-      if (specialSearchValue != null) {
-        BaseModelData m = new BaseModelData();
-        m.set(SPECIAL_FIELD, specialSearchValue);
-        queryFieldList.add(m);
-      }
+	      Map<String, String> searchMap = parser.getSearchMap();
+	      for (String key : parser.getSearchMap().keySet()) {
+	        for (String k : this.fieldNames) {
+	          if (k.equalsIgnoreCase(key)) {
+	            BaseModelData m = new BaseModelData();
+	            operator(key,searchMap.get(key),s);
+  	           m.set(keyOperator, valueOperator);
+	            queryFieldList.add(m);
+	          }
+	        }
+	      }
+	    }
 
-      Map<String, String> searchMap = parser.getSearchMap();
-      for (String key : parser.getSearchMap().keySet()) {
-        for (String k : this.fieldNames) {
-          if (k.equalsIgnoreCase(key)) {
-            BaseModelData m = new BaseModelData();
-            m.set(key, searchMap.get(key));
-            queryFieldList.add(m);
-          }
-        }
-      }
-    }
-
-    this.searchParams.setFieldsValuesList(queryFieldList);
+	  this.searchParams.setFieldsValuesList(queryFieldList);
     this.searchParams.setAccurate(this.accurate.isChecked());
     Dispatcher.forwardEvent(EventList.Search, this.searchParams);
   }
@@ -517,5 +523,43 @@ public class JardinGridToolBar extends ToolBar {
   public void setButtonMenuPlugins(final Button buttonMenuPlugins) {
     this.buttonMenuPlugins = buttonMenuPlugins;
   }
-
+	private void operator(String key, String value, String search)
+	{
+      int lenKey = key.length(); 
+      int indexKey = search.indexOf(key);
+      int lenValue = 0;
+      int indexValue = search.indexOf(value);
+      if (indexValue!=-1){
+      	lenValue = value.length();
+      	String operator = search.substring(lenKey + indexKey, indexValue);
+      	int lenOperator = operator.length();
+      	int indexOperator = operator.indexOf(operator);
+      	String prova = operator.substring(lenOperator - 1, lenOperator);
+      	if(prova.equals("\""))
+      		operator = operator.substring(indexOperator, lenOperator-1);
+      	this.operator = operator;
+      	this.valueOperator = value;
+        this.keyOperator = key+"_operator_"+operator;
+      }
+      else{
+      	String[] token =  value.split("\\|");
+      	for (int i = 0; i < token.length ; i++) {
+      	        System.out.println(token[i]);
+      	        String sValueToken = token[i];
+      	        int iValueToken = search.indexOf(sValueToken);
+      	        System.out.println("sValueToken   " + sValueToken);
+      	        System.out.println("iValueToken   " + iValueToken);
+      	     if(!sValueToken.equals("")&&!sValueToken.equals("|")){
+      	    	int indexKeyS = search.indexOf(key,indexKey); 
+      	    	String operator1 = search.substring(lenKey + indexKeyS,iValueToken); 
+      	    	int lenOperator1 = operator1.length();
+      	    	indexKey = lenOperator1+lenKey;
+     	        	valueOperator +=sValueToken+"_operatorOr_"+ operator1 + "|"; 
+      	     	}
+      	     }
+   	    valueOperator = valueOperator.substring(0, valueOperator.length()-1);
+      	this.valueOperator = valueOperator;
+      	this.keyOperator = key;
+     }
+	}
 }
