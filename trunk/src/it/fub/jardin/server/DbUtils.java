@@ -216,50 +216,67 @@ public class DbUtils {
 
     // TODO like può essere recuperato, se necessario, da searchParams;
 
-    boolean like = !(searchParams.getAccurate());
+	   boolean like = !(searchParams.getAccurate());
 
-    Integer id = searchParams.getResultsetId();
-    List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
+	    Integer id = searchParams.getResultsetId();
+	    List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
 
-    /*
-     * Trasformazione di List<BaseModelData> in Map<String, String>
-     */
+	    /*
+	     * Trasformazione di List<BaseModelData> in Map<String, String>
+	     */
 
-    Map<String, String> fields = this.getMapFromListModelData(fieldList);
+	    Map<String, String> fields = this.getMapFromListModelData(fieldList);
+	    String query = this.dbProperties.getStatement(id);
+	    // query = "SELECT * FROM " + query + " WHERE 1";
 
-    String query = this.dbProperties.getStatement(id);
-    // query = "SELECT * FROM " + query + " WHERE 1";
+	    /*
+	     * Gestione parte WHERE della query
+	     */
+	    
+	    for (String keyValue : fields.keySet()) {
+	      String key="";	
+	      String comparer= " LIKE ";
+	      String value = fields.get(keyValue);
+	      int indexOr = value.indexOf("|");
+	      if(indexOr==-1){
+	    	  String[] aKeyValue = keyValue.split("_operator_");
+	    	  key=aKeyValue[0];	
+	          if (!key.equals(SPECIAL_FIELD)&&aKeyValue.length>1)
+	      	  	comparer = aKeyValue[1];
+	      }else
+	    	  key=keyValue;
+	      if (value.length() > 0) {
+	        StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
 
-    /*
-     * Gestione parte WHERE della query
-     */
+	        if (key.compareTo(SPECIAL_FIELD) != 0) {
+	          /* Gestione campo normale */
+	          query += " AND (0";
+	          while (stringTokenizer.hasMoreTokens()) {
+	            String token = stringTokenizer.nextToken();
+	            int iLenToken = token.length();
+	            String sValue[] = token.split("_operatorOr_");
+	            if(iLenToken>2){
+	            	String sValueToken = sValue[0];
+	            	String sValueOperator = sValue[1];
+	            	token = sValueToken;
+	            	comparer = sValueOperator;
+	            }
+	            query += this.fieldTest(key, "OR", token, like, comparer);
+	          }
+	          query += ")";
+	        } else {
+	          /* Gestione campo speciale */
+	          while (stringTokenizer.hasMoreTokens()) {
+	            String token = stringTokenizer.nextToken();
+	            query +=
+	                this.fieldTest(this.dbProperties.getFieldList(id), "OR", token,
+	                    like, comparer);
+	          }
+	        }
 
-    for (String key : fields.keySet()) {
-      String value = fields.get(key);
+	      }
+	    }
 
-      if (value.length() > 0) {
-        StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
-
-        if (key.compareTo(SPECIAL_FIELD) != 0) {
-          /* Gestione campo normale */
-          query += " AND (0";
-          while (stringTokenizer.hasMoreTokens()) {
-            String token = stringTokenizer.nextToken();
-            query += this.fieldTest(key, "OR", token, like);
-          }
-          query += ")";
-        } else {
-          /* Gestione campo speciale */
-          while (stringTokenizer.hasMoreTokens()) {
-            String token = stringTokenizer.nextToken();
-            query +=
-                this.fieldTest(this.dbProperties.getFieldList(id), "OR", token,
-                    like);
-          }
-        }
-
-      }
-    }
 
     /*
      * Gestione configurazione di ricerca (SORT e LIMIT)
@@ -305,7 +322,7 @@ public class DbUtils {
    *         combinati con l'operazione <i>operation</i>
    */
   private String fieldTest(final List<String> fields, final String operation,
-      final String value, final boolean like) {
+      final String value, final boolean like, String comparer) {
     String result = "";
 
     if (operation.compareToIgnoreCase("OR") == 0) {
@@ -317,7 +334,7 @@ public class DbUtils {
     }
 
     for (String field : fields) {
-      result += this.fieldTest(field, operation, value, like);
+      result += this.fieldTest(field, operation, value, like, comparer);
     }
     result += ")";
 
@@ -325,8 +342,8 @@ public class DbUtils {
   }
 
   private String fieldTest(String field, final String operation, String value,
-      final boolean like) {
-    String operator = " LIKE ";
+      final boolean like, String comparer) {
+    String operator = comparer;
     String wrapper = "";
     if (like) {
       wrapper = "%";
