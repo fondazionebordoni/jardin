@@ -90,42 +90,42 @@ public class AddRowForm extends Window {
     this.formPanel.setHeaderVisible(false);
     this.formPanel.setScrollMode(Scroll.AUTO);
 
-    Radio radio1 = new Radio();
-    radio1.setBoxLabel("Yes");
-    radio1.setData("valore", "yes");
-    radio1.setValue(false);
-
-    Radio radio2 = new Radio();
-    radio2.setBoxLabel("No");
-    radio2.setData("valore", "no");
-    radio2.setValue(true);
-
-    final RadioGroup group = new RadioGroup();
-    group.setFieldLabel("usare tendine per delimitare i valori consentiti?");
-    group.add(radio1);
-    group.add(radio2);
-
-    this.formPanel.add(group);
-
-    group.addListener(Events.Change, new Listener<ComponentEvent>() {
-
-      public void handleEvent(final ComponentEvent be) {
-        Radio selected = group.getValue();
-        // MessageBox.alert("selezione", "selezionato: "
-        // + selected.getData("valore"), null);
-
-        if (((String) selected.getData("valore")).compareToIgnoreCase("yes") == 0) {
-          AddRowForm.this.formPanel.removeAll();
-          AddRowForm.this.setAssistedFormPanel();
-          AddRowForm.this.layout();
-        } else {
-          AddRowForm.this.formPanel.removeAll();
-          AddRowForm.this.setUnAssistedFormPanel();
-          AddRowForm.this.layout();
-        }
-      }
-
-    });
+//    Radio radio1 = new Radio();
+//    radio1.setBoxLabel("Yes");
+//    radio1.setData("valore", "yes");
+//    radio1.setValue(false);
+//
+//    Radio radio2 = new Radio();
+//    radio2.setBoxLabel("No");
+//    radio2.setData("valore", "no");
+//    radio2.setValue(true);
+//
+//    final RadioGroup group = new RadioGroup();
+//    group.setFieldLabel("usare tendine per delimitare i valori consentiti?");
+//    group.add(radio1);
+//    group.add(radio2);
+//
+//    this.formPanel.add(group);
+//
+//    group.addListener(Events.Change, new Listener<ComponentEvent>() {
+//
+//      public void handleEvent(final ComponentEvent be) {
+//        Radio selected = group.getValue();
+//        // MessageBox.alert("selezione", "selezionato: "
+//        // + selected.getData("valore"), null);
+//
+//        if (((String) selected.getData("valore")).compareToIgnoreCase("yes") == 0) {
+//          AddRowForm.this.formPanel.removeAll();
+//          AddRowForm.this.setAssistedFormPanel();
+//          AddRowForm.this.layout();
+//        } else {
+//          AddRowForm.this.formPanel.removeAll();
+//          AddRowForm.this.setUnAssistedFormPanel();
+//          AddRowForm.this.layout();
+//        }
+//      }
+//
+//    });
 
     this.setAssistedFormPanel();
     // for (final ResultsetField field : this.resultset.getFields()) {
@@ -341,10 +341,10 @@ public class AddRowForm extends Window {
   }
 
   /**
-   * @param resultset
+   * @param resultsetId
    * @param items
    */
-  private void commitChangesAsync(final Integer resultset,
+  private void commitChangesAsync(final Integer resultsetId,
       final List<BaseModelData> items) {
 
     final MessageBox waitbox =
@@ -365,7 +365,7 @@ public class AddRowForm extends Window {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
-          SearchParams sp = new SearchParams(resultset);
+          SearchParams sp = new SearchParams(resultsetId);
           List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
           BaseModelData bm = new BaseModelData();
 
@@ -383,7 +383,8 @@ public class AddRowForm extends Window {
     };
 
     /* Make the call */
-    service.setObjects(resultset, items, callback);
+//    service.setObjects(resultsetId, items, callback);
+    service.updateObjects(resultsetId, items, "$-notspec-$", callback);
   }
 
 }
