@@ -255,7 +255,7 @@ public class JardinDetailPopUp extends Window {
     };
 
     /* Make the call */
-    service.setObjects(resultset, items, callback);
+    service.updateObjects(resultset, items, "$-notspec-$", callback);
   }
 
 }
