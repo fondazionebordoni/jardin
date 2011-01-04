@@ -216,67 +216,69 @@ public class DbUtils {
 
     // TODO like può essere recuperato, se necessario, da searchParams;
 
-	   boolean like = !(searchParams.getAccurate());
+    boolean like = !(searchParams.getAccurate());
 
-	    Integer id = searchParams.getResultsetId();
-	    List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
+    Integer id = searchParams.getResultsetId();
+    List<BaseModelData> fieldList = searchParams.getFieldsValuesList();
 
-	    /*
-	     * Trasformazione di List<BaseModelData> in Map<String, String>
-	     */
+    /*
+     * Trasformazione di List<BaseModelData> in Map<String, String>
+     */
 
-	    Map<String, String> fields = this.getMapFromListModelData(fieldList);
-	    String query = this.dbProperties.getStatement(id);
-	    // query = "SELECT * FROM " + query + " WHERE 1";
+    Map<String, String> fields = this.getMapFromListModelData(fieldList);
+    String query = this.dbProperties.getStatement(id);
+    // query = "SELECT * FROM " + query + " WHERE 1";
 
-	    /*
-	     * Gestione parte WHERE della query
-	     */
-	    
-	    for (String keyValue : fields.keySet()) {
-	      String key="";	
-	      String comparer= " LIKE ";
-	      String value = fields.get(keyValue);
-	      int indexOr = value.indexOf("|");
-	      if(indexOr==-1){
-	    	  String[] aKeyValue = keyValue.split("_operator_");
-	    	  key=aKeyValue[0];	
-	          if (!key.equals(SPECIAL_FIELD)&&aKeyValue.length>1)
-	      	  	comparer = aKeyValue[1];
-	      }else
-	    	  key=keyValue;
-	      if (value.length() > 0) {
-	        StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
+    /*
+     * Gestione parte WHERE della query
+     */
 
-	        if (key.compareTo(SPECIAL_FIELD) != 0) {
-	          /* Gestione campo normale */
-	          query += " AND (0";
-	          while (stringTokenizer.hasMoreTokens()) {
-	            String token = stringTokenizer.nextToken();
-	            int iLenToken = token.length();
-	            String sValue[] = token.split("_operatorOr_");
-	            if(iLenToken>2){
-	            	String sValueToken = sValue[0];
-	            	String sValueOperator = sValue[1];
-	            	token = sValueToken;
-	            	comparer = sValueOperator;
-	            }
-	            query += this.fieldTest(key, "OR", token, like, comparer);
-	          }
-	          query += ")";
-	        } else {
-	          /* Gestione campo speciale */
-	          while (stringTokenizer.hasMoreTokens()) {
-	            String token = stringTokenizer.nextToken();
-	            query +=
-	                this.fieldTest(this.dbProperties.getFieldList(id), "OR", token,
-	                    like, comparer);
-	          }
-	        }
+    for (String keyValue : fields.keySet()) {
+//      System.out.println("kv:" + keyValue);
+      String key = "";
+      String comparer = " LIKE ";
+      String value = fields.get(keyValue);
+      int indexOr = value.indexOf("|");
+      if (indexOr == -1) {
+        String[] aKeyValue = keyValue.split("_operator_");
+        key = aKeyValue[0];
+        if (!key.equals(SPECIAL_FIELD) && aKeyValue.length > 1)
+          comparer = aKeyValue[1];
+      } else
+        key = keyValue;
+      
+      if (value.length() > 0) {
+        StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
+        
+        if (key.compareTo(SPECIAL_FIELD) != 0) {
+          /* Gestione campo normale */
+          query += " AND (0";
+          while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+//            int iLenToken = token.length();
+            String sValue[] = token.split("_operatorOr_");
+            if (sValue.length > 1) {
+              String sValueToken = sValue[0];
+              String sValueOperator = sValue[1];
+              token = sValueToken;
+              comparer = sValueOperator;
+            }
+            if (like) comparer = " LIKE ";
+            query += this.fieldTest(key, "OR", token, like, comparer);
+          }
+          query += ")";
+        } else {
+          /* Gestione campo speciale */
+          while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            query +=
+                this.fieldTest(this.dbProperties.getFieldList(id), "OR", token,
+                    like, comparer);
+          }
+        }
 
-	      }
-	    }
-
+      }
+    }
 
     /*
      * Gestione configurazione di ricerca (SORT e LIMIT)
@@ -1962,7 +1964,7 @@ public class DbUtils {
             + " ON (id_plugin = id) WHERE id_resultset = '" + rsid
             + "' AND id_group = '" + gid + "'";
     Connection connection = this.dbConnectionHandler.getConn();
-//    System.out.println("DBUTILS: recupero plugin");
+    // System.out.println("DBUTILS: recupero plugin");
     try {
       ResultSet result;
       result = doQuery(connection, query);
