@@ -1108,7 +1108,7 @@ public class JardinController extends Controller {
     searchParams.setAccurate(true);
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
     SearchStringParser parser =
-        new SearchStringParser(ifki.getLinkingField() + ":\""
+        new SearchStringParser(ifki.getLinkingField() + "=\""
             + ifki.getFieldValue() + "\"");
 
     Map<String, String> searchMap = parser.getSearchMap();
