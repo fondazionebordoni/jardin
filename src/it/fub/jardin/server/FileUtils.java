@@ -292,15 +292,13 @@ public class FileUtils {
      */
     Log.debug("XSL file: " + xsl);
     File f = new File(xsl);
-    /*
-     * if (f.exists() && f.canRead()) { Log.debug("XSL file " + xsl +
-     * " already exists. I do not create it."); return; }
-     */
+    if (f.exists() && f.canRead()) {
+      Log.debug("XSL file " + xsl + " already exists. I do not create it.");
+      return;
+    }
 
     /*
-     * ----------------------------------------------------------------------
-     * --- Creazione del template di default --------------------------------
-     * -----------------------------------------
+     * Creazione del template di default
      */
 
     /* Prendi lo scheletro dell'XSL di default */
