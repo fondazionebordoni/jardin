@@ -383,8 +383,8 @@ public class AddRowForm extends Window {
     };
 
     /* Make the call */
-//    service.setObjects(resultsetId, items, callback);
-    service.updateObjects(resultsetId, items, "$-notspec-$", callback);
+    service.setObjects(resultsetId, items, callback);
+//    service.updateObjects(resultsetId, items, "$-notspec-$", callback);
   }
 
 }
