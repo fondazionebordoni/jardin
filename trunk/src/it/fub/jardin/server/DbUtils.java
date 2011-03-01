@@ -1811,7 +1811,7 @@ public class DbUtils {
 
     String query =
         "SELECT address_statement, data_statement, link_id FROM " + T_NOTIFY
-            + " WHERE id_resultset = '" + resultsetId + "'";
+            + " WHERE resultset_id = '" + resultsetId + "'";
 
     Log.debug("query: " + query);
 
