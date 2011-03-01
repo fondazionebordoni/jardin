@@ -254,7 +254,8 @@ public class DbProperties {
        */
       // statement = "(" + result.getString(1) + ") AS query";
       statement = result.getString(1);
-      if (statement.toLowerCase().indexOf("where") == -1) {
+      //Aggiunto il controllo in cui viene concatenato "where" solo se non si è in presenza di "ORDER BY"
+      if ((statement.toLowerCase().indexOf("where") == -1) && (statement.toUpperCase().indexOf("ORDER BY") == -1)) {
         statement = statement + " WHERE 1 ";
       }
       // }
