@@ -285,10 +285,17 @@ public class DbUtils {
      */
     if (config != null) {
       if (config.getSortInfo().getSortField() != null) {
-        query +=
+        if(query.toUpperCase().indexOf("ORDER BY") != -1){
+        	String sottostringa = query.substring(0,query.toUpperCase().indexOf("ORDER BY"));
+        	query = sottostringa + " ORDER BY `" + config.getSortInfo().getSortField() + "` "
+            + config.getSortInfo().getSortDir();
+        }else{	
+    	  query +=
             " ORDER BY `" + config.getSortInfo().getSortField() + "` "
                 + config.getSortInfo().getSortDir();
-      }
+       	 
+          }
+        }
 
       if (config.getLimit() != -1) {
         query +=
