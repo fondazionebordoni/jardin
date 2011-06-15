@@ -243,10 +243,16 @@ public class DbUtils {
         String[] aKeyValue = keyValue.split("_operator_");
         key = aKeyValue[0];
         if (!key.equals(SPECIAL_FIELD) && aKeyValue.length > 1)
-          comparer = aKeyValue[1];
-      } else
-        key = keyValue;
-      
+        	comparer = aKeyValue[1];
+      	} else
+      	{
+      		String[] aKeyValueOR = keyValue.split("_operatorOr_");
+      		key = aKeyValueOR[0];
+      		if (!key.equals(SPECIAL_FIELD) && aKeyValueOR.length > 1){
+            	comparer = aKeyValueOR[1];
+      		//System.out.println("Valore di comparer  " + comparer);
+      		}
+      	}
       if (value.length() > 0) {
         StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
         
@@ -263,7 +269,8 @@ public class DbUtils {
               token = sValueToken;
               comparer = sValueOperator;
             }
-            if (like) comparer = " LIKE ";
+            if (like) 
+            	comparer = " LIKE ";
             query += this.fieldTest(key, "OR", token, like, comparer);
           }
           query += ")";
@@ -305,6 +312,7 @@ public class DbUtils {
     }
 
     Log.debug("Search Query: " + query);
+//
     return query;
   }
 
