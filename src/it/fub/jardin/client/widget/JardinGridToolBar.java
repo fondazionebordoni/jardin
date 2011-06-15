@@ -525,11 +525,11 @@ public class JardinGridToolBar extends ToolBar {
   }
 	private void operator(String key, String value, String search)
 	{
-      int lenKey = key.length(); 
-      int indexKey = search.indexOf(key);
+      int lenKey = key.length();  
+      int indexKey = search.indexOf(key); 
       int lenValue = 0;
-      int indexValue = search.indexOf(value);
-      if (indexValue!=-1){
+      int indexValue = search.indexOf(value); 
+      if (indexValue!=-1){						
       	lenValue = value.length();
       	String operator = search.substring(lenKey + indexKey, indexValue);
       	int lenOperator = operator.length();
@@ -541,25 +541,15 @@ public class JardinGridToolBar extends ToolBar {
       	this.valueOperator = value;
         this.keyOperator = key+"_operator_"+operator;
       }
-      else{
-      	String[] token =  value.split("\\|");
-      	for (int i = 0; i < token.length ; i++) {
-      	        System.out.println(token[i]);
-      	        String sValueToken = token[i];
-      	        int iValueToken = search.indexOf(sValueToken);
-      	        System.out.println("sValueToken   " + sValueToken);
-      	        System.out.println("iValueToken   " + iValueToken);
-      	     if(!sValueToken.equals("")&&!sValueToken.equals("|")){
-      	    	int indexKeyS = search.indexOf(key,indexKey); 
-      	    	String operator1 = search.substring(lenKey + indexKeyS,iValueToken); 
-      	    	int lenOperator1 = operator1.length();
-      	    	indexKey = lenOperator1+lenKey;
-     	        	valueOperator +=sValueToken+"_operatorOr_"+ operator1 + "|"; 
-      	     	}
-      	     }
-   	    valueOperator = valueOperator.substring(0, valueOperator.length()-1);
-      	this.valueOperator = valueOperator;
-      	this.keyOperator = key;
+      else{ // caso in cui c'è un OR con la stringa di valore col pipe
+      	String[] token =  value.split("\\|"); 
+      	String sValueFirstToken = token[0];
+      	//System.out.println("Primo Token  " + sValueFirstToken);
+      	int indexValueFirstToken = search.indexOf(sValueFirstToken); 
+      	String operatorOr = search.substring(lenKey + indexKey, indexValueFirstToken);
+      	//System.out.println("OperatorOR   " +  operatorOr);
+      	this.valueOperator = value;
+      	this.keyOperator  = key + "_operatorOr_" + operatorOr;
      }
 	}
 }
