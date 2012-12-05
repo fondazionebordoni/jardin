@@ -334,4 +334,4 @@ INSERT INTO `__system_group` (`id`, `name`, `status`) VALUES
 (1, 'developers', 1);
 
 INSERT INTO `__system_user` (`id`, `username`, `password`, `name`, `surname`, `email`, `office`, `telephone`, `status`, `lastlogintime`, `logincount`, `id_group`) VALUES
-(1, 'test', '*94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29', 'Utente', 'Test', 'test@test.com', 'null', 'null', 1, '2009-10-26 14:33:32', 2, 1
+(1, 'test', '*94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29', 'Utente', 'Test', 'test@test.com', 'null', 'null', 1, null, 0, 1);
