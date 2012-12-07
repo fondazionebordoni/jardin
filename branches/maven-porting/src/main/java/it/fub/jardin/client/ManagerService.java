@@ -24,6 +24,7 @@ import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
@@ -35,6 +36,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 public interface ManagerService extends RemoteService {
@@ -120,6 +122,8 @@ public interface ManagerService extends RemoteService {
     throws HiddenException;
 
   public List<Plugin> getPlugins(int gid, int rsid) throws HiddenException;
+
+  public List<Resultset> getUserResultsetList(int uid) throws HiddenException;
 
   public String testServerPresence();
 

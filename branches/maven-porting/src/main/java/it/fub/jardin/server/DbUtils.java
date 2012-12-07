@@ -26,6 +26,7 @@ import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
@@ -83,33 +84,33 @@ public class DbUtils {
 
   private static final String SYSTEM_PREFIX = "__system_";
   private static final char WRAP = '`';
-  public static final String T_RESULTSET =
-      WRAP + SYSTEM_PREFIX + "resultset" + WRAP;
+  public static final String T_RESULTSET = WRAP + SYSTEM_PREFIX + "resultset"
+      + WRAP;
   public static final String T_NOTIFY = WRAP + SYSTEM_PREFIX + "notify" + WRAP;
-  public static final String T_TOOLBAR =
-      WRAP + SYSTEM_PREFIX + "toolbar" + WRAP;
+  public static final String T_TOOLBAR = WRAP + SYSTEM_PREFIX + "toolbar"
+      + WRAP;
   public static final String T_PLUGIN = WRAP + SYSTEM_PREFIX + "plugin" + WRAP;
-  public static final String T_PLUGINASSOCIATION =
-      WRAP + SYSTEM_PREFIX + "pluginassociation" + WRAP;
+  public static final String T_PLUGINASSOCIATION = WRAP + SYSTEM_PREFIX
+      + "pluginassociation" + WRAP;
   public static final String T_USER = WRAP + SYSTEM_PREFIX + "user" + WRAP;
   public static final String T_GROUP = WRAP + SYSTEM_PREFIX + "group" + WRAP;
-  public static final String T_MANAGEMENT =
-      WRAP + SYSTEM_PREFIX + "management" + WRAP;
-  public static final String T_RESOURCE =
-      WRAP + SYSTEM_PREFIX + "resource" + WRAP;
+  public static final String T_MANAGEMENT = WRAP + SYSTEM_PREFIX + "management"
+      + WRAP;
+  public static final String T_RESOURCE = WRAP + SYSTEM_PREFIX + "resource"
+      + WRAP;
   public static final String T_FIELD = WRAP + SYSTEM_PREFIX + "field" + WRAP;
-  public static final String T_HEADERPREFERENCE =
-      WRAP + SYSTEM_PREFIX + "headerpreference" + WRAP;
-  public static final String T_FIELDINPREFERENCE =
-      WRAP + SYSTEM_PREFIX + "fieldinpreference" + WRAP;
-  public static final String T_GROUPING =
-      WRAP + SYSTEM_PREFIX + "grouping" + WRAP;
-  public static final String T_USERMESSAGES =
-      WRAP + SYSTEM_PREFIX + "userwarnings" + WRAP;
-  public static final String T_GROUPMESSAGES =
-      WRAP + SYSTEM_PREFIX + "groupwarnings" + WRAP;
-  public static final String T_MESSAGES =
-      WRAP + SYSTEM_PREFIX + "messages" + WRAP;
+  public static final String T_HEADERPREFERENCE = WRAP + SYSTEM_PREFIX
+      + "headerpreference" + WRAP;
+  public static final String T_FIELDINPREFERENCE = WRAP + SYSTEM_PREFIX
+      + "fieldinpreference" + WRAP;
+  public static final String T_GROUPING = WRAP + SYSTEM_PREFIX + "grouping"
+      + WRAP;
+  public static final String T_USERMESSAGES = WRAP + SYSTEM_PREFIX
+      + "userwarnings" + WRAP;
+  public static final String T_GROUPMESSAGES = WRAP + SYSTEM_PREFIX
+      + "groupwarnings" + WRAP;
+  public static final String T_MESSAGES = WRAP + SYSTEM_PREFIX + "messages"
+      + WRAP;
 
   /**
    * Logga le operazioni su database dell'utente. Ogni messaggio sarà preceduto
@@ -234,7 +235,7 @@ public class DbUtils {
      */
 
     for (String keyValue : fields.keySet()) {
-//      System.out.println("kv:" + keyValue);
+      // System.out.println("kv:" + keyValue);
       String key = "";
       String comparer = " LIKE ";
       String value = fields.get(keyValue);
@@ -243,25 +244,24 @@ public class DbUtils {
         String[] aKeyValue = keyValue.split("_operator_");
         key = aKeyValue[0];
         if (!key.equals(SPECIAL_FIELD) && aKeyValue.length > 1)
-        	comparer = aKeyValue[1];
-      	} else
-      	{
-      		String[] aKeyValueOR = keyValue.split("_operatorOr_");
-      		key = aKeyValueOR[0];
-      		if (!key.equals(SPECIAL_FIELD) && aKeyValueOR.length > 1){
-            	comparer = aKeyValueOR[1];
-      		//System.out.println("Valore di comparer  " + comparer);
-      		}
-      	}
+          comparer = aKeyValue[1];
+      } else {
+        String[] aKeyValueOR = keyValue.split("_operatorOr_");
+        key = aKeyValueOR[0];
+        if (!key.equals(SPECIAL_FIELD) && aKeyValueOR.length > 1) {
+          comparer = aKeyValueOR[1];
+          // System.out.println("Valore di comparer  " + comparer);
+        }
+      }
       if (value.length() > 0) {
         StringTokenizer stringTokenizer = new StringTokenizer(value, "|");
-        
+
         if (key.compareTo(SPECIAL_FIELD) != 0) {
           /* Gestione campo normale */
           query += " AND (0";
           while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
-//            int iLenToken = token.length();
+            // int iLenToken = token.length();
             String sValue[] = token.split("_operatorOr_");
             if (sValue.length > 1) {
               String sValueToken = sValue[0];
@@ -269,8 +269,8 @@ public class DbUtils {
               token = sValueToken;
               comparer = sValueOperator;
             }
-            if (like) 
-            	comparer = " LIKE ";
+            if (like)
+              comparer = " LIKE ";
             query += this.fieldTest(key, "OR", token, like, comparer);
           }
           query += ")";
@@ -292,17 +292,20 @@ public class DbUtils {
      */
     if (config != null) {
       if (config.getSortInfo().getSortField() != null) {
-        if(query.toUpperCase().indexOf("ORDER BY") != -1){
-        	String sottostringa = query.substring(0,query.toUpperCase().indexOf("ORDER BY"));
-        	query = sottostringa + " ORDER BY `" + config.getSortInfo().getSortField() + "` "
-            + config.getSortInfo().getSortDir();
-        }else{	
-    	  query +=
-            " ORDER BY `" + config.getSortInfo().getSortField() + "` "
-                + config.getSortInfo().getSortDir();
-       	 
-          }
+        if (query.toUpperCase().indexOf("ORDER BY") != -1) {
+          String sottostringa =
+              query.substring(0, query.toUpperCase().indexOf("ORDER BY"));
+          query =
+              sottostringa + " ORDER BY `"
+                  + config.getSortInfo().getSortField() + "` "
+                  + config.getSortInfo().getSortDir();
+        } else {
+          query +=
+              " ORDER BY `" + config.getSortInfo().getSortField() + "` "
+                  + config.getSortInfo().getSortDir();
+
         }
+      }
 
       if (config.getLimit() != -1) {
         query +=
@@ -312,7 +315,7 @@ public class DbUtils {
     }
 
     Log.debug("Search Query: " + query);
-//
+    //
     return query;
   }
 
@@ -1998,5 +2001,35 @@ public class DbUtils {
     }
     this.dbConnectionHandler.closeConn(connection);
     return plugins;
+  }
+
+  public List<Resultset> getUserResultSetList(int uid) throws HiddenException {
+    // TODO Auto-generated method stub
+    List<Resultset> resultsets = new ArrayList<Resultset>();
+    String query =
+        "SELECT s.*, r.statement " + "FROM "
+            + T_RESOURCE + " s join " + T_RESULTSET + " r on s.id=r.id";
+//    System.out.println(query);
+    Connection connection = this.dbConnectionHandler.getConn();
+    try {
+      ResultSet result;
+      result = doQuery(connection, query);
+
+      while (result.next()) {
+        Resultset res = new Resultset();
+        res.setId(result.getInt("id"));
+        res.setAlias(result.getString("alias"));
+        res.setGestible(result.getBoolean("gestible"));
+        res.setNome(result.getString("name"));
+        res.setNote(result.getString("note"));
+        res.setStatement(result.getString("statement"));
+        resultsets.add(res);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    this.dbConnectionHandler.closeConn(connection);
+    return resultsets;
   }
 }

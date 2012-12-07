@@ -8,11 +8,11 @@
  * 
  * Jardin is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with Jardin.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Jardin. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package it.fub.jardin.server;
@@ -27,6 +27,7 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
@@ -51,7 +52,7 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ManagerServiceImpl extends RemoteServiceServlet implements
-    ManagerService {
+  ManagerService {
 
   private static final long serialVersionUID = 1L;
   private final DbUtils dbUtils;
@@ -69,23 +70,23 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public String createReport(final String file, final Template template,
-      final PagingLoadConfig config, final List<BaseModelData> selectedRows,
-      final List<String> columns, final SearchParams searchParams,
-      final char fs, final char ts) throws VisibleException {
+    final PagingLoadConfig config, final List<BaseModelData> selectedRows,
+    final List<String> columns, final SearchParams searchParams, final char fs,
+    final char ts) throws VisibleException {
     if (searchParams == null) {
       throw new VisibleException("Effettuare prima una ricerca");
     } else if ((template.getInfo().compareTo(Template.CSV.getInfo()) == 0)
-        && (ts == '\0')) {
+      && (ts == '\0')) {
       throw new VisibleException(
-          "Il separatore di testo deve essere composto da un carattere");
+        "Il separatore di testo deve essere composto da un carattere");
     } else if ((template.getInfo().compareTo(Template.CSV.getInfo()) == 0)
-        && (fs == '\0')) {
+      && (fs == '\0')) {
       throw new VisibleException(
-          "Il separatore di campo deve essere composto da un carattere");
+        "Il separatore di campo deve essere composto da un carattere");
     } else if ((template.getInfo().compareTo(Template.CSV.getInfo()) == 0)
-        && (fs == ts)) {
+      && (fs == ts)) {
       throw new VisibleException(
-          "Il separatore di campo e il separatore di testo non possono essere uguali");
+        "Il separatore di campo e il separatore di testo non possono essere uguali");
     }
     List<BaseModelData> records = null;
     if (selectedRows == null) {
@@ -94,20 +95,20 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       records = selectedRows;
     }
     String xsl =
-        this.getServletContext().getRealPath(
-            Template.TEMPLATE_DIR + template.getXsl());
+      this.getServletContext().getRealPath(
+        Template.TEMPLATE_DIR + template.getXsl());
 
     /* Gestione del template di default */
     User user = this.getCurrentUser();
     if (template.getInfo().compareTo(Template.DEFAULT.getInfo()) == 0) {
       ResultsetImproved resultset =
-          user.getResultsetFromId(searchParams.getResultsetId());
+        user.getResultsetFromId(searchParams.getResultsetId());
       try {
         FileUtils.prepareDefaultTemplate(resultset, xsl, columns);
       } catch (IOException e) {
         Log.error("Impossibile ottenere il template di default", e);
         throw new VisibleException(
-            "Impossibile ottenere il template di default");
+          "Impossibile ottenere il template di default");
       }
     }
 
@@ -115,8 +116,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       String context = this.getServletContext().getRealPath("/");
       String realpath = this.getServletContext().getRealPath(file);
       String result =
-          FileUtils.createReport(realpath, xsl, template, records, columns, fs,
-              ts);
+        FileUtils.createReport(realpath, xsl, template, records, columns, fs,
+          ts);
       Log.debug("File esportato: " + result);
       Log.debug("Servlet context path: " + context);
       return result.substring(context.length());
@@ -166,32 +167,32 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   // TODO get user from thread id
   public HeaderPreferenceList getGridViews(final Integer userId,
-      final Integer resultsetId) throws HiddenException {
+    final Integer resultsetId) throws HiddenException {
     return this.dbUtils.getHeaderUserPreferenceList(userId, resultsetId);
   }
 
   // TODO get user from thread id
   public List<Integer> getHeaderUserPreference(final Integer idUser,
-      final Integer userPreferenceHeaderId) throws HiddenException {
+    final Integer userPreferenceHeaderId) throws HiddenException {
     return this.dbUtils.getHeaderUserPreference(idUser, userPreferenceHeaderId);
   }
 
   public PagingLoadResult<BaseModelData> getRecords(
-      final PagingLoadConfig config, final SearchParams searchParams)
-      throws HiddenException {
+    final PagingLoadConfig config, final SearchParams searchParams)
+    throws HiddenException {
     List<BaseModelData> records = this.dbUtils.getObjects(config, searchParams);
 
     if (config != null) {
       int recordSize = this.dbUtils.countObjects(searchParams);
       return new BasePagingLoadResult<BaseModelData>(records,
-          config.getOffset(), recordSize);
+        config.getOffset(), recordSize);
     } else {
       return new BasePagingLoadResult<BaseModelData>(records);
     }
   }
 
   public List<BaseModelData> getReGroupings(final int resultSetId)
-      throws HiddenException {
+    throws HiddenException {
     try {
       return this.dbUtils.getReGroupings(resultSetId);
     } catch (SQLException e) {
@@ -218,33 +219,33 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   // TODO get user from thread id
   public List<Message> getUserMessages(final Integer userId)
-      throws HiddenException {
+    throws HiddenException {
     return this.dbUtils.getUserMessages(userId);
   }
 
   public List<BaseModelData> getValuesOfAField(final int resultsetId,
-      final String fieldId) throws HiddenException {
+    final String fieldId) throws HiddenException {
     return this.dbUtils.getValuesOfAField(resultsetId, fieldId);
   }
 
   public List<BaseModelData> getValuesOfAFieldFromTableName(final String table,
-      final String field) throws HiddenException {
+    final String field) throws HiddenException {
 
     return this.dbUtils.getValuesOfAFieldFromTableName(table, field);
   }
 
   public FieldsMatrix getValuesOfFields(final Integer resultsetId)
-      throws HiddenException {
+    throws HiddenException {
     return this.dbUtils.getValuesOfFields(resultsetId);
   }
 
   public FieldsMatrix getValuesOfForeignKeys(final Integer resultsetId)
-      throws HiddenException {
+    throws HiddenException {
     return this.dbUtils.getValuesOfForeignKeys(resultsetId);
   }
 
   public Integer removeObjects(final Integer resultset,
-      final List<BaseModelData> selectedRows) throws HiddenException {
+    final List<BaseModelData> selectedRows) throws HiddenException {
     this.log("Removing records...");
     return this.dbUtils.removeObjects(resultset, selectedRows);
   }
@@ -260,7 +261,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   // TODO implement USER direct messages
   public void sendMessage(final Message message) throws HiddenException,
-      VisibleException {
+    VisibleException {
 
     MessageType type = message.getType();
     User sender = this.getUserByUid(message.getSender());
@@ -291,7 +292,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public Integer setObjects(final Integer resultsetId,
-      final List<BaseModelData> newItemList) throws HiddenException {
+    final List<BaseModelData> newItemList) throws HiddenException {
 
     this.log("Setting records...");
     // recupero dei vecchi parametri
@@ -311,11 +312,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   // TODO get user from thread id
   public boolean setUserResultsetHeaderPreferencesNoDefault(
-      final Integer userid, final Integer resultsetId,
-      final ArrayList<Integer> listfields, final String value)
-      throws HiddenException {
+    final Integer userid, final Integer resultsetId,
+    final ArrayList<Integer> listfields, final String value)
+    throws HiddenException {
     return this.dbUtils.setUserResultsetHeaderPreferencesNoDefault(userid,
-        resultsetId, listfields, value);
+      resultsetId, listfields, value);
   }
 
   // TODO get user from thread id
@@ -324,24 +325,24 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public ArrayList<BaseModelData> getPopUpDetailEntry(final BaseModelData data)
-      throws HiddenException {
+    throws HiddenException {
     return this.dbUtils.getPopUpDetailEntry(data);
   }
 
   public List<Plugin> getPlugins(final int gid, final int rsid)
-      throws HiddenException {
+    throws HiddenException {
     return this.dbUtils.getPlugin(gid, rsid);
   }
 
   public Integer updateObjects(final Integer resultsetId,
-      final List<BaseModelData> newItemList, final String condition)
-      throws HiddenException {
+    final List<BaseModelData> newItemList, final String condition)
+    throws HiddenException {
     this.log("Setting records...");
     // recupero dei vecchi parametri
     // e passaggio a notifyCanges
     List<BaseModelData> newItemListTest = newItemList;
     int success =
-        this.dbUtils.updateObjects(resultsetId, newItemList, condition);
+      this.dbUtils.updateObjects(resultsetId, newItemList, condition);
     if (success > 0) {
       try {
         this.dbUtils.notifyChanges(resultsetId, newItemListTest);
@@ -351,6 +352,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       }
     }
     return success;
+  }
+
+  public List<Resultset> getUserResultsetList(int uid) throws HiddenException {
+    // List<BaseModelData> resultsetList = new ArrayList<BaseModelData>();
+    return this.dbUtils.getUserResultSetList(uid);
   }
 
   @Override

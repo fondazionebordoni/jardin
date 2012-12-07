@@ -26,6 +26,7 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.SearchResult;
@@ -88,6 +89,7 @@ public class JardinController extends Controller {
 
   private User user;
   private JardinView view;
+  private ManagerServiceAsync service;
 
   private enum ChartType {
     PIE,
@@ -109,6 +111,7 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.Refresh);
     this.registerEventTypes(EventList.Init);
     this.registerEventTypes(EventList.CreateUI);
+    this.registerEventTypes(EventList.CreateFirstTab);
     this.registerEventTypes(EventList.Search);
     this.registerEventTypes(EventList.CommitChanges);
     this.registerEventTypes(EventList.AddRow);
@@ -137,6 +140,9 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.GetPlugins);
     this.registerEventTypes(EventList.GotPlugins);
     this.registerEventTypes(EventList.ViewPlugin);
+    
+    service =
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
   }
 
   @Override
@@ -182,6 +188,8 @@ public class JardinController extends Controller {
       }
     } else if (t == EventList.LoginError) {
       this.onLoginError(event);
+    } else if (t == EventList.CreateFirstTab) {
+      this.onCreateFirstTab();
     } else if (t == EventList.CreateUI) {
       this.onCreateUI();
     } else if (t == EventList.Search) {
@@ -396,9 +404,35 @@ public class JardinController extends Controller {
     }
   }
 
+  private void onCreateFirstTab() {
+    // TODO Auto-generated method stub
+    service.getUserResultsetList(this.user.getUid(), new AsyncCallback<List<Resultset>>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        // TODO Auto-generated method stub
+        Log.error("Errore nel caricamento della lista dei resultSet per l'utente " + user.getName());
+      }
+
+      @Override
+      public void onSuccess(List<Resultset> resultsetList) {
+        // TODO Auto-generated method stub
+        Info.display("Informazione", "Lista ResultSet caricata");
+        onGotFirstTab(resultsetList);
+      }
+
+    });
+  }
+
+
+  private void onGotFirstTab(List<Resultset> resultsetList) {
+    // TODO Auto-generated method stub
+    this.forwardToView(this.view, EventList.GotResultsetList, resultsetList);
+  }
+  
   private void onNewMessage() {
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     /* Set up the callback */
     AsyncCallback<List<Message>> callback = new AsyncCallback<List<Message>>() {
@@ -426,8 +460,8 @@ public class JardinController extends Controller {
       message.setSender(this.user.getUid());
     }
 
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     /* Set up the callback */
     AsyncCallback callback = new AsyncCallback() {
@@ -466,8 +500,8 @@ public class JardinController extends Controller {
 
   private void onCheckUser(final Credentials credentials) {
 
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     /* Set up the callback */
     AsyncCallback<User> callback = new AsyncCallback<User>() {
@@ -497,8 +531,8 @@ public class JardinController extends Controller {
     this.user = user;
     user.addEvent(EventList.NewMessage);
 
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<List<EventType>> callback =
         new AsyncCallback<List<EventType>>() {
@@ -577,8 +611,8 @@ public class JardinController extends Controller {
       this.forwardToView(this.view, EventList.Search, searchParams);
 
       final boolean limit = searchParams.isLimit();
-      final ManagerServiceAsync service =
-          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//      final ManagerServiceAsync service =
+//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
       RpcProxy<PagingLoadResult<BaseModelData>> proxy =
           new RpcProxy<PagingLoadResult<BaseModelData>>() {
@@ -642,8 +676,8 @@ public class JardinController extends Controller {
                 "");
 
         /* Create the service proxy class */
-        final ManagerServiceAsync service =
-            (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//        final ManagerServiceAsync service =
+//            (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
         /* Set up the callback */
         AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
@@ -687,8 +721,8 @@ public class JardinController extends Controller {
     if (((ResultsetImproved) data.get("RSLINKED")).isRead()) {
       // restituisce il BaseModelData con la riga interessata
 
-      final ManagerServiceAsync service =
-          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//      final ManagerServiceAsync service =
+//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
       AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry =
           new AsyncCallback<ArrayList<BaseModelData>>() {
@@ -737,8 +771,8 @@ public class JardinController extends Controller {
                   MessageBox.wait("Attendere", "Eliminazione in corso...", "");
 
               /* Create the service proxy class */
-              final ManagerServiceAsync service =
-                  (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//              final ManagerServiceAsync service =
+//                  (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
               /* Set up the callback */
               AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
@@ -852,8 +886,8 @@ public class JardinController extends Controller {
     SearchParams searchParams = grid.getSearchparams();
 
     /* Effettua la chiamata RPC */
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<String> callback = new AsyncCallback<String>() {
       public void onFailure(final Throwable caught) {
@@ -886,8 +920,8 @@ public class JardinController extends Controller {
   }
 
   private void onGetGridViews(final int resultset) {
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<HeaderPreferenceList> callback =
         new AsyncCallback<HeaderPreferenceList>() {
@@ -925,8 +959,8 @@ public class JardinController extends Controller {
   }
 
   private void onUpdateColumnModel(final JardinGrid grid) {
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<List<Integer>> callback = new AsyncCallback<List<Integer>>() {
       public void onFailure(final Throwable caught) {
@@ -969,8 +1003,8 @@ public class JardinController extends Controller {
     SearchParams searchParams = grid.getSearchparams();
 
     /* Effettua la chiamata RPC */
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<String> callback = new AsyncCallback<String>() {
       public void onFailure(final Throwable caught) {
@@ -1125,8 +1159,8 @@ public class JardinController extends Controller {
     ResultsetImproved rs = this.user.getResultsetFromId(data);
     // final JardinGrid grid = view.getItemByResultsetId(data).getGrid();
 
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<List<Plugin>> callback =
         new AsyncCallback<List<Plugin>>() {

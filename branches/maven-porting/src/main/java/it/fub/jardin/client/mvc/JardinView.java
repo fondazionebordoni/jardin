@@ -20,6 +20,7 @@ package it.fub.jardin.client.mvc;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.SearchResult;
@@ -34,6 +35,7 @@ import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -42,13 +44,16 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -56,6 +61,8 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class JardinView extends View {
@@ -73,6 +80,7 @@ public class JardinView extends View {
   private TabPanel main;
   private HeaderArea header;
   private LoginDialog dialog;
+  private List<Resultset> resultSetList;
 
   public JardinView(final Controller controller) {
     super(controller);
@@ -105,6 +113,9 @@ public class JardinView extends View {
         message = "Errore durante l'accesso";
       }
       this.loginError(message);
+    } else if (t == EventList.GotResultsetList) {
+      resultSetList = event.getData();
+      createFirstTab(resultSetList);
     } else if (t == EventList.NewResultset) {
       if (event.getData() instanceof Integer) {
         this.newResultset((Integer) event.getData());
@@ -157,6 +168,30 @@ public class JardinView extends View {
        * Altri eventi
        */
     }
+  }
+
+  private void createFirstTab(List<Resultset> resultSetList) {
+    // TODO Auto-generated method stub
+    TabItem firstTab = new TabItem("Menù Principale");
+    AbsolutePanel con = new AbsolutePanel();
+    
+    int i = 0;
+    for (Resultset resultset : resultSetList) {
+      ContentPanel cp = new ContentPanel();
+      cp.setCollapsible(true);      
+      cp.setWidth(200);
+      cp.setHeading(resultset.getAlias());
+      Label body = new Label(resultset.getNote());
+      cp.add(body);
+      
+      Draggable d = new Draggable(cp);     
+      
+      con.add(cp,10 + (i*200),10);
+      i++;
+    }
+    
+    firstTab.add(con);
+    this.main.add(firstTab);
   }
 
   private void viewPlugin(final String data) {
@@ -220,7 +255,8 @@ public class JardinView extends View {
     this.createMain();
 
     RootPanel.get().add(this.viewport);
-    Dispatcher.forwardEvent(EventList.CreateUI);
+//    Dispatcher.forwardEvent(EventList.CreateUI);
+    Dispatcher.forwardEvent(EventList.CreateFirstTab);
   }
 
   private void createHeader() {

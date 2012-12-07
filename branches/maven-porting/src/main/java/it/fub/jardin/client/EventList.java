@@ -18,6 +18,7 @@
 package it.fub.jardin.client;
 
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 
 public class EventList {
 
@@ -132,5 +133,9 @@ public class EventList {
   public static final EventType ViewPlugin = new EventType();
 
   public static final EventType ViewPopUpDetail = new EventType();
+
+  public static final EventType CreateFirstTab = new EventType();
+
+  public static final EventType GotResultsetList = new EventType();
 
 }
