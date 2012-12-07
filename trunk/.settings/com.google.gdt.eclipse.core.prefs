@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+jarsExcludedFromWebInfLib=
+lastWarOutDir=/home/gpantanetti/src/jardin/target/jardin-2.0.0-SNAPSHOT
+warSrcDir=src/main/webapp
+warSrcDirIsOutput=false

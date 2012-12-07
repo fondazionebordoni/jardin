@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='jardin'>
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User'/>
+  <inherits name='com.extjs.gxt.ui.GXT' />
+  <inherits name='com.extjs.gxt.charts.Chart' />
+  <inherits name="com.smartgwt.SmartGwt"/>
+
+  <!-- Inherit the default GWT style sheet.  You can change       -->
+  <!-- the theme of your GWT application by uncommenting          -->
+  <!-- any one of the following lines.                            -->
+  <inherits name='com.google.gwt.user.theme.standard.Standard'/>
+  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+  <inherits name="com.smartclient.theme.enterprise.EnterpriseResources"/>
+
+  <!-- Specify the app entry point class.                         -->
+  <entry-point class='it.fub.jardin.client.Jardin'/>
+  
+  <!-- Other module inherits                                      -->
+
+  <!-- Add gwt-log support, default level `INFO`                  -->
+  <inherits name="com.allen_sauer.gwt.log.gwt-log-INFO" />
+  
+  <!-- Also compile at `DEBUG` level -->
+  <!-- <extend-property name="log_level" values="DEBUG"/>		  -->
+  
+  <!-- Loggers -->
+  <set-property name="log_ConsoleLogger" value="ENABLED" />
+  <set-property name="log_DivLogger"     value="DISABLED" />
+  <set-property name="log_FirebugLogger" value="ENABLED" />
+  <set-property name="log_GWTLogger"     value="ENABLED" />
+  <set-property name="log_SystemLogger"  value="ENABLED" />
+  <set-property name="log_RemoteLogger"  value="DISABLED" />
+  <set-property name="log_WindowLogger"  value="DISABLED" />
+</module>
