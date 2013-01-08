@@ -42,7 +42,7 @@
     <servlet-name>Upload</servlet-name>
     <url-pattern>/jardin/upload</url-pattern>
   </servlet-mapping>
-  
+ <!-- 
   <servlet>
     <servlet-name>remoteLoggerServiceImpl</servlet-name>
     <servlet-class>com.allen_sauer.gwt.log.server.RemoteLoggerServiceImpl</servlet-class>
@@ -52,5 +52,5 @@
     <servlet-name>remoteLoggerServiceImpl</servlet-name>
     <url-pattern>/jardin/gwt-log</url-pattern>
   </servlet-mapping>
-  
+  -->
 </web-app>
