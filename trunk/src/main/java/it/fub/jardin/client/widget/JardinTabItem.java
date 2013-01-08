@@ -20,6 +20,7 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.ResultsetPlus;
 
 import java.util.ArrayList;
 
@@ -66,7 +67,7 @@ public class JardinTabItem extends TabItem {
   public JardinTabItem(final ResultsetImproved resultset) {
     super(resultset.getAlias());
 
-    this.setClosable(false);
+    this.setClosable(true);    
     this.setLayout(new FitLayout());
 
     this.main = new ContentPanel(new BorderLayout());

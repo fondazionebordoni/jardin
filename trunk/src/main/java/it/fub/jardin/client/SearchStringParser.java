@@ -19,7 +19,6 @@ package it.fub.jardin.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.allen_sauer.gwt.log.client.Log;
 
 public class SearchStringParser {
 
@@ -231,7 +230,7 @@ public class SearchStringParser {
 
   public void printMap(final Map<String, String> map) {
     for (String key : map.keySet()) {
-      Log.debug("k: " + key + ", value: " + map.get(key));
+//      Log.debug("k: " + key + ", value: " + map.get(key));
     }
   }
 

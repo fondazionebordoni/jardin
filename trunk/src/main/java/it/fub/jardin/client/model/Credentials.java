@@ -24,6 +24,7 @@ public class Credentials implements IsSerializable {
   private static final long serialVersionUID = 1L;
   private String username;
   private String password;
+  private String newPassword;
 
   @SuppressWarnings("unused")
   private Credentials() {
@@ -65,6 +66,20 @@ public class Credentials implements IsSerializable {
     String username = value.substring(0, index);
     String password = value.substring(index + 1);
     return new Credentials(username, password);
+  }
+
+  /**
+   * @return the newPassword
+   */
+  public String getNewPassword() {
+    return newPassword;
+  }
+
+  /**
+   * @param newPassword the newPassword to set
+   */
+  public void setNewPassword(String newPassword) {
+    this.newPassword = newPassword;
   }
 
 }

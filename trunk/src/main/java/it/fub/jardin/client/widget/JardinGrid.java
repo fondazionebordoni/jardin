@@ -19,11 +19,11 @@ package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
+import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.mvc.JardinController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +40,9 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuBar;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -51,15 +51,20 @@ public class JardinGrid extends Grid<BaseModelData> {
 
   private ResultsetImproved resultset;
   // private JardinRowEditor<BaseModelData> editor;
-  private final RowEditor<BaseModelData> editor;
+  private RowEditor<BaseModelData> editor;
   private SearchParams searchparams;
   private Integer userPreferenceHeaderId;
+  private User user;
+  private Menu m;
 
-  public JardinGrid(final ListStore<BaseModelData> store,
-      final JardinColumnModel cm, final ResultsetImproved resultset) {
+  public JardinGrid(ListStore<BaseModelData> store, JardinColumnModel cm,
+      ResultsetImproved resultset, User user) {
     super(store, cm);
 
     this.resultset = resultset;
+    this.user = user;
+
+    this.m = new Menu();
 
     this.setBorders(false);
     this.setStripeRows(true);
@@ -74,36 +79,43 @@ public class JardinGrid extends Grid<BaseModelData> {
 
     this.setLoadMask(true);
 
-    final Menu m = new Menu();
+    addContextMenu();
+  }
+
+  private void addContextMenu() {
+
     this.setContextMenu(m);
 
     this.addListener(Events.ContextMenu, new Listener<GridEvent>() {
       public void handleEvent(final GridEvent be) {
         m.removeAll();
-        m.setWidth(300);
+        m.setWidth(400);
 
         final MenuBar sep = new MenuBar();
         final ModelData selectedRow =
             (ModelData) be.getGrid().getSelectionModel().getSelection().get(0);
 
-        User user =
-            ((JardinController) Dispatcher.get().getControllers().get(0)).getUser();
-        List<ResultsetImproved> resultsets = user.getResultsets();
+        List<Resultset> resultsetList = user.getResultsetList();
 
         // Creazione del menu contestuale per le foreignkey e le foreignkey
         // entranti
         for (final ResultsetField field : resultset.getFields()) {
-          if ((field.getForeignKey().compareToIgnoreCase("") != 0)) {
+          if ((field.getForeignKey().compareToIgnoreCase("") != 0)
+              && field.getForeignKey() != null) {
             String fkinfo = field.getForeignKey();
             String[] fksplitted = fkinfo.split("\\.");
-            for (final ResultsetImproved rs : resultsets) {
-              if (rs.getName().compareTo(fksplitted[0]) == 0) {
+            // for (final ResultsetImproved rs : resultsets) {
+            for (final Resultset rs : resultsetList) {
+              if (rs.getName().compareTo(fksplitted[0]) == 0
+                  && rs.getPermissions().isReadperm()) {
                 final BaseModelData fk = new BaseModelData();
                 fk.set("RSID", resultset.getId());
                 // fk.set("TABLE", fksplitted[0]);
                 fk.set("FK", fksplitted[1]);
                 fk.set("VALUE", selectedRow.get(field.getName()));
                 fk.set("RSLINKED", rs);
+                fk.set("GID", user.getGid());
+                // fk.set("RSLINKEDID", rs.getId());
                 MenuItem item =
                     new MenuItem("Visualizza record corrispondente in "
                         + rs.getAlias());
@@ -123,16 +135,23 @@ public class JardinGrid extends Grid<BaseModelData> {
         m.add(sep);
 
         for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
-          final String linkedTable = fk.getLinkingTable();
-          final String linkedField = fk.getLinkingField();
+//          final String linkedTable = fk.getLinkingTable();
+//          final String linkedField = fk.getLinkingField();
+          if (!user.getResultsets().contains(fk.getInterestedResultset())) {
+            user.addResultsetToList(fk.getInterestedResultset());
+          }
           final String field = fk.getField();
-          // TODO sarebbe meglio spedire direttamente fk e non ricreare un nuovo
-          // IncomingForeignKeyInformation
-          final IncomingForeignKeyInformation fkIN =
-              new IncomingForeignKeyInformation(linkedTable, linkedField, field);
-          fkIN.setFieldValue("" + selectedRow.get(field));
-          fkIN.setInterestedResultset(fk.getInterestedResultset());
-          fkIN.setResultsetId(fk.getResultsetId());
+          // TODO sarebbe meglio spedire direttamente fk e non ricreare un
+          // nuovo
+//          final IncomingForeignKeyInformation fkIN =
+//              new IncomingForeignKeyInformation(linkedTable, linkedField, field);
+//          fkIN.setFieldValue("" + selectedRow.get(field));
+//          fkIN.setInterestedResultset(fk.getInterestedResultset());
+//          fkIN.setResultsetId(fk.getResultsetId());
+          
+          fk.setFieldValue("" + selectedRow.get(field));
+//          fk.setInterestedResultset(fk.getInterestedResultset());
+//          fk.setResultsetId(fk.getResultsetId());
 
           MenuItem mitem =
               new MenuItem("Visualizza corrispondenze in "
@@ -142,11 +161,46 @@ public class JardinGrid extends Grid<BaseModelData> {
 
               // Log.debug(linkedTable + "." + linkedField + "->" + field + "="
               // + selectedRow.get(field));
-              Dispatcher.forwardEvent(EventList.ViewLinkedTable, fkIN);
+//              Dispatcher.forwardEvent(EventList.ViewLinkedTable, fkIN);
+              Dispatcher.forwardEvent(EventList.ViewLinkedTable, fk);
 
             }
           });
           m.add(mitem);
+        }
+
+        m.add(sep);
+
+        System.out.println("il RS " + resultset.getName() + " ha "
+            + resultset.getForeignKeyIn().size() + " fk entranti");
+
+        for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
+          final String field = fk.getField();
+          // System.out.println("fk in: " + linkedTable + "." + linkedField +
+          // "->"
+          // + field);
+          if (!user.getResultsets().contains(fk.getInterestedResultset())) {
+            user.addResultsetToList(fk.getInterestedResultset());
+          }
+          if (fk.getInterestedResultset().isInsert()) {
+            
+            // TODO sarebbe meglio spedire direttamente fk e non ricreare un
+            // nuovo
+            fk.setFieldValue("" + selectedRow.get(field));
+
+            MenuItem mitem =
+                new MenuItem("Aggiungi nuovo "
+                    + fk.getInterestedResultset().getAlias() + " per questo "
+                    + field + " " + selectedRow.get(field));
+            mitem.addListener(Events.Select, new Listener() {
+              public void handleEvent(final BaseEvent be) {
+
+                new JardinAddingPopUp(fk);
+
+              }
+            });
+            m.add(mitem);
+          }
         }
       }
     });
@@ -327,6 +381,21 @@ public class JardinGrid extends Grid<BaseModelData> {
     }
 
     return false;
+  }
+
+  /**
+   * @return the user
+   */
+  public User getUser() {
+    return user;
+  }
+
+  /**
+   * @param user
+   *          the user to set
+   */
+  public void setUser(User user) {
+    this.user = user;
   }
 
 }

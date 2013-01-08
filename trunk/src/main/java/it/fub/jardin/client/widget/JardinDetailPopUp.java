@@ -20,6 +20,7 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
+import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
@@ -64,7 +65,7 @@ public class JardinDetailPopUp extends Window {
   private static final int padding = 0;
   Button button;
   // SearchParams searchData;
-  ResultsetImproved resultset;
+  Resultset resultset;
   HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
 
   /**
@@ -79,7 +80,7 @@ public class JardinDetailPopUp extends Window {
     BaseModelData data = infoToView.get(0);
     BaseModelData entry = infoToView.get(1);
 
-    ResultsetImproved rs = data.get("RSLINKED");
+    Resultset rs = data.get("RSLINKED");
     String linkingField = data.get("FK");
 
     this.setHeading("Visualizzazione dati in " + rs.getAlias() + " ("
@@ -106,7 +107,8 @@ public class JardinDetailPopUp extends Window {
 
   private void setFormPanel(final BaseModelData data, final BaseModelData entry) {
 
-    for (ResultsetField field : this.resultset.getFields()) {
+//    System.out.println("il RS puntato ha " + this.resultset.getResultsetListField().size() + " campi");
+    for (ResultsetField field : this.resultset.getResultsetListField()) {
 
       if (field.getReadperm()) {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
@@ -114,6 +116,7 @@ public class JardinDetailPopUp extends Window {
         List values = new ArrayList();
         Field f = FieldCreator.getField(field, values, 0, true);
         this.fieldList.add(f);
+        
         if (!field.getModifyperm()) {
           f.setEnabled(false);
         }
@@ -141,28 +144,23 @@ public class JardinDetailPopUp extends Window {
 
         /* Esamino il raggruppamento a cui appartiene il campo */
         ResultsetFieldGroupings fieldGrouping =
-            this.resultset.getFieldGrouping(field.getIdgrouping());
+            this.resultset.getFieldGroupings().get(field.getIdgrouping());
         /* Se il campo non ha raggruppamento l'aggancio a quello base */
-        if (fieldGrouping == null) {
-          this.formPanel.add(f);
-        } else {
-          String fieldSetName = fieldGrouping.getName();
-
-          /*
-           * Se il fieldset non esiste lo creo e l'aggancio a pannello
-           */
-          FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
-          if (fieldSet == null) {
-            fieldSet =
-                new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
-                    labelWidth, padding);
-            this.fieldSetList.put(fieldSetName, fieldSet);
-            this.formPanel.add(fieldSet);
-          }
+        /*
+         * Se il fieldset non esiste lo creo e l'aggancio a pannello
+         */
+        FieldSet fieldSet = this.fieldSetList.get(fieldGrouping.getName());
+        if (fieldSet == null) {
+          fieldSet =
+              new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
+                  labelWidth, padding);
+          this.fieldSetList.put(fieldGrouping.getName(), fieldSet);
+          this.formPanel.add(fieldSet);
+        }
 
           /* Aggancio il campo al suo raggruppamento */
           fieldSet.add(f);
-        }
+//        }
       }
     }
   }

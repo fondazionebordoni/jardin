@@ -18,6 +18,7 @@
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
+import it.fub.jardin.client.exception.VisibleException;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -27,14 +28,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.allen_sauer.gwt.log.client.Log;
+//import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 public class DbProperties {
 
   private final DbConnectionHandler dbConnectionHandler;
 
-  public DbProperties() {
+  public DbProperties() throws VisibleException {
     this.dbConnectionHandler = new DbConnectionHandler();
   }
 
@@ -46,9 +47,10 @@ public class DbProperties {
    * @param table
    * @return lista delle chiavi primarie della tabella <i>table</i>
    * @throws SQLException
+   * @throws HiddenException 
    */
   public List<BaseModelData> getPrimaryKeys(final String table)
-      throws SQLException {
+      throws SQLException, HiddenException {
     List<BaseModelData> primaryKeys = new ArrayList<BaseModelData>();
 
     Connection connection = null;
@@ -56,7 +58,7 @@ public class DbProperties {
       connection = this.dbConnectionHandler.getConn();
     } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
+//      Log.error("Error con database connection", e);
     }
 
     try {
@@ -74,7 +76,7 @@ public class DbProperties {
         primaryKeys.add(pk);
       }
     } catch (SQLException e) {
-      Log.warn("Errore durante il lookup per le chiavi primarie");
+//      Log.warn("Errore durante il lookup per le chiavi primarie");
       throw e;
     } finally {
       this.dbConnectionHandler.closeConn(connection);
@@ -83,16 +85,16 @@ public class DbProperties {
   }
 
   public List<BaseModelData> getForeignKeys(final String table)
-      throws SQLException {
+      throws SQLException, HiddenException {
     List<BaseModelData> foreignKeys = new ArrayList<BaseModelData>();
 
     Connection connection = null;
-    try {
+//    try {
       connection = this.dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
+//    } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
+//      Log.error("Error con database connection", e);
+//    }
 
     try {
       DatabaseMetaData dbmt = connection.getMetaData();
@@ -110,7 +112,7 @@ public class DbProperties {
       }
 
     } catch (SQLException e) {
-      Log.warn("Errore durante il lookup per i vincoli di integrità");
+//      Log.warn("Errore durante il lookup per i vincoli di integrità");
       throw e;
     } finally {
       this.dbConnectionHandler.closeConn(connection);
@@ -118,14 +120,14 @@ public class DbProperties {
     return foreignKeys;
   }
 
-  public String getForeignKey(final String table, final String field) {
+  public String getForeignKey(final String table, final String field) throws HiddenException {
     Connection connection = null;
-    try {
+//    try {
       connection = this.dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
+//    } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
+//      Log.error("Error con database connection", e);
+//    }
 
     DatabaseMetaData dbmt;
     try {
@@ -150,16 +152,16 @@ public class DbProperties {
 
   }
 
-  public ArrayList<String> getUniqueKeys(final String table) {
+  public ArrayList<String> getUniqueKeys(final String table) throws HiddenException {
     Connection connection = null;
     ArrayList<String> uniqueKeys = new ArrayList<String>();
-    try {
+//    try {
 
       connection = this.dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
+//    } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
+//      Log.error("Error con database connection", e);
+//    }
 
     DatabaseMetaData dbmt;
     try {
@@ -180,15 +182,15 @@ public class DbProperties {
 
   }
 
-  public List<String> getFieldList(final int resultset) {
+  public List<String> getFieldList(final int resultset) throws HiddenException {
 
     Connection connection = null;
-    try {
+//    try {
       connection = this.dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
+//    } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
+//      Log.error("Error con database connection", e);
+//    }
 
     List<String> result = new ArrayList<String>();
     try {
@@ -200,7 +202,8 @@ public class DbProperties {
         result.add(column);
       }
     } catch (SQLException e) {
-      Log.warn("Impossibile recuperare i metadata del resultset " + resultset);
+      throw new HiddenException(
+          "Impossibile recuperare i metadata del resultset " + resultset);//      Log.warn("Impossibile recuperare i metadata del resultset " + resultset);
     } finally {
       this.dbConnectionHandler.closeConn(connection);
     }
@@ -216,9 +219,10 @@ public class DbProperties {
    *          il resultset che definisce una query da effettuare su database
    * @return
    * @throws SQLException
+   * @throws HiddenException 
    */
   public ResultSetMetaData getResultsetMetadata(final Connection connection,
-      final int resultset) throws SQLException {
+      final int resultset) throws SQLException, HiddenException {
     // String query = "SELECT * FROM " + getStatement(resultset) + " WHERE 0";
     String query = this.getStatement(resultset);
     ResultSet result = DbUtils.doQuery(connection, query + " LIMIT 0,1");
@@ -230,16 +234,17 @@ public class DbProperties {
    * @return ritorna lo statement SQL per il resultSet il cui id è passato come
    *         parametro
    * @throws SQLException
+   * @throws HiddenException 
    */
-  public String getStatement(final int resultset) throws SQLException {
+  public String getStatement(final int resultset) throws SQLException, HiddenException {
     String statement;
     Connection connection = null;
-    try {
+//    try {
       connection = this.dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
+//    } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
+//      Log.error("Error con database connection", e);
+//    }
 
     String query =
         "SELECT statement FROM " + DbUtils.T_RESULTSET + " WHERE id = "
@@ -273,16 +278,17 @@ public class DbProperties {
    * @return ritorna lo statement SQL per il resultSet il cui id è passato come
    *         parametro
    * @throws SQLException
+   * @throws HiddenException 
    */
-  public String getResultSetName(final int resultset) throws SQLException {
+  public String getResultSetName(final int resultset) throws SQLException, HiddenException {
     String rsName;
     Connection connection = null;
-    try {
+//    try {
       connection = this.dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
+//    } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
+//      Log.error("Error con database connection", e);
+//    }
 
     String query =
         "SELECT name FROM " + DbUtils.T_RESOURCE + " WHERE id = " + resultset;
@@ -332,14 +338,14 @@ public class DbProperties {
   }
 
   public List<String> getResultsetTableList(final int resultsetId)
-      throws SQLException {
+      throws SQLException, HiddenException {
     Connection connection = null;
-    try {
+//    try {
       connection = this.dbConnectionHandler.getConn();
-    } catch (HiddenException e) {
+//    } catch (HiddenException e) {
       // TODO re-throw HiddenException to be caught by caller
-      Log.error("Error con database connection", e);
-    }
+//      Log.error("Error con database connection", e);
+//    }
 
     ResultSetMetaData metadata =
         this.getResultsetMetadata(connection, resultsetId);
@@ -381,7 +387,7 @@ public class DbProperties {
       }
 
     } catch (SQLException e) {
-      Log.warn("Errore durante il lookup per i vincoli di integrità");
+//      Log.warn("Errore durante il lookup per i vincoli di integrità");
       throw e;
     } finally {
       this.dbConnectionHandler.closeConn(connection);
@@ -405,14 +411,14 @@ public class DbProperties {
           BaseModelData pk = new BaseModelData();
           pk.set("TABLE_NAME", infoPrimaryKey.getString("TABLE_NAME"));
           pk.set("PK_NAME", infoPrimaryKey.getString("COLUMN_NAME"));
-          Log.debug("Primary key per: " + table + " -->"
-              + infoPrimaryKey.getString("TABLE_NAME") + "."
-              + infoPrimaryKey.getString("COLUMN_NAME"));
+//          Log.debug("Primary key per: " + table + " -->"
+//              + infoPrimaryKey.getString("TABLE_NAME") + "."
+//              + infoPrimaryKey.getString("COLUMN_NAME"));
           primaryKeys.add(pk);
         }
       }
     } catch (SQLException e) {
-      Log.warn("Errore durante il lookup per le chiavi primarie");
+//      Log.warn("Errore durante il lookup per le chiavi primarie");
       throw e;
     } finally {
       this.dbConnectionHandler.closeConn(connection);

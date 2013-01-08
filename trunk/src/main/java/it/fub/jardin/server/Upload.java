@@ -23,7 +23,15 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.widget.UploadDialog;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,7 +43,9 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-import com.allen_sauer.gwt.log.client.Log;
+import com.Ostermiller.util.CSVParser;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+
 
 public class Upload extends HttpServlet {
   private static final long serialVersionUID = 6098745782027999297L;
@@ -48,11 +58,29 @@ public class Upload extends HttpServlet {
   private Credentials credentials = null;
   private String condition = null;
   private String tipologia;
+  
+  private DbProperties dbProperties;
+  private DbConnectionHandler dbConnectionHandler;
+  private DbUtils dbUtils;
+  
 
   @Override
   public void doPost(final HttpServletRequest request,
       final HttpServletResponse response)
   /* throws ServletException, IOException */{
+    try {
+      this.dbProperties = new DbProperties();
+    } catch (VisibleException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+    this.dbConnectionHandler = this.dbProperties.getConnectionHandler();
+    try {
+      this.dbUtils = new DbUtils(dbProperties, dbConnectionHandler);
+    } catch (VisibleException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
 
     // Create a factory for disk-based file items
     DiskFileItemFactory factory = new DiskFileItemFactory();
@@ -83,7 +111,7 @@ public class Upload extends HttpServlet {
       response.setContentType("text/plain");
       response.getWriter().write(m);
     } catch (Exception e) {
-      Log.warn("Errore durante l'upload del file", e);
+//      Log.warn("Errore durante l'upload del file", e);
     }
   }
 
@@ -100,10 +128,10 @@ public class Upload extends HttpServlet {
     String value = item.getString();
     if (name.compareTo(UploadDialog.FIELD_TYPE) == 0) {
       this.type = value;
-      Log.debug("TYPE: " + this.type);
+//      Log.debug("TYPE: " + this.type);
     } else if (name.compareTo(UploadDialog.FIELD_RESULTSET) == 0) {
       this.resultset = Integer.parseInt(value);
-      Log.debug("RESULTSET: " + this.resultset);
+//      Log.debug("RESULTSET: " + this.resultset);
     } else if (name.compareTo(UploadDialog.FIELD_CREDENTIALS) == 0) {
       this.credentials = Credentials.parseCredentials(value);
       // Log.debug("USER: " + this.credentials.getUsername() + "; PASS: "
@@ -119,7 +147,7 @@ public class Upload extends HttpServlet {
     } else if (name.compareTo("condition") == 0) {
       this.condition = value;
     } else {
-      Log.debug("attenzione campo non riconosciuto: " + name + "--->" + value);
+//      Log.debug("attenzione campo non riconosciuto: " + name + "--->" + value);
     }
   }
 
@@ -169,8 +197,8 @@ public class Upload extends HttpServlet {
             || (this.type.compareTo(UploadDialog.TYPE_INSERT) == 0)) {
           f = File.createTempFile(name, "");
         } else {
-          Log.warn("Azione da eseguire con il file '" + this.type
-              + "' non riconosciuta");
+//          Log.warn("Azione da eseguire con il file '" + this.type
+//              + "' non riconosciuta");
           return "Errore. Non è possibile decidere quale azione eseguire con il file";
         }
 
@@ -179,13 +207,13 @@ public class Upload extends HttpServlet {
 
         /* Decisione delle azioni da eseguire con il file */
         if (this.type.compareToIgnoreCase(UploadDialog.TYPE_IMPORT) == 0) {
-          (new DbUtils()).importFile(this.credentials, this.resultset, f,
+          dbUtils.importFile(this.credentials, this.resultset, f,
               this.ts, this.fs, this.tipologia, UploadDialog.TYPE_IMPORT,
               this.condition);
           return UploadDialog.SUCCESS
               + "Importazione dati avvenuta con successo";
         } else if (this.type.compareToIgnoreCase(UploadDialog.TYPE_INSERT) == 0) {
-          (new DbUtils()).importFile(this.credentials, this.resultset, f,
+          dbUtils.importFile(this.credentials, this.resultset, f,
               this.ts, this.fs, this.tipologia, UploadDialog.TYPE_INSERT,
               this.condition);
           return UploadDialog.SUCCESS
@@ -195,17 +223,17 @@ public class Upload extends HttpServlet {
         }
       } else {
         /* Non esiste specifica del campo type */
-        Log.warn("Manca il tipo di azione da eseguire con il file");
+//        Log.warn("Manca il tipo di azione da eseguire con il file");
         return "Errore. Non è possibile decidere quale azione eseguire con il file";
       }
     } catch (HiddenException e) {
-      Log.warn("Errore durante il caricamento dei dati", e);
+//      Log.warn("Errore durante il caricamento dei dati", e);
       return "Errore. " + e.getLocalizedMessage();
     } catch (VisibleException e) {
-      Log.warn(e.getMessage());
+//      Log.warn(e.getMessage());
       return e.getMessage();
     } catch (Exception e) {
-      Log.warn("Errore durante l'upload del file", e);
+//      Log.warn("Errore durante l'upload del file", e);
       return "Errore. Impossibile salvare il file sul server";
     }
   }
@@ -218,5 +246,6 @@ public class Upload extends HttpServlet {
     return true;
     // return item.getContentType().equals(ACCEPTABLE_CONTENT_TYPE);
   }
+ 
 
 }

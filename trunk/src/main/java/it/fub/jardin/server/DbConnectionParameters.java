@@ -17,11 +17,14 @@
 
 package it.fub.jardin.server;
 
+import it.fub.jardin.client.exception.VisibleException;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.allen_sauer.gwt.log.client.Log;
+//import com.allen_sauer.gwt.log.client.Log;
 
 public class DbConnectionParameters {
 
@@ -33,12 +36,13 @@ public class DbConnectionParameters {
   private String user;
   private String pass;
   private String view;
-
-  public DbConnectionParameters() {
+  private String subSystem;
+  
+  public DbConnectionParameters() throws VisibleException {
 
     InputStream in =
         this.getClass().getClassLoader().getResourceAsStream(this.path);
-    Log.debug("File " + this.path + " found");
+//    Log.debug("File " + this.path + " found");
 
     Properties myProps = new Properties();
 
@@ -51,8 +55,13 @@ public class DbConnectionParameters {
       this.setUser(myProps.getProperty("user"));
       this.setPass(myProps.getProperty("pass"));
       this.setView(myProps.getProperty("view"));
+      if (myProps.getProperty("subsystem") != null) {
+        this.setSubSystem(myProps.getProperty("subsystem"));                
+      } else {
+        throw new VisibleException("Attenzione! Property \"subsystem\" assente --> impossibile loggare!");
+      }
     } catch (IOException e) {
-      Log.warn("Impossibile leggere dal file " + this.path);
+      System.out.println("Impossibile leggere dal file " + this.path);
     }
   }
 
@@ -158,5 +167,20 @@ public class DbConnectionParameters {
   private void setView(final String view) {
     this.view = view;
   }
+
+  /**
+   * @return the subSystem
+   */
+  public String getSubSystem() {
+    return subSystem;
+  }
+
+  /**
+   * @param subSystem the subSystem to set
+   */
+  public void setSubSystem(String subSystem) {
+    this.subSystem = subSystem;
+  }
+
 
 }
