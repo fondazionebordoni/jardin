@@ -268,7 +268,8 @@ public class JardinView extends View {
     // System.out.println("lista rs:" + resultSetNumber);
     // impostiamo 5 colonne
     int numRows = 1;
-    int lastRowNumCols = resultSetNumber;
+//    int lastRowNumCols = resultSetNumber;
+    int lastRowNumCols = 0;
     if (resultSetNumber > 5) {
       numRows = (int) Math.rint(resultSetNumber / 5);
       lastRowNumCols = resultSetNumber - (numRows * 5); // numero colonne dell'ultima riga
