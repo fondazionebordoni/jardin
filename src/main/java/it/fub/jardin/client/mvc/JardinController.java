@@ -43,14 +43,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.charts.client.Chart;
 import com.extjs.gxt.charts.client.model.BarDataProvider;
 import com.extjs.gxt.charts.client.model.ChartModel;
 import com.extjs.gxt.charts.client.model.PieDataProvider;
 import com.extjs.gxt.charts.client.model.charts.BarChart;
-import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.charts.client.model.charts.BarChart.BarStyle;
+import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -72,6 +71,7 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -92,12 +92,11 @@ public class JardinController extends Controller {
   private ManagerServiceAsync service;
 
   private enum ChartType {
-    PIE,
-    BAR;
+    PIE, BAR;
   }
 
-  private static final String[] chartColors =
-      { "#204a87", "#4e9a06", "#cc0000", "#75507b", "#f57900", "#edd400" };
+  private static final String[] chartColors = { "#204a87", "#4e9a06",
+      "#cc0000", "#75507b", "#f57900", "#edd400" };
 
   /**
    * Creazione del controller generale per l'applicazione. Vengono registrati
@@ -107,6 +106,7 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.Login);
     this.registerEventTypes(EventList.Error);
     this.registerEventTypes(EventList.CheckUser);
+    this.registerEventTypes(EventList.CheckCredential);
     this.registerEventTypes(EventList.LoginError);
     this.registerEventTypes(EventList.Refresh);
     this.registerEventTypes(EventList.Init);
@@ -140,9 +140,18 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.GetPlugins);
     this.registerEventTypes(EventList.GotPlugins);
     this.registerEventTypes(EventList.ViewPlugin);
-    
-    service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    this.registerEventTypes(EventList.getResultsetImproved);
+    this.registerEventTypes(EventList.gotResultsetImproved);
+    this.registerEventTypes(EventList.getResultsetPlus);
+    this.registerEventTypes(EventList.gotResultsetPlus);
+    this.registerEventTypes(EventList.initialChangePassword);
+    this.registerEventTypes(EventList.CheckCredentialAndChangePassword);
+    this.registerEventTypes(EventList.changePasswordError);
+    this.registerEventTypes(EventList.getResultsetImprovedFromContextMenu);
+    this.registerEventTypes(EventList.ViewAddingPopup);
+    this.registerEventTypes(EventList.saveNewRecord);
+
+    service = (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
   }
 
   @Override
@@ -158,10 +167,10 @@ public class JardinController extends Controller {
   @Override
   public void handleEvent(final AppEvent event) {
     EventType t = event.getType();
-//    System.out.println("CONTROLLER catturato evento: " + t.toString());
-//    if (t == EventList.GetPlugins) {
-//      System.out.println("CONTROLLER: catturato plugins " + t.toString());
-//    }
+    // System.out.println("CONTROLLER catturato evento: " + t.toString());
+    // if (t == EventList.GetPlugins) {
+    // System.out.println("CONTROLLER: catturato plugins " + t.toString());
+    // }
     if (t == EventList.Login) {
       this.forwardToView(this.view, EventList.Login, this.loginMessage());
     } else if (t == EventList.CheckUser) {
@@ -170,6 +179,22 @@ public class JardinController extends Controller {
         this.onCheckUser(credentials);
       } else {
         // TODO Gestire errore nei dati di EventList.CheckUser
+      }
+    } else if (t == EventList.CheckCredential) {
+      if (event.getData() instanceof Credentials) {
+        Credentials credentials = (Credentials) event.getData();
+        this.onCheckCredential(credentials);
+      } else {
+        // TODO Gestire errore nei dati di EventList.CheckUser
+      }
+    } else if (t == EventList.CheckCredentialAndChangePassword) {
+      if (event.getData() instanceof Credentials) {
+        Credentials credentials = (Credentials) event.getData();
+        this.onCheckCredentialAndChangePassword(credentials);
+      } else {
+        // TODO Gestire errore nei dati di EventList.CheckUser
+        // System.out.println("ERRORE!!!!");
+        forwardToView(view, new AppEvent(EventList.Login));
       }
     } else if (t == EventList.Init) {
       if (event.getData() instanceof User) {
@@ -188,6 +213,8 @@ public class JardinController extends Controller {
       }
     } else if (t == EventList.LoginError) {
       this.onLoginError(event);
+    } else if (t == EventList.changePasswordError) {
+      this.onChangePasswordError(event);
     } else if (t == EventList.CreateFirstTab) {
       this.onCreateFirstTab();
     } else if (t == EventList.CreateUI) {
@@ -199,7 +226,12 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di EventList.Search
       }
+    } else if (t == EventList.saveNewRecord) {
+      if (event.getData() instanceof List<?>) {
+        this.onSaveNewRecord((List<BaseModelData>) event.getData());
+      }
     } else if (t == EventList.CommitChanges) {
+
       if (event.getData() instanceof JardinGrid) {
         JardinGrid grid = (JardinGrid) event.getData();
         this.onCommitChanges(grid);
@@ -216,21 +248,21 @@ public class JardinController extends Controller {
         this.onAddRow((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.AddRow
-        Log.error("Errore nei dati di EventList.AddRow");
+//        Log.error("Errore nei dati di EventList.AddRow");
       }
     } else if (t == EventList.ViewPopUpDetail) {
       if (event.getData() instanceof BaseModelData) {
         this.onViewPopUpDetail((BaseModelData) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ViewPopUpDetail
-        Log.error("Errore nei dati di EventList.ViewPopUpDetail");
+//        Log.error("Errore nei dati di EventList.ViewPopUpDetail");
       }
     } else if (t == EventList.RemoveRows) {
       if (event.getData() instanceof Integer) {
         this.onRemoveRows((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.RemoveRows
-        Log.error("Errore nei dati di EventList.RemoveRows");
+//        Log.error("Errore nei dati di EventList.RemoveRows");
       }
     } else if (t == EventList.ExportAllStoreAllColumns) {
       if (event.getData() instanceof Integer) {
@@ -238,7 +270,7 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreAllColumns
-        Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
+//        Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
       }
     } else if (t == EventList.ExportAllStoreSomeColumns) {
       if (event.getData() instanceof Integer) {
@@ -246,7 +278,7 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreSomeColumns
-        Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
+//        Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
       }
     } else if (t == EventList.ExportSomeStoreAllColumns) {
       if (event.getData() instanceof Integer) {
@@ -254,7 +286,7 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreAllColumns
-        Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
+//        Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
       }
     } else if (t == EventList.ExportSomeStoreSomeColumns) {
       if (event.getData() instanceof Integer) {
@@ -262,63 +294,63 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportSomeStoreSomeColumns
-        Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
+//        Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
       }
     } else if (t == EventList.ExportSomeRowsAllColumns) {
       if (event.getData() instanceof Integer) {
         this.onExport((Integer) event.getData(), true, true, true);
       } else {
         // TODO Gestire errore nei dati di EventList.ExportAllStoreAllColumns
-        Log.error("Errore nei dati di EventList.ExportSomeRowAllColumns");
+//        Log.error("Errore nei dati di EventList.ExportSomeRowAllColumns");
       }
     } else if (t == EventList.ExportSomeRowsSomeColumns) {
       if (event.getData() instanceof Integer) {
         this.onExport((Integer) event.getData(), true, true, false);
       } else {
         // TODO Gestire errore nei dati di EventList.ExportSomeStoreSomeColumns
-        Log.error("Errore nei dati di EventList.ExportSomeRowSomeColumns");
+//        Log.error("Errore nei dati di EventList.ExportSomeRowSomeColumns");
       }
     } else if (t == EventList.ShowAllColumns) {
       if (event.getData() instanceof Integer) {
         this.onShowAllColumns((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowAllColumns
-        Log.error("Errore nei dati di EventList.ShowAllColumns");
+//        Log.error("Errore nei dati di EventList.ShowAllColumns");
       }
     } else if (t == EventList.SaveGridView) {
       if (event.getData() instanceof Integer) {
         this.onSaveGridView((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SaveGridView
-        Log.error("Errore nei dati di EventList.SaveGridView");
+//        Log.error("Errore nei dati di EventList.SaveGridView");
       }
     } else if (t == EventList.GetGridViews) {
       if (event.getData() instanceof Integer) {
         this.onGetGridViews((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.GetGridViews
-        Log.error("Errore nei dati di EventList.GetGridViews");
+//        Log.error("Errore nei dati di EventList.GetGridViews");
       }
     } else if (t == EventList.UploadTemplate) {
       if (event.getData() instanceof Integer) {
         this.onUploadTemplate((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UploadTemplate
-        Log.error("Errore nei dati di EventList.UploadTemplate");
+//        Log.error("Errore nei dati di EventList.UploadTemplate");
       }
     } else if (t == EventList.UploadImport) {
       if (event.getData() instanceof Integer) {
         this.onUploadImport((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UploadImport
-        Log.error("Errore nei dati di EventList.UploadImport");
+//        Log.error("Errore nei dati di EventList.UploadImport");
       }
     } else if (t == EventList.UploadInsert) {
       if (event.getData() instanceof Integer) {
         this.onUploadInsert((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UploadInsert
-        Log.error("Errore nei dati di EventList.UploadInsert");
+//        Log.error("Errore nei dati di EventList.UploadInsert");
       }
     } else if (t == EventList.UpdateColumnModel) {
       // TODO CAMBIARE!!!
@@ -326,21 +358,21 @@ public class JardinController extends Controller {
         this.onUpdateColumnModel((JardinGrid) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UpdateColumnModel
-        Log.error("Errore nei dati di EventList.UpdateColumnModel");
+//        Log.error("Errore nei dati di EventList.UpdateColumnModel");
       }
     } else if (t == EventList.Jungle) {
       if (event.getData() instanceof Integer) {
         this.onJungle((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.Jungle
-        Log.error("Errore nei dati di EventList.Jungle");
+//        Log.error("Errore nei dati di EventList.Jungle");
       }
     } else if (t == EventList.ShowChart) {
       if (event.getData() instanceof ArrayList) {
         this.onShowChart((ArrayList<String>) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SelectColumnsForChart
-        Log.error("Errore nei dati di EventList.ShowChart");
+//        Log.error("Errore nei dati di EventList.ShowChart");
       }
     } else if (t == EventList.ShowPieChart) {
       if (event.getData() instanceof Integer) {
@@ -348,7 +380,7 @@ public class JardinController extends Controller {
         // onShowChart(ChartType.PIE, (Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowPieChart
-        Log.error("Errore nei dati di EventList.ShowPieChart");
+//        Log.error("Errore nei dati di EventList.ShowPieChart");
       }
     } else if (t == EventList.ShowBarChart) {
       if (event.getData() instanceof Integer) {
@@ -356,7 +388,7 @@ public class JardinController extends Controller {
         // onShowChart(ChartType.BAR, (Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowBarChart
-        Log.error("Errore nei dati di EventList.ShowBarChart");
+//        Log.error("Errore nei dati di EventList.ShowBarChart");
       }
       /*
        * ------------------------------------------------------------------
@@ -368,14 +400,14 @@ public class JardinController extends Controller {
         this.onUpdateTemplates((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UpdateTemplates
-        Log.error("Errore nei dati di EventList.UpdateTemplates");
+//        Log.error("Errore nei dati di EventList.UpdateTemplates");
       }
     } else if (t == EventList.SendMessage) {
       if (event.getData() instanceof Message) {
         this.onSendMessage((Message) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SendMessage
-        Log.error("Errore nei dati di EventList.SendMessage");
+//        Log.error("Errore nei dati di EventList.SendMessage");
       }
     } else if (t == EventList.NewMessage) {
       this.onNewMessage();
@@ -384,55 +416,207 @@ public class JardinController extends Controller {
         this.onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ViewLinkedTable
-        Log.error("Errore nei dati di EventList.ViewLinkedTable");
+//        Log.error("Errore nei dati di EventList.ViewLinkedTable");
+      }
+    } else if (t == EventList.ViewAddingPopup) {
+      if (event.getData() instanceof IncomingForeignKeyInformation) {
+        this.onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
+      } else {
+        // TODO Gestire errore nei dati di EventList.ViewLinkedTable
+//        Log.error("Errore nei dati di EventList.ViewLinkedTable");
       }
     } else if (t == EventList.GetPlugins) {
-//      System.out.println("CONTROLLER: richiesto menù plugins per " +event.getData().toString()+ "!!!");
+      // System.out.println("CONTROLLER: richiesto menù plugins per "
+      // +event.getData().toString()+ "!!!");
       if (event.getData() instanceof Integer) {
         this.onGetPlugins((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.GetPlugins
-        Log.error("Errore nei dati di EventList.GetPlugins");
+//        Log.error("Errore nei dati di EventList.GetPlugins");
       }
     } else if (t == EventList.ViewPlugin) {
       if (event.getData() instanceof String) {
         this.forwardToView(this.view, EventList.ViewPlugin, event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ViewPlugin
-        Log.error("Errore nei dati di EventList.ViewPlugin");
+//        Log.error("Errore nei dati di EventList.ViewPlugin");
       }
+    } else if (t == EventList.getResultsetImproved) {
+      if (event.getData() instanceof Integer) {
+        this.onGetResultsetImproved((Integer) event.getData());
+      } else if (event.getData() instanceof SearchParams) {
+        // VUOL DIRE CHE IL RESULTSET NON È ANCORA APERTO!!!!!!!
+      } 
+//      else Log.error("ERRORE recupero resultset cliccato");
     }
+    // else if (t == EventList.getResultsetImprovedFromContextMenu) {
+    // if (event.getData() instanceof SearchParams) {
+    // this.onGetResultsetImprovedFromContextMenu((SearchParams)
+    // event.getData());
+    // } else
+    // Log.error("ERRORE recupero resultset cliccato");
+    // }
+  }
+
+  private void onSaveNewRecord(List<BaseModelData> data) {
+    final MessageBox waitbox =
+        MessageBox.wait("Attendere", "Salvataggio in corso...", "");
+
+    List<BaseModelData> appList = new ArrayList<BaseModelData>();
+    appList.add(data.get(1));
+    /* Set up the callback */
+    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+      public void onFailure(final Throwable caught) {
+        waitbox.close();
+        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
+      }
+
+      public void onSuccess(final Integer result) {
+        waitbox.close();
+        if (result.intValue() > 0) {
+          Info.display("Informazione", "Dati salvati", "");
+          
+        } else {
+          Dispatcher.forwardEvent(EventList.Error,
+              "Impossibile salvare il nuovo record");
+        }
+      }
+    };
+
+    /* Make the call */
+    service.setObjects((Integer) data.get(0).get("RSID"), appList, callback);
+
+  }
+
+  private void onCheckCredential(Credentials credentials) {
+    // TODO Auto-generated method stub
+    AsyncCallback<User> callback = new AsyncCallback<User>() {
+      public void onFailure(final Throwable caught) {
+        Dispatcher.forwardEvent(EventList.LoginError,
+            caught.getLocalizedMessage());
+      }
+
+      public void onSuccess(final User user) {
+        if (user.getLogin() == 1) {
+          forwardToView(view, EventList.initialChangePassword, user);
+        } else
+          Dispatcher.forwardEvent(EventList.Init, user);
+      }
+    };
+
+    /* Make the call */
+    service.getSimpleUser(credentials, callback);
+  }
+
+  private void onCheckCredentialAndChangePassword(Credentials credentials) {
+    // TODO Auto-generated method stub
+    AsyncCallback<User> callback = new AsyncCallback<User>() {
+      public void onFailure(final Throwable caught) {
+        Dispatcher.forwardEvent(EventList.changePasswordError,
+            caught.getLocalizedMessage());
+      }
+
+      public void onSuccess(final User user) {
+        if (user == null) {
+          System.out.println("problema nel cambio password...utente nullo");
+          forwardToView(view, EventList.changePasswordError, user);
+        } else {
+          Info.display("Aggiornamento Riuscito",
+              "password aggiornata correttamente");
+          Dispatcher.forwardEvent(EventList.Init, user);
+        }
+      }
+    };
+
+    /* Make the call */
+    service.changePassword(credentials, callback);
+  }
+
+  private void onGetResultsetImproved(final int resultsetId) {
+    final MessageBox box =
+        MessageBox.progress("Please wait", "Loading items...",
+            "Initializing...");
+    final ProgressBar bar = box.getProgressBar();
+    bar.auto();
+    // TODO Auto-generated method stub
+    AsyncCallback<ResultsetImproved> callback =
+        new AsyncCallback<ResultsetImproved>() {
+
+          @Override
+          public void onFailure(Throwable caught) {
+            // TODO Auto-generated method stub
+            box.close();
+            Info.display("ERRORE", "Impossibile caricare resultset");
+//            Log.error("Errore nel caricamento della lista del resultSet "
+//                + resultsetId);
+          }
+
+          @Override
+          public void onSuccess(ResultsetImproved result) {
+            // TODO Auto-generated method stub
+            box.close();
+            Info.display("OK", "Resultset caricato");
+            onGotResultsetImproved(result);
+
+          }
+
+        };
+
+    service.getResultsetImproved(resultsetId, user.getGid(), callback);
   }
 
   private void onCreateFirstTab() {
     // TODO Auto-generated method stub
-    service.getUserResultsetList(this.user.getUid(), new AsyncCallback<List<Resultset>>() {
+    final MessageBox box =
+        MessageBox.progress("Please wait", "Loading main menù...",
+            "Initializing...");
+    final ProgressBar bar = box.getProgressBar();
+    bar.auto();
+    AsyncCallback<List<Resultset>> callback =
+        new AsyncCallback<List<Resultset>>() {
 
-      @Override
-      public void onFailure(Throwable caught) {
-        // TODO Auto-generated method stub
-        Log.error("Errore nel caricamento della lista dei resultSet per l'utente " + user.getName());
-      }
+          @Override
+          public void onFailure(Throwable caught) {
+            // TODO Auto-generated method stub
+            box.close();
+//            Log.error("Errore nel caricamento della lista dei resultSet per l'utente "
+//                + user.getName());
+          }
 
-      @Override
-      public void onSuccess(List<Resultset> resultsetList) {
-        // TODO Auto-generated method stub
-        Info.display("Informazione", "Lista ResultSet caricata");
-        onGotFirstTab(resultsetList);
-      }
+          @Override
+          public void onSuccess(List<Resultset> resultsetList) {
+            // TODO Auto-generated method stub
+            box.close();
+            Info.display("Informazione", "Lista ResultSet caricata");
+            user.setResultsetList(resultsetList);
+            onGotFirstTab(resultsetList);
+          }
 
-    });
+        };
+
+    service.getUserResultsetList(this.user.getUid(), callback);
   }
 
+  private void onGotResultsetImproved(ResultsetImproved result) {
+    // TODO Auto-generated method stub
+
+    if (this.user.getResultsetImprovedFromId(result.getId()) == null) {
+      // System.out.println("resultsetIMPROVED " + result.getName() +
+      // " aggiunto alla lista");
+      this.user.addResultsetToList(result);
+    }
+    this.forwardToView(this.view, EventList.gotResultsetImproved, result);
+  }
 
   private void onGotFirstTab(List<Resultset> resultsetList) {
     // TODO Auto-generated method stub
-    this.forwardToView(this.view, EventList.GotResultsetList, resultsetList);
+    this.user.setResultsetList(resultsetList);
+    this.forwardToView(this.view, EventList.GotResultsetList, user);
   }
-  
+
   private void onNewMessage() {
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     /* Set up the callback */
     AsyncCallback<List<Message>> callback = new AsyncCallback<List<Message>>() {
@@ -460,8 +644,8 @@ public class JardinController extends Controller {
       message.setSender(this.user.getUid());
     }
 
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     /* Set up the callback */
     AsyncCallback callback = new AsyncCallback() {
@@ -500,8 +684,8 @@ public class JardinController extends Controller {
 
   private void onCheckUser(final Credentials credentials) {
 
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     /* Set up the callback */
     AsyncCallback<User> callback = new AsyncCallback<User>() {
@@ -523,6 +707,10 @@ public class JardinController extends Controller {
     this.forwardToView(this.view, event);
   }
 
+  private void onChangePasswordError(final AppEvent event) {
+    this.forwardToView(this.view, event);
+  }
+
   private void onRefresh(final AppEvent event) {
     this.forwardToView(this.view, event);
   }
@@ -531,8 +719,8 @@ public class JardinController extends Controller {
     this.user = user;
     user.addEvent(EventList.NewMessage);
 
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<List<EventType>> callback =
         new AsyncCallback<List<EventType>>() {
@@ -603,59 +791,68 @@ public class JardinController extends Controller {
     final MessageBox waitBox =
         MessageBox.wait("Caricamento dati", "Attendere prego...", "Loading...");
     // TODO Modificare per gestire il solo resultsetId come parametro
-    if (this.user.getResultsetFromId(searchParams.getResultsetId()).isRead()) {
+    // if
+    // (this.user.getResultsetImprovedFromId(searchParams.getResultsetId()).isRead())
+    // {
+    if (this.user.getResultsetImprovedFromId(searchParams.getResultsetId()) != null) {
+      if (this.user.getResultsetFromId(searchParams.getResultsetId()).getPermissions().isReadperm()) {
 
-      // ///////////////////////////////////////////
-      // alla griglia servono i searchParams
+        // ///////////////////////////////////////////
+        // alla griglia servono i searchParams
 
-      this.forwardToView(this.view, EventList.Search, searchParams);
+        this.forwardToView(this.view, EventList.Search, searchParams);
 
-      final boolean limit = searchParams.isLimit();
-//      final ManagerServiceAsync service =
-//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+        final boolean limit = searchParams.isLimit();
+        // final ManagerServiceAsync service =
+        // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
-      RpcProxy<PagingLoadResult<BaseModelData>> proxy =
-          new RpcProxy<PagingLoadResult<BaseModelData>>() {
-            @Override
-            public void load(final Object loadConfig,
-                final AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
-              PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
-              if (!limit) {
-                plc.setLimit(-1);
+        RpcProxy<PagingLoadResult<BaseModelData>> proxy =
+            new RpcProxy<PagingLoadResult<BaseModelData>>() {
+              @Override
+              public void load(final Object loadConfig,
+                  final AsyncCallback<PagingLoadResult<BaseModelData>> callback) {
+                PagingLoadConfig plc = (PagingLoadConfig) loadConfig;
+                if (!limit) {
+                  plc.setLimit(-1);
+                }
+                service.getRecords(plc, searchParams, callback);
               }
-              service.getRecords(plc, searchParams, callback);
-            }
-          };
+            };
 
-      PagingLoader<PagingLoadResult<BaseModelData>> loader =
-          new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
+        PagingLoader<PagingLoadResult<BaseModelData>> loader =
+            new BasePagingLoader<PagingLoadResult<BaseModelData>>(proxy);
 
-      loader.setRemoteSort(true);
-      ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
+        loader.setRemoteSort(true);
+        ListStore<BaseModelData> store = new ListStore<BaseModelData>(loader);
 
-      loader.addLoadListener(new LoadListener() {
-        @Override
-        public void loaderLoad(final LoadEvent le) {
-          waitBox.close();
-        }
+        loader.addLoadListener(new LoadListener() {
+          @Override
+          public void loaderLoad(final LoadEvent le) {
+            waitBox.close();
+          }
 
-        @Override
-        public void loaderLoadException(final LoadEvent le) {
-          waitBox.close();
-          Dispatcher.forwardEvent(EventList.Error, le.exception);
-        }
-      });
+          @Override
+          public void loaderLoadException(final LoadEvent le) {
+            waitBox.close();
+            Dispatcher.forwardEvent(EventList.Error, le.exception);
+          }
+        });
 
-      SearchResult searchResult = new SearchResult();
-      searchResult.setResultsetId(searchParams.getResultsetId());
-      searchResult.setStore(store);
-      this.forwardToView(this.view, EventList.Searched, searchResult);
-      // ///////////////////////////////////////////
+        SearchResult searchResult = new SearchResult();
+        searchResult.setResultsetId(searchParams.getResultsetId());
+        searchResult.setStore(store);
+        this.forwardToView(this.view, EventList.Searched, searchResult);
+        // ///////////////////////////////////////////
 
-      // forwardToView(view, EventList.Search, searchParams);
-    } else {
-      Dispatcher.forwardEvent(EventList.Error,
-          "L'utente non dispone dei permessi di lettura");
+        // forwardToView(view, EventList.Search, searchParams);
+      } else {
+        Dispatcher.forwardEvent(EventList.Error,
+            "L'utente non dispone dei permessi di lettura");
+      }
+    } else { // questo resultsetimproved non è stato ancora caricato-->niente
+             // tab sulla griglia
+    // Dispatcher.forwardEvent(EventList.getResultsetImprovedFromContextMenu,
+    // searchParams.getResultsetId());
     }
   }
 
@@ -676,8 +873,8 @@ public class JardinController extends Controller {
                 "");
 
         /* Create the service proxy class */
-//        final ManagerServiceAsync service =
-//            (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+        // final ManagerServiceAsync service =
+        // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
         /* Set up the callback */
         AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
@@ -709,7 +906,7 @@ public class JardinController extends Controller {
   }
 
   private void onAddRow(final int resultset) {
-    if (this.user.getResultsetFromId(resultset).isInsert()) {
+    if (this.user.getResultsetImprovedFromId(resultset).isInsert()) {
       this.forwardToView(this.view, EventList.AddRow, resultset);
     } else {
       Dispatcher.forwardEvent(EventList.Error,
@@ -718,35 +915,35 @@ public class JardinController extends Controller {
   }
 
   private void onViewPopUpDetail(final BaseModelData data) {
-    if (((ResultsetImproved) data.get("RSLINKED")).isRead()) {
-      // restituisce il BaseModelData con la riga interessata
+    // if (((Resultset) data.get("RSLINKED")).getPermissions().isReadperm()) {
+    // restituisce il BaseModelData con la riga interessata
 
-//      final ManagerServiceAsync service =
-//          (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
-      AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry =
-          new AsyncCallback<ArrayList<BaseModelData>>() {
-            public void onFailure(final Throwable caught) {
-              Dispatcher.forwardEvent(EventList.Error,
-                  caught.getLocalizedMessage());
-            }
+    AsyncCallback<ArrayList<BaseModelData>> callbackPopUpDetailEntry =
+        new AsyncCallback<ArrayList<BaseModelData>>() {
+          public void onFailure(final Throwable caught) {
+            Dispatcher.forwardEvent(EventList.Error,
+                caught.getLocalizedMessage());
+          }
 
-            public void onSuccess(final ArrayList<BaseModelData> infoToView) {
-              JardinController.this.forwardToView(JardinController.this.view,
-                  EventList.ViewPopUpDetail, infoToView);
-            }
-          };
+          public void onSuccess(final ArrayList<BaseModelData> infoToView) {
+            forwardToView(view,
+                EventList.ViewPopUpDetail, infoToView);
+          }
+        };
 
-      service.getPopUpDetailEntry(data, callbackPopUpDetailEntry);
+    service.getPopUpDetailEntry(data, callbackPopUpDetailEntry);
 
-    } else {
-      Dispatcher.forwardEvent(EventList.Error,
-          "L'utente non dispone dei permessi di visualizzazione");
-    }
+    // } else {
+    // Dispatcher.forwardEvent(EventList.Error,
+    // "L'utente non dispone dei permessi di visualizzazione");
+    // }
   }
 
   private void onRemoveRows(final int resultset) {
-    if (this.user.getResultsetFromId(resultset).isDelete()) {
+    if (this.user.getResultsetImprovedFromId(resultset).isDelete()) {
       final JardinGrid grid =
           this.view.getItemByResultsetId(resultset).getGrid();
 
@@ -771,8 +968,8 @@ public class JardinController extends Controller {
                   MessageBox.wait("Attendere", "Eliminazione in corso...", "");
 
               /* Create the service proxy class */
-//              final ManagerServiceAsync service =
-//                  (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+              // final ManagerServiceAsync service =
+              // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
               /* Set up the callback */
               AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
@@ -843,7 +1040,8 @@ public class JardinController extends Controller {
 
     /* Nome del file da creare */
     String filename =
-        this.user.getResultsetFromId(resultset).getAlias().replace(" ", "_");
+        this.user.getResultsetImprovedFromId(resultset).getAlias().replace(" ",
+            "_");
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
@@ -886,8 +1084,8 @@ public class JardinController extends Controller {
     SearchParams searchParams = grid.getSearchparams();
 
     /* Effettua la chiamata RPC */
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<String> callback = new AsyncCallback<String>() {
       public void onFailure(final Throwable caught) {
@@ -898,11 +1096,11 @@ public class JardinController extends Controller {
       public void onSuccess(final String result) {
         waitBox.close();
         if ((result != null) && (result.length() > 0)) {
-          Log.debug("Export file: " + result);
+//          Log.debug("Export file: " + result);
           String url = GWT.getModuleBaseURL() + "download?file=" + result;
           Window.open(url, "Download", null);
         } else {
-          Log.warn("File d'esportazione vuoto");
+//          Log.warn("File d'esportazione vuoto");
         }
       }
     };
@@ -920,8 +1118,8 @@ public class JardinController extends Controller {
   }
 
   private void onGetGridViews(final int resultset) {
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<HeaderPreferenceList> callback =
         new AsyncCallback<HeaderPreferenceList>() {
@@ -959,8 +1157,8 @@ public class JardinController extends Controller {
   }
 
   private void onUpdateColumnModel(final JardinGrid grid) {
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<List<Integer>> callback = new AsyncCallback<List<Integer>>() {
       public void onFailure(final Throwable caught) {
@@ -978,7 +1176,8 @@ public class JardinController extends Controller {
 
   private void onJungle(final int resultset) {
     /* Nome del file da creare */
-    String filename = this.user.getResultsetFromId(resultset).getAlias();
+    String filename =
+        this.user.getResultsetImprovedFromId(resultset).getAlias();
 
     /*
      * Prendi il tabItem per recuperare la toolbar (formato d'esportazione) e la
@@ -1003,8 +1202,8 @@ public class JardinController extends Controller {
     SearchParams searchParams = grid.getSearchparams();
 
     /* Effettua la chiamata RPC */
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<String> callback = new AsyncCallback<String>() {
       public void onFailure(final Throwable caught) {
@@ -1015,11 +1214,11 @@ public class JardinController extends Controller {
         if ((result != null) && (result.length() > 0)) {
           Jungle j =
               new Jungle(
-                  JardinController.this.user.getResultsetFromId(resultset),
+                  JardinController.this.user.getResultsetImprovedFromId(resultset),
                   columns, result);
           j.show();
         } else {
-          Log.warn("File d'esportazione vuoto");
+//          Log.warn("File d'esportazione vuoto");
         }
       }
     };
@@ -1084,7 +1283,8 @@ public class JardinController extends Controller {
     Chart chart = new Chart(url);
     chart.setBorders(false);
 
-    String resultsetAlias = this.user.getResultsetFromId(resultset).getAlias();
+    String resultsetAlias =
+        this.user.getResultsetImprovedFromId(resultset).getAlias();
     ChartModel cm = new ChartModel(resultsetAlias);
     cm.setBackgroundColour("#ffffff");
 
@@ -1156,25 +1356,23 @@ public class JardinController extends Controller {
   }
 
   private void onGetPlugins(final Integer data) {
-    ResultsetImproved rs = this.user.getResultsetFromId(data);
+    ResultsetImproved rs = this.user.getResultsetImprovedFromId(data);
     // final JardinGrid grid = view.getItemByResultsetId(data).getGrid();
 
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+    // final ManagerServiceAsync service =
+    // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
-    AsyncCallback<List<Plugin>> callback =
-        new AsyncCallback<List<Plugin>>() {
-          public void onFailure(final Throwable caught) {
-            Dispatcher.forwardEvent(EventList.Error,
-                caught.getLocalizedMessage());
-          }
+    AsyncCallback<List<Plugin>> callback = new AsyncCallback<List<Plugin>>() {
+      public void onFailure(final Throwable caught) {
+        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
+      }
 
-          public void onSuccess(final List<Plugin> result) {
-            JardinController.this.forwardToView(JardinController.this.view,
-                EventList.GotPlugins, result);
-//            System.out.println("CONTROLLER: fine recupero plugin");
-          }
-        };
+      public void onSuccess(final List<Plugin> result) {
+        JardinController.this.forwardToView(JardinController.this.view,
+            EventList.GotPlugins, result);
+        // System.out.println("CONTROLLER: fine recupero plugin");
+      }
+    };
 
     service.getPlugins(this.user.getGid(), rs.getId(), callback);
 

@@ -40,6 +40,7 @@ public class User implements IsSerializable {
   private Credentials credentials;
   private String name, surname, group, email, office, telephone, last;
   private List<ResultsetImproved> resultsets;
+  private List<Resultset> resultsetList;
   private List<Message> messages;
   private List<EventType> events;
 
@@ -80,10 +81,10 @@ public class User implements IsSerializable {
    *          Message messages' list
    */
   public User(final int uid, final int gid, final Credentials credentials,
-    final String name, final String surname, final String group,
-    final String email, final String office, final String telephone,
-    final int status, final int login, final String last,
-    final List<ResultsetImproved> resultsets, final List<Message> messages) {
+      final String name, final String surname, final String group,
+      final String email, final String office, final String telephone,
+      final int status, final int login, final String last,
+      final List<ResultsetImproved> resultsets, final List<Message> messages) {
     super();
     this.uid = uid;
     this.gid = gid;
@@ -102,6 +103,31 @@ public class User implements IsSerializable {
     this.events = new ArrayList<EventType>();
   }
 
+  public User(final int uid, final int gid, final Credentials credentials,
+      final String name, final String surname, final String group,
+      final String email, final String office, final String telephone,
+      final int status, final int login, final String last) {
+    super();
+    this.uid = uid;
+    this.gid = gid;
+    this.credentials = credentials;
+    this.name = name;
+    this.surname = surname;
+    this.group = group;
+    this.email = email;
+    this.office = office;
+    this.telephone = telephone;
+    this.status = status;
+    this.login = login;
+    this.last = last;
+    this.events = new ArrayList<EventType>();
+    this.resultsets = new ArrayList<ResultsetImproved>();
+  }
+
+  public void addResultsetToList(ResultsetImproved resultset) {
+    this.resultsets.add(resultset);
+  }
+  
   public void addEvent(final EventType event) {
     this.events.add(event);
   }
@@ -158,9 +184,19 @@ public class User implements IsSerializable {
     return this.getCredentials().getPassword();
   }
 
-  public ResultsetImproved getResultsetFromId(final int resultsetId) {
+  public ResultsetImproved getResultsetImprovedFromId(final int resultsetId) {
     ResultsetImproved res = null;
     for (ResultsetImproved r : this.getResultsets()) {
+      if (r.getId() == resultsetId) {
+        res = r;
+      }
+    }
+    return res;
+  }
+  
+  public Resultset getResultsetFromId(final int resultsetId) {
+    Resultset res = null;
+    for (Resultset r : this.getResultsetList()) {
       if (r.getId() == resultsetId) {
         res = r;
       }
@@ -216,15 +252,15 @@ public class User implements IsSerializable {
    * Aggiorna le preferenze dell'utente
    */
   public void setResultsetHeaderPreferencesNoDefault(final Integer resultsetId,
-    final ArrayList<Integer> headerFields, final String value) {
+      final ArrayList<Integer> headerFields, final String value) {
 
     final MessageBox waitbox =
-      MessageBox.wait("Attendere", "Salvataggio preferenze vista in corso...",
-        "");
+        MessageBox.wait("Attendere",
+            "Salvataggio preferenze vista in corso...", "");
 
     /* Create the service proxy class */
     final ManagerServiceAsync service =
-      (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     /* Set up the callback */
     AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
@@ -241,14 +277,14 @@ public class User implements IsSerializable {
           Dispatcher.forwardEvent(EventList.GetGridViews, resultsetId);
         } else {
           Dispatcher.forwardEvent(EventList.Error,
-            "Impossibile salvare la vista");
+              "Impossibile salvare la vista");
         }
       }
     };
 
     /* Make the call */
     service.setUserResultsetHeaderPreferencesNoDefault(this.getUid(),
-      resultsetId, headerFields, value, callback);
+        resultsetId, headerFields, value, callback);
   }
 
   public void setSurname(final String surname) {
@@ -261,7 +297,7 @@ public class User implements IsSerializable {
 
   public void updateUserProperties() {
     final ManagerServiceAsync service =
-      (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
     AsyncCallback<Void> callback = new AsyncCallback<Void>() {
       public void onFailure(final Throwable caught) {
@@ -271,9 +307,23 @@ public class User implements IsSerializable {
       @Override
       public void onSuccess(Void result) {
         Info.display("Informazione", "Salvate preferenze per l'utente "
-          + User.this.getUsername());
+            + User.this.getUsername());
       }
     };
     service.updateUserProperties(this, callback);
+  }
+
+    /**
+   * @return the resultsetList
+   */
+  public List<Resultset> getResultsetList() {
+    return resultsetList;
+  }
+
+  /**
+   * @param resultsetList the resultsetList to set
+   */
+  public void setResultsetList(List<Resultset> resultsetList) {
+    this.resultsetList = resultsetList;
   }
 }

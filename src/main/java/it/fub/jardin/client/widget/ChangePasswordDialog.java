@@ -19,6 +19,7 @@ package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.Credentials;
+import it.fub.jardin.client.model.User;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -30,20 +31,23 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 
-public class LoginDialog extends Dialog {
+public class ChangePasswordDialog extends Dialog {
 
-  private final TextField<String> username;
-  private final TextField<String> password;
-  private Button login;
+  private TextField<String> newPassword;
+  private TextField<String> oldPassword;
+  private Button submit;
   private Status status;
+  private User user;
 
-  public LoginDialog() {
+  public ChangePasswordDialog(User user) {
+    this.user = user;
+
     FormLayout layout = new FormLayout();
     layout.setLabelWidth(110);
     layout.setDefaultWidth(140);
@@ -51,7 +55,8 @@ public class LoginDialog extends Dialog {
     this.setLayout(layout);
 
     this.setIconStyle("icon-user");
-    this.setHeading("Manager Login");
+    this.setHeading("Primo login per l'utente " + this.user.getUsername()
+        + " - creare nuova password");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");
     this.setWidth(320);
@@ -60,27 +65,34 @@ public class LoginDialog extends Dialog {
     KeyListener keyListener = new KeyListener() {
       @Override
       public void componentKeyUp(final ComponentEvent event) {
-        if (LoginDialog.this.isValid()
+        if (ChangePasswordDialog.this.isValid()
             && (event.getKeyCode() == KeyCodes.KEY_ENTER)) {
-          LoginDialog.this.submit();
+          ChangePasswordDialog.this.submit();
         }
       }
     };
 
-    this.username = new TextField<String>();
-    this.username.setMinLength(4);
-    this.username.setFieldLabel("Username");
-    this.username.addKeyListener(keyListener);
-    this.add(this.username);
+    // this.username = new Label("username: " + user.getName());
+    // this.username.setMinLength(4);
+    // this.username.setFieldLabel("Username");
+    // this.username.addKeyListener(keyListener);
+    // this.add(this.username);
 
-    this.password = new TextField<String>();
-    this.password.setMinLength(4);
-    this.password.setPassword(true);
-    this.password.setFieldLabel("Password");
-    this.password.addKeyListener(keyListener);
-    this.add(this.password);
+    this.oldPassword = new TextField<String>();
+    this.oldPassword.setMinLength(4);
+    this.oldPassword.setPassword(true);
+    this.oldPassword.setFieldLabel("Old Password");
+    this.oldPassword.addKeyListener(keyListener);
+    this.add(this.oldPassword);
 
-    this.setFocusWidget(this.username);
+    this.newPassword = new TextField<String>();
+    this.newPassword.setMinLength(4);
+    this.newPassword.setPassword(true);
+    this.newPassword.setFieldLabel("New Password");
+    this.newPassword.addKeyListener(keyListener);
+    this.add(this.newPassword);
+
+    this.setFocusWidget(this.oldPassword);
   }
 
   @Override
@@ -90,19 +102,19 @@ public class LoginDialog extends Dialog {
     bb.setAlignment(HorizontalAlignment.LEFT);
 
     this.status = new Status();
-    this.status.setText("Inserire Username e Password");
+    this.status.setText("Inserire vecchia password e nuova password");
     bb.add(this.status);
     bb.add(new FillToolItem());
 
-    this.login = new Button("Login");
-    this.login.setEnabled(false);
-    this.login.addSelectionListener(new SelectionListener<ButtonEvent>() {
+    this.submit = new Button("Submit");
+    this.submit.setEnabled(false);
+    this.submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
       @Override
       public void componentSelected(final ButtonEvent ce) {
-        LoginDialog.this.submit();
+        ChangePasswordDialog.this.submit();
       }
     });
-    bb.add(this.login);
+    bb.add(this.submit);
 
   }
 
@@ -117,27 +129,28 @@ public class LoginDialog extends Dialog {
    *         quattro caratteri. false altrimenti
    */
   protected boolean isValid() {
-    if (this.hasValue(this.username) && (this.username.getValue().length() > 3)
-        && this.hasValue(this.password)
-        && (this.password.getValue().length() > 3)) {
-      this.status.setText("Premere Invio o il bottone Login");
-      this.login.setEnabled(true);
+    if (this.hasValue(this.newPassword)
+        && (this.newPassword.getValue().length() > 3)) {
+      this.status.setText("Premere il bottone Invio");
+      this.submit.setEnabled(true);
       return true;
     } else {
-      this.status.setText("Inserire Username e Password");
-      this.login.setEnabled(false);
+      this.status.setText("Inserire vecchia password e nuova password");
+      this.submit.setEnabled(false);
     }
     return false;
   }
 
   private void submit() {
-    this.status.setBusy("Verifica Username e Password...");
-    this.login.setEnabled(false);
+    this.status.setBusy("Verifica vecchia password...");
+    this.submit.setEnabled(false);
 
+//    System.out.println("creazione credentials per: " + this.user.get);
     Credentials c =
-        new Credentials(this.username.getValue(), this.password.getValue());
-//    Dispatcher.forwardEvent(EventList.CheckUser, c);
-    Dispatcher.forwardEvent(EventList.CheckCredential, c);
+        new Credentials(this.user.getUsername(), this.oldPassword.getValue());
+    c.setNewPassword(this.newPassword.getValue());
+    // Dispatcher.forwardEvent(EventList.CheckUser, c);
+    Dispatcher.forwardEvent(EventList.CheckCredentialAndChangePassword, c);
   }
 
 }

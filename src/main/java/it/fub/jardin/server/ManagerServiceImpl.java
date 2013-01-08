@@ -29,9 +29,11 @@ import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.ResultsetPlus;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.server.tools.JardinLogger;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -43,13 +45,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+//import com.allen_sauer.gwt.log.client.Log;
 
 public class ManagerServiceImpl extends RemoteServiceServlet implements
   ManagerService {
@@ -57,17 +59,49 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   private static final long serialVersionUID = 1L;
   private final DbUtils dbUtils;
   private final Map<String, User> users = new HashMap<String, User>();
-
-  public ManagerServiceImpl() {
+  private String subSystem = "JARDiN";
+  private String log4jConfPath = "/conf/log4j.properties";
+  private DbConnectionHandler dbConnectionHandler;
+  private DbProperties dbProperties;
+  private static boolean logInitialized = false;
+  
+  public ManagerServiceImpl() throws VisibleException {
     super();
-    this.dbUtils = new DbUtils();
+    this.dbProperties = new DbProperties();
+    this.dbConnectionHandler = this.dbProperties.getConnectionHandler();
+    this.dbUtils = new DbUtils(dbProperties, dbConnectionHandler);
+    
+    subSystem = dbConnectionHandler.getDbConnectionParameters().getSubSystem();    
+    if (logInitialized == false) {
+
+      String confDir = this.getClass().getClassLoader().getResource("/").getPath() + "conf/";
+//      System.out.println("dir: " + confDir);
+      JardinLogger.init(confDir, subSystem);      
+
+      logInitialized = true;
+    }  
+    
+//    System.out.println(this.getServletContext().getRealPath("/"));
+//    InputStream in =
+//        this.getClass().getClassLoader().getResourceAsStream(log4jConfPath);
+//    Properties myProps = new Properties();
+//    try {
+//      myProps.load(in);
+//    } catch (IOException e) {
+//      System.out.println(e.getMessage());
+//      e.printStackTrace();
+//    }
+
+    
+//    JardinLogger.init(myProps, subSystem);
+    
   }
 
-  @Override
-  public synchronized void log(final String message) {
-    User user = this.getCurrentUser();
-    Log.info("[" + user.getUsername() + "] " + message);
-  }
+//  @Override
+//  public synchronized void log(final String message) {
+////    User user = this.getCurrentUser();
+////    Log.info("[" + user.getUsername() + "] " + message);
+//  }
 
   public String createReport(final String file, final Template template,
     final PagingLoadConfig config, final List<BaseModelData> selectedRows,
@@ -102,13 +136,15 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     User user = this.getCurrentUser();
     if (template.getInfo().compareTo(Template.DEFAULT.getInfo()) == 0) {
       ResultsetImproved resultset =
-        user.getResultsetFromId(searchParams.getResultsetId());
+        user.getResultsetImprovedFromId(searchParams.getResultsetId());
       try {
         FileUtils.prepareDefaultTemplate(resultset, xsl, columns);
       } catch (IOException e) {
-        Log.error("Impossibile ottenere il template di default", e);
-        throw new VisibleException(
-          "Impossibile ottenere il template di default");
+//        Log.error("Impossibile ottenere il template di default", e);
+        e.printStackTrace();
+        JardinLogger.error("template per l'export non trovato");
+        throw new VisibleException(            
+          "Impossibile ottenere il template di default");        
       }
     }
 
@@ -118,10 +154,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       String result =
         FileUtils.createReport(realpath, xsl, template, records, columns, fs,
           ts);
-      Log.debug("File esportato: " + result);
-      Log.debug("Servlet context path: " + context);
+      JardinLogger.info("File esportato: " + result);
+      JardinLogger.debug("Servlet context path: " + context);
       return result.substring(context.length());
     } else {
+      JardinLogger.error("template per l'export non leggibile");
       throw new VisibleException("Impossibile leggere il template");
     }
   }
@@ -157,7 +194,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       }
 
       synchronized (user) {
-        Log.debug("User " + user.getUsername() + " got events!");
+//        Log.debug("User " + user.getUsername() + " got events!");
         events = user.getEvents();
         user.cleanEvents();
       }
@@ -213,9 +250,24 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       this.users.put(id, user);
     }
 
-    this.log("LOGIN");
+    JardinLogger.info("LOGIN utente " + user.getName());
     return user;
   }
+  
+  
+  public User getSimpleUser(final Credentials credentials) throws VisibleException {
+
+    User user = this.dbUtils.getSimpleUser(credentials);
+    String id = this.getThreadLocalRequest().getSession().getId();
+    synchronized (this) {
+      this.users.put(id, user);
+    }
+
+//    JardinLogger.info("LOGIN utente " + user.getName());
+    return user;
+  }
+  
+  
 
   // TODO get user from thread id
   public List<Message> getUserMessages(final Integer userId)
@@ -294,7 +346,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public Integer setObjects(final Integer resultsetId,
     final List<BaseModelData> newItemList) throws HiddenException {
 
-    this.log("Setting records...");
+    JardinLogger.info("setting objects...");
     // recupero dei vecchi parametri
     // e passaggio a notifyCanges
     List<BaseModelData> newItemListTest = newItemList;
@@ -363,5 +415,44 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public String testServerPresence() {
     return "Hello!";
   }
+  
+  
+  public ResultsetImproved getResultsetImproved(int resultsetId, int gid) throws HiddenException {
+    return this.dbUtils.getResultsetImproved(resultsetId, gid);
+    
+  }
+  
+  public ResultsetPlus getResultsetPlus(int resultsetId, int gid) throws HiddenException {
+    return this.dbUtils.getResultsetPlus(resultsetId, gid);
+    
+  }
+
+  @Override
+  public User changePassword(Credentials credentials)
+      throws VisibleException, HiddenException {
+    // TODO Auto-generated method stub
+    return this.dbUtils.changePassword(credentials);
+  }
+
+  /**
+   * @return the dbConnectionHandler
+   */
+  public DbConnectionHandler getDbConnectionHandler() {
+    return dbConnectionHandler;
+  }
+
+  /**
+   * @param dbConnectionHandler the dbConnectionHandler to set
+   */
+  public void setDbConnectionHandler(DbConnectionHandler dbConnectionHandler) {
+    this.dbConnectionHandler = dbConnectionHandler;
+  }
+
+//  
+//  public User getSimpleUserAndChangePassword(Credentials credentials)
+//      throws VisibleException {
+//    // TODO Auto-generated method stub
+//    return this.dbUtils.getSimpleUserAndChangePassword(credentials);
+//  }
 
 }

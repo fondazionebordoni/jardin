@@ -24,6 +24,8 @@ import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.SearchResult;
+import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.widget.ChangePasswordDialog;
 import it.fub.jardin.client.widget.HeaderArea;
 import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
@@ -39,6 +41,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -57,13 +60,17 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 public class JardinView extends View {
 
@@ -80,7 +87,11 @@ public class JardinView extends View {
   private TabPanel main;
   private HeaderArea header;
   private LoginDialog dialog;
-  private List<Resultset> resultSetList;
+  private ChangePasswordDialog pwDialog;
+  private User user;
+  private List<Resultset> resultSetList; //listsa dei resultset almeno leggibili dall'utente
+
+  // private DialogBox newResultsetProgressMsg;<>
 
   public JardinView(final Controller controller) {
     super(controller);
@@ -100,6 +111,8 @@ public class JardinView extends View {
       }
     } else if (t == EventList.Init) {
       this.dialog.hide();
+      if (pwDialog != null)
+        this.pwDialog.hide();
       this.initUI();
     } else if (t == EventList.Refresh) {
       this.viewport.removeAll();
@@ -110,25 +123,48 @@ public class JardinView extends View {
       if (event.getData() instanceof String) {
         message = (String) event.getData();
       } else {
-        message = "Errore durante l'accesso";
+        message = "Login - Errore durante l'accesso";
       }
       this.loginError(message);
+    } else if (t == EventList.initialChangePassword) {
+      this.dialog.hide();
+      this.forcePasswordChange((User) event.getData());
+      // String message;
+      // if (event.getData() instanceof String) {
+      // message = (String) event.getData();
+      // } else {
+      // message = "Errore durante l'accesso";
+      // }
+      // this.loginError(message);
+    } else if (t == EventList.changePasswordError) {
+      this.pwDialog.hide();
+      String message;
+      if (event.getData() instanceof User) {
+        message =
+            "errore di accesso per l'utente: "
+                + ((User) event.getData()).getUsername();
+      } else {
+        message = "Cambio password - Errore durante l'accesso";
+      }
+      this.changePasswordError(message);
     } else if (t == EventList.GotResultsetList) {
-      resultSetList = event.getData();
-      createFirstTab(resultSetList);
-    } else if (t == EventList.NewResultset) {
-      if (event.getData() instanceof Integer) {
-        this.newResultset((Integer) event.getData());
-      }
-    } else if (t == EventList.GotValuesOfFields) {
-      if (event.getData() instanceof Integer) {
-        this.gotValuesOfFields((Integer) event.getData());
-      }
-    } else if (t == EventList.GotValuesOfForeignKeys) {
-      if (event.getData() instanceof Integer) {
-        this.gotValuesOfForeignKeys((Integer) event.getData());
-      }
-    } else if (t == EventList.Searched) {
+      user = event.getData();
+      createFirstTab(user);
+      // } else if (t == EventList.NewResultset) {
+      // if (event.getData() instanceof Integer) {
+      // this.newResultset((Integer) event.getData());
+      // }
+    } 
+//    else if (t == EventList.GotValuesOfFields) {
+//      if (event.getData() instanceof Integer) {
+//        this.gotValuesOfFields((Integer) event.getData());
+//      }
+//    } else if (t == EventList.GotValuesOfForeignKeys) {
+//      if (event.getData() instanceof Integer) {
+//        this.gotValuesOfForeignKeys((Integer) event.getData());
+//      }
+//    } 
+    else if (t == EventList.Searched) {
       if (event.getData() instanceof SearchResult) {
         this.onSearched((SearchResult) event.getData());
       }
@@ -167,30 +203,159 @@ public class JardinView extends View {
       /*
        * Altri eventi
        */
+    } else if (t == EventList.gotResultsetImproved) {
+      // System.out.println("evento arrivato!!!!");
+      if (!user.getResultsets().contains((ResultsetImproved) event.getData())) {
+        user.addResultsetToList((ResultsetImproved) event.getData());
+      }
+      this.addJardinTabItem((ResultsetImproved) event.getData());
     }
   }
 
-  private void createFirstTab(List<Resultset> resultSetList) {
+  private void forcePasswordChange(User user) {
+    this.pwDialog = new ChangePasswordDialog(user);
+    this.pwDialog.setClosable(false);
+    this.pwDialog.show();
+
+    // if (loginMessage != null) {
+    // MessageBox.alert("Attenzione", loginMessage, null);
+    // }
+
+  }
+
+  private void addJardinTabItem(ResultsetImproved resultset) {
     // TODO Auto-generated method stub
+    // System.out.println("creazione nuovo tab per " + resultset.getName());
+    JardinTabItem newTab = new JardinTabItem(resultset);
+    newTab.setId(ITEM_PREFIX + resultset.getId());
+
+    this.main.add(newTab);
+
+    /* Creazione dell'area di ricerca avanzata */
+    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
+
+    /* Creazione della griglia */
+    ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+    JardinColumnModel cm = new JardinColumnModel(resultset);
+    JardinGrid grid = new JardinGrid(store, cm, resultset, user);
+
+    new SearchAreaBase(resultset);
+    /* Creazione del dettaglio */
+    JardinDetail detail = new JardinDetail(resultset);
+
+    if (this.getItemByResultsetId(resultset.getId()) != null) {
+      /* Aggiungere la griglia al tabItem */
+      newTab.setGrid(grid);
+      /* Aggiungere il dettaglio al tabitem */
+      newTab.addDetail(detail);
+      /* Aggiungere la ricerca avanzata al tabitem */
+      newTab.addSearchAreaAdvanced(searchAreaAdvanced);
+    } else
+      System.out.println("tabitem nullo...impossibile aggiungere griglia e dettaglio");
+
+  }
+
+  private void createFirstTab(User user) {
+    // TODO Auto-generated method stub
+    this.resultSetList = user.getResultsetList();
     TabItem firstTab = new TabItem("Menù Principale");
-    AbsolutePanel con = new AbsolutePanel();
-    
-    int i = 0;
-    for (Resultset resultset : resultSetList) {
-      ContentPanel cp = new ContentPanel();
-      cp.setCollapsible(true);      
-      cp.setWidth(200);
-      cp.setHeading(resultset.getAlias());
-      Label body = new Label(resultset.getNote());
-      cp.add(body);
-      
-      Draggable d = new Draggable(cp);     
-      
-      con.add(cp,10 + (i*200),10);
-      i++;
+    // AbsolutePanel con = new AbsolutePanel();
+    SimplePanel firstTabPanel = new SimplePanel();
+    FlexTable mainTable = new FlexTable();
+
+//    int i = 0;
+    int resultSetNumber = resultSetList.size();
+    // System.out.println("lista rs:" + resultSetNumber);
+    // impostiamo 5 colonne
+    int numRows = 1;
+    int lastRowNumCols = resultSetNumber;
+    if (resultSetNumber > 5) {
+      numRows = (int) Math.rint(resultSetNumber / 5);
+      lastRowNumCols = resultSetNumber - (numRows * 5); // numero colonne dell'ultima riga
     }
+
+    // System.out.println("numero righe: " + numRows);
+
     
-    firstTab.add(con);
+    int index = 0;
+    Resultset resultset = new Resultset();
+    for (int x = 1; x <= numRows; x++) {
+
+      for (int y = 1; y <= 5 && y<= resultSetNumber; y++) {
+        
+//        index = index + ((x * y) - 1);
+        resultset = resultSetList.get(index);
+//        System.out.println("set RS " + index + ": " + resultset.getAlias());
+        ContentPanel cp = new ContentPanel();
+        cp.setCollapsible(false);
+        cp.setWidth(200);
+        cp.setLayout(new RowLayout(Orientation.VERTICAL));
+        cp.setFrame(true);
+        cp.setHeading(resultset.getAlias());
+        
+        Label body = new Label(resultset.getNote());
+        final int resId = resultset.getId();
+        Button openButton = new Button("Apri Tab");        
+
+        openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+          @Override
+          public void componentSelected(ButtonEvent ce) {
+            // TODO Auto-generated method stub
+            Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
+          }
+        });
+        
+//        cp.add(body);
+//        cp.add(openButton);
+        cp.add(body, new RowData(1, -1, new Margins(4)));
+        cp.add(openButton, new RowData(1, -1, new Margins(4)));
+        
+        Draggable d = new Draggable(cp);
+
+        mainTable.setWidget(x, y, cp);
+        index++;
+
+      }
+    }
+
+    if (lastRowNumCols > 0) {
+      for (int y = 1; y <= lastRowNumCols; y++) {
+        resultset = resultSetList.get(index + y -1);
+//        System.out.println("set RS " + index + ": " + resultset.getAlias());
+        ContentPanel cp = new ContentPanel();
+        cp.setCollapsible(false);
+        cp.setWidth(200);
+        cp.setLayout(new RowLayout(Orientation.VERTICAL));
+        cp.setFrame(true);
+        cp.setHeading(resultset.getAlias());        
+        Label body = new Label(resultset.getNote());
+        final int resId = resultset.getId();
+        Button openButton = new Button("Apri Tab");
+
+        openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+          @Override
+          public void componentSelected(ButtonEvent ce) {
+            // TODO Auto-generated method stub
+            Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
+          }
+        });
+        cp.add(body, new RowData(1, -1, new Margins(4)));
+        cp.add(openButton, new RowData(1, -1, new Margins(4)));
+
+        Draggable d = new Draggable(cp);
+        mainTable.setWidget(numRows + 1, y, cp);
+      }
+      // System.out.println("numero righe: " + (numRows+1));
+      // System.out.println("num colonne ultima riga: " + lastRowNumCols);
+    }
+
+    // firstTab.add(con);
+    mainTable.setCellPadding(10);
+    mainTable.setCellSpacing(10);
+    firstTabPanel.add(mainTable);
+    firstTab.add(firstTabPanel);
     this.main.add(firstTab);
   }
 
@@ -240,7 +405,7 @@ public class JardinView extends View {
     item.getGrid().addRow();
   }
 
-  private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {
+  private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {    
     BaseModelData data = infoToView.get(0);
     Integer rsId = data.get("RSID");
     JardinTabItem item = this.getItemByResultsetId(rsId);
@@ -255,7 +420,7 @@ public class JardinView extends View {
     this.createMain();
 
     RootPanel.get().add(this.viewport);
-//    Dispatcher.forwardEvent(EventList.CreateUI);
+    // Dispatcher.forwardEvent(EventList.CreateUI);
     Dispatcher.forwardEvent(EventList.CreateFirstTab);
   }
 
@@ -288,6 +453,7 @@ public class JardinView extends View {
    */
   public synchronized JardinTabItem getItemByResultsetId(
       final Integer resultsetId) {
+    // System.out.println("selezionato item: " + ITEM_PREFIX + resultsetId);
     if (this.main.getItemByItemId(ITEM_PREFIX + resultsetId) instanceof JardinTabItem) {
       JardinTabItem item =
           (JardinTabItem) this.main.getItemByItemId(ITEM_PREFIX + resultsetId);
@@ -319,61 +485,71 @@ public class JardinView extends View {
     MessageBox.alert("Errore", message, l);
   }
 
-  private void newResultset(final Integer resultsetId) {
-    /* Prendi le proprietà del resultset in base all'id dall'utente */
-    ResultsetImproved resultset =
-        this.controller.getUser().getResultsetFromId(resultsetId);
-    JardinTabItem item = new JardinTabItem(resultset);
-    item.setId(ITEM_PREFIX + resultsetId);
-    this.main.add(item);
+  private void changePasswordError(final String message) {
+    final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
+      public void handleEvent(final MessageBoxEvent we) {
+        Dispatcher.forwardEvent(new AppEvent(
+            EventList.CheckCredentialAndChangePassword));
+      }
+    };
+    MessageBox.alert("Errore", message, l);
   }
 
-  private synchronized void gotValuesOfFields(final Integer resultsetId) {
-    ResultsetImproved resultset =
-        this.controller.getUser().getResultsetFromId(resultsetId);
+  // private void newResultset(final Integer resultsetId) {
+  // /* Prendi le proprietà del resultset in base all'id dall'utente */
+  // ResultsetImproved resultset =
+  // this.controller.getUser().getResultsetFromId(resultsetId);
+  // JardinTabItem item = new JardinTabItem(resultset);
+  // item.setId(ITEM_PREFIX + resultsetId);
+  // this.main.add(item);
+  // }
 
-    /* Creazione dell'area di ricerca avanzata */
-    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
-
-    JardinTabItem item = this.getItemByResultsetId(resultsetId);
-    if (item != null) {
-      /* Aggiungere la ricerca avanzata al tabitem */
-      item.addSearchAreaAdvanced(searchAreaAdvanced);
-    }
-  }
-
-  private synchronized void gotValuesOfForeignKeys(final Integer resultsetId) {
-    ResultsetImproved resultset =
-        this.controller.getUser().getResultsetFromId(resultsetId);
-
-    /* Creazione della griglia */
-    ListStore<BaseModelData> store = new ListStore<BaseModelData>();
-    JardinColumnModel cm = new JardinColumnModel(resultset);
-    JardinGrid grid = new JardinGrid(store, cm, resultset);
-
-    new SearchAreaBase(resultset);
-
-    /* Creazione del dettaglio */
-    JardinDetail detail = new JardinDetail(resultset);
-
-    JardinTabItem item = this.getItemByResultsetId(resultsetId);
-    if (item != null) {
-      /* Aggiungere la griglia al tabItem */
-      item.setGrid(grid);
-
-      /* Aggiungere il dettaglio al tabitem */
-      item.addDetail(detail);
-
-      /*
-       * Eseguo una ricerca per riempire il resultset
-       * 
-       * SearchParams searchParams = new SearchParams(resultsetId);
-       * List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-       * searchParams.setFieldsValuesList(queryFieldList);
-       * Dispatcher.forwardEvent(EventList.Search, searchParams);
-       */
-    }
-  }
+//  private synchronized void gotValuesOfFields(final Integer resultsetId) {
+//    ResultsetImproved resultset =
+//        this.controller.getUser().getResultsetImprovedFromId(resultsetId);
+//
+//    /* Creazione dell'area di ricerca avanzata */
+//    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
+//
+//    JardinTabItem item = this.getItemByResultsetId(resultsetId);
+//    if (item != null) {
+//      /* Aggiungere la ricerca avanzata al tabitem */
+//      item.addSearchAreaAdvanced(searchAreaAdvanced);
+//    }
+//  }
+//
+//  private synchronized void gotValuesOfForeignKeys(final Integer resultsetId) {
+//    ResultsetImproved resultset =
+//        this.controller.getUser().getResultsetImprovedFromId(resultsetId);
+//
+//    /* Creazione della griglia */
+//    ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+//    JardinColumnModel cm = new JardinColumnModel(resultset);
+//    JardinGrid grid = new JardinGrid(store, cm, resultset, user);
+//
+//    new SearchAreaBase(resultset);
+//
+//    /* Creazione del dettaglio */
+//    JardinDetail detail = new JardinDetail(resultset);
+//
+//    JardinTabItem item = this.getItemByResultsetId(resultsetId);
+//    if (item != null) {
+//      /* Aggiungere la griglia al tabItem */
+//      item.setGrid(grid);
+//
+//      /* Aggiungere il dettaglio al tabitem */
+//      item.addDetail(detail);
+//
+//      /*
+//       * Eseguo una ricerca per riempire il resultset
+//       * 
+//       * SearchParams searchParams = new SearchParams(resultsetId);
+//       * List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+//       * searchParams.setFieldsValuesList(queryFieldList);
+//       * Dispatcher.forwardEvent(EventList.Search, searchParams);
+//       */
+//    }
+//  }
 
   private void onSearch(final SearchParams searchParams) {
     // TODO Auto-generated method stub
@@ -383,6 +559,9 @@ public class JardinView extends View {
       if (item.getGrid() != null) {
         item.getGrid().setSearchparams(searchParams);
       }
+    } else {
+      addJardinTabItem(user.getResultsetImprovedFromId(searchParams.getResultsetId()));
+      Dispatcher.forwardEvent(EventList.Search, searchParams);
     }
   }
 
@@ -396,6 +575,8 @@ public class JardinView extends View {
         item.updateStore(result.getStore());
         // item.getGrid().setSearchparams(searchParams);
       }
+    } else {
+      System.out.println("tabitem non ancora creato!!!!");
     }
   }
 

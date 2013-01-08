@@ -206,7 +206,7 @@ public class UploadDialog extends Window {
 
     if (type.compareTo(TYPE_IMPORT) == 0) {
       SimpleComboBox<String> conditions = new SimpleComboBox<String>();
-      ResultsetImproved rsi = user.getResultsetFromId(resultset);
+      ResultsetImproved rsi = user.getResultsetImprovedFromId(resultset);
       List<ResultsetField> fields = rsi.getFields();
       for (ResultsetField field : fields) {
         if (field.getIsPK() || field.isUnique()) {

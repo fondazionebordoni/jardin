@@ -25,7 +25,6 @@ import it.fub.jardin.client.model.User;
 import java.util.Date;
 import java.util.List;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -217,7 +216,7 @@ public class TwitterPanel extends ContentPanel {
       break;
     }
 
-    Log.debug(message.toString());
+//    Log.debug(message.toString());
     Dispatcher.forwardEvent(EventList.SendMessage, message);
     this.text.reset();
     this.text.validate();

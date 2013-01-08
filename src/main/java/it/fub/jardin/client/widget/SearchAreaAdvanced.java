@@ -21,6 +21,8 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.ResultsetPlus;
+import it.fub.jardin.client.model.ResultsetPlusField;
 import it.fub.jardin.client.model.SearchParams;
 
 import java.util.ArrayList;
@@ -72,6 +74,7 @@ public class SearchAreaAdvanced extends FormPanel {
 
     /* Esamino tutti i campi di ricerca */
     for (ResultsetField field : this.resultset.getFields()) {
+//      System.out.println("campo: " + field.getName());
 
       if (field.getReadperm()) {
         /* Esamino se appartiene alla ricerca base o avanzata */

@@ -60,7 +60,6 @@ import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 /**
@@ -102,7 +101,7 @@ public class FileUtils {
       }
       return f.getPath();
     } catch (Exception e) {
-      Log.error("Errore durante l'esportazione del file " + file, e);
+//      Log.error("Errore durante l'esportazione del file " + file, e);
       throw new VisibleException("Impossibile creare il file d'esportazione");
     }
   }
@@ -229,7 +228,7 @@ public class FileUtils {
       throws MalformedURLException, IOException, URISyntaxException,
       TransformerException, FOPException {
 
-    Log.debug("Template: " + xsl.getAbsolutePath());
+//    Log.debug("Template: " + xsl.getAbsolutePath());
     if (xsl.exists() && xsl.canRead()) {
 
       // configure fopFactory as desired
@@ -290,10 +289,10 @@ public class FileUtils {
      * Se il file del template esiste già non lo creare e restituisci il
      * template
      */
-    Log.debug("XSL file: " + xsl);
+//    Log.debug("XSL file: " + xsl);
     File f = new File(xsl);
     if (f.exists() && f.canRead()) {
-      Log.debug("XSL file " + xsl + " already exists. I do not create it.");
+//      Log.debug("XSL file " + xsl + " already exists. I do not create it.");
       return;
     }
 

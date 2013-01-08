@@ -18,12 +18,13 @@
 package it.fub.jardin.server;
 
 import it.fub.jardin.client.exception.HiddenException;
+import it.fub.jardin.client.exception.VisibleException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.allen_sauer.gwt.log.client.Log;
+//import com.allen_sauer.gwt.log.client.Log;
 
 public class DbConnectionHandler {
 
@@ -32,7 +33,8 @@ public class DbConnectionHandler {
    * 
    * @return
    */
-  DbConnectionParameters dbConnectionParameters;
+  DbConnectionParameters dbConnectionParameters; 
+
   String url;
   String db;
   String dbInformationSchema;
@@ -41,7 +43,7 @@ public class DbConnectionHandler {
   String pass;
   String view;
 
-  public DbConnectionHandler() {
+  public DbConnectionHandler() throws VisibleException {
     this.dbConnectionParameters = new DbConnectionParameters();
     this.url = this.dbConnectionParameters.getUrl();
     this.db = this.dbConnectionParameters.getDb();
@@ -60,14 +62,14 @@ public class DbConnectionHandler {
       connection =
           DriverManager.getConnection(this.url + this.db, this.user, this.pass);
     } catch (Exception e) {
-      Log.error("Errore durante la creazione della connesione a database", e);
+//      Log.error("Errore durante la creazione della connesione a database", e);
       throw new HiddenException(
           "Errore durante la creazione della connessione a database");
     }
     return connection;
   }
 
-  public Connection getConnDbInformationSchema() {
+  public Connection getConnDbInformationSchema() throws HiddenException {
     Connection connection = null;
     try {
       Class.forName(this.driver).newInstance();
@@ -75,7 +77,9 @@ public class DbConnectionHandler {
           DriverManager.getConnection(this.url + this.dbInformationSchema,
               this.user, this.pass);
     } catch (Exception e) {
-      Log.warn("Errore durante la connesione a database", e);
+//      Log.warn("Errore durante la connesione a database", e);
+      throw new HiddenException(
+          "Errore durante la creazione della connessione a database informationschema");
     }
     return connection;
   }
@@ -92,14 +96,31 @@ public class DbConnectionHandler {
     return this.view;
   }
 
-  public void closeConn(final Connection connection) {
+  public void closeConn(final Connection connection) throws HiddenException {
     try {
       if (connection != null) {
         connection.close();
       }
     } catch (SQLException e) {
-      Log.warn("Errore durante la chiusura della connessione", e);
+//      Log.warn("Errore durante la chiusura della connessione", e);
+      throw new HiddenException(
+          "Errore durante la chiusura della connessione a database");
     }
+  }
+  
+  /**
+   * @return the dbConnectionParameters
+   */
+  public DbConnectionParameters getDbConnectionParameters() {
+    return dbConnectionParameters;
+  }
+
+  /**
+   * @param dbConnectionParameters the dbConnectionParameters to set
+   */
+  public void setDbConnectionParameters(
+      DbConnectionParameters dbConnectionParameters) {
+    this.dbConnectionParameters = dbConnectionParameters;
   }
 
 }

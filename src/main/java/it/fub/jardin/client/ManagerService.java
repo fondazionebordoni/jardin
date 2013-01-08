@@ -25,10 +25,13 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.Resultset;
+import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.model.ResultsetPlus;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,11 +39,16 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.event.EventType;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 public interface ManagerService extends RemoteService {
 
+  public User changePassword(Credentials credentials) throws VisibleException, HiddenException;
+  
+  public ResultsetImproved getResultsetImproved(int resultsetId, int gid) throws HiddenException;
+  
+  public ResultsetPlus getResultsetPlus(int resultsetId, int gid) throws HiddenException;
+  
   public String createReport(String file, Template template,
     PagingLoadConfig config, List<BaseModelData> selectedRows,
     List<String> columns, SearchParams searchParams, char fs, char ts)
@@ -77,6 +85,10 @@ public interface ManagerService extends RemoteService {
    */
   public String getServerTime();
 
+  public User getSimpleUser(final Credentials credentials) throws VisibleException;
+  
+//  public User getSimpleUserAndChangePassword(final Credentials credentials) throws VisibleException;
+  
   public User getUser(Credentials credentials) throws VisibleException;
 
   public List<Message> getUserMessages(Integer userId) throws HiddenException;
