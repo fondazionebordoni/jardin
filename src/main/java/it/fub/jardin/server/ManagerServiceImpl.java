@@ -60,7 +60,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   private final DbUtils dbUtils;
   private final Map<String, User> users = new HashMap<String, User>();
   private String subSystem = "JARDiN";
-  private String log4jConfPath = "/conf/log4j.properties";
+  private String log4jConfPath = "conf/";
   private DbConnectionHandler dbConnectionHandler;
   private DbProperties dbProperties;
   private static boolean logInitialized = false;
@@ -74,34 +74,17 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     subSystem = dbConnectionHandler.getDbConnectionParameters().getSubSystem();    
     if (logInitialized == false) {
 
-      String confDir = this.getClass().getClassLoader().getResource("/").getPath() + "conf/";
+      String confDir = this.getClass().getClassLoader().getResource("/").getPath() + log4jConfPath;
 //      System.out.println("dir: " + confDir);
       JardinLogger.init(confDir, subSystem);      
 
       logInitialized = true;
     }  
-    
-//    System.out.println(this.getServletContext().getRealPath("/"));
-//    InputStream in =
-//        this.getClass().getClassLoader().getResourceAsStream(log4jConfPath);
-//    Properties myProps = new Properties();
-//    try {
-//      myProps.load(in);
-//    } catch (IOException e) {
-//      System.out.println(e.getMessage());
-//      e.printStackTrace();
-//    }
 
-    
-//    JardinLogger.init(myProps, subSystem);
     
   }
 
-//  @Override
-//  public synchronized void log(final String message) {
-////    User user = this.getCurrentUser();
-////    Log.info("[" + user.getUsername() + "] " + message);
-//  }
+
 
   public String createReport(final String file, final Template template,
     final PagingLoadConfig config, final List<BaseModelData> selectedRows,
@@ -389,7 +372,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public Integer updateObjects(final Integer resultsetId,
     final List<BaseModelData> newItemList, final String condition)
     throws HiddenException {
-    this.log("Setting records...");
+    JardinLogger.info("Updating records...");
     // recupero dei vecchi parametri
     // e passaggio a notifyCanges
     List<BaseModelData> newItemListTest = newItemList;

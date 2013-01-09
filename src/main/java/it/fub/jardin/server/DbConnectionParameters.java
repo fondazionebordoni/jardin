@@ -57,9 +57,11 @@ public class DbConnectionParameters {
       this.setView(myProps.getProperty("view"));
       if (myProps.getProperty("subsystem") != null) {
         this.setSubSystem(myProps.getProperty("subsystem"));                
-      } else {
-        throw new VisibleException("Attenzione! Property \"subsystem\" assente --> impossibile loggare!");
       }
+      
+//      else {
+//        throw new VisibleException("Attenzione! Property \"subsystem\" assente --> impossibile loggare!");
+//      }
     } catch (IOException e) {
       System.out.println("Impossibile leggere dal file " + this.path);
     }
