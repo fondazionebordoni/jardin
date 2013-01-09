@@ -1360,23 +1360,8 @@ public class DbUtils {
             IncomingForeignKeyInformation ifki =
                 new IncomingForeignKeyInformation(linkingTable, linkingField,
                     field);
-//            List<Boolean> resPermissions = getResultsetPermissions(rs.getId());
-            ResultsetImproved rsImp = getResultsetImproved(rs.getId(), gid);
-//                new ResultsetImproved(rs.getId(), rs.getName(), rs.getAlias(),
-//                    rs.getStatement(), resPermissions.get(0),
-//                    resPermissions.get(1), resPermissions.get(2),
-//                    resPermissions.get(3), null);
 
-//            rsImp.setFields(getResultsetFieldList(rs.getId(), rs.getName()));
-//            
-//            List<BaseModelData> groupings = this.getReGroupings(rs.getId());
-//            for (BaseModelData grouping : groupings) {
-//              ResultsetFieldGroupings rfg =
-//                  new ResultsetFieldGroupings((Integer) grouping.get("id"),
-//                      (String) grouping.get("name"), (String) grouping.get("alias"));
-//              rsImp.addFieldGroupings(rfg);
-//              System.out.println("aggiunto raggruppamento: " + rfg.getId() + rfg.getAlias());
-//            }
+            ResultsetImproved rsImp = getResultsetImproved(rs.getId(), gid);
             
             ifki.setInterestedResultset(rsImp);
             ifki.setResultsetId(rs.getId());
@@ -2235,6 +2220,7 @@ public class DbUtils {
       }
       connection.commit();
       connection.setAutoCommit(true);
+      JardinLogger.info("Records updated");
     } catch (Exception e) {
       try {
         connection.rollback();
@@ -2243,10 +2229,11 @@ public class DbUtils {
         e1.printStackTrace();
       }
 //      Log.warn("Errore SQL", e);
+      e.printStackTrace();
       throw new HiddenException("Errore durante l'aggiornamento del record:\n"
           + e.getLocalizedMessage());
     } finally {
-      JardinLogger.info("Records updated");
+      
       this.dbConnectionHandler.closeConn(connection);
     }
     return result;
