@@ -303,7 +303,10 @@ public class JardinView extends View {
           @Override
           public void componentSelected(ButtonEvent ce) {
             // TODO Auto-generated method stub
-            Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
+            JardinTabItem jti = getItemByResultsetId(resId);
+            if (jti == null) {
+              Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
+            } else main.setSelection(jti);
           }
         });
         
@@ -339,7 +342,10 @@ public class JardinView extends View {
           @Override
           public void componentSelected(ButtonEvent ce) {
             // TODO Auto-generated method stub
-            Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
+            JardinTabItem jti = getItemByResultsetId(resId);
+            if (jti == null) {
+              Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
+            } else main.setSelection(jti);
           }
         });
         cp.add(body, new RowData(1, -1, new Margins(4)));
@@ -357,7 +363,7 @@ public class JardinView extends View {
     mainTable.setCellSpacing(10);
     firstTabPanel.add(mainTable);
     firstTab.add(firstTabPanel);
-    this.main.add(firstTab);
+    main.add(firstTab);
   }
 
   private void viewPlugin(final String data) {
