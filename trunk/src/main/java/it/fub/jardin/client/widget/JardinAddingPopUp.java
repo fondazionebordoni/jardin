@@ -90,7 +90,7 @@ public class JardinAddingPopUp extends Window {
       Field f = null;
 
       if (field.getInsertperm()) {
-        System.out.println("aggiunto campo: " + field.getName());
+//        System.out.println("aggiunto campo: " + field.getName());
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
         if (field.getName().compareToIgnoreCase(linkingField) == 0) {
@@ -206,8 +206,8 @@ public class JardinAddingPopUp extends Window {
           }
 
           if (value != null) {
-            System.out.println("aggiungere: " + property + " con valore "
-                + value);
+//            System.out.println("aggiungere: " + property + " con valore "
+//                + value);
             newItem.set(property, value);
             // Log.debug("aggiunto item " + newItem.get(property));
           }

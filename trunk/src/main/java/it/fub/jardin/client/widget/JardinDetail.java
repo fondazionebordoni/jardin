@@ -17,10 +17,13 @@
 
 package it.fub.jardin.client.widget;
 
+import it.fub.jardin.client.EventList;
+import it.fub.jardin.client.model.ForeignKey;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.mvc.JardinView;
+import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,10 +31,23 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class JardinDetail extends FormPanel {
 
@@ -41,8 +57,11 @@ public class JardinDetail extends FormPanel {
 
   private final ResultsetImproved resultset;
 
+  private List<Field<?>> fieldList;
+
   public JardinDetail(final ResultsetImproved resultset) {
 
+    fieldList = new ArrayList<Field<?>>();
     this.resultset = resultset;
     this.addStyleName(JardinView.DETAIL_AREA);
 
@@ -69,21 +88,99 @@ public class JardinDetail extends FormPanel {
     HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
 
     /* Esamino tutti i campi */
-    for (ResultsetField field : this.resultset.getFields()) {
+    for (final ResultsetField field : this.resultset.getFields()) {
+
+//      Field f = null;
+
+      field.doTypeAnalisys(); // specifica variabili tipo, lunghezza e valori
 
       if (field.getReadperm()) {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
-//        System.out.println("campo del dettaglio: " + field.getName());
+        // System.out.println("campo del dettaglio: " + field.getName());
 
-        List<String> values = new ArrayList<String>();
-        // resultset.getForeignKeyList().getValues(field.getId());
-        // Field f = FieldCreator.getField(field, values, true, labelWidth);
-        // Field f = FieldCreator.getField(field,0);
-        Field<?> f = FieldCreator.getField(field, values, 0, true);
+         List<String> values = new ArrayList<String>();
+         Field<?> f = FieldCreator.getField(field, values, 0, true);
 
-        if (!field.getModifyperm()) {
-          f.setEnabled(false);
-        }
+//        String specificType = field.getSpecificType();
+//        if (field.isCombo()) {
+//
+//          if (specificType.compareToIgnoreCase(FieldDataType.INT) == 0) { // quindi
+//                                                                          // è
+//                                                                          // un
+//                                                                          // combo
+//                                                                          // per
+//                                                                          // vincolo
+//                                                                          // di
+//                                                                          // fk
+//            f = new SimpleComboBox<Integer>();
+//
+//          } else if (specificType.compareToIgnoreCase(FieldDataType.VARCHAR) == 0
+//              || specificType.compareToIgnoreCase(FieldDataType.CHAR) == 0
+//              || specificType.compareToIgnoreCase(FieldDataType.ENUM) == 0) {
+//            f = new SimpleComboBox<String>();
+//          }
+//
+//          f.setName(field.getName());
+//          ((SimpleComboBox<String>) f).setTriggerAction(TriggerAction.ALL);
+//
+//          // è un combo se è ENUM o se ha vincolo di FK: COMUNQUE SOLO INTERI E
+//          // STRINGHE!!!
+//          if (specificType.compareToIgnoreCase(FieldDataType.ENUM) == 0) {
+//
+//            ((SimpleComboBox<String>) f).add(field.getFixedElements());
+//
+//          } else /* (field.getForeignKey() != null) */{
+//            Listener<BaseEvent> l = new Listener<BaseEvent>() {
+//
+//              public void handleEvent(final BaseEvent be) {
+//                // BaseModelData info = new BaseModelData();
+//                ForeignKey info = new ForeignKey();
+//                info.setPointingFieldName(field.getName());
+//                info.setPointingResultsetId(field.getResultsetid());
+//                info.setPointedTableName(field.getForeignKey().split("\\.")[0]);
+//                info.setPointedFieldName(field.getForeignKey().split("\\.")[1]);
+//                // System.out.println("detail cerca valori per " +
+//                // field.getForeignKey().split("\\.")[0] + "." +
+//                // field.getForeignKey().split("\\.")[1]);
+//
+//                Dispatcher.forwardEvent(EventList.GetValuesOfAField, info);
+//              }
+//            };
+//
+//            f.addListener(Events.OnClick, l);
+//
+//          }
+//
+//        } else {
+//          if (specificType.compareToIgnoreCase(FieldDataType.DATE) == 0) {
+//            f = new DateField();
+//            ((DateField)f).getPropertyEditor().setFormat(
+//                DateTimeFormat.getFormat("dd/MM/y HH:mm:ss"));
+//          } else if (specificType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
+//            f = new TimeField();
+//            ((TimeField) f).setFormat(DateTimeFormat.getFormat("HH:mm"));
+//
+//          } else if (field.getLenght() > 50) {
+//            f = new TextArea();
+//          } else {
+//            f = new TextField<String>(); // SETTARE IL TIPO
+//                                         // GIUSTO!!!!!!!!!!!!!!!
+//          }
+//
+//          f.setName(field.getName());
+//        }
+//
+//        if ((labelWidth > 0) && (field.getAlias().length() > labelWidth / 10)) {
+//          f.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
+//              + "...");
+//          f.setToolTip(field.getAlias());
+//        } else {
+//          f.setFieldLabel(field.getAlias());
+//        }
+//
+//        if (!field.getModifyperm()) {
+//          f.setEnabled(false);
+//        }
 
         /* Esamino il raggruppamento a cui appartiene il campo */
         ResultsetFieldGroupings fieldGrouping =
@@ -109,7 +206,23 @@ public class JardinDetail extends FormPanel {
           /* Aggancio il campo al suo raggruppamento */
           fieldSet.add(f);
         }
+        
+        fieldList.add(f);
+//        System.out.println("AGGIUNTO " + f.getName() + " al dettaglio");
+      }
+
+      
+    }
+  }
+
+  public Field getFieldByName(String name) {
+    for (Field fg : this.fieldList) {
+      if (fg.getName().compareToIgnoreCase(name) == 0) {
+        // System.out.println("ritorno campo: " + fg.getName());
+        return fg;
       }
     }
+    // System.out.println("ritorno campo: UN CAZZO!");
+    return null;
   }
 }

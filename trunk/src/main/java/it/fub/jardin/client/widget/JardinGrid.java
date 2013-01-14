@@ -143,15 +143,8 @@ public class JardinGrid extends Grid<BaseModelData> {
           final String field = fk.getField();
           // TODO sarebbe meglio spedire direttamente fk e non ricreare un
           // nuovo
-//          final IncomingForeignKeyInformation fkIN =
-//              new IncomingForeignKeyInformation(linkedTable, linkedField, field);
-//          fkIN.setFieldValue("" + selectedRow.get(field));
-//          fkIN.setInterestedResultset(fk.getInterestedResultset());
-//          fkIN.setResultsetId(fk.getResultsetId());
           
           fk.setFieldValue("" + selectedRow.get(field));
-//          fk.setInterestedResultset(fk.getInterestedResultset());
-//          fk.setResultsetId(fk.getResultsetId());
 
           MenuItem mitem =
               new MenuItem("Visualizza corrispondenze in "
@@ -159,9 +152,6 @@ public class JardinGrid extends Grid<BaseModelData> {
           mitem.addListener(Events.Select, new Listener() {
             public void handleEvent(final BaseEvent be) {
 
-              // Log.debug(linkedTable + "." + linkedField + "->" + field + "="
-              // + selectedRow.get(field));
-//              Dispatcher.forwardEvent(EventList.ViewLinkedTable, fkIN);
               Dispatcher.forwardEvent(EventList.ViewLinkedTable, fk);
 
             }
@@ -171,14 +161,10 @@ public class JardinGrid extends Grid<BaseModelData> {
 
         m.add(sep);
 
-        System.out.println("il RS " + resultset.getName() + " ha "
-            + resultset.getForeignKeyIn().size() + " fk entranti");
 
         for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
           final String field = fk.getField();
-          // System.out.println("fk in: " + linkedTable + "." + linkedField +
-          // "->"
-          // + field);
+
           if (!user.getResultsets().contains(fk.getInterestedResultset())) {
             user.addResultsetToList(fk.getInterestedResultset());
           }

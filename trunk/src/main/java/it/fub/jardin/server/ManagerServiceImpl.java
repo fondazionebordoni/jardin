@@ -24,6 +24,7 @@ import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;
@@ -84,6 +85,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     
   }
 
+  public Integer massiveUpdate(MassiveUpdateObject muo) throws VisibleException, HiddenException {
+    
+    return dbUtils.massiveUpdate(muo);
+    
+  }
 
 
   public String createReport(final String file, final Template template,

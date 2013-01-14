@@ -17,12 +17,18 @@
 
 package it.fub.jardin.client.model;
 
+import it.fub.jardin.client.tools.FieldDataType;
+
+import java.util.ArrayList;
+
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ResultsetField extends BaseTreeModel implements IsSerializable {
 
   private static final long serialVersionUID = 3099400302542129019L;
+  private ArrayList<String> fixedElements;
+  private int lenght;
 
   @SuppressWarnings("unused")
   private ResultsetField() {
@@ -48,6 +54,8 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
     this.set("modifyperm", modifyperm);
     this.set("insertperm", insertperm);
     this.set("visible", visible);
+
+    // doTypeAnalisys();
   }
 
   public Integer getId() {
@@ -192,5 +200,132 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
   public boolean isUnique() {
     return Boolean.parseBoolean(this.get("unique").toString());
   }
+
+  public void setSpecificType(String specificType) {
+    this.set("specifictype", specificType);
+  }
+
+  public String getSpecificType() {
+    return this.get("specifictype");
+  }
+
+  public void setLenght(int lenght) {
+    this.lenght = lenght;
+  }
+
+  public int getLenght() {
+    return this.lenght;
+  }
+
+  public void setIsLenghtFixed(boolean isLenghtFixed) {
+    this.set("islenghtfixed", isLenghtFixed);
+  }
+
+  public boolean isLenghtFixed() {
+    return this.get("islenghtfixed");
+  }
+
+  public void setIsCombo(boolean isCombo) {
+    this.set("iscombo", isCombo);
+  }
+
+  public boolean isCombo() {
+    return this.get("iscombo");
+  }
+
+  /**
+   * @return the fixedElements
+   */
+  public ArrayList<String> getFixedElements() {
+    return fixedElements;
+  }
+
+  /**
+   * @param elements
+   *          the fixedElements to set
+   */
+  public void setFixedElements(ArrayList<String> elements) {
+    this.fixedElements = elements;
+  }
+
+  public void doTypeAnalisys() {
+
+    String type = this.getType();
+    String fk = this.getForeignKey();
+    this.setIsCombo(false);
+    if (fk != null && fk.compareToIgnoreCase("") != 0)
+      this.setIsCombo(true);
+
+    if (type.startsWith("varchar")) {
+      this.setSpecificType(FieldDataType.VARCHAR);
+      int x = (type.lastIndexOf(")") - 1) - (type.lastIndexOf("(") + 1);
+      if (x == 0) {
+        char[] chars = { type.charAt(type.lastIndexOf("(") + 1) };
+        this.setLenght(Integer.parseInt(new String(chars)));
+      } else
+        this.setLenght(Integer.parseInt(type.substring(
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
+      this.setIsLenghtFixed(false);
+
+    } else if (type.startsWith("char")) {
+      this.setSpecificType(FieldDataType.CHAR);
+      int x = (type.lastIndexOf(")") - 1) - (type.lastIndexOf("(") + 1);
+      if (x == 0) {
+        char[] chars = { type.charAt(type.lastIndexOf("(") + 1) };
+        this.setLenght(Integer.parseInt(new String(chars)));
+      } else
+        this.setLenght(Integer.parseInt(type.substring(
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
+      this.setIsLenghtFixed(true);
+
+    } else if (type.startsWith("int") || type.startsWith("tinyint")) {
+      this.setSpecificType(FieldDataType.INT);
+      // System.out.println(" LA (: " + type.lastIndexOf("("));
+      // System.out.println(" LA ): " + type.lastIndexOf(")"));
+      // System.out.println("start: " + (type.lastIndexOf("(")+1) + "; end:" +
+      // (type.lastIndexOf(")")-1));
+      int x = (type.lastIndexOf(")") - 1) - (type.lastIndexOf("(") + 1);
+      if (x == 0) {
+        char[] chars = { type.charAt(type.lastIndexOf("(") + 1) };
+        this.setLenght(Integer.parseInt(new String(chars)));
+      } else
+        this.setLenght(Integer.parseInt(type.substring(
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
+      this.setIsLenghtFixed(false);
+
+    } else if (type.startsWith("float")) {
+      this.setSpecificType(FieldDataType.FLOAT);
+      this.setIsLenghtFixed(false);
+      this.setLenght(20);
+      if (type.lastIndexOf("(") == -1)
+        setLenght(Integer.parseInt(type.substring(6, type.lastIndexOf(","))));
+    } else if (type.startsWith("date") || type.startsWith("datetime")) {
+      this.setSpecificType(FieldDataType.DATE);
+    } else if (type.startsWith("timestamp")) {
+      this.setSpecificType(FieldDataType.DATE);
+    } else if (type.startsWith("enum")) {
+      this.setSpecificType(FieldDataType.ENUM);
+      this.setIsCombo(true);
+      ArrayList<String> elements = new ArrayList<String>();
+//      System.out.println("campo: " + this.getName());
+//      System.out.println(" LA (: " + type.lastIndexOf("("));
+//      System.out.println(" LA ): " + type.lastIndexOf(")"));
+//      System.out.println("start: " + (type.lastIndexOf("(") + 1) + "; end:"
+//          + (type.lastIndexOf(")") - 1));
+      String[] elementsWithCommas =
+          (type.substring(type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)).split(",");
+      for (int i = 0; i < elementsWithCommas.length; i++) {
+        String newElement = elementsWithCommas[i].replaceAll("\'", "");
+        elements.add(newElement);
+        System.out.println("added: " + newElement + "/"+ elementsWithCommas.length);
+      }
+      this.setFixedElements(elements);
+    } else {
+      this.setSpecificType(FieldDataType.VARCHAR);
+      this.setIsLenghtFixed(false);
+    }
+  }
+
+
 
 }

@@ -23,6 +23,7 @@ import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
+import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;
@@ -78,7 +79,8 @@ public class DbUtils {
   DbProperties dbProperties;
   private User user;
 
-  public DbUtils(DbProperties dbProperties, DbConnectionHandler dbConnectionHandler) throws VisibleException {
+  public DbUtils(DbProperties dbProperties,
+      DbConnectionHandler dbConnectionHandler) throws VisibleException {
     this.dbProperties = dbProperties;
     this.dbConnectionHandler = dbConnectionHandler;
   }
@@ -122,9 +124,9 @@ public class DbUtils {
    * @param message
    *          il messaggio da loggare
    */
-//  private void log(final String message) {
-////    Log.info("[" + this.user.getUsername() + "] " + message);
-//  }
+  // private void log(final String message) {
+  // // Log.info("[" + this.user.getUsername() + "] " + message);
+  // }
 
   public static ResultSet doQuery(final Connection connection,
       final String query) throws SQLException {
@@ -175,7 +177,7 @@ public class DbUtils {
     try {
       this.doUpdate(connection, query);
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       JardinLogger.error("Errore SQL: impossibile aggiornare conto login");
       throw new HiddenException(
           "Errore durante il salvataggio delle preferenze");
@@ -201,7 +203,7 @@ public class DbUtils {
       e.printStackTrace();
       JardinLogger.error("Errore SQL: impossibile connettersi al db");
       // TODO re-throw HiddenException to be caught by caller
-//      Log.error("Error con database connection", e);
+      // Log.error("Error con database connection", e);
     }
 
     List<Integer> hp = new ArrayList<Integer>();
@@ -214,7 +216,7 @@ public class DbUtils {
       JardinLogger.error("Errore SQL: impossibile recuperare preferenze header");
       e.printStackTrace();
       // TODO throw a HiddenException to be caught by caller
-//      Log.error("Error on loading user resultset preferences", e);
+      // Log.error("Error on loading user resultset preferences", e);
     }
 
     try {
@@ -246,7 +248,8 @@ public class DbUtils {
       query = this.dbProperties.getStatement(id);
     } catch (HiddenException e) {
       // TODO Auto-generated catch block
-      JardinLogger.error("Errore SQL: impossibile recuperare statement resultset da id " + id);
+      JardinLogger.error("Errore SQL: impossibile recuperare statement resultset da id "
+          + id);
       e.printStackTrace();
     }
     // query = "SELECT * FROM " + query + " WHERE 1";
@@ -301,8 +304,8 @@ public class DbUtils {
             String token = stringTokenizer.nextToken();
             try {
               query +=
-                  this.fieldTest(this.dbProperties.getFieldList(id), "OR", token,
-                      like, comparer);
+                  this.fieldTest(this.dbProperties.getFieldList(id), "OR",
+                      token, like, comparer);
             } catch (HiddenException e) {
               // TODO Auto-generated catch block
               JardinLogger.error("Errore: impossibile costruire stringa di ricerca");
@@ -341,7 +344,7 @@ public class DbUtils {
       }
     }
 
-//    Log.debug("Search Query: " + query);
+    // Log.debug("Search Query: " + query);
     //
     return query;
   }
@@ -355,7 +358,7 @@ public class DbUtils {
     String partialQuery = query.substring(startPartialQuery);
     query = "SELECT COUNT(*) " + partialQuery;
 
-//    Log.debug("Count Query: " + query);
+    // Log.debug("Count Query: " + query);
     return query;
   }
 
@@ -424,7 +427,7 @@ public class DbUtils {
       ResultSet result = doQuery(connection, query);
       int resultWidth = result.getMetaData().getColumnCount();
       JardinLogger.debug("INFO SQL: query di ricerca: " + query);
-//      this.log(query);
+      // this.log(query);
       ResultSet res =
           connection.getMetaData().getColumns(null, null,
               result.getMetaData().getTableName(1), null);
@@ -489,7 +492,7 @@ public class DbUtils {
         records.add(map);
       }
     } catch (Exception e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       JardinLogger.error("Errore SQL: recuperare dati dal db");
       e.printStackTrace();
     } finally {
@@ -537,7 +540,7 @@ public class DbUtils {
       result.next();
       recordSize = result.getInt(1);
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException("Errore durante l'interrogazione del database");
     } finally {
       this.dbConnectionHandler.closeConn(connection);
@@ -603,8 +606,8 @@ public class DbUtils {
         m.setId(result.getInt("id"));
         m.setName(result.getString("name"));
         m.setAlias(result.getString("alias"));
-        
-        System.out.println("id :" + m.getId() + " m: "+ m.getName());
+
+        System.out.println("id :" + m.getId() + " m: " + m.getName());
         groups.put(m.getId(), m);
       }
     } catch (SQLException e) {
@@ -616,7 +619,7 @@ public class DbUtils {
   }
 
   /**
-   * @param resultsetId
+   * @param resultset
    * @param fieldName
    * @return Lista dei valori per quel determinato campo di quel determinato
    *         resultset. Serve a riempire i combobox per l'autocompletamento
@@ -631,7 +634,8 @@ public class DbUtils {
       String query =
           "SELECT DISTINCT `" + fieldName + "` FROM " + resultset
               + " ORDER BY `" + fieldName + "` ASC";
-      System.out.println(query);
+      System.out.println("query valori possibili per " + resultset + "."
+          + fieldName + ": " + query);
       ResultSet res = doQuery(connection, query);
       while (res.next()) {
         BaseModelData m = new BaseModelData();
@@ -661,7 +665,7 @@ public class DbUtils {
       // return getValuesOfAField(dbProperties.getStatement(resultsetId),
       // fieldName);
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei valori di campo");
     }
@@ -721,7 +725,7 @@ public class DbUtils {
         messages.add(w);
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei messaggi di utente");
     } finally {
@@ -773,11 +777,11 @@ public class DbUtils {
           }
           i++;
         }
-//         System.out.println(ps.toString());
+        // System.out.println(ps.toString());
         int num = ps.executeUpdate();
         if (num > 0) {
           String toLog = "INSERT (" + ps.toString() + ")";
-//          Log.debug(toLog);
+          // Log.debug(toLog);
           JardinLogger.debug(toLog);
         }
         result += num;
@@ -794,7 +798,7 @@ public class DbUtils {
       }
       String message = ex.getLocalizedMessage();
       String newMess = "";
-//      Log.warn("Errore SQL", ex);
+      // Log.warn("Errore SQL", ex);
       if (ex.getErrorCode() == 1062) {
         // updateObjects(resultsetId, records);
         newMess =
@@ -825,7 +829,7 @@ public class DbUtils {
         // TODO Auto-generated catch block
         e1.printStackTrace();
       }
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il salvataggio delle modifiche:\n"
               + e.getLocalizedMessage());
@@ -836,14 +840,12 @@ public class DbUtils {
     return result;
   }
 
- 
-
   // Cancella una riga dalla tabella
   public Integer removeObjects(final Integer resultsetId,
       final List<BaseModelData> records) throws HiddenException {
 
     JardinLogger.info("Removing objects");
-    
+
     int resCode = 0;
 
     Connection connection = this.dbConnectionHandler.getConn();
@@ -890,16 +892,16 @@ public class DbUtils {
           i++;
         }
 
-//        Log.debug("Query DELETE: " + ps);
+        // Log.debug("Query DELETE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
-//          this.log("DELETE (" + ps.toString() + ")");
+          // this.log("DELETE (" + ps.toString() + ")");
           JardinLogger.debug("DEBUG SQL: DELETE (" + ps.toString() + ")");
         }
         resCode += num;
       }
     } catch (Exception e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException("Errore durante l'eliminazione dei record");
     } finally {
       JardinLogger.info("Objects removed");
@@ -995,7 +997,8 @@ public class DbUtils {
     }
 
     try {
-      JardinLogger.info("LOGIN: tentativo di login utente " + credentials.getUsername());
+      JardinLogger.info("LOGIN: tentativo di login utente "
+          + credentials.getUsername());
       result = ps.executeQuery();
     } catch (SQLException e) {
       JardinLogger.error("Errore SQL: Errore durante l'interrogazione su database");
@@ -1045,7 +1048,7 @@ public class DbUtils {
         return user;
       }
     } catch (Exception e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new VisibleException("Errore di accesso "
           + "al risultato dell'interrogazione su database");
     } finally {
@@ -1083,7 +1086,7 @@ public class DbUtils {
         matrix.addField(fieldId, values);
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei valori dei campi");
     }
@@ -1200,7 +1203,7 @@ public class DbUtils {
         }
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero dei valori dei vincoli");
     } finally {
@@ -1283,7 +1286,7 @@ public class DbUtils {
 
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle foreign keys entranti");
     } finally {
@@ -1301,15 +1304,15 @@ public class DbUtils {
    * @throws HiddenException
    */
 
-  public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(int gid, 
-      String statement) throws HiddenException {
+  public ArrayList<IncomingForeignKeyInformation> getForeignKeyInForATable(
+      int gid, String statement) throws HiddenException {
     ArrayList<IncomingForeignKeyInformation> listaIfki;
     String tableName = null;
     Connection connection = this.dbConnectionHandler.getConn();
     String queryStatement = null;
-    
+
     try {
-      
+
       // TO-DO: bisogna evitare di eseguire lo statement per recuperare info
       // sulle foreignkey entranti
       queryStatement = statement + " LIMIT 0,1";
@@ -1346,23 +1349,24 @@ public class DbUtils {
         String linkingTable = resultFKIn.getString("TABLE_NAME");
         String linkingField = resultFKIn.getString("COLUMN_NAME");
         String field = resultFKIn.getString("REFERENCED_COLUMN_NAME");
-        
+
         // trasformare la linkingTable in un rsimproved
         // dal nome recupero l'id e dall'id recupero l'rs
 
         // recuperare lista dei NOMI delle tabelle possibili
         // se il nome == linkingtable --> creare rs
         for (final Resultset rs : resultSetList) {
-          
+
           if (rs.getName().compareTo(linkingTable) == 0) {
-            System.out.println("aggiunta FK entrante per il campo " + field + ": "+ linkingTable +"."+linkingField);
+            System.out.println("aggiunta FK entrante per il campo " + field
+                + ": " + linkingTable + "." + linkingField);
 
             IncomingForeignKeyInformation ifki =
                 new IncomingForeignKeyInformation(linkingTable, linkingField,
                     field);
 
             ResultsetImproved rsImp = getResultsetImproved(rs.getId(), gid);
-            
+
             ifki.setInterestedResultset(rsImp);
             ifki.setResultsetId(rs.getId());
             listaIfki.add(ifki);
@@ -1371,7 +1375,7 @@ public class DbUtils {
 
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle foreign keys entranti");
     } finally {
@@ -1400,7 +1404,7 @@ public class DbUtils {
         permissionsList.add(result.getBoolean("insertperm"));
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero della lista dei resultset semplici");
     } finally {
@@ -1409,7 +1413,8 @@ public class DbUtils {
     return permissionsList;
   }
 
-  private List<Resultset> getCompleteResultsetList(int gid) throws HiddenException {
+  private List<Resultset> getCompleteResultsetList(int gid)
+      throws HiddenException {
     // TODO Auto-generated method stub
     List<Resultset> resultSetList = new ArrayList<Resultset>();
     Connection connection = this.dbConnectionHandler.getConn();
@@ -1436,7 +1441,7 @@ public class DbUtils {
         resultSetList.add(res);
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero della lista dei resultset semplici");
     } finally {
@@ -1601,7 +1606,7 @@ public class DbUtils {
                 resultSetList));
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
@@ -1776,7 +1781,7 @@ public class DbUtils {
                 resultSetList));
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
@@ -1868,7 +1873,7 @@ public class DbUtils {
       }
     } catch (SQLException e) {
       esito = false;
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
@@ -1904,7 +1909,7 @@ public class DbUtils {
       hp.setResultsetId(idResultset);
 
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
@@ -1929,7 +1934,7 @@ public class DbUtils {
         fieldInPref.add(result.getInt("fieldid"));
       }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle preferenze utente");
     } finally {
@@ -2076,8 +2081,8 @@ public class DbUtils {
           recordList.add(bm);
         }
       } catch (ArrayIndexOutOfBoundsException ex) {
-//        Log.warn("Troppi campi nel file: " + t.length + " alla riga "
-//            + (lineFailed + 1), ex);
+        // Log.warn("Troppi campi nel file: " + t.length + " alla riga "
+        // + (lineFailed + 1), ex);
         throw new VisibleException("Troppi campi nel file: " + t.length
             + " alla riga " + (lineFailed + 1));
       } catch (IOException e) {
@@ -2211,7 +2216,7 @@ public class DbUtils {
           i += this.putJavaObjectInPs(ps, i, value);
         }
 
-//        Log.debug("Query UPDATE: " + ps);
+        // Log.debug("Query UPDATE: " + ps);
         int num = ps.executeUpdate();
         if (num > 0) {
           JardinLogger.debug(("UPDATE (" + ps.toString() + ")"));
@@ -2228,12 +2233,12 @@ public class DbUtils {
         // TODO Auto-generated catch block
         e1.printStackTrace();
       }
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       e.printStackTrace();
       throw new HiddenException("Errore durante l'aggiornamento del record:\n"
           + e.getLocalizedMessage());
     } finally {
-      
+
       this.dbConnectionHandler.closeConn(connection);
     }
     return result;
@@ -2251,7 +2256,7 @@ public class DbUtils {
         "SELECT address_statement, data_statement, link_id FROM " + T_NOTIFY
             + " WHERE resultset_id = '" + resultsetId + "'";
 
-//    Log.debug("query: " + query);
+    // Log.debug("query: " + query);
 
     ResultSet result = doQuery(connection, query);
     while (result.next()) {
@@ -2275,7 +2280,7 @@ public class DbUtils {
               testo +=
                   md.getColumnLabel(i) + ": " + resultData.getString(i) + "\n";
             }
-//            Log.debug("\nmessaggio:\n" + testo);
+            // Log.debug("\nmessaggio:\n" + testo);
             testo += "\n";
           }
 
@@ -2284,7 +2289,7 @@ public class DbUtils {
           ps.setInt(1, id_table);
           ResultSet resultAddress = ps.executeQuery();
           while (resultAddress.next()) {
-//            Log.debug("mailto: " + resultAddress.getString(1));
+            // Log.debug("mailto: " + resultAddress.getString(1));
             if (!(resultAddress.getString(1) == null)) {
               try {
                 MailUtility.sendMail(resultAddress.getString(1), mitt, oggetto,
@@ -2292,17 +2297,17 @@ public class DbUtils {
 
               } catch (MessagingException e) {
                 e.printStackTrace();
-//                Log.info("Invio non riuscito!");
-//                Log.info("MessagingException: ");
-//                Log.info(e.toString());
+                // Log.info("Invio non riuscito!");
+                // Log.info("MessagingException: ");
+                // Log.info(e.toString());
               }
-//              Log.info("Invio riuscito!");
+              // Log.info("Invio riuscito!");
             } else {
               JardinLogger.error("Errore invio mail: Mail non valida!");
             }
           }
         } else {
-//          Log.error("Notifica non inviata perchè è un inserimento!");
+          // Log.error("Notifica non inviata perchè è un inserimento!");
         }
       }
     }
@@ -2324,7 +2329,7 @@ public class DbUtils {
       // TODO Title could be NULL -> check sql
       ps.setString(1, message.getTitle());
       ps.setString(2, message.getBody());
-//      Log.debug(message.toString());
+      // Log.debug(message.toString());
 
       DateFormat df =
           new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -2336,7 +2341,7 @@ public class DbUtils {
       ps.setInt(6, message.getRecipient());
       ps.executeUpdate();
     } catch (SQLException e) {
-//      Log.error("Error during new message insertion", e);
+      // Log.error("Error during new message insertion", e);
       throw new VisibleException("Impossibile salvare il messaggio");
     } finally {
       this.dbConnectionHandler.closeConn(connection);
@@ -2447,7 +2452,7 @@ public class DbUtils {
             + " g on m.id_group=g.id JOIN "
             + T_USER
             + " u on g.id=u.id_group WHERE u.id=" + uid + " and m.readperm=1";
-//     System.out.println("query firsttabb: " + query);
+    // System.out.println("query firsttabb: " + query);
     Connection connection = this.dbConnectionHandler.getConn();
     try {
       ResultSet result;
@@ -2557,7 +2562,8 @@ public class DbUtils {
               new ResultsetFieldGroupings((Integer) grouping.get("id"),
                   (String) grouping.get("name"), (String) grouping.get("alias"));
           res.addFieldGroupings(rfg);
-//          System.out.println("aggiunto raggruppamento: " + rfg.getId() + rfg.getAlias());
+          // System.out.println("aggiunto raggruppamento: " + rfg.getId() +
+          // rfg.getAlias());
         }
 
         PKs = this.dbProperties.getPrimaryKeys(resultsetName);
@@ -2603,7 +2609,8 @@ public class DbUtils {
         resultFieldList.add(resField);
 
         res.addField(resField);
-//        System.out.println("aggiunto campo " + resField.getName() + " la rs " + res.getName());
+        // System.out.println("aggiunto campo " + resField.getName() + " la rs "
+        // + res.getName());
 
         if (PKs != null) {
           for (BaseModelData pk : PKs) {
@@ -2622,14 +2629,14 @@ public class DbUtils {
 
       // FOREIGNEKEY
 
-//      PKs = null;
+      // PKs = null;
 
       // aggiunta delle eventuali foreignKEY entranti
-//       res.setForeignKeyIn(getForeignKeyInForATable(resultsetId));
+      // res.setForeignKeyIn(getForeignKeyInForATable(resultsetId));
       res.setForeignKeyIn(getForeignKeyInForATable(gid, res.getStatement()));
       // }
     } catch (SQLException e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new HiddenException(
           "Errore durante il recupero delle viste su database");
     } finally {
@@ -2653,7 +2660,8 @@ public class DbUtils {
       throw new VisibleException(e.getLocalizedMessage());
     }
 
-    JardinLogger.info("LOGIN: tentativo di login utente " + credentials.getUsername());
+    JardinLogger.info("LOGIN: tentativo di login utente "
+        + credentials.getUsername());
     String query =
         "SELECT u.id, u.name, u.surname, u.email, u.office, "
             + "u.telephone, u.status AS userstatus, u.lastlogintime, "
@@ -2680,7 +2688,7 @@ public class DbUtils {
     try {
       result = ps.executeQuery();
     } catch (SQLException e) {
-//      Log.debug("User validation query: " + ps.toString());
+      // Log.debug("User validation query: " + ps.toString());
       throw new VisibleException("Errore durante l'interrogazione su database");
     }
 
@@ -2693,7 +2701,8 @@ public class DbUtils {
               + "due account con username e password uguali");
         }
 
-        JardinLogger.info("LOGIN: login utente " + credentials.getUsername() + " RIUSCITO!");
+        JardinLogger.info("LOGIN: login utente " + credentials.getUsername()
+            + " RIUSCITO!");
         /* Creazione dell'utente con i dati del database */
         int uid = result.getInt("id");
         int gid = result.getInt("groupid");
@@ -2730,7 +2739,7 @@ public class DbUtils {
         return user;
       }
     } catch (Exception e) {
-//      Log.warn("Errore SQL", e);
+      // Log.warn("Errore SQL", e);
       throw new VisibleException("Errore di accesso "
           + "al risultato dell'interrogazione su database");
     } finally {
@@ -2741,8 +2750,9 @@ public class DbUtils {
         e.printStackTrace();
       }
     }
-    
-    JardinLogger.info("Errore LOGIN: tentativo di login utente " + credentials.getUsername() + " FALLITO!");
+
+    JardinLogger.info("Errore LOGIN: tentativo di login utente "
+        + credentials.getUsername() + " FALLITO!");
     throw new VisibleException("Errore di accesso: username o password errati");
   }
 
@@ -2750,8 +2760,6 @@ public class DbUtils {
     // TODO Auto-generated method stub
     return null;
   }
-
-
 
   public User changePassword(Credentials credentials) throws VisibleException,
       HiddenException {
@@ -2775,7 +2783,7 @@ public class DbUtils {
       // credentials.getNewPassword());
       credentials.setPassword(credentials.getNewPassword());
       newuser = getSimpleUser(credentials);
-      System.out.println("pass nuovo utente:" + newuser.getPassword());
+      // System.out.println("pass nuovo utente:" + newuser.getPassword());
       // } else {
       // throw new VisibleException(
       // "utente inesistente! contattare supporto tecnico");
@@ -2789,5 +2797,62 @@ public class DbUtils {
       this.dbConnectionHandler.closeConn(connection);
     }
 
+  }
+
+  public Integer massiveUpdate(MassiveUpdateObject muo) throws HiddenException,
+      VisibleException {
+    // TODO Auto-generated method stub
+    Connection connection = this.dbConnectionHandler.getConn();
+
+    int result = -1;
+    String tableName = null;
+
+    ResultSetMetaData metadata;
+    try {
+      metadata =
+          this.dbProperties.getResultsetMetadata(connection,
+              muo.getResultsetId());
+      tableName = metadata.getTableName(1);
+      connection.setAutoCommit(false);
+
+    
+
+//    String[] transQueries = null;
+    String transQueries = "";
+//    int i = 0;
+    for (String pkValue : muo.getPrimaryKeyValues()) {
+      transQueries = "UPDATE `" + tableName + "` SET ";
+      BaseModelData newValues = muo.getNewValues();
+      for (String tableField : newValues.getPropertyNames()) {
+        transQueries += tableField + " = '" + newValues.get(tableField) + "', ";
+      }
+      transQueries = transQueries.substring(0, transQueries.length() - 2);
+
+      transQueries += " WHERE " + muo.getFieldName() + " = '" + pkValue + "'; ";
+//      i++;
+      Statement stmt = connection.createStatement();
+      stmt.executeUpdate(transQueries);
+    }
+    
+    System.out.println("query update massivo: " + transQueries);
+    
+    connection.commit();
+    connection.setAutoCommit(true);
+    connection.close();
+    
+    return 1;
+
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      throw new VisibleException("Impossibile eseguire update massivo");
+    } finally {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
   }
 }

@@ -161,5 +161,12 @@ public class EventList {
   public static final EventType ViewAddingPopup = new EventType();
 
   public static final EventType saveNewRecord = new EventType();
+
+  public static final EventType GotValuesOfAField = new EventType();
+
+  public static final EventType GetValuesOfAField = new EventType();
+
+  public static final EventType MassUpdate = new EventType();
+
   
 }

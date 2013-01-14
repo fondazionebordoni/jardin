@@ -20,6 +20,7 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +127,8 @@ public class FieldCreator {
             public void handleEvent(final BaseEvent be) {
 
               final MessageBox wait =
-                  MessageBox.wait("Attendere",
+                  MessageBox.wait(
+                      "Attendere",
                       "Recupero valori autocompletamento per "
                           + field.getAlias(), "");
               final ManagerServiceAsync service =
@@ -171,9 +173,11 @@ public class FieldCreator {
 
                 @Override
                 public void loaderLoadException(final LoadEvent le) {
-                  MessageBox.alert("Recupero store autocompletamento campo "
-                      + field.getName(), "loaderLoadException: "
-                      + le.exception.getLocalizedMessage(), null);
+                  MessageBox.alert(
+                      "Recupero store autocompletamento campo "
+                          + field.getName(),
+                      "loaderLoadException: "
+                          + le.exception.getLocalizedMessage(), null);
                   le.exception.printStackTrace();
                 }
 
@@ -224,6 +228,10 @@ public class FieldCreator {
   public static Field<?> getField(final ResultsetField field,
       final List<String> values, final int labelWidth, final boolean textarea) {
     Field<?> result = null;
+    
+    /////////////////
+//    field.doTypeAnalisys();
+    /////////////////
     String fieldType = field.getType();
 
     /* Se il campo è una data non creo un combo */
@@ -232,7 +240,7 @@ public class FieldCreator {
       f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
 
       result = f;
-//      Log.debug(field.getName() + ": DATE");
+      // Log.debug(field.getName() + ": DATE");
     } else if (fieldType.compareToIgnoreCase("DATETIME") == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(
@@ -246,15 +254,25 @@ public class FieldCreator {
       TimeField f = new TimeField();
       f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
-//      Log.debug(field.getName() + ": TIME");
+      // Log.debug(field.getName() + ": TIME");
     } else if (((fieldType.compareToIgnoreCase("BLOB") == 0) || (fieldType.compareToIgnoreCase("TEXT") == 0))
         && textarea) {
       TextArea f = new TextArea();
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
-    } else {
+    } 
+//    else if (field.getSpecificType().compareToIgnoreCase("enum") == 0) {
+//      SimpleComboBox<String> f = new SimpleComboBox<String>();
+//      for (String ele : field.getFixedElements()) {
+//        System.out.println("aggiunto al combo: " + ele);
+//      }
+//      f.add(field.getFixedElements());
+//      // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+//      result = f;
+//    } 
+    else {
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-//        Log.debug(field.getName() + ": COMBO");
+        // Log.debug(field.getName() + ": COMBO");
 
         final SimpleComboBox f;
         if ((fieldType.compareToIgnoreCase("int") == 0)
@@ -344,10 +362,11 @@ public class FieldCreator {
 
               @Override
               public void loaderLoadException(final LoadEvent le) {
-                MessageBox.alert("Recupero store autocompletamento campo "
-                    + field.getForeignKey().split("\\.")[0]
-                    + " per foreign key: "
-                    + field.getForeignKey().split("\\.")[1],
+                MessageBox.alert(
+                    "Recupero store autocompletamento campo "
+                        + field.getForeignKey().split("\\.")[0]
+                        + " per foreign key: "
+                        + field.getForeignKey().split("\\.")[1],
                     "loaderLoadException: "
                         + le.exception.getLocalizedMessage(), null);
                 le.exception.printStackTrace();
@@ -365,7 +384,7 @@ public class FieldCreator {
         result = f;
 
       } else {
-//        Log.debug(field.getName() + ": TEXT");
+        // Log.debug(field.getName() + ": TEXT");
         result = new TextField<String>();
       }
     }
@@ -381,4 +400,22 @@ public class FieldCreator {
     return result;
   }
 
+//  public static Field<?> createField(final ResultsetField field) {
+//    
+//    String specificType = field.getSpecificType();
+//    if (field.isCombo()) {
+//      if (specificType.compareToIgnoreCase(FieldDataType.VARCHAR) == 0) {
+//        SimpleComboBox<String> f = new SimpleComboBox<String>();        
+//        f.setTriggerAction(TriggerAction.ALL);
+//        f.add(field.getFixedElements());
+//        return f;
+//      }
+//            
+//    } else {
+//      
+//    }
+//    
+//    
+//    return null;    
+//  }
 }

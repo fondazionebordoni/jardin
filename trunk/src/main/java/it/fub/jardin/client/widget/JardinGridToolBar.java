@@ -42,6 +42,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
@@ -277,6 +278,23 @@ public class JardinGridToolBar extends ToolBar {
       this.add(new Button("Rimuovi righe",
           IconHelper.createStyle("icon-delete"),
           this.getListenerWithGrid(EventList.RemoveRows)));
+    }
+    
+    if (this.resultset.isModify()) {
+      Button massModify = new Button("Modifica massiva",
+          IconHelper.createStyle("icon-table-update"));
+      massModify.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        
+        @Override
+        public void componentSelected(ButtonEvent ce) {
+          // TODO Auto-generated method stub
+          if (grid.getStore().getCount() > 0) {
+            MassiveUpdateDialog mud = new MassiveUpdateDialog(grid.getSearchparams(), grid.getStore(), resultset);
+          } else MessageBox.alert("Errore", "Effettuare prima una ricerca", null);          
+        }
+      });
+      
+      this.add(massModify);
     }
   }
 
