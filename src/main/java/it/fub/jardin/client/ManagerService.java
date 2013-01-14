@@ -22,6 +22,7 @@ import it.fub.jardin.client.exception.VisibleException;
 import it.fub.jardin.client.model.Credentials;
 import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.Resultset;
@@ -42,6 +43,8 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 public interface ManagerService extends RemoteService {
+  
+  public Integer massiveUpdate(MassiveUpdateObject muo) throws VisibleException, HiddenException;
 
   public User changePassword(Credentials credentials) throws VisibleException, HiddenException;
   

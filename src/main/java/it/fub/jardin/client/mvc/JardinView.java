@@ -18,6 +18,7 @@
 package it.fub.jardin.client.mvc;
 
 import it.fub.jardin.client.EventList;
+import it.fub.jardin.client.model.ForeignKey;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.Resultset;
@@ -61,6 +62,9 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -89,7 +93,8 @@ public class JardinView extends View {
   private LoginDialog dialog;
   private ChangePasswordDialog pwDialog;
   private User user;
-  private List<Resultset> resultSetList; //listsa dei resultset almeno leggibili dall'utente
+  private List<Resultset> resultSetList; // listsa dei resultset almeno
+                                         // leggibili dall'utente
 
   // private DialogBox newResultsetProgressMsg;<>
 
@@ -154,16 +159,16 @@ public class JardinView extends View {
       // if (event.getData() instanceof Integer) {
       // this.newResultset((Integer) event.getData());
       // }
-    } 
-//    else if (t == EventList.GotValuesOfFields) {
-//      if (event.getData() instanceof Integer) {
-//        this.gotValuesOfFields((Integer) event.getData());
-//      }
-//    } else if (t == EventList.GotValuesOfForeignKeys) {
-//      if (event.getData() instanceof Integer) {
-//        this.gotValuesOfForeignKeys((Integer) event.getData());
-//      }
-//    } 
+    }
+    // else if (t == EventList.GotValuesOfFields) {
+    // if (event.getData() instanceof Integer) {
+    // this.gotValuesOfFields((Integer) event.getData());
+    // }
+    // } else if (t == EventList.GotValuesOfForeignKeys) {
+    // if (event.getData() instanceof Integer) {
+    // this.gotValuesOfForeignKeys((Integer) event.getData());
+    // }
+    // }
     else if (t == EventList.Searched) {
       if (event.getData() instanceof SearchResult) {
         this.onSearched((SearchResult) event.getData());
@@ -209,6 +214,20 @@ public class JardinView extends View {
         user.addResultsetToList((ResultsetImproved) event.getData());
       }
       this.addJardinTabItem((ResultsetImproved) event.getData());
+    } else if (t == EventList.GotValuesOfAField) {
+      JardinDetail interestedDetail =
+          (JardinDetail) this.getItemByResultsetId(
+              ((ForeignKey) event.getData()).getPointingResultsetId()).getDetail();
+      String interestedFieldName =
+          ((ForeignKey) event.getData()).getPointingFieldName();
+      List valuesList = ((ForeignKey) event.getData()).getValues();
+//      System.out.println("lunghezza lista sulla view: " + valuesList.size());
+      ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).
+        add(valuesList);
+//      if (!((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).isExpanded()) {
+//        ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).expand();
+//      }
+      System.out.println("numero elementi nel combo " + interestedFieldName + ": " + ((ComboBox) interestedDetail.getFieldByName(interestedFieldName)).getStore().getCount());
     }
   }
 
@@ -263,76 +282,37 @@ public class JardinView extends View {
     SimplePanel firstTabPanel = new SimplePanel();
     FlexTable mainTable = new FlexTable();
 
-//    int i = 0;
+    // int i = 0;
     int resultSetNumber = resultSetList.size();
     // System.out.println("lista rs:" + resultSetNumber);
     // impostiamo 5 colonne
     int numRows = 1;
-//    int lastRowNumCols = resultSetNumber;
+    // int lastRowNumCols = resultSetNumber;
     int lastRowNumCols = 0;
     if (resultSetNumber > 5) {
       numRows = (int) Math.rint(resultSetNumber / 5);
-      lastRowNumCols = resultSetNumber - (numRows * 5); // numero colonne dell'ultima riga
+      lastRowNumCols = resultSetNumber - (numRows * 5); // numero colonne
+                                                        // dell'ultima riga
     }
 
     // System.out.println("numero righe: " + numRows);
 
-    
     int index = 0;
     Resultset resultset = new Resultset();
     for (int x = 1; x <= numRows; x++) {
 
-      for (int y = 1; y <= 5 && y<= resultSetNumber; y++) {
-        
-//        index = index + ((x * y) - 1);
+      for (int y = 1; y <= 5 && y <= resultSetNumber; y++) {
+
+        // index = index + ((x * y) - 1);
         resultset = resultSetList.get(index);
-//        System.out.println("set RS " + index + ": " + resultset.getAlias());
+        // System.out.println("set RS " + index + ": " + resultset.getAlias());
         ContentPanel cp = new ContentPanel();
         cp.setCollapsible(false);
         cp.setWidth(200);
         cp.setLayout(new RowLayout(Orientation.VERTICAL));
         cp.setFrame(true);
         cp.setHeading(resultset.getAlias());
-        
-        Label body = new Label(resultset.getNote());
-        final int resId = resultset.getId();
-        Button openButton = new Button("Apri Tab");        
 
-        openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-          @Override
-          public void componentSelected(ButtonEvent ce) {
-            // TODO Auto-generated method stub
-            JardinTabItem jti = getItemByResultsetId(resId);
-            if (jti == null) {
-              Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
-            } else main.setSelection(jti);
-          }
-        });
-        
-//        cp.add(body);
-//        cp.add(openButton);
-        cp.add(body, new RowData(1, -1, new Margins(4)));
-        cp.add(openButton, new RowData(1, -1, new Margins(4)));
-        
-        Draggable d = new Draggable(cp);
-
-        mainTable.setWidget(x, y, cp);
-        index++;
-
-      }
-    }
-
-    if (lastRowNumCols > 0) {
-      for (int y = 1; y <= lastRowNumCols; y++) {
-        resultset = resultSetList.get(index + y -1);
-//        System.out.println("set RS " + index + ": " + resultset.getAlias());
-        ContentPanel cp = new ContentPanel();
-        cp.setCollapsible(false);
-        cp.setWidth(200);
-        cp.setLayout(new RowLayout(Orientation.VERTICAL));
-        cp.setFrame(true);
-        cp.setHeading(resultset.getAlias());        
         Label body = new Label(resultset.getNote());
         final int resId = resultset.getId();
         Button openButton = new Button("Apri Tab");
@@ -345,7 +325,48 @@ public class JardinView extends View {
             JardinTabItem jti = getItemByResultsetId(resId);
             if (jti == null) {
               Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
-            } else main.setSelection(jti);
+            } else
+              main.setSelection(jti);
+          }
+        });
+
+        // cp.add(body);
+        // cp.add(openButton);
+        cp.add(body, new RowData(1, -1, new Margins(4)));
+        cp.add(openButton, new RowData(1, -1, new Margins(4)));
+
+        Draggable d = new Draggable(cp);
+
+        mainTable.setWidget(x, y, cp);
+        index++;
+
+      }
+    }
+
+    if (lastRowNumCols > 0) {
+      for (int y = 1; y <= lastRowNumCols; y++) {
+        resultset = resultSetList.get(index + y - 1);
+        // System.out.println("set RS " + index + ": " + resultset.getAlias());
+        ContentPanel cp = new ContentPanel();
+        cp.setCollapsible(false);
+        cp.setWidth(200);
+        cp.setLayout(new RowLayout(Orientation.VERTICAL));
+        cp.setFrame(true);
+        cp.setHeading(resultset.getAlias());
+        Label body = new Label(resultset.getNote());
+        final int resId = resultset.getId();
+        Button openButton = new Button("Apri Tab");
+
+        openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+          @Override
+          public void componentSelected(ButtonEvent ce) {
+            // TODO Auto-generated method stub
+            JardinTabItem jti = getItemByResultsetId(resId);
+            if (jti == null) {
+              Dispatcher.forwardEvent(EventList.getResultsetImproved, resId);
+            } else
+              main.setSelection(jti);
           }
         });
         cp.add(body, new RowData(1, -1, new Margins(4)));
@@ -412,7 +433,7 @@ public class JardinView extends View {
     item.getGrid().addRow();
   }
 
-  private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {    
+  private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {
     BaseModelData data = infoToView.get(0);
     Integer rsId = data.get("RSID");
     JardinTabItem item = this.getItemByResultsetId(rsId);
@@ -511,52 +532,53 @@ public class JardinView extends View {
   // this.main.add(item);
   // }
 
-//  private synchronized void gotValuesOfFields(final Integer resultsetId) {
-//    ResultsetImproved resultset =
-//        this.controller.getUser().getResultsetImprovedFromId(resultsetId);
-//
-//    /* Creazione dell'area di ricerca avanzata */
-//    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
-//
-//    JardinTabItem item = this.getItemByResultsetId(resultsetId);
-//    if (item != null) {
-//      /* Aggiungere la ricerca avanzata al tabitem */
-//      item.addSearchAreaAdvanced(searchAreaAdvanced);
-//    }
-//  }
-//
-//  private synchronized void gotValuesOfForeignKeys(final Integer resultsetId) {
-//    ResultsetImproved resultset =
-//        this.controller.getUser().getResultsetImprovedFromId(resultsetId);
-//
-//    /* Creazione della griglia */
-//    ListStore<BaseModelData> store = new ListStore<BaseModelData>();
-//    JardinColumnModel cm = new JardinColumnModel(resultset);
-//    JardinGrid grid = new JardinGrid(store, cm, resultset, user);
-//
-//    new SearchAreaBase(resultset);
-//
-//    /* Creazione del dettaglio */
-//    JardinDetail detail = new JardinDetail(resultset);
-//
-//    JardinTabItem item = this.getItemByResultsetId(resultsetId);
-//    if (item != null) {
-//      /* Aggiungere la griglia al tabItem */
-//      item.setGrid(grid);
-//
-//      /* Aggiungere il dettaglio al tabitem */
-//      item.addDetail(detail);
-//
-//      /*
-//       * Eseguo una ricerca per riempire il resultset
-//       * 
-//       * SearchParams searchParams = new SearchParams(resultsetId);
-//       * List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-//       * searchParams.setFieldsValuesList(queryFieldList);
-//       * Dispatcher.forwardEvent(EventList.Search, searchParams);
-//       */
-//    }
-//  }
+  // private synchronized void gotValuesOfFields(final Integer resultsetId) {
+  // ResultsetImproved resultset =
+  // this.controller.getUser().getResultsetImprovedFromId(resultsetId);
+  //
+  // /* Creazione dell'area di ricerca avanzata */
+  // SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
+  //
+  // JardinTabItem item = this.getItemByResultsetId(resultsetId);
+  // if (item != null) {
+  // /* Aggiungere la ricerca avanzata al tabitem */
+  // item.addSearchAreaAdvanced(searchAreaAdvanced);
+  // }
+  // }
+  //
+  // private synchronized void gotValuesOfForeignKeys(final Integer resultsetId)
+  // {
+  // ResultsetImproved resultset =
+  // this.controller.getUser().getResultsetImprovedFromId(resultsetId);
+  //
+  // /* Creazione della griglia */
+  // ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+  // JardinColumnModel cm = new JardinColumnModel(resultset);
+  // JardinGrid grid = new JardinGrid(store, cm, resultset, user);
+  //
+  // new SearchAreaBase(resultset);
+  //
+  // /* Creazione del dettaglio */
+  // JardinDetail detail = new JardinDetail(resultset);
+  //
+  // JardinTabItem item = this.getItemByResultsetId(resultsetId);
+  // if (item != null) {
+  // /* Aggiungere la griglia al tabItem */
+  // item.setGrid(grid);
+  //
+  // /* Aggiungere il dettaglio al tabitem */
+  // item.addDetail(detail);
+  //
+  // /*
+  // * Eseguo una ricerca per riempire il resultset
+  // *
+  // * SearchParams searchParams = new SearchParams(resultsetId);
+  // * List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+  // * searchParams.setFieldsValuesList(queryFieldList);
+  // * Dispatcher.forwardEvent(EventList.Search, searchParams);
+  // */
+  // }
+  // }
 
   private void onSearch(final SearchParams searchParams) {
     // TODO Auto-generated method stub

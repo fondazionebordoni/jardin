@@ -22,8 +22,10 @@ import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.SearchStringParser;
 import it.fub.jardin.client.model.Credentials;
+import it.fub.jardin.client.model.ForeignKey;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
+import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.Resultset;
@@ -141,8 +143,8 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.GotPlugins);
     this.registerEventTypes(EventList.ViewPlugin);
     this.registerEventTypes(EventList.getResultsetImproved);
-    this.registerEventTypes(EventList.gotResultsetImproved);
     this.registerEventTypes(EventList.getResultsetPlus);
+    this.registerEventTypes(EventList.gotResultsetImproved);
     this.registerEventTypes(EventList.gotResultsetPlus);
     this.registerEventTypes(EventList.initialChangePassword);
     this.registerEventTypes(EventList.CheckCredentialAndChangePassword);
@@ -150,6 +152,9 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.getResultsetImprovedFromContextMenu);
     this.registerEventTypes(EventList.ViewAddingPopup);
     this.registerEventTypes(EventList.saveNewRecord);
+    this.registerEventTypes(EventList.GetValuesOfAField);
+    this.registerEventTypes(EventList.GotValuesOfAField);
+    this.registerEventTypes(EventList.MassUpdate);
 
     service = (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
   }
@@ -248,21 +253,21 @@ public class JardinController extends Controller {
         this.onAddRow((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.AddRow
-//        Log.error("Errore nei dati di EventList.AddRow");
+        // Log.error("Errore nei dati di EventList.AddRow");
       }
     } else if (t == EventList.ViewPopUpDetail) {
       if (event.getData() instanceof BaseModelData) {
         this.onViewPopUpDetail((BaseModelData) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ViewPopUpDetail
-//        Log.error("Errore nei dati di EventList.ViewPopUpDetail");
+        // Log.error("Errore nei dati di EventList.ViewPopUpDetail");
       }
     } else if (t == EventList.RemoveRows) {
       if (event.getData() instanceof Integer) {
         this.onRemoveRows((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.RemoveRows
-//        Log.error("Errore nei dati di EventList.RemoveRows");
+        // Log.error("Errore nei dati di EventList.RemoveRows");
       }
     } else if (t == EventList.ExportAllStoreAllColumns) {
       if (event.getData() instanceof Integer) {
@@ -270,7 +275,7 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreAllColumns
-//        Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
+        // Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
       }
     } else if (t == EventList.ExportAllStoreSomeColumns) {
       if (event.getData() instanceof Integer) {
@@ -278,7 +283,7 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreSomeColumns
-//        Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
+        // Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
       }
     } else if (t == EventList.ExportSomeStoreAllColumns) {
       if (event.getData() instanceof Integer) {
@@ -286,7 +291,7 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportAllStoreAllColumns
-//        Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
+        // Log.error("Errore nei dati di EventList.ExportAllStoreAllColumns");
       }
     } else if (t == EventList.ExportSomeStoreSomeColumns) {
       if (event.getData() instanceof Integer) {
@@ -294,63 +299,63 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di
         // EventList.ExportSomeStoreSomeColumns
-//        Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
+        // Log.error("Errore nei dati di EventList.ExportAllStoreSomeColumns");
       }
     } else if (t == EventList.ExportSomeRowsAllColumns) {
       if (event.getData() instanceof Integer) {
         this.onExport((Integer) event.getData(), true, true, true);
       } else {
         // TODO Gestire errore nei dati di EventList.ExportAllStoreAllColumns
-//        Log.error("Errore nei dati di EventList.ExportSomeRowAllColumns");
+        // Log.error("Errore nei dati di EventList.ExportSomeRowAllColumns");
       }
     } else if (t == EventList.ExportSomeRowsSomeColumns) {
       if (event.getData() instanceof Integer) {
         this.onExport((Integer) event.getData(), true, true, false);
       } else {
         // TODO Gestire errore nei dati di EventList.ExportSomeStoreSomeColumns
-//        Log.error("Errore nei dati di EventList.ExportSomeRowSomeColumns");
+        // Log.error("Errore nei dati di EventList.ExportSomeRowSomeColumns");
       }
     } else if (t == EventList.ShowAllColumns) {
       if (event.getData() instanceof Integer) {
         this.onShowAllColumns((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowAllColumns
-//        Log.error("Errore nei dati di EventList.ShowAllColumns");
+        // Log.error("Errore nei dati di EventList.ShowAllColumns");
       }
     } else if (t == EventList.SaveGridView) {
       if (event.getData() instanceof Integer) {
         this.onSaveGridView((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SaveGridView
-//        Log.error("Errore nei dati di EventList.SaveGridView");
+        // Log.error("Errore nei dati di EventList.SaveGridView");
       }
     } else if (t == EventList.GetGridViews) {
       if (event.getData() instanceof Integer) {
         this.onGetGridViews((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.GetGridViews
-//        Log.error("Errore nei dati di EventList.GetGridViews");
+        // Log.error("Errore nei dati di EventList.GetGridViews");
       }
     } else if (t == EventList.UploadTemplate) {
       if (event.getData() instanceof Integer) {
         this.onUploadTemplate((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UploadTemplate
-//        Log.error("Errore nei dati di EventList.UploadTemplate");
+        // Log.error("Errore nei dati di EventList.UploadTemplate");
       }
     } else if (t == EventList.UploadImport) {
       if (event.getData() instanceof Integer) {
         this.onUploadImport((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UploadImport
-//        Log.error("Errore nei dati di EventList.UploadImport");
+        // Log.error("Errore nei dati di EventList.UploadImport");
       }
     } else if (t == EventList.UploadInsert) {
       if (event.getData() instanceof Integer) {
         this.onUploadInsert((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UploadInsert
-//        Log.error("Errore nei dati di EventList.UploadInsert");
+        // Log.error("Errore nei dati di EventList.UploadInsert");
       }
     } else if (t == EventList.UpdateColumnModel) {
       // TODO CAMBIARE!!!
@@ -358,21 +363,21 @@ public class JardinController extends Controller {
         this.onUpdateColumnModel((JardinGrid) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UpdateColumnModel
-//        Log.error("Errore nei dati di EventList.UpdateColumnModel");
+        // Log.error("Errore nei dati di EventList.UpdateColumnModel");
       }
     } else if (t == EventList.Jungle) {
       if (event.getData() instanceof Integer) {
         this.onJungle((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.Jungle
-//        Log.error("Errore nei dati di EventList.Jungle");
+        // Log.error("Errore nei dati di EventList.Jungle");
       }
     } else if (t == EventList.ShowChart) {
       if (event.getData() instanceof ArrayList) {
         this.onShowChart((ArrayList<String>) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SelectColumnsForChart
-//        Log.error("Errore nei dati di EventList.ShowChart");
+        // Log.error("Errore nei dati di EventList.ShowChart");
       }
     } else if (t == EventList.ShowPieChart) {
       if (event.getData() instanceof Integer) {
@@ -380,7 +385,7 @@ public class JardinController extends Controller {
         // onShowChart(ChartType.PIE, (Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowPieChart
-//        Log.error("Errore nei dati di EventList.ShowPieChart");
+        // Log.error("Errore nei dati di EventList.ShowPieChart");
       }
     } else if (t == EventList.ShowBarChart) {
       if (event.getData() instanceof Integer) {
@@ -388,7 +393,7 @@ public class JardinController extends Controller {
         // onShowChart(ChartType.BAR, (Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ShowBarChart
-//        Log.error("Errore nei dati di EventList.ShowBarChart");
+        // Log.error("Errore nei dati di EventList.ShowBarChart");
       }
       /*
        * ------------------------------------------------------------------
@@ -400,14 +405,14 @@ public class JardinController extends Controller {
         this.onUpdateTemplates((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.UpdateTemplates
-//        Log.error("Errore nei dati di EventList.UpdateTemplates");
+        // Log.error("Errore nei dati di EventList.UpdateTemplates");
       }
     } else if (t == EventList.SendMessage) {
       if (event.getData() instanceof Message) {
         this.onSendMessage((Message) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.SendMessage
-//        Log.error("Errore nei dati di EventList.SendMessage");
+        // Log.error("Errore nei dati di EventList.SendMessage");
       }
     } else if (t == EventList.NewMessage) {
       this.onNewMessage();
@@ -416,14 +421,14 @@ public class JardinController extends Controller {
         this.onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ViewLinkedTable
-//        Log.error("Errore nei dati di EventList.ViewLinkedTable");
+        // Log.error("Errore nei dati di EventList.ViewLinkedTable");
       }
     } else if (t == EventList.ViewAddingPopup) {
       if (event.getData() instanceof IncomingForeignKeyInformation) {
         this.onViewLinkedResultset((IncomingForeignKeyInformation) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ViewLinkedTable
-//        Log.error("Errore nei dati di EventList.ViewLinkedTable");
+        // Log.error("Errore nei dati di EventList.ViewLinkedTable");
       }
     } else if (t == EventList.GetPlugins) {
       // System.out.println("CONTROLLER: richiesto menù plugins per "
@@ -432,30 +437,92 @@ public class JardinController extends Controller {
         this.onGetPlugins((Integer) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.GetPlugins
-//        Log.error("Errore nei dati di EventList.GetPlugins");
+        // Log.error("Errore nei dati di EventList.GetPlugins");
       }
     } else if (t == EventList.ViewPlugin) {
       if (event.getData() instanceof String) {
         this.forwardToView(this.view, EventList.ViewPlugin, event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.ViewPlugin
-//        Log.error("Errore nei dati di EventList.ViewPlugin");
+        // Log.error("Errore nei dati di EventList.ViewPlugin");
       }
     } else if (t == EventList.getResultsetImproved) {
       if (event.getData() instanceof Integer) {
         this.onGetResultsetImproved((Integer) event.getData());
       } else if (event.getData() instanceof SearchParams) {
         // VUOL DIRE CHE IL RESULTSET NON È ANCORA APERTO!!!!!!!
-      } 
-//      else Log.error("ERRORE recupero resultset cliccato");
-    }
-    // else if (t == EventList.getResultsetImprovedFromContextMenu) {
-    // if (event.getData() instanceof SearchParams) {
-    // this.onGetResultsetImprovedFromContextMenu((SearchParams)
-    // event.getData());
-    // } else
-    // Log.error("ERRORE recupero resultset cliccato");
-    // }
+      }
+      // else Log.error("ERRORE recupero resultset cliccato");
+    } else if (t == EventList.GetValuesOfAField) {
+      if (event.getData() instanceof ForeignKey) {
+        this.onGetValuesOfaField((ForeignKey) event.getData());
+      } else
+        System.out.println("ERRORE!!! che è??");
+    } else if (t == EventList.MassUpdate) {
+      if (event.getData() instanceof MassiveUpdateObject) {
+        this.onMassiveUpdate((MassiveUpdateObject) event.getData());
+      } else
+        System.out.println("ERRORE!!! che è??");
+    } 
+
+  }
+
+  private void onMassiveUpdate(MassiveUpdateObject data) {
+    // TODO Auto-generated method stub
+    AsyncCallback<Integer> callback =
+        new AsyncCallback<Integer>() {
+
+          @Override
+          public void onFailure(Throwable arg0) {
+            // TODO Auto-generated method stub
+            MessageBox.alert("ERRORE interno", "Impossibile eseguire update massivo!", null);
+          }
+
+          @Override
+          public void onSuccess(Integer result) {
+            // TODO Auto-generated method stub
+            if (result > 0) {
+              MessageBox.info("SUCCESS", "Update massivo riuscito!", null);
+            } else MessageBox.alert("ERRORE", "Impossibile eseguire update massivo!", null);
+          }
+        };
+
+    service.massiveUpdate(data, callback);
+  }
+
+  private void onGetValuesOfaField(final ForeignKey data) {
+    // TODO Auto-generated method stub
+    AsyncCallback<List<BaseModelData>> callback =
+        new AsyncCallback<List<BaseModelData>>() {
+
+          @Override
+          public void onFailure(Throwable arg0) {
+            // TODO Auto-generated method stub
+
+          }
+
+          @Override
+          public void onSuccess(List<BaseModelData> values) {
+            // TODO Auto-generated method stub
+            ForeignKey newData = new ForeignKey();
+            newData.setPointingFieldName(data.getPointingFieldName());
+            newData.setPointingResultsetId(data.getPointingResultsetId());
+            newData.setPointedTableName(data.getPointedTableName());
+            newData.setPointedFieldName(data.getPointedFieldName());
+            List<String> newValues = new ArrayList<String>();
+            for (BaseModelData m : values) {              
+              newValues.add((String) m.get(data.getPointedFieldName()));
+            }
+            newData.setValues(newValues);
+//            System.out.println("lunghezza lista sul controller: "
+//                + newValues.size());
+            forwardToView(view, EventList.GotValuesOfAField, newData);
+          }
+        };
+
+    service.getValuesOfAFieldFromTableName(
+        data.getPointedTableName().toString(),
+        data.getPointedFieldName().toString(), callback);
   }
 
   private void onSaveNewRecord(List<BaseModelData> data) {
@@ -475,7 +542,7 @@ public class JardinController extends Controller {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
-          
+
         } else {
           Dispatcher.forwardEvent(EventList.Error,
               "Impossibile salvare il nuovo record");
@@ -547,8 +614,8 @@ public class JardinController extends Controller {
             // TODO Auto-generated method stub
             box.close();
             Info.display("ERRORE", "Impossibile caricare resultset");
-//            Log.error("Errore nel caricamento della lista del resultSet "
-//                + resultsetId);
+            // Log.error("Errore nel caricamento della lista del resultSet "
+            // + resultsetId);
           }
 
           @Override
@@ -579,8 +646,8 @@ public class JardinController extends Controller {
           public void onFailure(Throwable caught) {
             // TODO Auto-generated method stub
             box.close();
-//            Log.error("Errore nel caricamento della lista dei resultSet per l'utente "
-//                + user.getName());
+            // Log.error("Errore nel caricamento della lista dei resultSet per l'utente "
+            // + user.getName());
           }
 
           @Override
@@ -851,8 +918,8 @@ public class JardinController extends Controller {
       }
     } else { // questo resultsetimproved non è stato ancora caricato-->niente
              // tab sulla griglia
-    // Dispatcher.forwardEvent(EventList.getResultsetImprovedFromContextMenu,
-    // searchParams.getResultsetId());
+      // Dispatcher.forwardEvent(EventList.getResultsetImprovedFromContextMenu,
+      // searchParams.getResultsetId());
     }
   }
 
@@ -929,8 +996,7 @@ public class JardinController extends Controller {
           }
 
           public void onSuccess(final ArrayList<BaseModelData> infoToView) {
-            forwardToView(view,
-                EventList.ViewPopUpDetail, infoToView);
+            forwardToView(view, EventList.ViewPopUpDetail, infoToView);
           }
         };
 
@@ -1096,11 +1162,11 @@ public class JardinController extends Controller {
       public void onSuccess(final String result) {
         waitBox.close();
         if ((result != null) && (result.length() > 0)) {
-//          Log.debug("Export file: " + result);
+          // Log.debug("Export file: " + result);
           String url = GWT.getModuleBaseURL() + "download?file=" + result;
           Window.open(url, "Download", null);
         } else {
-//          Log.warn("File d'esportazione vuoto");
+          // Log.warn("File d'esportazione vuoto");
         }
       }
     };
@@ -1218,7 +1284,7 @@ public class JardinController extends Controller {
                   columns, result);
           j.show();
         } else {
-//          Log.warn("File d'esportazione vuoto");
+          // Log.warn("File d'esportazione vuoto");
         }
       }
     };
