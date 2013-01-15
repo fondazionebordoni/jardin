@@ -170,17 +170,17 @@ public class JardinDetail extends FormPanel {
 //          f.setName(field.getName());
 //        }
 //
-//        if ((labelWidth > 0) && (field.getAlias().length() > labelWidth / 10)) {
-//          f.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
-//              + "...");
-//          f.setToolTip(field.getAlias());
-//        } else {
-//          f.setFieldLabel(field.getAlias());
-//        }
-//
-//        if (!field.getModifyperm()) {
-//          f.setEnabled(false);
-//        }
+        if ((labelWidth > 0) && (field.getAlias().length() > labelWidth / 10)) {
+          f.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
+              + "...");
+          f.setToolTip(field.getAlias());
+        } else {
+          f.setFieldLabel(field.getAlias());
+        }
+
+        if (!field.getModifyperm()) {
+          f.setEnabled(false);
+        }
 
         /* Esamino il raggruppamento a cui appartiene il campo */
         ResultsetFieldGroupings fieldGrouping =

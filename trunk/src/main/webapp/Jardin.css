@@ -248,6 +248,11 @@
 	font-size: 16px;
 }
 
+.alert-massupdate-message {
+	text-align: left;
+	font-size: 12px;
+}
+
 .search-box {
 	background: #b8cfee;
 	height: 42px;

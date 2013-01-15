@@ -19,12 +19,15 @@ package it.fub.jardin.client.widget;
 
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.ui.FlexTable;
 
 public class SimpleFieldSet extends FieldSet {
 
   private static int defaultWidth = 80;
   private static int labelWidth = 130;
   private static int padding = 0;
+  
+  private FlexTable table;
 
   public SimpleFieldSet(final String heading) {
     this(heading, defaultWidth, labelWidth, padding);
@@ -40,5 +43,19 @@ public class SimpleFieldSet extends FieldSet {
     layout.setLabelPad(padding);
     layout.setDefaultWidth(defaultWidth);
     this.setLayout(layout);
+  }
+
+  /**
+   * @return the table
+   */
+  public FlexTable getTable() {
+    return table;
+  }
+
+  /**
+   * @param table the table to set
+   */
+  public void setTable(FlexTable table) {
+    this.table = table;
   }
 }
