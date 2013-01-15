@@ -14,12 +14,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.IconHelper;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.HtmlContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -27,11 +32,15 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Label;
+import com.smartgwt.client.docs.Fields;
 
 /**
  * @author acozzolino
@@ -44,7 +53,7 @@ public class MassiveUpdateDialog extends Window {
   private SearchParams searchParams;
   private FormPanel formPanel;
   private List<Field> fieldList;
-  HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
+  private HashMap<String, SimpleFieldSet> fieldSetList = new HashMap<String, SimpleFieldSet>();
   private ResultsetField primaryKey;
   private List<String> primaryKeyValues;
   private static final int defaultWidth = 270; // width dei campi
@@ -116,27 +125,29 @@ public class MassiveUpdateDialog extends Window {
 
     setHeading("Modifica Massiva");
     setModal(true);
-    setSize(600, 400);
     setMaximizable(true);
     setToolTip("Modifica massiva record...");
 
-    setSize(650, 550);
+    setSize(700, 550);
     setPlain(true);
 
     setLayout(new FitLayout());
 
     formPanel = new FormPanel();
-    formPanel = new FormPanel();
+    formPanel.setFrame(true);
     formPanel.setBodyBorder(false);
     formPanel.setLabelWidth(350);
     formPanel.setHeaderVisible(false);
-    formPanel.setScrollMode(Scroll.AUTO);    
-    
+    formPanel.setLabelAlign(LabelAlign.LEFT);
+    formPanel.setButtonAlign(HorizontalAlignment.CENTER);
+    formPanel.setScrollMode(Scroll.AUTO);
+    formPanel.setPadding(5);
+
     setFormPanel(searchparams);
 
     add(formPanel);
     setButtons();
-    
+
     if (gridStore.getCount() == 0) {
       MessageBox.alert("Errore", "Effettuare prima una ricerca", null);
     } else
@@ -145,14 +156,20 @@ public class MassiveUpdateDialog extends Window {
 
   private void setFormPanel(SearchParams searchparams) {
 
-    // System.out.println("resultset coinvolto: " + this.resultset.getName());
-    // System.out.println("numero campi di " + this.resultset.getName() + ": "
-    // + this.resultset.getFields().size());
-    this.fieldList = new ArrayList<Field>();
-    // System.out.println("numero campi per il rs: " +
-    // resultset.getFields().size());
+    fieldList = new ArrayList<Field>();
+       
+    SimpleFieldSet cp = new SimpleFieldSet("info");  
+    cp.setCollapsible(true);  
+//    cp.setIcon(IconHelper.createStyle("icon-table-update"));
+//    cp.setStyleName("alert-massupdate-message");    
+    
+    formPanel.add(cp);
+    
+    
+    String labelText = "Modifica di massa dei record corrispondenti alla ricerca appena effettuata:<br>";
     for (ResultsetField field : this.resultset.getFields()) {
 
+      // ////////// creazione field
       List values = new ArrayList();
       Field f = null;
 
@@ -160,10 +177,12 @@ public class MassiveUpdateDialog extends Window {
         primaryKey = field;
         hasPk = true;
         primaryKeyValues = new ArrayList<String>();
-        
+
         for (BaseModelData m : gridStore.getModels()) {
           primaryKeyValues.add((String) m.get(field.getName()));
-          System.out.println("aggiunto valore di pk ("+field.getName()+"): "+ (String) m.get(field.getName()));
+//           System.out.println("aggiunto valore di pk (" + field.getAlias()
+//           + "): " + (String) m.get(field.getName()));
+          labelText += field.getName() + "=" + m.get(field.getName()) + "|";
         }
       }
 
@@ -177,8 +196,10 @@ public class MassiveUpdateDialog extends Window {
         f.setEnabled(false);
       }
 
-      f.setFieldLabel(field.getAlias());
+//      f.setFieldLabel(field.getAlias());
       f.setName(field.getName());
+
+      // ////////////
 
       /* Esamino il raggruppamento a cui appartiene il campo */
       ResultsetFieldGroupings fieldGrouping =
@@ -189,24 +210,26 @@ public class MassiveUpdateDialog extends Window {
       /*
        * Se il fieldset non esiste lo creo e l'aggancio a pannello
        */
-      FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
-
+      SimpleFieldSet fieldSet = this.fieldSetList.get(fieldSetName);
       if (fieldSet == null) {
         fieldSet =
             new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
                 labelWidth, padding);
+        FlexTable table = new FlexTable();
+        table.setVisible(true);
+        fieldSet.setTable(table);
+        
+        fieldSet.add(fieldSet.getTable());
+        
         this.fieldSetList.put(fieldSetName, fieldSet);
         this.formPanel.add(fieldSet);
       }
-
-      /* Aggancio il campo al suo raggruppamento */
-      fieldSet.add(f);
 
       final Field res = f;
       res.setEnabled(false);
 
       CheckBox check = new CheckBox("abilita");
-      check.setName(f.getName() + "-combo");
+      check.setName(field.getName() + "-combo");
       check.setValue(false);
       check.addClickHandler(new ClickHandler() {
 
@@ -222,29 +245,45 @@ public class MassiveUpdateDialog extends Window {
         }
       });
 
+     
+      Label fieldLabel = new Label(field.getAlias() + ": ");
+      fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field), 0, fieldLabel);
+      fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field), 1, f);
+      
       if (!field.getIsPK()) {
-        fieldSet.add(check);
+        fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field), 2, check);
       }
 
-      // this.fieldList.add(f);
-
+      
     }
+    
+//    Dialog mainLabel = new Dialog();
+    HtmlContainer html = new HtmlContainer();    
+    html.setHtml(labelText);
+//    mainLabel.add(html); 
+    
+//    MessageBox.info("Modifica simultanea di più record", labelText, null);
+    cp.add(html);
+//    mainLabel.okText = "ho capito";
+//    add(mainLabel);
+//    mainLabel.show();    
+    
   }
 
   private void disableField(Field res) {
     // TODO Auto-generated method stub
     res.setEnabled(false);
     this.fieldList.remove(res);
-    System.out.println("RIMOSSO dalla lista campo " + res.getName());
-    System.out.println("lunghezza lista: " + fieldList.size());
+    // System.out.println("RIMOSSO dalla lista campo " + res.getName());
+    // System.out.println("lunghezza lista: " + fieldList.size());
   }
 
   private void enableField(Field res) {
     // TODO Auto-generated method stub
     res.setEnabled(true);
     this.fieldList.add(res);
-    System.out.println("aggiunto alla lista campo " + res.getName());
-    System.out.println("lunghezza lista: " + fieldList.size());
+    // System.out.println("aggiunto alla lista campo " + res.getName());
+    // System.out.println("lunghezza lista: " + fieldList.size());
   }
 
   private void setButtons() {
@@ -267,19 +306,20 @@ public class MassiveUpdateDialog extends Window {
                   muo.setFieldName(primaryKey.getName());
                   muo.setResultsetId(searchParams.getResultsetId());
                   muo.setPrimaryKeyValues(primaryKeyValues);
+                   
                   for (Field f : fieldList) {
-                    System.out.println("nuovo valore per il campo "
-                        + f.getName() + ": " + f.getValue().toString());
+//                    System.out.println("nuovo valore per il campo "
+//                        + f.getName() + ": " + f.getValue().toString());
                     muo.getNewValues().set(f.getName(), f.getValue().toString());
                   }
 
-                  Dispatcher.forwardEvent(EventList.MassUpdate, muo);                  
+                  Dispatcher.forwardEvent(EventList.MassUpdate, muo);
                 }
               }
             });
 
     buttonBar.add(saveButton);
-    
+
     closeButton = new Button("Chiudi", new SelectionListener<ButtonEvent>() {
 
       @Override
@@ -289,7 +329,7 @@ public class MassiveUpdateDialog extends Window {
         close();
       }
     });
-    
+
     buttonBar.add(closeButton);
     formPanel.setBottomComponent(buttonBar);
   }
