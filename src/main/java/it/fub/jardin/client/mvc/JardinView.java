@@ -34,6 +34,7 @@ import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.LoginDialog;
+import it.fub.jardin.client.widget.MassiveUpdateDialog;
 import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
@@ -214,6 +215,12 @@ public class JardinView extends View {
         user.addResultsetToList((ResultsetImproved) event.getData());
       }
       this.addJardinTabItem((ResultsetImproved) event.getData());
+    } else if (t == EventList.FkValuesRetrieved) {
+      // System.out.println("evento arrivato!!!!");
+      MassiveUpdateDialog mud =
+          new MassiveUpdateDialog(
+              ((SearchResult) event.getData()).getStore().getModels(), ((SearchResult) event.getData()).getSearchParams(),
+              user.getResultsetImprovedFromId(((SearchResult) event.getData()).getResultsetId()));
     } else if (t == EventList.GotValuesOfAField) {
       JardinDetail interestedDetail =
           (JardinDetail) this.getItemByResultsetId(
@@ -221,13 +228,17 @@ public class JardinView extends View {
       String interestedFieldName =
           ((ForeignKey) event.getData()).getPointingFieldName();
       List valuesList = ((ForeignKey) event.getData()).getValues();
-//      System.out.println("lunghezza lista sulla view: " + valuesList.size());
-      ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).
-        add(valuesList);
-//      if (!((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).isExpanded()) {
-//        ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).expand();
-//      }
-      System.out.println("numero elementi nel combo " + interestedFieldName + ": " + ((ComboBox) interestedDetail.getFieldByName(interestedFieldName)).getStore().getCount());
+      // System.out.println("lunghezza lista sulla view: " + valuesList.size());
+      ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).add(valuesList);
+      // if (!((SimpleComboBox)
+      // interestedDetail.getFieldByName(interestedFieldName)).isExpanded()) {
+      // ((SimpleComboBox)
+      // interestedDetail.getFieldByName(interestedFieldName)).expand();
+      // }
+      System.out.println("numero elementi nel combo "
+          + interestedFieldName
+          + ": "
+          + ((ComboBox) interestedDetail.getFieldByName(interestedFieldName)).getStore().getCount());
     }
   }
 

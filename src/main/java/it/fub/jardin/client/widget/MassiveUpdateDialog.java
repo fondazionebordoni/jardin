@@ -20,18 +20,16 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.IconHelper;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.HtmlContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -40,7 +38,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
-import com.smartgwt.client.docs.Fields;
 
 /**
  * @author acozzolino
@@ -49,11 +46,12 @@ import com.smartgwt.client.docs.Fields;
 public class MassiveUpdateDialog extends Window {
 
   private ResultsetImproved resultset;
-  private ListStore<BaseModelData> gridStore;
+  private List<BaseModelData> gridStore;
   private SearchParams searchParams;
   private FormPanel formPanel;
   private List<Field> fieldList;
-  private HashMap<String, SimpleFieldSet> fieldSetList = new HashMap<String, SimpleFieldSet>();
+  private HashMap<String, SimpleFieldSet> fieldSetList =
+      new HashMap<String, SimpleFieldSet>();
   private ResultsetField primaryKey;
   private List<String> primaryKeyValues;
   private static final int defaultWidth = 270; // width dei campi
@@ -63,65 +61,13 @@ public class MassiveUpdateDialog extends Window {
   Button closeButton;
   boolean hasPk = false;
 
-  /**
-   * @return the resultset
-   */
-  public ResultsetImproved getResultset() {
-    return resultset;
-  }
 
-  /**
-   * @param resultset
-   *          the resultset to set
-   */
-  public void setResultset(ResultsetImproved resultset) {
-    this.resultset = resultset;
-  }
-
-  /**
-   * @return the searchParams
-   */
-  public SearchParams getSearchParams() {
-    return searchParams;
-  }
-
-  /**
-   * @param searchParams
-   *          the searchParams to set
-   */
-  public void setSearchParams(SearchParams searchParams) {
-    this.searchParams = searchParams;
-  }
-
-  /**
-   * @return the gridStore
-   */
-  public ListStore<BaseModelData> getGridStore() {
-    return gridStore;
-  }
-
-  /**
-   * @param gridStore
-   *          the gridStore to set
-   */
-  public void setGridStore(ListStore<BaseModelData> gridStore) {
-    this.gridStore = gridStore;
-  }
-
-  /**
-   * 
-   */
-  public MassiveUpdateDialog() {
-
-  }
-
-  public MassiveUpdateDialog(SearchParams searchparams,
-      ListStore<BaseModelData> gridStore, ResultsetImproved resultset) {
+  public MassiveUpdateDialog(List<BaseModelData> gridStore, SearchParams searchParams, ResultsetImproved resultset) {
     // TODO Auto-generated constructor stub
 
     setResultset(resultset);
     setGridStore(gridStore);
-    setSearchParams(searchparams);
+    setSearchParams(searchParams);
 
     setHeading("Modifica Massiva");
     setModal(true);
@@ -143,30 +89,30 @@ public class MassiveUpdateDialog extends Window {
     formPanel.setScrollMode(Scroll.AUTO);
     formPanel.setPadding(5);
 
-    setFormPanel(searchparams);
+    setFormPanel();
 
     add(formPanel);
     setButtons();
 
-    if (gridStore.getCount() == 0) {
+    if (getGridStore().size() == 0) {
       MessageBox.alert("Errore", "Effettuare prima una ricerca", null);
     } else
       show();
   }
 
-  private void setFormPanel(SearchParams searchparams) {
+  private void setFormPanel() {
 
     fieldList = new ArrayList<Field>();
-       
-    SimpleFieldSet cp = new SimpleFieldSet("info");  
-    cp.setCollapsible(true);  
-//    cp.setIcon(IconHelper.createStyle("icon-table-update"));
-//    cp.setStyleName("alert-massupdate-message");    
-    
+
+    SimpleFieldSet cp = new SimpleFieldSet("info");
+    cp.setCollapsible(true);
+    // cp.setIcon(IconHelper.createStyle("icon-table-update"));
+    // cp.setStyleName("alert-massupdate-message");
+
     formPanel.add(cp);
-    
-    
-    String labelText = "Modifica di massa dei record corrispondenti alla ricerca appena effettuata:<br>";
+
+    String labelText =
+        "Modifica di massa dei record corrispondenti alla ricerca appena effettuata:<br>";
     for (ResultsetField field : this.resultset.getFields()) {
 
       // ////////// creazione field
@@ -178,11 +124,13 @@ public class MassiveUpdateDialog extends Window {
         hasPk = true;
         primaryKeyValues = new ArrayList<String>();
 
-        for (BaseModelData m : gridStore.getModels()) {
-          primaryKeyValues.add((String) m.get(field.getName()));
-//           System.out.println("aggiunto valore di pk (" + field.getAlias()
-//           + "): " + (String) m.get(field.getName()));
-          labelText += field.getName() + "=" + m.get(field.getName()) + "|";
+        if (gridStore != null) {
+          for (BaseModelData m : gridStore) {
+            primaryKeyValues.add((String) m.get(field.getName()));
+            // System.out.println("aggiunto valore di pk (" + field.getAlias()
+            // + "): " + (String) m.get(field.getName()));
+            labelText += field.getName() + "=" + m.get(field.getName()) + "|";
+          }
         }
       }
 
@@ -196,7 +144,7 @@ public class MassiveUpdateDialog extends Window {
         f.setEnabled(false);
       }
 
-//      f.setFieldLabel(field.getAlias());
+      // f.setFieldLabel(field.getAlias());
       f.setName(field.getName());
 
       // ////////////
@@ -218,9 +166,9 @@ public class MassiveUpdateDialog extends Window {
         FlexTable table = new FlexTable();
         table.setVisible(true);
         fieldSet.setTable(table);
-        
+
         fieldSet.add(fieldSet.getTable());
-        
+
         this.fieldSetList.put(fieldSetName, fieldSet);
         this.formPanel.add(fieldSet);
       }
@@ -228,7 +176,7 @@ public class MassiveUpdateDialog extends Window {
       final Field res = f;
       res.setEnabled(false);
 
-      CheckBox check = new CheckBox("abilita");
+      CheckBox check = new CheckBox("abilita alla modifica");
       check.setName(field.getName() + "-combo");
       check.setValue(false);
       check.addClickHandler(new ClickHandler() {
@@ -245,29 +193,30 @@ public class MassiveUpdateDialog extends Window {
         }
       });
 
-     
       Label fieldLabel = new Label(field.getAlias() + ": ");
-      fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field), 0, fieldLabel);
-      fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field), 1, f);
-      
+      fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field),
+          0, fieldLabel);
+      fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field),
+          1, f);
+
       if (!field.getIsPK()) {
-        fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field), 2, check);
+        fieldSet.getTable().setWidget(
+            this.resultset.getFields().indexOf(field), 2, check);
       }
 
-      
     }
-    
-//    Dialog mainLabel = new Dialog();
-    HtmlContainer html = new HtmlContainer();    
+
+    // Dialog mainLabel = new Dialog();
+    HtmlContainer html = new HtmlContainer();
     html.setHtml(labelText);
-//    mainLabel.add(html); 
-    
-//    MessageBox.info("Modifica simultanea di più record", labelText, null);
+    // mainLabel.add(html);
+
+    // MessageBox.info("Modifica simultanea di più record", labelText, null);
     cp.add(html);
-//    mainLabel.okText = "ho capito";
-//    add(mainLabel);
-//    mainLabel.show();    
-    
+    // mainLabel.okText = "ho capito";
+    // add(mainLabel);
+    // mainLabel.show();
+
   }
 
   private void disableField(Field res) {
@@ -304,16 +253,35 @@ public class MassiveUpdateDialog extends Window {
                 } else {
                   MassiveUpdateObject muo = new MassiveUpdateObject();
                   muo.setFieldName(primaryKey.getName());
-                  muo.setResultsetId(searchParams.getResultsetId());
+                  muo.setResultsetId(resultset.getId());
                   muo.setPrimaryKeyValues(primaryKeyValues);
-                   
-                  for (Field f : fieldList) {
-//                    System.out.println("nuovo valore per il campo "
-//                        + f.getName() + ": " + f.getValue().toString());
-                    muo.getNewValues().set(f.getName(), f.getValue().toString());
+
+                  for (Field<?> f : fieldList) {
+//                     System.out.println("nuovo valore per il campo "
+//                     + f.getName() + ": " + f.getValue().toString());
+                     Object value = null;
+                     if (f instanceof SimpleComboBox<?>) {
+                       if (f.getValue() == null) {
+                         value = "";
+                       } else {
+                         SimpleComboValue<?> scv = (SimpleComboValue<?>) f.getValue();
+                         value = scv.getValue().toString();
+                       }
+                     } else if (f instanceof ComboBox<?>) {
+                       if (f.getValue() == null) {
+                         value = "";
+                       } else {
+                         value = ((BaseModelData) f.getValue()).get(f.getName());
+                       }
+                     } else {
+                       value = f.getValue();
+                     }
+                     
+                    muo.getNewValues().set(f.getName(), value);
                   }
 
                   Dispatcher.forwardEvent(EventList.MassUpdate, muo);
+//                  hide();
                 }
               }
             });
@@ -326,12 +294,59 @@ public class MassiveUpdateDialog extends Window {
       public void componentSelected(ButtonEvent ce) {
         // TODO Auto-generated method stub
         Dispatcher.forwardEvent(EventList.Search, searchParams);
-        close();
+        hide();
       }
     });
 
     buttonBar.add(closeButton);
     formPanel.setBottomComponent(buttonBar);
+  }
+
+  
+
+  /**
+   * @return the resultset
+   */
+  public ResultsetImproved getResultset() {
+    return resultset;
+  }
+
+  /**
+   * @param resultset
+   *          the resultset to set
+   */
+  public void setResultset(ResultsetImproved resultset) {
+    this.resultset = resultset;
+  }
+
+  /**
+   * @return the searchParams
+   */
+  public SearchParams getSearchParams() {
+    return searchParams;
+  }
+
+  /**
+   * @param searchParams
+   *          the searchParams to set
+   */
+  public void setSearchParams(SearchParams searchParams) {
+    this.searchParams = searchParams;
+  }
+
+  /**
+   * @return the gridStore
+   */
+  public List<BaseModelData> getGridStore() {
+    return gridStore;
+  }
+
+  /**
+   * @param gridStore
+   *          the gridStore to set
+   */
+  public void setGridStore(List<BaseModelData> gridStore) {
+    this.gridStore = gridStore;
   }
 
   /**

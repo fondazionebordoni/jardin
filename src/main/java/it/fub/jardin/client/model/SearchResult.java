@@ -24,12 +24,12 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class SearchResult implements IsSerializable {
 
   private int resultsetId;
-
+  private ListStore<BaseModelData> store;
+  private SearchParams searchParams; 
+  
   public SearchResult() {
     super();
   }
-
-  private ListStore<BaseModelData> store;
 
   /**
    * @param resultsetId
@@ -59,6 +59,20 @@ public class SearchResult implements IsSerializable {
    */
   public ListStore<BaseModelData> getStore() {
     return this.store;
+  }
+
+  /**
+   * @return the searchParams
+   */
+  public SearchParams getSearchParams() {
+    return searchParams;
+  }
+
+  /**
+   * @param searchParams the searchParams to set
+   */
+  public void setSearchParams(SearchParams searchParams) {
+    this.searchParams = searchParams;
   }
 
 }

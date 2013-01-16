@@ -20,7 +20,7 @@ public class MassiveUpdateObject implements Serializable {
   private static final long serialVersionUID = -2381099343243194496L;
   private List<String> primaryKeyValues;
   private int resultsetId;
-  private String fieldName;
+  private String fieldName; //nome della primarykey
   private BaseModelData newValues;
   /**
    * 

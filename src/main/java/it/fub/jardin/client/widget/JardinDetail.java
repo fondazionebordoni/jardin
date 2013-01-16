@@ -92,7 +92,7 @@ public class JardinDetail extends FormPanel {
 
 //      Field f = null;
 
-      field.doTypeAnalisys(); // specifica variabili tipo, lunghezza e valori
+//      field.doTypeAnalisys(); // specifica variabili tipo, lunghezza e valori
 
       if (field.getReadperm()) {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
