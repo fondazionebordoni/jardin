@@ -211,10 +211,10 @@ public class JardinDetailPopUp extends Window {
   }
 
   /**
-   * @param resultset
+   * @param resultsetId
    * @param items
    */
-  private void commitChangesAsync(final Integer resultset,
+  private void commitChangesAsync(final Integer resultsetId,
       final List<BaseModelData> items) {
 
     final MessageBox waitbox =
@@ -235,15 +235,15 @@ public class JardinDetailPopUp extends Window {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
-          SearchParams sp = new SearchParams(resultset);
-          List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-          BaseModelData bm = new BaseModelData();
-
-          bm.set("searchField", "");
-          queryFieldList.add(bm);
-          sp.setFieldsValuesList(queryFieldList);
-          JardinDetailPopUp.this.hide();
-          Dispatcher.forwardEvent(EventList.Search, sp);
+//          SearchParams sp = new SearchParams(resultsetId);
+//          List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+//          BaseModelData bm = new BaseModelData();
+//
+//          bm.set("searchField", "");
+//          queryFieldList.add(bm);
+//          sp.setFieldsValuesList(queryFieldList);
+//          JardinDetailPopUp.this.hide();
+//          Dispatcher.forwardEvent(EventList.Search, sp);
 
         } else {
           Dispatcher.forwardEvent(EventList.Error,
@@ -253,7 +253,7 @@ public class JardinDetailPopUp extends Window {
     };
 
     /* Make the call */
-    service.updateObjects(resultset, items, "$-notspec-$", callback);
+    service.updateObjects(resultsetId, items, "$-notspec-$", callback);
   }
 
 }

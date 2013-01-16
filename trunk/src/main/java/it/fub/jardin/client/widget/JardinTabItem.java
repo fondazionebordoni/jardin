@@ -197,6 +197,8 @@ public class JardinTabItem extends TabItem {
   public void updateStore(final ListStore<BaseModelData> store) {
 
     /* Loading dello store */
+//    setStore(store);
+//    this.grid.setCompleteSearchedStore(store);
     final PagingLoader<PagingLoadResult<BaseModelData>> loader =
         (PagingLoader<PagingLoadResult<BaseModelData>>) store.getLoader();
     loader.load(0, PAGESIZE);
@@ -279,4 +281,5 @@ public class JardinTabItem extends TabItem {
     this.toolbar.updatePreferenceButton(data);
   }
 
+  
 }

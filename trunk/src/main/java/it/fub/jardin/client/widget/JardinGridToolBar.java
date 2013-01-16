@@ -78,13 +78,21 @@ public class JardinGridToolBar extends ToolBar {
   private String operator = "";
   private String valueOperator = "";
   private String keyOperator = "";
+  private MassiveUpdateDialog mud;
+  private List<BaseModelData> interestedRecords;
 
   // TODO Modificare il costruttore: passare solo l'id del resultset
   public void setGrid(final JardinGrid grid) {
+    
     this.resultset = grid.getResultset();
     this.searchId = "grid-toolbar-" + this.resultset.getId();
-    this.searchParams = new SearchParams(this.resultset.getId());
     this.grid = grid;
+    
+    if (grid.getSearchparams() == null) {
+      grid.setSearchparams(new SearchParams(this.resultset.getId()));
+    }
+    
+//    this.searchParams = this.grid.getSearchparams();
 
     this.fieldNames = new ArrayList<String>();
     this.tooltip =
@@ -259,9 +267,9 @@ public class JardinGridToolBar extends ToolBar {
 	      }
 	    }
 
-	  this.searchParams.setFieldsValuesList(queryFieldList);
-    this.searchParams.setAccurate(this.accurate.isChecked());
-    Dispatcher.forwardEvent(EventList.Search, this.searchParams);
+	  grid.getSearchparams().setFieldsValuesList(queryFieldList);
+	  grid.getSearchparams().setAccurate(this.accurate.isChecked());
+    Dispatcher.forwardEvent(EventList.Search, grid.getSearchparams());
   }
 
   @SuppressWarnings("unchecked")
@@ -281,18 +289,37 @@ public class JardinGridToolBar extends ToolBar {
     }
     
     if (this.resultset.isModify()) {
-      Button massModify = new Button("Modifica massiva",
-          IconHelper.createStyle("icon-table-update"));
-      massModify.addSelectionListener(new SelectionListener<ButtonEvent>() {
-        
+      Menu menu = new Menu();
+
+//      menu.add(new MenuItem("record di questa pagina",
+//          IconHelper.createStyle("icon-table-save"),));
+      menu.add(new MenuItem("record di questa pagina", IconHelper.createStyle("icon-table-update"), new SelectionListener<MenuEvent>() {
+
         @Override
-        public void componentSelected(ButtonEvent ce) {
-          // TODO Auto-generated method stub
+        public void componentSelected(MenuEvent ce) {
           if (grid.getStore().getCount() > 0) {
-            MassiveUpdateDialog mud = new MassiveUpdateDialog(grid.getSearchparams(), grid.getStore(), resultset);
-          } else MessageBox.alert("Errore", "Effettuare prima una ricerca", null);          
+            MassiveUpdateDialog mud = new MassiveUpdateDialog(grid.getStore().getModels(), grid.getSearchparams(), resultset);
+//            setMud(mud);
+          } else MessageBox.alert("Errore", "Effettuare prima una ricerca", null); 
         }
-      });
+      }));
+      
+      menu.add(new MenuItem("record dell'intera ricerca", IconHelper.createStyle("icon-table-update"), new SelectionListener<MenuEvent>() {
+
+        @Override
+        public void componentSelected(MenuEvent ce) {
+          if (grid.getSearchparams() != null) {
+//            MassiveUpdateDialog mud = new MassiveUpdateDialog(grid.getSearchparams(), grid.getCompleteSearchedStore().getModels(), resultset);
+//            setMud(mud);
+            Dispatcher.forwardEvent(EventList.RetrievePkValues, grid.getSearchparams());
+          } else MessageBox.alert("Errore", "Effettuare prima una ricerca", null);
+          
+//          MessageBox.alert("Info", "Funzione non ancora implementata", null);
+        }
+      }));
+      
+      Button massModify = new Button("Modifica massiva",IconHelper.createStyle("icon-table-update"));      
+      massModify.setMenu(menu);          
       
       this.add(massModify);
     }
@@ -570,4 +597,32 @@ public class JardinGridToolBar extends ToolBar {
       	this.keyOperator  = key + "_operatorOr_" + operatorOr;
      }
 	}
+
+  /**
+   * @return the mud
+   */
+  public MassiveUpdateDialog getMud() {
+    return mud;
+  }
+
+  /**
+   * @param mud the mud to set
+   */
+  public void setMud(MassiveUpdateDialog mud) {
+    this.mud = mud;
+  }
+
+  /**
+   * @return the interestedRecords
+   */
+  public List<BaseModelData> getInterestedRecords() {
+    return interestedRecords;
+  }
+
+  /**
+   * @param interestedRecords the interestedRecords to set
+   */
+  public void setInterestedRecords(List<BaseModelData> interestedRecords) {
+    this.interestedRecords = interestedRecords;
+  }
 }

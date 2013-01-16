@@ -25,9 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class SearchParams implements IsSerializable {
 
   private int resultsetId;
-
   private boolean limit = true;
-
   private List<BaseModelData> fieldsValuesList;
   private boolean accurate;
 

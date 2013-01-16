@@ -56,6 +56,7 @@ public class JardinGrid extends Grid<BaseModelData> {
   private Integer userPreferenceHeaderId;
   private User user;
   private Menu m;
+//  private ListStore<BaseModelData> completeSearchedStore;
 
   public JardinGrid(ListStore<BaseModelData> store, JardinColumnModel cm,
       ResultsetImproved resultset, User user) {
@@ -383,5 +384,19 @@ public class JardinGrid extends Grid<BaseModelData> {
   public void setUser(User user) {
     this.user = user;
   }
+
+//  /**
+//   * @return the completeSearchedStore
+//   */
+//  public ListStore<BaseModelData> getCompleteSearchedStore() {
+//    return completeSearchedStore;
+//  }
+//
+//  /**
+//   * @param completeSearchedStore the completeSearchedStore to set
+//   */
+//  public void setCompleteSearchedStore(ListStore<BaseModelData> completeSearchedStore) {
+//    this.completeSearchedStore = completeSearchedStore;
+//  }
 
 }

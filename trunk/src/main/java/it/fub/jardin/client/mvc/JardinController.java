@@ -155,6 +155,7 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.GetValuesOfAField);
     this.registerEventTypes(EventList.GotValuesOfAField);
     this.registerEventTypes(EventList.MassUpdate);
+    this.registerEventTypes(EventList.RetrievePkValues);
 
     service = (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
   }
@@ -463,29 +464,71 @@ public class JardinController extends Controller {
         this.onMassiveUpdate((MassiveUpdateObject) event.getData());
       } else
         System.out.println("ERRORE!!! che è??");
-    } 
+    } else if (t == EventList.RetrievePkValues) {
+      if (event.getData() instanceof SearchParams) {
+        this.onRetrievePkValues((SearchParams) event.getData());
+      } else
+        System.out.println("errore! non è un searcparams!");
+      // else Log.error("ERRORE recupero resultset cliccato");
+    }
+
+  }
+
+  private void onRetrievePkValues(final SearchParams searchParams) {
+    // TODO Auto-generated method stub
+    new MessageBox();
+    final MessageBox waitBox =
+        MessageBox.wait("Caricamento valori di primary key interessati",
+            "Attendere prego...", "Loading...");
+
+    AsyncCallback<PagingLoadResult<BaseModelData>> callback =
+        new AsyncCallback<PagingLoadResult<BaseModelData>>() {
+
+          @Override
+          public void onFailure(Throwable arg0) {
+            // TODO Auto-generated method stub
+            MessageBox.alert("Errore","Errore nel recupero dei valori di primary key per la modifica massiva", null);
+          }
+
+          @Override
+          public void onSuccess(PagingLoadResult<BaseModelData> arg0) {
+            // TODO Auto-generated method stub
+            ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+            store.add(arg0.getData());
+            SearchResult searchResult = new SearchResult();
+            searchResult.setResultsetId(searchParams.getResultsetId());
+            searchResult.setStore(store);
+            searchResult.setSearchParams(searchParams);
+            waitBox.close();            
+            forwardToView(view, EventList.FkValuesRetrieved, searchResult);            
+          }
+        };
+        
+    service.getRecords(null, searchParams, callback);
 
   }
 
   private void onMassiveUpdate(MassiveUpdateObject data) {
     // TODO Auto-generated method stub
-    AsyncCallback<Integer> callback =
-        new AsyncCallback<Integer>() {
+    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
 
-          @Override
-          public void onFailure(Throwable arg0) {
-            // TODO Auto-generated method stub
-            MessageBox.alert("ERRORE interno", "Impossibile eseguire update massivo!", null);
-          }
+      @Override
+      public void onFailure(Throwable arg0) {
+        // TODO Auto-generated method stub
+        MessageBox.alert("ERRORE interno",
+            "Impossibile eseguire update massivo!", null);
+      }
 
-          @Override
-          public void onSuccess(Integer result) {
-            // TODO Auto-generated method stub
-            if (result > 0) {
-              MessageBox.info("SUCCESS", "Update massivo riuscito!", null);
-            } else MessageBox.alert("ERRORE", "Impossibile eseguire update massivo!", null);
-          }
-        };
+      @Override
+      public void onSuccess(Integer result) {
+        // TODO Auto-generated method stub
+        if (result > 0) {
+          MessageBox.info("SUCCESS", "Update massivo riuscito!", null);
+        } else
+          MessageBox.alert("ERRORE", "Impossibile eseguire update massivo!",
+              null);
+      }
+    };
 
     service.massiveUpdate(data, callback);
   }
@@ -510,12 +553,12 @@ public class JardinController extends Controller {
             newData.setPointedTableName(data.getPointedTableName());
             newData.setPointedFieldName(data.getPointedFieldName());
             List<String> newValues = new ArrayList<String>();
-            for (BaseModelData m : values) {              
+            for (BaseModelData m : values) {
               newValues.add((String) m.get(data.getPointedFieldName()));
             }
             newData.setValues(newValues);
-//            System.out.println("lunghezza lista sul controller: "
-//                + newValues.size());
+            // System.out.println("lunghezza lista sul controller: "
+            // + newValues.size());
             forwardToView(view, EventList.GotValuesOfAField, newData);
           }
         };
