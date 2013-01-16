@@ -20,17 +20,17 @@
   <!-- Other module inherits                                      -->
 
   <!-- Add gwt-log support, default level `INFO`                  -->
-  <inherits name="com.allen_sauer.gwt.log.gwt-log-INFO" />
+<!--	<inherits name="com.allen_sauer.gwt.log.gwt-log-INFO" />  -->   
   
   <!-- Also compile at `DEBUG` level -->
   <!-- <extend-property name="log_level" values="DEBUG"/>		  -->
   
   <!-- Loggers -->
-  <set-property name="log_ConsoleLogger" value="ENABLED" />
+<!-- <set-property name="log_ConsoleLogger" value="ENABLED" />
   <set-property name="log_DivLogger"     value="DISABLED" />
   <set-property name="log_FirebugLogger" value="ENABLED" />
   <set-property name="log_GWTLogger"     value="ENABLED" />
   <set-property name="log_SystemLogger"  value="ENABLED" />
-  <set-property name="log_RemoteLogger"  value="DISABLED" />
-  <set-property name="log_WindowLogger"  value="DISABLED" />
+
+  <set-property name="log_WindowLogger"  value="DISABLED" /> -->
 </module>
