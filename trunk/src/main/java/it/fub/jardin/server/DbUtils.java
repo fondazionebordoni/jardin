@@ -2831,11 +2831,11 @@ public class DbUtils {
       transQueries += " WHERE " + muo.getFieldName() + " = '" + pkValue + "'; ";
 //      i++;
       Statement stmt = connection.createStatement();
+      System.out.println("query update massivo: " + transQueries);
+      JardinLogger.debug("query update massivo: " + transQueries);
       stmt.executeUpdate(transQueries);
     }
-    
-    System.out.println("query update massivo: " + transQueries);
-    
+        
     connection.commit();
     connection.setAutoCommit(true);
     connection.close();
@@ -2844,6 +2844,12 @@ public class DbUtils {
 
     } catch (SQLException e) {
       // TODO Auto-generated catch block
+      try {
+        connection.rollback();
+      } catch (SQLException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
       e.printStackTrace();
       throw new VisibleException("Impossibile eseguire update massivo");
     } finally {
