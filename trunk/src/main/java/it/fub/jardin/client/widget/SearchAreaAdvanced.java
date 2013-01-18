@@ -149,14 +149,14 @@ public class SearchAreaAdvanced extends FormPanel {
             mainFieldSet.add(fieldSet);
           }
 
-          System.out.println("SA - campo " + f.getName() + " raggruppamento '" + fieldGrouping.getName() + "(" +field.getIdgrouping() + ")");
+//          System.out.println("SA - campo " + f.getName() + " raggruppamento '" + fieldGrouping.getName() + "(" +field.getIdgrouping() + ")");
           /* Aggancio il campo al suo raggruppamento */
           fieldSet.add(f);
 
         }
 
-        System.out.println("SA - campo " + f.getName() + " ricerca '" + mainFieldSetAlias
-            + "' (sg=" + field.getSearchgrouping() + ")");
+//        System.out.println("SA - campo " + f.getName() + " ricerca '" + mainFieldSetAlias
+//            + "' (sg=" + field.getSearchgrouping() + ")");
 
       }
     }
@@ -195,5 +195,17 @@ public class SearchAreaAdvanced extends FormPanel {
       }
     }));
 
+  }
+  
+  
+  public Field getFieldByName(String name) {
+    for (Field fg : this.fieldList) {
+      if (fg.getName().compareToIgnoreCase(name) == 0) {
+        // System.out.println("ritorno campo: " + fg.getName());
+        return fg;
+      }
+    }
+    // System.out.println("ritorno campo: UN CAZZO!");
+    return null;
   }
 }

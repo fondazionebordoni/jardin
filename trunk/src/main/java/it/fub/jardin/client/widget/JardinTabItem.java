@@ -61,6 +61,7 @@ public class JardinTabItem extends TabItem {
   private ContentPanel center_south;
   private JardinGrid grid;
   private JardinGridToolBar toolbar;
+  private SearchAreaAdvanced searchAreaAdvanced;
   private FormPanel detail;
   private FormBinding formbinding;
 
@@ -145,9 +146,10 @@ public class JardinTabItem extends TabItem {
   }
 
   public void addSearchAreaAdvanced(final SearchAreaAdvanced searchAreaAdvanced) {
+    this.searchAreaAdvanced = searchAreaAdvanced;
     this.west.expand();
     this.west.removeAll();
-    this.west.add(searchAreaAdvanced);
+    this.west.add(this.searchAreaAdvanced);
     this.west.layout();
     this.west.collapse();
   }
@@ -279,6 +281,20 @@ public class JardinTabItem extends TabItem {
 
   public void updatePreference(final HeaderPreferenceList data) {
     this.toolbar.updatePreferenceButton(data);
+  }
+
+  /**
+   * @return the searchAreaAdvanced
+   */
+  public SearchAreaAdvanced getSearchAreaAdvanced() {
+    return searchAreaAdvanced;
+  }
+
+  /**
+   * @param searchAreaAdvanced the searchAreaAdvanced to set
+   */
+  public void setSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
+    this.searchAreaAdvanced = searchAreaAdvanced;
   }
 
   

@@ -219,26 +219,66 @@ public class JardinView extends View {
       // System.out.println("evento arrivato!!!!");
       MassiveUpdateDialog mud =
           new MassiveUpdateDialog(
-              ((SearchResult) event.getData()).getStore().getModels(), ((SearchResult) event.getData()).getSearchParams(),
+              ((SearchResult) event.getData()).getStore().getModels(),
+              ((SearchResult) event.getData()).getSearchParams(),
               user.getResultsetImprovedFromId(((SearchResult) event.getData()).getResultsetId()));
     } else if (t == EventList.GotValuesOfAField) {
-      JardinDetail interestedDetail =
-          (JardinDetail) this.getItemByResultsetId(
-              ((ForeignKey) event.getData()).getPointingResultsetId()).getDetail();
-      String interestedFieldName =
-          ((ForeignKey) event.getData()).getPointingFieldName();
-      List valuesList = ((ForeignKey) event.getData()).getValues();
-      // System.out.println("lunghezza lista sulla view: " + valuesList.size());
-      ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).add(valuesList);
-      // if (!((SimpleComboBox)
-      // interestedDetail.getFieldByName(interestedFieldName)).isExpanded()) {
-      // ((SimpleComboBox)
-      // interestedDetail.getFieldByName(interestedFieldName)).expand();
-      // }
-      System.out.println("numero elementi nel combo "
-          + interestedFieldName
-          + ": "
-          + ((ComboBox) interestedDetail.getFieldByName(interestedFieldName)).getStore().getCount());
+
+      System.out.println("sorgente: " + event.getData("source"));
+
+      if (event.getData("source").toString().compareToIgnoreCase("detail") == 0) {
+        String interestedFieldName =
+            ((ForeignKey) event.getData("object")).getPointingFieldName();
+        List valuesList = ((ForeignKey) event.getData("object")).getValues();
+        JardinDetail interestedDetail =
+            (JardinDetail) this.getItemByResultsetId(
+                ((ForeignKey) event.getData("object")).getPointingResultsetId()).getDetail();
+
+        ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).removeAll();
+        ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).add(valuesList);
+        // System.out.println("numero elementi nel combo "
+        // + interestedFieldName
+        // + ": "
+        // + ((ComboBox)
+        // interestedDetail.getFieldByName(interestedFieldName)).getStore().getCount());
+        // System.out.println("lunghezza lista sulla view: " +
+        // valuesList.size());
+      } else if (event.getData("source").toString().compareToIgnoreCase("grid") == 0) {
+        String interestedFieldName =
+            ((ForeignKey) event.getData("object")).getPointingFieldName();
+        List valuesList = ((ForeignKey) event.getData("object")).getValues();
+        JardinGrid interestedGrid =
+            (JardinGrid) this.getItemByResultsetId(
+                ((ForeignKey) event.getData("object")).getPointingResultsetId()).getGrid();
+        ((SimpleComboBox) interestedGrid.getColumnModel().getColumnById(
+            interestedFieldName).getEditor().getField()).removeAll();
+        ((SimpleComboBox) interestedGrid.getColumnModel().getColumnById(
+            interestedFieldName).getEditor().getField()).add(valuesList);
+        // System.out.println("numero elementi nel combo "
+        // + interestedFieldName
+        // + ": "
+        // + ((ComboBox)
+        // interestedGrid.getColumnModel().getColumnById(interestedFieldName).getEditor().getField()).getStore().getCount());
+      } else if (event.getData("source").toString().compareToIgnoreCase(
+          "searcharea") == 0) {
+        String interestedFieldName =
+            ((SearchResult) event.getData("object")).getSearchParams().getFieldsValuesList().get(
+                0).get("field");
+        List<String> valuesList = new ArrayList<String>();
+        for (int i=0;i<((SearchResult) event.getData("object")).getStore().getCount();i++) {          
+          valuesList.add((String) ((SearchResult) event.getData("object")).getStore().getAt(i).get(interestedFieldName));
+        }
+        SearchAreaAdvanced interestedSA =
+            (SearchAreaAdvanced) this.getItemByResultsetId(
+                ((SearchResult) event.getData("object")).getResultsetId()).getSearchAreaAdvanced();
+
+        ((SimpleComboBox) interestedSA.getFieldByName(interestedFieldName)).removeAll();
+        ((SimpleComboBox) interestedSA.getFieldByName(interestedFieldName)).add(valuesList);
+//        System.out.println("numero elementi nel combo "
+//            + interestedFieldName
+//            + ": "
+//            + ((ComboBox) interestedSA.getFieldByName(interestedFieldName)).getStore().getCount());
+      }
     }
   }
 
