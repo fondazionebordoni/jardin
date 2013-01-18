@@ -168,5 +168,10 @@ public class EventList {
 
   public static final EventType MassUpdate = new EventType();
 
+  public static final EventType RetrievePkValues = new EventType();
+
+  public static final EventType FkValuesRetrieved = new EventType();
+
+  public static final EventType UpdateObjects = new EventType();
   
 }
