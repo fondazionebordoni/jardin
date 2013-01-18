@@ -17,9 +17,12 @@
 
 package it.fub.jardin.client.widget;
 
+import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
+import it.fub.jardin.client.model.ForeignKey;
 import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
@@ -34,6 +37,8 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.LoadListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -43,6 +48,8 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
+import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -70,6 +77,8 @@ public class FieldCreator {
   public static/* TODO deve restituire <T extends Field> al posto di Field */Field<?> getField(
       final ResultsetField field, final List<String> values,
       final boolean combo, final int labelWidth, final boolean textarea) {
+    
+    final String source = "searcharea";
     Field<?> result = null;
     String fieldType = field.getType();
     /* Se il campo è una data non creo un combo */
@@ -107,6 +116,7 @@ public class FieldCreator {
               || (fieldType.compareToIgnoreCase("real") == 0)) {
             f = new SimpleComboBox<Integer>();
             f.setTriggerAction(TriggerAction.ALL);
+//            f.setId(f.getName());
             // Trasforno la List<String> in List<Integer>
             //
             List<Integer> intVals = new ArrayList<Integer>();
@@ -118,6 +128,7 @@ public class FieldCreator {
           } else {
             f = new SimpleComboBox<String>();
             f.setTriggerAction(TriggerAction.ALL);
+//            f.setId(f.getName());
             f.add(values);
           }
 
@@ -125,65 +136,22 @@ public class FieldCreator {
           Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
             public void handleEvent(final BaseEvent be) {
+              
+              SearchParams sObject = new SearchParams(field.getResultsetid());
+              List<BaseModelData> searchFieldList = new ArrayList<BaseModelData>();
+              BaseModelData bmd = new BaseModelData();              
+              bmd.set("field", field.getName());
+              searchFieldList.add(bmd);
+              
+              sObject.setFieldsValuesList(searchFieldList);
+              
+//              f.removeAll();
+              
+              AppEvent event = new AppEvent(EventList.GetValuesOfAField);
+              event.setData("object", sObject);
+              event.setData("source", source);
+              Dispatcher.forwardEvent(event);
 
-              final MessageBox wait =
-                  MessageBox.wait(
-                      "Attendere",
-                      "Recupero valori autocompletamento per "
-                          + field.getAlias(), "");
-              final ManagerServiceAsync service =
-                  (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-
-              RpcProxy<List<BaseModelData>> proxy =
-                  new RpcProxy<List<BaseModelData>>() {
-
-                    @Override
-                    protected void load(final Object loadConfig,
-                        final AsyncCallback<List<BaseModelData>> callback) {
-                      service.getValuesOfAField(field.getResultsetid(),
-                          field.getName(), callback);
-                    }
-                  };
-
-              final BaseListLoader loader = new BaseListLoader(proxy);
-              loader.setRemoteSort(false);
-              final ListStore<BaseModelData> fieldValuesStore =
-                  new ListStore<BaseModelData>(loader);
-
-              loader.addLoadListener(new LoadListener() {
-                @Override
-                public void loaderLoad(final LoadEvent le) {
-
-                  f.removeAll();
-                  List<BaseModelData> elementes = fieldValuesStore.getModels();
-
-                  List<String> newValues = new ArrayList<String>();
-                  for (BaseModelData bm : elementes) {
-                    newValues.add((String) bm.get(field.getName()));
-                  }
-
-                  f.add(newValues);
-
-                  wait.close();
-
-                  if (!f.isExpanded()) {
-                    f.expand();
-                  }
-                }
-
-                @Override
-                public void loaderLoadException(final LoadEvent le) {
-                  MessageBox.alert(
-                      "Recupero store autocompletamento campo "
-                          + field.getName(),
-                      "loaderLoadException: "
-                          + le.exception.getLocalizedMessage(), null);
-                  le.exception.printStackTrace();
-                }
-
-              });
-
-              loader.load();
             }
 
           };
@@ -260,7 +228,7 @@ public class FieldCreator {
       TextArea f = new TextArea();
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
-    } 
+    }
 //    else if (field.getSpecificType().compareToIgnoreCase("enum") == 0) {
 //      SimpleComboBox<String> f = new SimpleComboBox<String>();
 //      for (String ele : field.getFixedElements()) {
@@ -282,11 +250,7 @@ public class FieldCreator {
           // Trasforno la List<String> in List<Integer>
           //
           List<Integer> intVals = new ArrayList<Integer>();
-          // Iterator itr = values.iterator();
-          // while(itr.hasNext()){
-          // Integer intVal = Integer.valueOf((String) itr.next());
-          // intVals.add(intVal);
-          // }
+
           for (int i = 0; i < values.size(); i++) {
             if (values.get(i) != null) {
               Integer intVal = Integer.valueOf(values.get(i));
@@ -306,77 +270,30 @@ public class FieldCreator {
           f.add(values);
           // System.out.println("campo: "+f.getName()+"->"+f.getClass()+f.get);
         }
-        // System.out.println("test");
-        // f = new SimpleComboBox<String>();
-        // f.setTriggerAction(TriggerAction.ALL);
-        // f.add(values);
+
 
         Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
           public void handleEvent(final BaseEvent be) {
 
-            final MessageBox wait =
-                MessageBox.wait(
-                    "Attendere",
-                    "Recupero valori autocompletamento per " + field.getAlias(),
-                    "");
-            final ManagerServiceAsync service =
-                (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+            ForeignKey fkObject = new ForeignKey();
+            fkObject.setPointingResultsetId(field.getResultsetid());
+            fkObject.setPointingFieldName(field.getName());
+            fkObject.setPointedTableName(field.getForeignKey().split("\\.")[0]);
+            fkObject.setPointedFieldName(field.getForeignKey().split("\\.")[1]);
+            
+//            f.removeAll();
+            
+            AppEvent event = new AppEvent(EventList.GetValuesOfAField);
+            event.setData("object", fkObject);
+            
+//            event.setData("source", false); // DALLA GRIGLIA!!!!
+//            if (textarea) event.setData("source", true); // DAL DETTAGLIO!!!!
+            event.setData("source", "grid");
+            if (textarea) event.setData("source", "detail");
+            
+            Dispatcher.forwardEvent(event);
 
-            RpcProxy<List<BaseModelData>> proxy =
-                new RpcProxy<List<BaseModelData>>() {
-
-                  @Override
-                  protected void load(final Object loadConfig,
-                      final AsyncCallback<List<BaseModelData>> callback) {
-                    service.getValuesOfAFieldFromTableName(
-                        field.getForeignKey().split("\\.")[0],
-                        field.getForeignKey().split("\\.")[1], callback);
-                  }
-                };
-
-            final BaseListLoader loader = new BaseListLoader(proxy);
-            loader.setRemoteSort(false);
-            final ListStore<BaseModelData> fieldValuesStore =
-                new ListStore<BaseModelData>(loader);
-
-            loader.addLoadListener(new LoadListener() {
-              @Override
-              public void loaderLoad(final LoadEvent le) {
-
-                f.removeAll();
-                List<BaseModelData> elementes = fieldValuesStore.getModels();
-
-                List<String> newValues = new ArrayList<String>();
-                for (BaseModelData bm : elementes) {
-                  newValues.add((String) bm.get(field.getForeignKey().split(
-                      "\\.")[1]));
-                }
-
-                f.add(newValues);
-
-                wait.close();
-
-                if (!f.isExpanded()) {
-                  f.expand();
-                }
-              }
-
-              @Override
-              public void loaderLoadException(final LoadEvent le) {
-                MessageBox.alert(
-                    "Recupero store autocompletamento campo "
-                        + field.getForeignKey().split("\\.")[0]
-                        + " per foreign key: "
-                        + field.getForeignKey().split("\\.")[1],
-                    "loaderLoadException: "
-                        + le.exception.getLocalizedMessage(), null);
-                le.exception.printStackTrace();
-              }
-
-            });
-
-            loader.load();
           }
 
         };

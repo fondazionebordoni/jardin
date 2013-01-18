@@ -457,10 +457,17 @@ public class JardinController extends Controller {
       }
       // else Log.error("ERRORE recupero resultset cliccato");
     } else if (t == EventList.GetValuesOfAField) {
-      if (event.getData() instanceof ForeignKey) {
-        this.onGetValuesOfaField((ForeignKey) event.getData());
-      } else
-        System.out.println("ERRORE!!! che è??");
+      System.out.println("sorgente evento: " + event.getData("source"));
+      this.onGetValuesOfaField(event.getData("object"),
+          event.getData("source").toString());
+      // if (event.getData("object") instanceof ForeignKey) {
+      // this.onGetValuesOfaField((ForeignKey) event.getData("object"),
+      // event.getData("source").toString());
+      // } else if (event.getData("object") instanceof SearchParams) {
+      // this.onGetValuesOfaField((SearchParams) event.getData("object"),
+      // event.getData("source").toString());
+      // }
+      // System.out.println("ERRORE!!! che è??");
     } else if (t == EventList.MassUpdate) {
       if (event.getData() instanceof MassiveUpdateObject) {
         this.onMassiveUpdate((MassiveUpdateObject) event.getData());
@@ -475,7 +482,7 @@ public class JardinController extends Controller {
       if (event.getData() instanceof SearchParams) {
         this.onRetrievePkValues((SearchParams) event.getData());
       } else
-        System.out.println("errore! non è un searcparams!");
+        System.out.println("errore! non è un searchparams!");
       // else Log.error("ERRORE recupero resultset cliccato");
     }
 
@@ -505,8 +512,9 @@ public class JardinController extends Controller {
     };
 
     /* Make the call */
-    service.updateObjects(data.getResultsetId(), data.getNewObjectList(), "$-notspec-$", callback);
-    
+    service.updateObjects(data.getResultsetId(), data.getNewObjectList(),
+        "$-notspec-$", callback);
+
   }
 
   private void onRetrievePkValues(final SearchParams searchParams) {
@@ -522,7 +530,10 @@ public class JardinController extends Controller {
           @Override
           public void onFailure(Throwable arg0) {
             // TODO Auto-generated method stub
-            MessageBox.alert("Errore","Errore nel recupero dei valori di primary key per la modifica massiva", null);
+            MessageBox.alert(
+                "Errore",
+                "Errore nel recupero dei valori di primary key per la modifica massiva",
+                null);
           }
 
           @Override
@@ -534,11 +545,11 @@ public class JardinController extends Controller {
             searchResult.setResultsetId(searchParams.getResultsetId());
             searchResult.setStore(store);
             searchResult.setSearchParams(searchParams);
-            waitBox.close();            
-            forwardToView(view, EventList.FkValuesRetrieved, searchResult);            
+            waitBox.close();
+            forwardToView(view, EventList.FkValuesRetrieved, searchResult);
           }
         };
-        
+
     service.getRecords(null, searchParams, callback);
 
   }
@@ -550,8 +561,7 @@ public class JardinController extends Controller {
       @Override
       public void onFailure(Throwable arg0) {
         // TODO Auto-generated method stub
-        MessageBox.alert("ERRORE interno",
-            "Impossibile eseguire update!", null);
+        MessageBox.alert("ERRORE interno", "Impossibile eseguire update!", null);
       }
 
       @Override
@@ -560,47 +570,100 @@ public class JardinController extends Controller {
         if (result > 0) {
           MessageBox.info("SUCCESS", "Update riuscito!", null);
         } else
-          MessageBox.alert("ERRORE", "Impossibile eseguire update!",
-              null);
+          MessageBox.alert("ERRORE", "Impossibile eseguire update!", null);
       }
     };
 
     service.massiveUpdate(data, callback);
   }
 
-  private void onGetValuesOfaField(final ForeignKey data) {
+  private void onGetValuesOfaField(final Object object, final String source) {
     // TODO Auto-generated method stub
-    AsyncCallback<List<BaseModelData>> callback =
-        new AsyncCallback<List<BaseModelData>>() {
+    if (object instanceof ForeignKey) {
+      AsyncCallback<List<BaseModelData>> callback =
+          new AsyncCallback<List<BaseModelData>>() {
 
-          @Override
-          public void onFailure(Throwable arg0) {
-            // TODO Auto-generated method stub
-
-          }
-
-          @Override
-          public void onSuccess(List<BaseModelData> values) {
-            // TODO Auto-generated method stub
-            ForeignKey newData = new ForeignKey();
-            newData.setPointingFieldName(data.getPointingFieldName());
-            newData.setPointingResultsetId(data.getPointingResultsetId());
-            newData.setPointedTableName(data.getPointedTableName());
-            newData.setPointedFieldName(data.getPointedFieldName());
-            List<String> newValues = new ArrayList<String>();
-            for (BaseModelData m : values) {
-              newValues.add((String) m.get(data.getPointedFieldName()));
+            @Override
+            public void onFailure(Throwable arg0) {
+              // TODO Auto-generated method stub
+              MessageBox.alert("Recupero store autocompletamento campo "
+                  + ((ForeignKey) object).getPointingFieldName() + " per foreign key: "
+                  + ((ForeignKey) object).getPointedFieldName(), "loaderLoadException: "
+                  + arg0.getLocalizedMessage(), null);
+              arg0.printStackTrace();
             }
-            newData.setValues(newValues);
-            // System.out.println("lunghezza lista sul controller: "
-            // + newValues.size());
-            forwardToView(view, EventList.GotValuesOfAField, newData);
-          }
-        };
 
-    service.getValuesOfAFieldFromTableName(
-        data.getPointedTableName().toString(),
-        data.getPointedFieldName().toString(), callback);
+            @Override
+            public void onSuccess(List<BaseModelData> values) {
+              // TODO Auto-generated method stub
+              ForeignKey newData = new ForeignKey();
+              newData.setPointingFieldName(((ForeignKey) object).getPointingFieldName());
+              newData.setPointingResultsetId(((ForeignKey) object).getPointingResultsetId());
+              newData.setPointedTableName(((ForeignKey) object).getPointedTableName());
+              newData.setPointedFieldName(((ForeignKey) object).getPointedFieldName());
+              List<String> newValues = new ArrayList<String>();
+              for (BaseModelData m : values) {
+                newValues.add((String) m.get(((ForeignKey) object).getPointedFieldName()));
+              }
+              newData.setValues(newValues);
+              // System.out.println("lunghezza lista sul controller: "
+              // + newValues.size());
+
+              AppEvent event =
+                  new AppEvent(EventList.GotValuesOfAField, newData);
+              event.setData("object", newData);
+              event.setData("source", source);
+
+              forwardToView(view, event);
+
+            }
+          };
+
+      service.getValuesOfAFieldFromTableName(
+          ((ForeignKey) object).getPointedTableName().toString(),
+          ((ForeignKey) object).getPointedFieldName().toString(), callback);
+    }
+    
+    if (object instanceof SearchParams) {
+      AsyncCallback<List<BaseModelData>> callback =
+          new AsyncCallback<List<BaseModelData>>() {
+
+            @Override
+            public void onFailure(Throwable arg0) {
+              // TODO Auto-generated method stub
+              MessageBox.alert("Recupero store autocompletamento campo "
+                  + ((ForeignKey) object).getPointingFieldName() + " per foreign key: "
+                  + ((ForeignKey) object).getPointedFieldName(), "loaderLoadException: "
+                  + arg0.getLocalizedMessage(), null);
+              arg0.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(List<BaseModelData> values) {
+              // TODO Auto-generated method stub
+              SearchResult searchResult = new SearchResult();
+              searchResult.setResultsetId(((SearchParams) object).getResultsetId());
+              
+              ListStore<BaseModelData> resultStore = new ListStore<BaseModelData>();
+              resultStore.add(values);
+              
+              searchResult.setStore(resultStore);
+              searchResult.setSearchParams((SearchParams) object);
+
+              AppEvent event =
+                  new AppEvent(EventList.GotValuesOfAField, searchResult);
+              event.setData("object", searchResult);
+              event.setData("source", source);
+
+              forwardToView(view, event);
+
+            }
+          };
+
+      service.getValuesOfAField(
+          ((SearchParams) object).getResultsetId(),
+          (String) ((SearchParams) object).getFieldsValuesList().get(0).get("field"), callback);
+    }
   }
 
   private void onSaveNewRecord(List<BaseModelData> data) {
@@ -1016,7 +1079,7 @@ public class JardinController extends Controller {
         final MessageBox waitbox =
             MessageBox.wait("Attendere", "Salvataggio modifiche in corso...",
                 "");
-        
+
         /* Set up the callback */
         AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
           public void onFailure(final Throwable caught) {
