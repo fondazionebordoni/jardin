@@ -26,6 +26,10 @@ public class NewObjects implements Serializable {
   public NewObjects() {
     // TODO Auto-generated constructor stub
   }
+  public NewObjects(int id, List<BaseModelData> newItemList) {
+    setNewObjectList(newItemList);
+    setResultsetId(id);
+  }
   /**
    * @return the resultsetId
    */

@@ -74,7 +74,11 @@ public class SearchAreaAdvanced extends FormPanel {
 
     /* Esamino tutti i campi di ricerca */
     for (ResultsetField field : this.resultset.getFields()) {
-//      System.out.println("campo: " + field.getName());
+      // System.out.println("campo: " + field.getName());
+      /* Esamino il raggruppamento a cui appartiene il campo */
+
+      ResultsetFieldGroupings fieldGrouping =
+          this.resultset.getFieldGrouping(field.getIdgrouping());
 
       if (field.getReadperm()) {
         /* Esamino se appartiene alla ricerca base o avanzata */
@@ -117,19 +121,20 @@ public class SearchAreaAdvanced extends FormPanel {
         }
         this.fieldList.add(f);
 
-        /* Esamino il raggruppamento a cui appartiene il campo */
-        ResultsetFieldGroupings fieldGrouping =
-            this.resultset.getFieldGrouping(field.getIdgrouping());
+        /*
+         * Usiamo un identificativo che comprenda anche il tipo di
+         * raggruppamento base, per poter avere categorie distribuite nei due
+         * tipi di raggruppamenti base
+         */
+        String fieldSetName = mainFieldSetAlias + fieldGrouping.getName();
+        
+        // /* Esamino il raggruppamento a cui appartiene il campo */
+        // ResultsetFieldGroupings fieldGrouping =
+        // this.resultset.getFieldGrouping(field.getIdgrouping());
         /* Se il campo non ha raggruppamento l'aggancio a quello base */
         if (fieldGrouping == null) {
           mainFieldSet.add(f);
-        } else {
-          /*
-           * Usiamo un identificativo che comprenda anche il tipo di
-           * raggruppamento base, per poter avere categorie distribuite nei due
-           * tipi di raggruppamenti base
-           */
-          String fieldSetName = mainFieldSetAlias + fieldGrouping.getName();
+        } else {          
 
           /*
            * Se il fieldset non esiste lo creo e l'aggancio al fieldset
@@ -144,9 +149,15 @@ public class SearchAreaAdvanced extends FormPanel {
             mainFieldSet.add(fieldSet);
           }
 
+          System.out.println("SA - campo " + f.getName() + " raggruppamento '" + fieldGrouping.getName() + "(" +field.getIdgrouping() + ")");
           /* Aggancio il campo al suo raggruppamento */
           fieldSet.add(f);
+
         }
+
+        System.out.println("SA - campo " + f.getName() + " ricerca '" + mainFieldSetAlias
+            + "' (sg=" + field.getSearchgrouping() + ")");
+
       }
     }
   }

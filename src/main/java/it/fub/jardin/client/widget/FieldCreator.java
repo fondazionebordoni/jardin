@@ -291,8 +291,8 @@ public class FieldCreator {
             if (values.get(i) != null) {
               Integer intVal = Integer.valueOf(values.get(i));
               intVals.add(i, intVal);
-              System.out.println("campo: " + f.getName() + i + "->"
-                  + f.getClass());
+//              System.out.println("campo: " + f.getName() + i + "->"
+//                  + f.getClass());
             } else {
               intVals.add(null);
             }
@@ -301,6 +301,8 @@ public class FieldCreator {
         } else {
           f = new SimpleComboBox<String>();
           f.setTriggerAction(TriggerAction.ALL);
+
+//          System.out.println("stile del combo: " + f.getStyleName());
           f.add(values);
           // System.out.println("campo: "+f.getName()+"->"+f.getClass()+f.get);
         }

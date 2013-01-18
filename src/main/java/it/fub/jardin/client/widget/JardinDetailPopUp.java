@@ -20,6 +20,7 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
+import it.fub.jardin.client.model.NewObjects;
 import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
@@ -201,59 +202,16 @@ public class JardinDetailPopUp extends Window {
           }
         }
         newItemList.add(newItem);
-        JardinDetailPopUp.this.commitChangesAsync(
-            JardinDetailPopUp.this.resultset.getId(), newItemList);
+        
+        Dispatcher.forwardEvent(EventList.UpdateObjects, new NewObjects(JardinDetailPopUp.this.resultset.getId(),newItemList));
+        hide();
+//        JardinDetailPopUp.this.commitChangesAsync(
+//            JardinDetailPopUp.this.resultset.getId(), newItemList);
       }
     });
 
     buttonBar.add(this.button);
     this.formPanel.setBottomComponent(buttonBar);
-  }
-
-  /**
-   * @param resultsetId
-   * @param items
-   */
-  private void commitChangesAsync(final Integer resultsetId,
-      final List<BaseModelData> items) {
-
-    final MessageBox waitbox =
-        MessageBox.wait("Attendere", "Salvataggio in corso...", "");
-
-    /* Create the service proxy class */
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-
-    /* Set up the callback */
-    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-      public void onFailure(final Throwable caught) {
-        waitbox.close();
-        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
-      }
-
-      public void onSuccess(final Integer result) {
-        waitbox.close();
-        if (result.intValue() > 0) {
-          Info.display("Informazione", "Dati salvati", "");
-//          SearchParams sp = new SearchParams(resultsetId);
-//          List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-//          BaseModelData bm = new BaseModelData();
-//
-//          bm.set("searchField", "");
-//          queryFieldList.add(bm);
-//          sp.setFieldsValuesList(queryFieldList);
-//          JardinDetailPopUp.this.hide();
-//          Dispatcher.forwardEvent(EventList.Search, sp);
-
-        } else {
-          Dispatcher.forwardEvent(EventList.Error,
-              "Impossibile salvare le modifiche");
-        }
-      }
-    };
-
-    /* Make the call */
-    service.updateObjects(resultsetId, items, "$-notspec-$", callback);
   }
 
 }

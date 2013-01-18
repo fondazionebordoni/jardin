@@ -27,6 +27,7 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.IncomingForeignKeyInformation;
 import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
+import it.fub.jardin.client.model.NewObjects;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
@@ -155,6 +156,7 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.GetValuesOfAField);
     this.registerEventTypes(EventList.GotValuesOfAField);
     this.registerEventTypes(EventList.MassUpdate);
+    this.registerEventTypes(EventList.UpdateObjects);
     this.registerEventTypes(EventList.RetrievePkValues);
 
     service = (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
@@ -464,6 +466,11 @@ public class JardinController extends Controller {
         this.onMassiveUpdate((MassiveUpdateObject) event.getData());
       } else
         System.out.println("ERRORE!!! che è??");
+    } else if (t == EventList.UpdateObjects) {
+      if (event.getData() instanceof NewObjects) {
+        this.onUpdateObjects((NewObjects) event.getData());
+      } else
+        System.out.println("ERRORE!!! che è??");
     } else if (t == EventList.RetrievePkValues) {
       if (event.getData() instanceof SearchParams) {
         this.onRetrievePkValues((SearchParams) event.getData());
@@ -472,6 +479,34 @@ public class JardinController extends Controller {
       // else Log.error("ERRORE recupero resultset cliccato");
     }
 
+  }
+
+  private void onUpdateObjects(NewObjects data) {
+    final MessageBox waitbox =
+        MessageBox.wait("Attendere", "Salvataggio in corso...", "");
+
+    /* Set up the callback */
+    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+      public void onFailure(final Throwable caught) {
+        waitbox.close();
+        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
+      }
+
+      public void onSuccess(final Integer result) {
+        waitbox.close();
+        if (result.intValue() > 0) {
+          Info.display("Informazione", "Dati salvati", "");
+
+        } else {
+          Dispatcher.forwardEvent(EventList.Error,
+              "Impossibile salvare le modifiche");
+        }
+      }
+    };
+
+    /* Make the call */
+    service.updateObjects(data.getResultsetId(), data.getNewObjectList(), "$-notspec-$", callback);
+    
   }
 
   private void onRetrievePkValues(final SearchParams searchParams) {
@@ -516,16 +551,16 @@ public class JardinController extends Controller {
       public void onFailure(Throwable arg0) {
         // TODO Auto-generated method stub
         MessageBox.alert("ERRORE interno",
-            "Impossibile eseguire update massivo!", null);
+            "Impossibile eseguire update!", null);
       }
 
       @Override
       public void onSuccess(Integer result) {
         // TODO Auto-generated method stub
         if (result > 0) {
-          MessageBox.info("SUCCESS", "Update massivo riuscito!", null);
+          MessageBox.info("SUCCESS", "Update riuscito!", null);
         } else
-          MessageBox.alert("ERRORE", "Impossibile eseguire update massivo!",
+          MessageBox.alert("ERRORE", "Impossibile eseguire update!",
               null);
       }
     };
@@ -981,11 +1016,7 @@ public class JardinController extends Controller {
         final MessageBox waitbox =
             MessageBox.wait("Attendere", "Salvataggio modifiche in corso...",
                 "");
-
-        /* Create the service proxy class */
-        // final ManagerServiceAsync service =
-        // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-
+        
         /* Set up the callback */
         AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
           public void onFailure(final Throwable caught) {

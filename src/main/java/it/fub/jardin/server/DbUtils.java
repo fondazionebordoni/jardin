@@ -576,6 +576,7 @@ public class DbUtils {
       while (result.next()) {
         BaseModelData m = new BaseModelData();
         m.set("id", result.getInt("id"));
+        m.set("name", result.getString("name"));
         m.set("alias", result.getString("alias"));
         groups.add(m);
       }
@@ -2519,7 +2520,7 @@ public class DbUtils {
               + T_RESULTSET + " res ON res.id=r.id " + " WHERE r.id = '"
               + resultsetId + "' AND g.id = '" + gid + "'";
 
-      // System.out.println("costruzione resultset:" + queryResultset);
+      JardinLogger.debug("costruzione resultset:" + queryResultset);
 
       List<ResultsetField> resultFieldList = new ArrayList<ResultsetField>();
       List<BaseModelData> PKs = null;
@@ -2562,8 +2563,8 @@ public class DbUtils {
               new ResultsetFieldGroupings((Integer) grouping.get("id"),
                   (String) grouping.get("name"), (String) grouping.get("alias"));
           res.addFieldGroupings(rfg);
-          // System.out.println("aggiunto raggruppamento: " + rfg.getId() +
-          // rfg.getAlias());
+          JardinLogger.debug("aggiunto raggruppamento: " + rfg.getId()
+              + rfg.getAlias());
         }
 
         PKs = this.dbProperties.getPrimaryKeys(resultsetName);
@@ -2580,7 +2581,7 @@ public class DbUtils {
               + "__system_group g on g.id=m.id_group  "
               + "WHERE f.id_resultset=" + resultsetId + " and g.id=" + gid;
 
-      // System.out.println("costruzione campi:" + filedsQuery);
+      JardinLogger.debug("costruzione campi:" + filedsQuery);
       ResultSet resultFields = doQuery(connection, filedsQuery);
 
       /* Gestione di un CAMPO di un resultset */
@@ -2591,8 +2592,8 @@ public class DbUtils {
             new ResultsetField(resultFields.getInt("id"),
                 resultFields.getString("name"),
                 resultFields.getString("alias"), resultsetId,
-                resultFields.getBoolean("search_grouping"),
-                resultFields.getInt("default_header"),
+                resultFields.getBoolean("default_header"),
+                resultFields.getInt("search_grouping"),
                 resultFields.getInt("id_grouping"),
                 resultFields.getBoolean("readperm"),
                 resultFields.getBoolean("deleteperm"),
@@ -2815,32 +2816,32 @@ public class DbUtils {
       tableName = metadata.getTableName(1);
       connection.setAutoCommit(false);
 
-    
+      // String[] transQueries = null;
+      String transQueries = "";
+      // int i = 0;
+      for (String pkValue : muo.getPrimaryKeyValues()) {
+        transQueries = "UPDATE `" + tableName + "` SET ";
+        BaseModelData newValues = muo.getNewValues();
+        for (String tableField : newValues.getPropertyNames()) {
+          transQueries +=
+              tableField + " = '" + newValues.get(tableField) + "', ";
+        }
+        transQueries = transQueries.substring(0, transQueries.length() - 2);
 
-//    String[] transQueries = null;
-    String transQueries = "";
-//    int i = 0;
-    for (String pkValue : muo.getPrimaryKeyValues()) {
-      transQueries = "UPDATE `" + tableName + "` SET ";
-      BaseModelData newValues = muo.getNewValues();
-      for (String tableField : newValues.getPropertyNames()) {
-        transQueries += tableField + " = '" + newValues.get(tableField) + "', ";
+        transQueries +=
+            " WHERE " + muo.getFieldName() + " = '" + pkValue + "'; ";
+        // i++;
+        Statement stmt = connection.createStatement();
+        System.out.println("query update massivo: " + transQueries);
+        JardinLogger.debug("query update massivo: " + transQueries);
+        stmt.executeUpdate(transQueries);
       }
-      transQueries = transQueries.substring(0, transQueries.length() - 2);
 
-      transQueries += " WHERE " + muo.getFieldName() + " = '" + pkValue + "'; ";
-//      i++;
-      Statement stmt = connection.createStatement();
-      System.out.println("query update massivo: " + transQueries);
-      JardinLogger.debug("query update massivo: " + transQueries);
-      stmt.executeUpdate(transQueries);
-    }
-        
-    connection.commit();
-    connection.setAutoCommit(true);
-    connection.close();
-    
-    return 1;
+      connection.commit();
+      connection.setAutoCommit(true);
+      connection.close();
+
+      return 1;
 
     } catch (SQLException e) {
       // TODO Auto-generated catch block
