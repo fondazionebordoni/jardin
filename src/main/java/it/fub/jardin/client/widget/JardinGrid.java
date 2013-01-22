@@ -54,6 +54,12 @@ public class JardinGrid extends Grid<BaseModelData> {
   private RowEditor<BaseModelData> editor;
   private SearchParams searchparams;
   private Integer userPreferenceHeaderId;
+  // POPUP MODALI:
+  private JardinDetailPopUp jardinDetailPopup;
+  private JardinAddingPopUp jardinAddingPopUp;
+  private MassiveUpdateDialog massiveUpdateDialog;
+  private AddRowForm addRowForm;
+  // al massimo uno alla volta per tipo
   private User user;
   private Menu m;
 //  private ListStore<BaseModelData> completeSearchedStore;
@@ -182,7 +188,7 @@ public class JardinGrid extends Grid<BaseModelData> {
             mitem.addListener(Events.Select, new Listener() {
               public void handleEvent(final BaseEvent be) {
 
-                new JardinAddingPopUp(fk);
+                setJardinAddingPopUp(new JardinAddingPopUp(fk));
 
               }
             });
@@ -285,12 +291,12 @@ public class JardinGrid extends Grid<BaseModelData> {
   // editor.startEditing(store.indexOf(item), false);
   // }
 
-  public void addRow() {
-    new AddRowForm(this);
-  }
+//  public void addRow() {
+//    new AddRowForm(this.getResultset());
+//  }
 
   public void viewDetailPopUp(final ArrayList<BaseModelData> data) {
-    new JardinDetailPopUp(data);
+    this.setJardinDetailPopup(new JardinDetailPopUp(data));
   }
 
   public void showAllColumns() {
@@ -383,6 +389,62 @@ public class JardinGrid extends Grid<BaseModelData> {
    */
   public void setUser(User user) {
     this.user = user;
+  }
+
+  /**
+   * @return the jardinDetailPopup
+   */
+  public JardinDetailPopUp getJardinDetailPopup() {
+    return jardinDetailPopup;
+  }
+
+  /**
+   * @param jardinDetailPopup the jardinDetailPopup to set
+   */
+  public void setJardinDetailPopup(JardinDetailPopUp jardinDetailPopup) {
+    this.jardinDetailPopup = jardinDetailPopup;
+  }
+
+  /**
+   * @return the jardinAddingPopUp
+   */
+  public JardinAddingPopUp getJardinAddingPopUp() {
+    return jardinAddingPopUp;
+  }
+
+  /**
+   * @param jardinAddingPopUp the jardinAddingPopUp to set
+   */
+  public void setJardinAddingPopUp(JardinAddingPopUp jardinAddingPopUp) {
+    this.jardinAddingPopUp = jardinAddingPopUp;
+  }
+
+  /**
+   * @return the massiveUpdateDialog
+   */
+  public MassiveUpdateDialog getMassiveUpdateDialog() {
+    return massiveUpdateDialog;
+  }
+
+  /**
+   * @param massiveUpdateDialog the massiveUpdateDialog to set
+   */
+  public void setMassiveUpdateDialog(MassiveUpdateDialog massiveUpdateDialog) {
+    this.massiveUpdateDialog = massiveUpdateDialog;
+  }
+
+  /**
+   * @return the addRowForm
+   */
+  public AddRowForm getAddRowForm() {
+    return addRowForm;
+  }
+
+  /**
+   * @param addRowForm the addRowForm to set
+   */
+  public void setAddRowForm(AddRowForm addRowForm) {
+    this.addRowForm = addRowForm;
   }
 
 //  /**

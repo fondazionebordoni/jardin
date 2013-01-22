@@ -56,6 +56,7 @@ public class JardinDetail extends FormPanel {
   private static final int padding = 0;
 
   private final ResultsetImproved resultset;
+  private final String source = "detail";
 
   private List<Field<?>> fieldList;
 
@@ -99,7 +100,7 @@ public class JardinDetail extends FormPanel {
         // System.out.println("campo del dettaglio: " + field.getName());
 
          List<String> values = new ArrayList<String>();
-         Field<?> f = FieldCreator.getField(field, values, 0, true);
+         Field<?> f = FieldCreator.getField(field, values, 0, true, source);
 
 //        String specificType = field.getSpecificType();
 //        if (field.isCombo()) {

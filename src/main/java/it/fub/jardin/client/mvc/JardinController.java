@@ -117,7 +117,7 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.CreateFirstTab);
     this.registerEventTypes(EventList.Search);
     this.registerEventTypes(EventList.CommitChanges);
-    this.registerEventTypes(EventList.AddRow);
+//    this.registerEventTypes(EventList.AddRow);
     this.registerEventTypes(EventList.RemoveRows);
     this.registerEventTypes(EventList.ExportAllStoreAllColumns);
     this.registerEventTypes(EventList.ExportAllStoreSomeColumns);
@@ -235,8 +235,9 @@ public class JardinController extends Controller {
         // TODO Gestire errore nei dati di EventList.Search
       }
     } else if (t == EventList.saveNewRecord) {
-      if (event.getData() instanceof List<?>) {
-        this.onSaveNewRecord((List<BaseModelData>) event.getData());
+      if (event.getData("object") instanceof List<?>) {
+        this.onSaveNewRecord((List<BaseModelData>) event.getData("object"),
+            (Integer) event.getData("resultsetid"));
       }
     } else if (t == EventList.CommitChanges) {
 
@@ -251,14 +252,16 @@ public class JardinController extends Controller {
        * ----- Gestione eventi della toolbar ------------------------------
        * -----------------------------------------
        */
-    } else if (t == EventList.AddRow) {
-      if (event.getData() instanceof Integer) {
-        this.onAddRow((Integer) event.getData());
-      } else {
-        // TODO Gestire errore nei dati di EventList.AddRow
-        // Log.error("Errore nei dati di EventList.AddRow");
-      }
-    } else if (t == EventList.ViewPopUpDetail) {
+    } 
+//    else if (t == EventList.AddRow) {
+//      if (event.getData() instanceof Integer) {
+//        this.onAddRow((Integer) event.getData());
+//      } else {
+//        // TODO Gestire errore nei dati di EventList.AddRow
+//        // Log.error("Errore nei dati di EventList.AddRow");
+//      }
+//    } 
+    else if (t == EventList.ViewPopUpDetail) {
       if (event.getData() instanceof BaseModelData) {
         this.onViewPopUpDetail((BaseModelData) event.getData());
       } else {
@@ -460,14 +463,7 @@ public class JardinController extends Controller {
       System.out.println("sorgente evento: " + event.getData("source"));
       this.onGetValuesOfaField(event.getData("object"),
           event.getData("source").toString());
-      // if (event.getData("object") instanceof ForeignKey) {
-      // this.onGetValuesOfaField((ForeignKey) event.getData("object"),
-      // event.getData("source").toString());
-      // } else if (event.getData("object") instanceof SearchParams) {
-      // this.onGetValuesOfaField((SearchParams) event.getData("object"),
-      // event.getData("source").toString());
-      // }
-      // System.out.println("ERRORE!!! che è??");
+
     } else if (t == EventList.MassUpdate) {
       if (event.getData() instanceof MassiveUpdateObject) {
         this.onMassiveUpdate((MassiveUpdateObject) event.getData());
@@ -586,10 +582,12 @@ public class JardinController extends Controller {
             @Override
             public void onFailure(Throwable arg0) {
               // TODO Auto-generated method stub
-              MessageBox.alert("Recupero store autocompletamento campo "
-                  + ((ForeignKey) object).getPointingFieldName() + " per foreign key: "
-                  + ((ForeignKey) object).getPointedFieldName(), "loaderLoadException: "
-                  + arg0.getLocalizedMessage(), null);
+              MessageBox.alert(
+                  "Recupero store autocompletamento campo "
+                      + ((ForeignKey) object).getPointingFieldName()
+                      + " per foreign key: "
+                      + ((ForeignKey) object).getPointedFieldName(),
+                  "loaderLoadException: " + arg0.getLocalizedMessage(), null);
               arg0.printStackTrace();
             }
 
@@ -608,9 +606,11 @@ public class JardinController extends Controller {
               newData.setValues(newValues);
               // System.out.println("lunghezza lista sul controller: "
               // + newValues.size());
+//              System.out.println("recuperati valori per "
+//                  + ((ForeignKey) object).getPointedFieldName() + " del rs "
+//                  + ((ForeignKey) object).getPointedTableName());
 
-              AppEvent event =
-                  new AppEvent(EventList.GotValuesOfAField, newData);
+              AppEvent event = new AppEvent(EventList.GotValuesOfAField);
               event.setData("object", newData);
               event.setData("source", source);
 
@@ -623,7 +623,7 @@ public class JardinController extends Controller {
           ((ForeignKey) object).getPointedTableName().toString(),
           ((ForeignKey) object).getPointedFieldName().toString(), callback);
     }
-    
+
     if (object instanceof SearchParams) {
       AsyncCallback<List<BaseModelData>> callback =
           new AsyncCallback<List<BaseModelData>>() {
@@ -631,10 +631,12 @@ public class JardinController extends Controller {
             @Override
             public void onFailure(Throwable arg0) {
               // TODO Auto-generated method stub
-              MessageBox.alert("Recupero store autocompletamento campo "
-                  + ((ForeignKey) object).getPointingFieldName() + " per foreign key: "
-                  + ((ForeignKey) object).getPointedFieldName(), "loaderLoadException: "
-                  + arg0.getLocalizedMessage(), null);
+              MessageBox.alert(
+                  "Recupero store autocompletamento campo "
+                      + ((ForeignKey) object).getPointingFieldName()
+                      + " per foreign key: "
+                      + ((ForeignKey) object).getPointedFieldName(),
+                  "loaderLoadException: " + arg0.getLocalizedMessage(), null);
               arg0.printStackTrace();
             }
 
@@ -643,10 +645,11 @@ public class JardinController extends Controller {
               // TODO Auto-generated method stub
               SearchResult searchResult = new SearchResult();
               searchResult.setResultsetId(((SearchParams) object).getResultsetId());
-              
-              ListStore<BaseModelData> resultStore = new ListStore<BaseModelData>();
+
+              ListStore<BaseModelData> resultStore =
+                  new ListStore<BaseModelData>();
               resultStore.add(values);
-              
+
               searchResult.setStore(resultStore);
               searchResult.setSearchParams((SearchParams) object);
 
@@ -662,16 +665,17 @@ public class JardinController extends Controller {
 
       service.getValuesOfAField(
           ((SearchParams) object).getResultsetId(),
-          (String) ((SearchParams) object).getFieldsValuesList().get(0).get("field"), callback);
+          (String) ((SearchParams) object).getFieldsValuesList().get(0).get(
+              "field"), callback);
     }
   }
 
-  private void onSaveNewRecord(List<BaseModelData> data) {
+  private void onSaveNewRecord(List<BaseModelData> data, int resultsetId) {
     final MessageBox waitbox =
         MessageBox.wait("Attendere", "Salvataggio in corso...", "");
 
-    List<BaseModelData> appList = new ArrayList<BaseModelData>();
-    appList.add(data.get(1));
+    // List<BaseModelData> appList = new ArrayList<BaseModelData>();
+    // appList.add(data);
     /* Set up the callback */
     AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
       public void onFailure(final Throwable caught) {
@@ -692,7 +696,7 @@ public class JardinController extends Controller {
     };
 
     /* Make the call */
-    service.setObjects((Integer) data.get(0).get("RSID"), appList, callback);
+    service.setObjects(resultsetId, data, callback);
 
   }
 
@@ -1109,14 +1113,14 @@ public class JardinController extends Controller {
     }
   }
 
-  private void onAddRow(final int resultset) {
-    if (this.user.getResultsetImprovedFromId(resultset).isInsert()) {
-      this.forwardToView(this.view, EventList.AddRow, resultset);
-    } else {
-      Dispatcher.forwardEvent(EventList.Error,
-          "L'utente non dispone dei permessi di inserimento");
-    }
-  }
+//  private void onAddRow(final int resultset) {
+//    if (this.user.getResultsetImprovedFromId(resultset).isInsert()) {
+//      this.forwardToView(this.view, EventList.AddRow, resultset);
+//    } else {
+//      Dispatcher.forwardEvent(EventList.Error,
+//          "L'utente non dispone dei permessi di inserimento");
+//    }
+//  }
 
   private void onViewPopUpDetail(final BaseModelData data) {
     // if (((Resultset) data.get("RSLINKED")).getPermissions().isReadperm()) {
