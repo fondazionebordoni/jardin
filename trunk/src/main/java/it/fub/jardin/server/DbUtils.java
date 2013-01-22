@@ -635,8 +635,9 @@ public class DbUtils {
       String query =
           "SELECT DISTINCT `" + fieldName + "` FROM " + resultset
               + " ORDER BY `" + fieldName + "` ASC";
-      System.out.println("query valori possibili per " + resultset + "."
-          + fieldName + ": " + query);
+//      System.out.println("query valori possibili per " + resultset + "."
+//          + fieldName + ": " + query);
+      JardinLogger.debug(query);
       ResultSet res = doQuery(connection, query);
       while (res.next()) {
         BaseModelData m = new BaseModelData();
@@ -2255,7 +2256,7 @@ public class DbUtils {
 
     String query =
         "SELECT address_statement, data_statement, link_id FROM " + T_NOTIFY
-            + " WHERE resultset_id = '" + resultsetId + "'";
+            + " WHERE id_resultset = '" + resultsetId + "'";
 
     // Log.debug("query: " + query);
 

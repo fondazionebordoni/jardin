@@ -64,6 +64,8 @@ public class JardinDetailPopUp extends Window {
   private static final int defaultWidth = 270; // width dei campi
   private static final int labelWidth = 170;
   private static final int padding = 0;
+
+  private static final String source = "detailpopup";
   Button button;
   // SearchParams searchData;
   Resultset resultset;
@@ -115,7 +117,7 @@ public class JardinDetailPopUp extends Window {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
         List values = new ArrayList();
-        Field f = FieldCreator.getField(field, values, 0, true);
+        Field f = FieldCreator.getField(field, values, 0, true, source);
         this.fieldList.add(f);
         
         if (!field.getModifyperm()) {
@@ -212,6 +214,17 @@ public class JardinDetailPopUp extends Window {
 
     buttonBar.add(this.button);
     this.formPanel.setBottomComponent(buttonBar);
+  }
+  
+  public Field getFieldByName(String name) {
+    for (Field fg : this.fieldList) {
+      if (fg.getName().compareToIgnoreCase(name) == 0) {
+        // System.out.println("ritorno campo: " + fg.getName());
+        return fg;
+      }
+    }
+    // System.out.println("ritorno campo: UN CAZZO!");
+    return null;
   }
 
 }

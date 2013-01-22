@@ -59,6 +59,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AddRowForm extends Window {
 
+  private static final String source = "addingrowpopup";
+
   List<Field<?>> fieldList = new ArrayList<Field<?>>();
 
   final FormPanel formPanel;
@@ -66,14 +68,14 @@ public class AddRowForm extends Window {
   // SearchParams searchData;
   ResultsetImproved resultset;
 
-  private final JardinGrid grid;
+  // private final JardinGrid grid;
 
   /**
    * Create a new Detail Area for Impianti printing all available fields
    */
-  public AddRowForm(final JardinGrid grid) {
+  public AddRowForm(ResultsetImproved resultset) {
 
-    this.grid = grid;
+    // this.grid = grid;
 
     /* Impostazione caratteristiche di Window */
     this.setSize(650, 550);
@@ -81,7 +83,7 @@ public class AddRowForm extends Window {
     this.setHeading("Inserimento nuovo elemento");
     this.setLayout(new FitLayout());
 
-    this.resultset = grid.getResultset();
+    this.resultset = resultset;
 
     /* Creazione FormPanel */
     this.formPanel = new FormPanel();
@@ -90,42 +92,43 @@ public class AddRowForm extends Window {
     this.formPanel.setHeaderVisible(false);
     this.formPanel.setScrollMode(Scroll.AUTO);
 
-//    Radio radio1 = new Radio();
-//    radio1.setBoxLabel("Yes");
-//    radio1.setData("valore", "yes");
-//    radio1.setValue(false);
-//
-//    Radio radio2 = new Radio();
-//    radio2.setBoxLabel("No");
-//    radio2.setData("valore", "no");
-//    radio2.setValue(true);
-//
-//    final RadioGroup group = new RadioGroup();
-//    group.setFieldLabel("usare tendine per delimitare i valori consentiti?");
-//    group.add(radio1);
-//    group.add(radio2);
-//
-//    this.formPanel.add(group);
-//
-//    group.addListener(Events.Change, new Listener<ComponentEvent>() {
-//
-//      public void handleEvent(final ComponentEvent be) {
-//        Radio selected = group.getValue();
-//        // MessageBox.alert("selezione", "selezionato: "
-//        // + selected.getData("valore"), null);
-//
-//        if (((String) selected.getData("valore")).compareToIgnoreCase("yes") == 0) {
-//          AddRowForm.this.formPanel.removeAll();
-//          AddRowForm.this.setAssistedFormPanel();
-//          AddRowForm.this.layout();
-//        } else {
-//          AddRowForm.this.formPanel.removeAll();
-//          AddRowForm.this.setUnAssistedFormPanel();
-//          AddRowForm.this.layout();
-//        }
-//      }
-//
-//    });
+    // Radio radio1 = new Radio();
+    // radio1.setBoxLabel("Yes");
+    // radio1.setData("valore", "yes");
+    // radio1.setValue(false);
+    //
+    // Radio radio2 = new Radio();
+    // radio2.setBoxLabel("No");
+    // radio2.setData("valore", "no");
+    // radio2.setValue(true);
+    //
+    // final RadioGroup group = new RadioGroup();
+    // group.setFieldLabel("usare tendine per delimitare i valori consentiti?");
+    // group.add(radio1);
+    // group.add(radio2);
+    //
+    // this.formPanel.add(group);
+    //
+    // group.addListener(Events.Change, new Listener<ComponentEvent>() {
+    //
+    // public void handleEvent(final ComponentEvent be) {
+    // Radio selected = group.getValue();
+    // // MessageBox.alert("selezione", "selezionato: "
+    // // + selected.getData("valore"), null);
+    //
+    // if (((String) selected.getData("valore")).compareToIgnoreCase("yes") ==
+    // 0) {
+    // AddRowForm.this.formPanel.removeAll();
+    // AddRowForm.this.setAssistedFormPanel();
+    // AddRowForm.this.layout();
+    // } else {
+    // AddRowForm.this.formPanel.removeAll();
+    // AddRowForm.this.setUnAssistedFormPanel();
+    // AddRowForm.this.layout();
+    // }
+    // }
+    //
+    // });
 
     this.setAssistedFormPanel();
     // for (final ResultsetField field : this.resultset.getFields()) {
@@ -137,13 +140,24 @@ public class AddRowForm extends Window {
 
   }
 
+  public Field getFieldByName(String name) {
+    for (Field fg : this.fieldList) {
+      if (fg.getName().compareToIgnoreCase(name) == 0) {
+        // System.out.println("ritorno campo: " + fg.getName());
+        return fg;
+      }
+    }
+    // System.out.println("ritorno campo: UN CAZZO!");
+    return null;
+  }
+
   private void setAssistedFormPanel() {
     for (ResultsetField field : this.resultset.getFields()) {
 
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
         List values = new ArrayList();
 
-        Field<?> PF = FieldCreator.getField(field, values, 0, true);
+        Field<?> PF = FieldCreator.getField(field, values, 0, true, source);
 
         if (!field.getInsertperm()) {
           PF.setEnabled(false);
@@ -204,11 +218,6 @@ public class AddRowForm extends Window {
             textField.setValue(null);
           }
 
-          if (!field.getInsertperm()) {
-            textField.setEnabled(false);
-            textField.setValue(null);
-          }
-
           this.fieldList.add(textField);
           this.formPanel.add(textField);
         }
@@ -216,74 +225,74 @@ public class AddRowForm extends Window {
     }
   }
 
-  private void setUnAssistedFormPanel() {
-    for (ResultsetField field : this.resultset.getFields()) {
-
-      if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-
-        ParametricField PF =
-            new ParametricField(this.grid.getResultset().getId(),
-                field.getForeignKey().split("\\.")[1], field.getName(),
-                field.getAlias());
-
-        if (!field.getInsertperm()) {
-          PF.setEnabled(false);
-        }
-
-        // if (!field.getDeleteperm()) {
-
-        this.fieldList.add(PF);
-        this.formPanel.add(PF);
-
-      } else {
-        if ((field.getType()).compareToIgnoreCase("TIME") == 0) {
-          TimeField textField = new TimeField();
-          textField.setName(field.getName());
-          textField.setFieldLabel(field.getAlias());
-          textField.setFormat(DateTimeFormat.getFormat("kk:mm:ss"));
-
-          this.fieldList.add(textField);
-          this.formPanel.add(textField);
-
-          if (!field.getInsertperm()) {
-            textField.setEnabled(false);
-            textField.setValue(null);
-          }
-
-        } else if (((field.getType()).compareToIgnoreCase("DATE") == 0)
-            || ((field.getType()).compareToIgnoreCase("DATETIME") == 0)) {
-
-          DateField textField = new DateField();
-          textField.setName(field.getName());
-          textField.setFieldLabel(field.getAlias());
-          java.util.Date date = new java.util.Date();
-          textField.setValue(date);
-
-          if (!field.getInsertperm()) {
-            textField.setEnabled(false);
-            textField.setValue(null);
-          }
-
-          this.fieldList.add(textField);
-          this.formPanel.add(textField);
-
-        } else {
-
-          TextField<String> textField = new TextField<String>();
-          textField.setName(field.getName());
-          textField.setFieldLabel(field.getAlias());
-
-          if (!field.getInsertperm()) {
-            textField.setEnabled(false);
-            textField.setValue(null);
-          }
-
-          this.fieldList.add(textField);
-          this.formPanel.add(textField);
-        }
-      }
-    }
-  }
+  // private void setUnAssistedFormPanel() {
+  // for (ResultsetField field : this.resultset.getFields()) {
+  //
+  // if (field.getForeignKey().compareToIgnoreCase("") != 0) {
+  //
+  // ParametricField PF =
+  // new ParametricField(this.grid.getResultset().getId(),
+  // field.getForeignKey().split("\\.")[1], field.getName(),
+  // field.getAlias());
+  //
+  // if (!field.getInsertperm()) {
+  // PF.setEnabled(false);
+  // }
+  //
+  // // if (!field.getDeleteperm()) {
+  //
+  // this.fieldList.add(PF);
+  // this.formPanel.add(PF);
+  //
+  // } else {
+  // if ((field.getType()).compareToIgnoreCase("TIME") == 0) {
+  // TimeField textField = new TimeField();
+  // textField.setName(field.getName());
+  // textField.setFieldLabel(field.getAlias());
+  // textField.setFormat(DateTimeFormat.getFormat("kk:mm:ss"));
+  //
+  // this.fieldList.add(textField);
+  // this.formPanel.add(textField);
+  //
+  // if (!field.getInsertperm()) {
+  // textField.setEnabled(false);
+  // textField.setValue(null);
+  // }
+  //
+  // } else if (((field.getType()).compareToIgnoreCase("DATE") == 0)
+  // || ((field.getType()).compareToIgnoreCase("DATETIME") == 0)) {
+  //
+  // DateField textField = new DateField();
+  // textField.setName(field.getName());
+  // textField.setFieldLabel(field.getAlias());
+  // java.util.Date date = new java.util.Date();
+  // textField.setValue(date);
+  //
+  // if (!field.getInsertperm()) {
+  // textField.setEnabled(false);
+  // textField.setValue(null);
+  // }
+  //
+  // this.fieldList.add(textField);
+  // this.formPanel.add(textField);
+  //
+  // } else {
+  //
+  // TextField<String> textField = new TextField<String>();
+  // textField.setName(field.getName());
+  // textField.setFieldLabel(field.getAlias());
+  //
+  // if (!field.getInsertperm()) {
+  // textField.setEnabled(false);
+  // textField.setValue(null);
+  // }
+  //
+  // this.fieldList.add(textField);
+  // this.formPanel.add(textField);
+  // }
+  // }
+  // }
+  // }
 
   private void setButtons() {
     ButtonBar buttonBar = new ButtonBar();
@@ -384,7 +393,7 @@ public class AddRowForm extends Window {
 
     /* Make the call */
     service.setObjects(resultsetId, items, callback);
-//    service.updateObjects(resultsetId, items, "$-notspec-$", callback);
+    // service.updateObjects(resultsetId, items, "$-notspec-$", callback);
   }
 
 }

@@ -68,9 +68,9 @@ public class JardinGridToolBar extends ToolBar {
   private SimpleComboBox<Template> comboTemplate;
   private final TextField<String> fs = new TextField<String>();
   private final SimpleComboBox<String> ts = new SimpleComboBox<String>();
-  private Button buttonMenuPlugins =
-      new Button("Plugin", IconHelper.createStyle("icon-plugin"),
-          this.getListenerWithGrid(EventList.GetPlugins));
+  private Button buttonMenuPlugins = new Button("Plugin",
+      IconHelper.createStyle("icon-plugin"),
+      this.getListenerWithGrid(EventList.GetPlugins));
   private SearchParams searchParams;
   private String tooltip;
   private String searchId;
@@ -83,16 +83,16 @@ public class JardinGridToolBar extends ToolBar {
 
   // TODO Modificare il costruttore: passare solo l'id del resultset
   public void setGrid(final JardinGrid grid) {
-    
+
     this.resultset = grid.getResultset();
     this.searchId = "grid-toolbar-" + this.resultset.getId();
     this.grid = grid;
-    
+
     if (grid.getSearchparams() == null) {
       grid.setSearchparams(new SearchParams(this.resultset.getId()));
     }
-    
-//    this.searchParams = this.grid.getSearchparams();
+
+    // this.searchParams = this.grid.getSearchparams();
 
     this.fieldNames = new ArrayList<String>();
     this.tooltip =
@@ -238,37 +238,37 @@ public class JardinGridToolBar extends ToolBar {
    *          Impostare a true per visualizzare tutti i record del resultset
    */
   private void search(final boolean searchAll) {
-		 keyOperator = "";
-	     operator="";
-		 valueOperator="";
-		 String s = this.searchfield.getRawValue().trim();
-	     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+    keyOperator = "";
+    operator = "";
+    valueOperator = "";
+    String s = this.searchfield.getRawValue().trim();
+    List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
 
-	    if (!searchAll && (s.length() > 0)) {
-	      SearchStringParser parser = new SearchStringParser(s);
+    if (!searchAll && (s.length() > 0)) {
+      SearchStringParser parser = new SearchStringParser(s);
 
-	      String specialSearchValue = parser.getSpecialSearchValue();
-	      if (specialSearchValue != null) {
-	        BaseModelData m = new BaseModelData();
-	        m.set(SPECIAL_FIELD, specialSearchValue);
-	        queryFieldList.add(m);
-	      }
+      String specialSearchValue = parser.getSpecialSearchValue();
+      if (specialSearchValue != null) {
+        BaseModelData m = new BaseModelData();
+        m.set(SPECIAL_FIELD, specialSearchValue);
+        queryFieldList.add(m);
+      }
 
-	      Map<String, String> searchMap = parser.getSearchMap();
-	      for (String key : parser.getSearchMap().keySet()) {
-	        for (String k : this.fieldNames) {
-	          if (k.equalsIgnoreCase(key)) {
-	            BaseModelData m = new BaseModelData();
-	            operator(key,searchMap.get(key),s);
-  	           m.set(keyOperator, valueOperator);
-	            queryFieldList.add(m);
-	          }
-	        }
-	      }
-	    }
+      Map<String, String> searchMap = parser.getSearchMap();
+      for (String key : parser.getSearchMap().keySet()) {
+        for (String k : this.fieldNames) {
+          if (k.equalsIgnoreCase(key)) {
+            BaseModelData m = new BaseModelData();
+            operator(key, searchMap.get(key), s);
+            m.set(keyOperator, valueOperator);
+            queryFieldList.add(m);
+          }
+        }
+      }
+    }
 
-	  grid.getSearchparams().setFieldsValuesList(queryFieldList);
-	  grid.getSearchparams().setAccurate(this.accurate.isChecked());
+    grid.getSearchparams().setFieldsValuesList(queryFieldList);
+    grid.getSearchparams().setAccurate(this.accurate.isChecked());
     Dispatcher.forwardEvent(EventList.Search, grid.getSearchparams());
   }
 
@@ -278,8 +278,24 @@ public class JardinGridToolBar extends ToolBar {
     // TODO Non inserire il bottone se l'azione non è consentita
 
     if (this.resultset.isInsert()) {
+      // this.add(new Button("Aggiungi riga",
+      // IconHelper.createStyle("icon-add"),
+      // this.getListenerWithGrid(EventList.AddRow)));
       this.add(new Button("Aggiungi riga", IconHelper.createStyle("icon-add"),
-          this.getListenerWithGrid(EventList.AddRow)));
+          new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+              // TODO Auto-generated method stub
+              if (resultset.isInsert()) {
+                AddRowForm arf = new AddRowForm(resultset);
+                grid.setAddRowForm(arf);
+              } else {
+                Dispatcher.forwardEvent(EventList.Error,
+                    "L'utente non dispone dei permessi di inserimento");
+              }
+            }
+          }));
     }
 
     if (this.resultset.isDelete()) {
@@ -287,40 +303,55 @@ public class JardinGridToolBar extends ToolBar {
           IconHelper.createStyle("icon-delete"),
           this.getListenerWithGrid(EventList.RemoveRows)));
     }
-    
+
     if (this.resultset.isModify()) {
       Menu menu = new Menu();
 
-//      menu.add(new MenuItem("record di questa pagina",
-//          IconHelper.createStyle("icon-table-save"),));
-      menu.add(new MenuItem("record di questa pagina", IconHelper.createStyle("icon-table-update"), new SelectionListener<MenuEvent>() {
+      // menu.add(new MenuItem("record di questa pagina",
+      // IconHelper.createStyle("icon-table-save"),));
+      menu.add(new MenuItem("record di questa pagina",
+          IconHelper.createStyle("icon-table-update"),
+          new SelectionListener<MenuEvent>() {
 
-        @Override
-        public void componentSelected(MenuEvent ce) {
-          if (grid.getStore().getCount() > 0) {
-            MassiveUpdateDialog mud = new MassiveUpdateDialog(grid.getStore().getModels(), grid.getSearchparams(), resultset);
-//            setMud(mud);
-          } else MessageBox.alert("Errore", "Effettuare prima una ricerca", null); 
-        }
-      }));
-      
-      menu.add(new MenuItem("record dell'intera ricerca", IconHelper.createStyle("icon-table-update"), new SelectionListener<MenuEvent>() {
+            @Override
+            public void componentSelected(MenuEvent ce) {
+              if (grid.getStore().getCount() > 0) {
+                MassiveUpdateDialog mud =
+                    new MassiveUpdateDialog(grid.getStore().getModels(),
+                        grid.getSearchparams(), resultset);
+                grid.setMassiveUpdateDialog(mud);
+                // setMud(mud);
+              } else
+                MessageBox.alert("Errore", "Effettuare prima una ricerca", null);
+            }
+          }));
 
-        @Override
-        public void componentSelected(MenuEvent ce) {
-          if (grid.getSearchparams() != null) {
-//            MassiveUpdateDialog mud = new MassiveUpdateDialog(grid.getSearchparams(), grid.getCompleteSearchedStore().getModels(), resultset);
-//            setMud(mud);
-            Dispatcher.forwardEvent(EventList.RetrievePkValues, grid.getSearchparams());
-          } else MessageBox.alert("Errore", "Effettuare prima una ricerca", null);
-          
-//          MessageBox.alert("Info", "Funzione non ancora implementata", null);
-        }
-      }));
-      
-      Button massModify = new Button("Modifica massiva",IconHelper.createStyle("icon-table-update"));      
-      massModify.setMenu(menu);          
-      
+      menu.add(new MenuItem("record dell'intera ricerca",
+          IconHelper.createStyle("icon-table-update"),
+          new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent ce) {
+              if (grid.getSearchparams() != null) {
+                // MassiveUpdateDialog mud = new
+                // MassiveUpdateDialog(grid.getSearchparams(),
+                // grid.getCompleteSearchedStore().getModels(), resultset);
+                // setMud(mud);
+                Dispatcher.forwardEvent(EventList.RetrievePkValues,
+                    grid.getSearchparams());
+              } else
+                MessageBox.alert("Errore", "Effettuare prima una ricerca", null);
+
+              // MessageBox.alert("Info", "Funzione non ancora implementata",
+              // null);
+            }
+          }));
+
+      Button massModify =
+          new Button("Modifica massiva",
+              IconHelper.createStyle("icon-table-update"));
+      massModify.setMenu(menu);
+
       this.add(massModify);
     }
   }
@@ -568,35 +599,35 @@ public class JardinGridToolBar extends ToolBar {
   public void setButtonMenuPlugins(final Button buttonMenuPlugins) {
     this.buttonMenuPlugins = buttonMenuPlugins;
   }
-	private void operator(String key, String value, String search)
-	{
-      int lenKey = key.length();  
-      int indexKey = search.indexOf(key); 
-      int lenValue = 0;
-      int indexValue = search.indexOf(value); 
-      if (indexValue!=-1){						
-      	lenValue = value.length();
-      	String operator = search.substring(lenKey + indexKey, indexValue);
-      	int lenOperator = operator.length();
-      	int indexOperator = operator.indexOf(operator);
-      	String prova = operator.substring(lenOperator - 1, lenOperator);
-      	if(prova.equals("\""))
-      		operator = operator.substring(indexOperator, lenOperator-1);
-      	this.operator = operator;
-      	this.valueOperator = value;
-        this.keyOperator = key+"_operator_"+operator;
-      }
-      else{ // caso in cui c'è un OR con la stringa di valore col pipe
-      	String[] token =  value.split("\\|"); 
-      	String sValueFirstToken = token[0];
-      	//System.out.println("Primo Token  " + sValueFirstToken);
-      	int indexValueFirstToken = search.indexOf(sValueFirstToken); 
-      	String operatorOr = search.substring(lenKey + indexKey, indexValueFirstToken);
-      	//System.out.println("OperatorOR   " +  operatorOr);
-      	this.valueOperator = value;
-      	this.keyOperator  = key + "_operatorOr_" + operatorOr;
-     }
-	}
+
+  private void operator(String key, String value, String search) {
+    int lenKey = key.length();
+    int indexKey = search.indexOf(key);
+    int lenValue = 0;
+    int indexValue = search.indexOf(value);
+    if (indexValue != -1) {
+      lenValue = value.length();
+      String operator = search.substring(lenKey + indexKey, indexValue);
+      int lenOperator = operator.length();
+      int indexOperator = operator.indexOf(operator);
+      String prova = operator.substring(lenOperator - 1, lenOperator);
+      if (prova.equals("\""))
+        operator = operator.substring(indexOperator, lenOperator - 1);
+      this.operator = operator;
+      this.valueOperator = value;
+      this.keyOperator = key + "_operator_" + operator;
+    } else { // caso in cui c'è un OR con la stringa di valore col pipe
+      String[] token = value.split("\\|");
+      String sValueFirstToken = token[0];
+      // System.out.println("Primo Token  " + sValueFirstToken);
+      int indexValueFirstToken = search.indexOf(sValueFirstToken);
+      String operatorOr =
+          search.substring(lenKey + indexKey, indexValueFirstToken);
+      // System.out.println("OperatorOR   " + operatorOr);
+      this.valueOperator = value;
+      this.keyOperator = key + "_operatorOr_" + operatorOr;
+    }
+  }
 
   /**
    * @return the mud
@@ -606,7 +637,8 @@ public class JardinGridToolBar extends ToolBar {
   }
 
   /**
-   * @param mud the mud to set
+   * @param mud
+   *          the mud to set
    */
   public void setMud(MassiveUpdateDialog mud) {
     this.mud = mud;
@@ -620,7 +652,8 @@ public class JardinGridToolBar extends ToolBar {
   }
 
   /**
-   * @param interestedRecords the interestedRecords to set
+   * @param interestedRecords
+   *          the interestedRecords to set
    */
   public void setInterestedRecords(List<BaseModelData> interestedRecords) {
     this.interestedRecords = interestedRecords;

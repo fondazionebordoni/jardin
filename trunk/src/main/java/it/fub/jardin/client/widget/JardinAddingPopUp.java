@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -47,6 +48,7 @@ public class JardinAddingPopUp extends Window {
   private static final int defaultWidth = 270; // width dei campi
   private static final int labelWidth = 170;
   private static final int padding = 0;
+  private static final String source = "addingpopup";
   Button button;
   // SearchParams searchData;
   ResultsetImproved resultset;
@@ -101,7 +103,7 @@ public class JardinAddingPopUp extends Window {
 
         } else {
 
-          f = FieldCreator.getField(field, values, 0, true);
+          f = FieldCreator.getField(field, values, 0, true, source);
 
           if (!field.getModifyperm()) {
             f.setEnabled(false);
@@ -213,22 +215,40 @@ public class JardinAddingPopUp extends Window {
           }
         }
 
-        BaseModelData resultsetIdentifier = new BaseModelData();
-        resultsetIdentifier.set("RSID", resultset.getId());
+//        BaseModelData resultsetIdentifier = new BaseModelData();
+//        resultsetIdentifier.set("RSID", resultset.getId());
 
         // il primo record è l'id del RS, il secondo i valori dei campi da
         // salvare
-        newItemList.add(resultsetIdentifier);
+//        newItemList.add(resultsetIdentifier);
         newItemList.add(newItem);
+        
+        AppEvent event = new AppEvent(EventList.saveNewRecord);
+        event.setData("object", newItemList);
+        event.setData("resultsetid", resultset.getId());
 
-        Dispatcher.forwardEvent(EventList.saveNewRecord, newItemList);
+        Dispatcher.forwardEvent(event);
         // JardinDetailPopUp.this.commitChangesAsync(
         // JardinDetailPopUp.this.resultset.getId(), newItemList);
+        hide();
       }
     });
 
     buttonBar.add(this.button);
     this.formPanel.setBottomComponent(buttonBar);
+  }
+  
+  
+
+  public Field getFieldByName(String name) {
+    for (Field fg : this.fieldList) {
+      if (fg.getName().compareToIgnoreCase(name) == 0) {
+        // System.out.println("ritorno campo: " + fg.getName());
+        return fg;
+      }
+    }
+    // System.out.println("ritorno campo: UN CAZZO!");
+    return null;
   }
 
 }

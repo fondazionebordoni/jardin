@@ -194,7 +194,7 @@ public class FieldCreator {
    * @return una widget per la gestione del campo del resultset
    */
   public static Field<?> getField(final ResultsetField field,
-      final List<String> values, final int labelWidth, final boolean textarea) {
+      final List<String> values, final int labelWidth, final boolean textarea, final String source) {
     Field<?> result = null;
     
     /////////////////
@@ -289,9 +289,9 @@ public class FieldCreator {
             
 //            event.setData("source", false); // DALLA GRIGLIA!!!!
 //            if (textarea) event.setData("source", true); // DAL DETTAGLIO!!!!
-            event.setData("source", "grid");
-            if (textarea) event.setData("source", "detail");
-            
+            event.setData("source", source);
+//            if (textarea) event.setData("source", "detail");
+            f.removeAll();
             Dispatcher.forwardEvent(event);
 
           }

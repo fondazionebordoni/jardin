@@ -34,6 +34,7 @@ public class JardinColumnConfig extends ColumnConfig {
   private int fieldId;
   private boolean isKey;
   private boolean isUnique;
+  private final String source = "grid";
 
   /**
    * Creazione di un ColumnConfig che rispecchia le caratteristiche del campo
@@ -58,7 +59,7 @@ public class JardinColumnConfig extends ColumnConfig {
     if (field.getModifyperm()) {
       // final Field f = FieldCreator.getField(field, values, true);
 
-      final Field f = FieldCreator.getField(field, values, 0, false);
+      final Field f = FieldCreator.getField(field, values, 0, false, source);
       // final Field<?> f = FieldCreator.getField(field, values, 0, true);
 
       CellEditor editor = null;
