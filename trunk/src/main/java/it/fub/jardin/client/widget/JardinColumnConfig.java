@@ -55,62 +55,65 @@ public class JardinColumnConfig extends ColumnConfig {
     this.setKey(field.getIsPK());
     this.setUnique(field.isUnique());
 
+    final Field f = FieldCreator.getField(field, values, 0, false, source);
     /* Gestione modifica del campo */
-    if (field.getModifyperm()) {
-      // final Field f = FieldCreator.getField(field, values, true);
 
-      final Field f = FieldCreator.getField(field, values, 0, false, source);
-      // final Field<?> f = FieldCreator.getField(field, values, 0, true);
+    // final Field f = FieldCreator.getField(field, values, true);
 
-      CellEditor editor = null;
+    // final Field<?> f = FieldCreator.getField(field, values, 0, true);
 
-      if (f instanceof SimpleComboBox) {
-        if (field.getType().compareToIgnoreCase("int") == 0) {
-          ((SimpleComboBox) f).setEditable(false);
-          editor = new CellEditor(f) {
-            @Override
-            public Object preProcessValue(final Object value) {
-              if (value == null) {
-                return value;
-              }
-              return ((SimpleComboBox) f).findModel(value);
+    CellEditor editor = null;
+
+    if (f instanceof SimpleComboBox) {
+      if (field.getType().compareToIgnoreCase("int") == 0) {
+        ((SimpleComboBox) f).setEditable(false);
+        editor = new CellEditor(f) {
+          @Override
+          public Object preProcessValue(final Object value) {
+            if (value == null) {
+              return value;
             }
+            return ((SimpleComboBox) f).findModel(value);
+          }
 
-            @Override
-            public Object postProcessValue(final Object value) {
-              if (value == null) {
-                return value;
-              }
-              return ((BaseModelData) value).get("value");
+          @Override
+          public Object postProcessValue(final Object value) {
+            if (value == null) {
+              return value;
             }
-          };
-        } else {
-          ((SimpleComboBox) f).setEditable(false);
-          editor = new CellEditor(f) {
-            @Override
-            public Object preProcessValue(final Object value) {
-              if (value == null) {
-                return value;
-              }
-              return ((SimpleComboBox) f).findModel(value.toString());
-            }
-
-            @Override
-            public Object postProcessValue(final Object value) {
-              if (value == null) {
-                return value;
-              }
-              return ((BaseModelData) value).get("value");
-            }
-          };
-        }
+            return ((BaseModelData) value).get("value");
+          }
+        };
       } else {
-        editor = new CellEditor(f);
-      }
+        ((SimpleComboBox) f).setEditable(false);
+        editor = new CellEditor(f) {
+          @Override
+          public Object preProcessValue(final Object value) {
+            if (value == null) {
+              return value;
+            }
+            return ((SimpleComboBox) f).findModel(value.toString());
+          }
 
-      this.setEditor(editor);
+          @Override
+          public Object postProcessValue(final Object value) {
+            if (value == null) {
+              return value;
+            }
+            return ((BaseModelData) value).get("value");
+          }
+        };
+      }
     } else {
-      this.setEditor(null);
+      editor = new CellEditor(f);
+    }
+
+    this.setEditor(editor);
+    if (field.getModifyperm()) {
+      f.enable();
+    } else {
+      // this.setEditor(null);
+      f.disable();
     }
 
     /* Gestione personalizzazione in base al tipo di campo */
