@@ -62,7 +62,8 @@ public class JardinGrid extends Grid<BaseModelData> {
   // al massimo uno alla volta per tipo
   private User user;
   private Menu m;
-//  private ListStore<BaseModelData> completeSearchedStore;
+
+  // private ListStore<BaseModelData> completeSearchedStore;
 
   public JardinGrid(ListStore<BaseModelData> store, JardinColumnModel cm,
       ResultsetImproved resultset, User user) {
@@ -142,15 +143,15 @@ public class JardinGrid extends Grid<BaseModelData> {
         m.add(sep);
 
         for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
-//          final String linkedTable = fk.getLinkingTable();
-//          final String linkedField = fk.getLinkingField();
+          // final String linkedTable = fk.getLinkingTable();
+          // final String linkedField = fk.getLinkingField();
           if (!user.getResultsets().contains(fk.getInterestedResultset())) {
             user.addResultsetToList(fk.getInterestedResultset());
           }
           final String field = fk.getField();
           // TODO sarebbe meglio spedire direttamente fk e non ricreare un
           // nuovo
-          
+
           fk.setFieldValue("" + selectedRow.get(field));
 
           MenuItem mitem =
@@ -168,7 +169,6 @@ public class JardinGrid extends Grid<BaseModelData> {
 
         m.add(sep);
 
-
         for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
           final String field = fk.getField();
 
@@ -176,7 +176,7 @@ public class JardinGrid extends Grid<BaseModelData> {
             user.addResultsetToList(fk.getInterestedResultset());
           }
           if (fk.getInterestedResultset().isInsert()) {
-            
+
             // TODO sarebbe meglio spedire direttamente fk e non ricreare un
             // nuovo
             fk.setFieldValue("" + selectedRow.get(field));
@@ -230,20 +230,37 @@ public class JardinGrid extends Grid<BaseModelData> {
             final ModelData selectedRow =
                 be.getGrid().getSelectionModel().getSelection().get(0);
             for (final ResultsetField field : resultset.getFields()) {
-              if (cm.getColumnById(field.getName()).getEditor().getField() instanceof SimpleComboBox) {
-
+              if (JardinGrid.this.getColumnModel().
+                    getColumnById(field.getName()).
+                        getEditor().
+                          getField() instanceof SimpleComboBox) {
+                // BISogna caricare ilcombo o il valore di default non
+                // compare!!!!!!!!!!!!!!
                 if ((field.getType().compareToIgnoreCase("int") == 0)
                     || (field.getType().compareToIgnoreCase("real") == 0)) {
                   Integer defaultValue =
                       Integer.parseInt((String) selectedRow.get(field.getName()));
                   // cm.getColumnById(field.getName()).getEditor().getField().setRawValue(defaultValue.toString());
-                  ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
+                  if (((SimpleComboBox<Integer>) cm.getColumnById(
+                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
+                    List<Integer> comboStore = new ArrayList<Integer>();
+                    comboStore.add(defaultValue);
+                    ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
+                  }
+                  // ((SimpleComboBox<Integer>)
+                  // cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
                   ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
                 } else {
                   String defaultValue = selectedRow.get(field.getName());
                   // cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
                   // defaultValue);
-                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
+                  if (((SimpleComboBox<String>) cm.getColumnById(
+                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
+                    List<String> comboStore = new ArrayList<String>();
+                    comboStore.add(defaultValue);
+                    ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
+                  }
+//                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
                   ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
                 }
               }
@@ -291,9 +308,9 @@ public class JardinGrid extends Grid<BaseModelData> {
   // editor.startEditing(store.indexOf(item), false);
   // }
 
-//  public void addRow() {
-//    new AddRowForm(this.getResultset());
-//  }
+  // public void addRow() {
+  // new AddRowForm(this.getResultset());
+  // }
 
   public void viewDetailPopUp(final ArrayList<BaseModelData> data) {
     this.setJardinDetailPopup(new JardinDetailPopUp(data));
@@ -399,7 +416,8 @@ public class JardinGrid extends Grid<BaseModelData> {
   }
 
   /**
-   * @param jardinDetailPopup the jardinDetailPopup to set
+   * @param jardinDetailPopup
+   *          the jardinDetailPopup to set
    */
   public void setJardinDetailPopup(JardinDetailPopUp jardinDetailPopup) {
     this.jardinDetailPopup = jardinDetailPopup;
@@ -413,7 +431,8 @@ public class JardinGrid extends Grid<BaseModelData> {
   }
 
   /**
-   * @param jardinAddingPopUp the jardinAddingPopUp to set
+   * @param jardinAddingPopUp
+   *          the jardinAddingPopUp to set
    */
   public void setJardinAddingPopUp(JardinAddingPopUp jardinAddingPopUp) {
     this.jardinAddingPopUp = jardinAddingPopUp;
@@ -427,7 +446,8 @@ public class JardinGrid extends Grid<BaseModelData> {
   }
 
   /**
-   * @param massiveUpdateDialog the massiveUpdateDialog to set
+   * @param massiveUpdateDialog
+   *          the massiveUpdateDialog to set
    */
   public void setMassiveUpdateDialog(MassiveUpdateDialog massiveUpdateDialog) {
     this.massiveUpdateDialog = massiveUpdateDialog;
@@ -441,24 +461,26 @@ public class JardinGrid extends Grid<BaseModelData> {
   }
 
   /**
-   * @param addRowForm the addRowForm to set
+   * @param addRowForm
+   *          the addRowForm to set
    */
   public void setAddRowForm(AddRowForm addRowForm) {
     this.addRowForm = addRowForm;
   }
 
-//  /**
-//   * @return the completeSearchedStore
-//   */
-//  public ListStore<BaseModelData> getCompleteSearchedStore() {
-//    return completeSearchedStore;
-//  }
-//
-//  /**
-//   * @param completeSearchedStore the completeSearchedStore to set
-//   */
-//  public void setCompleteSearchedStore(ListStore<BaseModelData> completeSearchedStore) {
-//    this.completeSearchedStore = completeSearchedStore;
-//  }
+  // /**
+  // * @return the completeSearchedStore
+  // */
+  // public ListStore<BaseModelData> getCompleteSearchedStore() {
+  // return completeSearchedStore;
+  // }
+  //
+  // /**
+  // * @param completeSearchedStore the completeSearchedStore to set
+  // */
+  // public void setCompleteSearchedStore(ListStore<BaseModelData>
+  // completeSearchedStore) {
+  // this.completeSearchedStore = completeSearchedStore;
+  // }
 
 }
