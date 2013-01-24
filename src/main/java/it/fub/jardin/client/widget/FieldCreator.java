@@ -28,6 +28,7 @@ import it.fub.jardin.client.tools.FieldDataType;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.charts.client.model.Text;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -229,15 +230,34 @@ public class FieldCreator {
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
     }
-//    else if (field.getSpecificType().compareToIgnoreCase("enum") == 0) {
-//      SimpleComboBox<String> f = new SimpleComboBox<String>();
+    else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.ENUM) == 0) {
+      final SimpleComboBox<String> f = new SimpleComboBox<String>();
 //      for (String ele : field.getFixedElements()) {
 //        System.out.println("aggiunto al combo: " + ele);
 //      }
 //      f.add(field.getFixedElements());
-//      // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
-//      result = f;
-//    } 
+      
+      Listener<BaseEvent> l = new Listener<BaseEvent>() {
+
+        @Override
+        public void handleEvent(BaseEvent be) {
+          // TODO Auto-generated method stub
+          f.removeAll();
+          f.add(field.getFixedElements());
+          f.setTriggerAction(TriggerAction.ALL);
+//          f.expand();
+        }
+        
+      };
+      f.addListener(Events.OnClick, l);
+      result = f;
+    } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0) {
+      TextField<String> f = new TextField<String>();
+      f.setWidth(field.getLenght());
+      f.setRawValue(field.getDefaultVAlue());
+      
+      result = f;
+    }
     else {
       if (field.getForeignKey().compareToIgnoreCase("") != 0) {
         // Log.debug(field.getName() + ": COMBO");
@@ -286,11 +306,7 @@ public class FieldCreator {
             
             AppEvent event = new AppEvent(EventList.GetValuesOfAField);
             event.setData("object", fkObject);
-            
-//            event.setData("source", false); // DALLA GRIGLIA!!!!
-//            if (textarea) event.setData("source", true); // DAL DETTAGLIO!!!!
             event.setData("source", source);
-//            if (textarea) event.setData("source", "detail");
             f.removeAll();
             Dispatcher.forwardEvent(event);
 
