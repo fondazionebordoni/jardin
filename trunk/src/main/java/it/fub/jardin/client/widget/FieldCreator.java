@@ -253,7 +253,9 @@ public class FieldCreator {
       result = f;
     } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0) {
       TextField<String> f = new TextField<String>();
-      f.setWidth(field.getLenght());
+//      f.setWidth(field.getLenght());
+      f.setMaxLength(field.getLenght());
+      f.setMinLength(field.getLenght());      
       f.setRawValue(field.getDefaultVAlue());
       
       result = f;
@@ -353,4 +355,11 @@ public class FieldCreator {
 //    
 //    return null;    
 //  }
+  
+  public static Field<?> getField(final ResultsetField field, final String source) {
+    
+    
+    return null;
+    
+  }
 }

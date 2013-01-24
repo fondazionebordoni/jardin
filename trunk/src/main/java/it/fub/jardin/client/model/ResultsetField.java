@@ -167,6 +167,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
 
   public void setType(final String type) {
     this.set("fieldtype", type);
+    setSpecificType();
   }
 
   public String getDefaultVAlue() {
@@ -248,7 +249,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
     this.fixedElements = elements;
   }
 
-  public void doTypeAnalisys() {
+  public void setSpecificType() {
 
     String type = this.getType();
     String fk = this.getForeignKey();

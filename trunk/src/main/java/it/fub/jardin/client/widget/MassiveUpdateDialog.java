@@ -122,23 +122,24 @@ public class MassiveUpdateDialog extends Window {
 
     String labelText =
         "Modifica di massa dei record corrispondenti alla ricerca appena effettuata:<br>";
+    
     for (ResultsetField field : this.resultset.getFields()) {
       List values = new ArrayList();
       Field f = FieldCreator.getField(field, values, 0, true, source);
 
-      if (!field.getModifyperm()) {
-        f.setEnabled(false);
-      }
-
-      if (f instanceof DateField) {
-        ((DateField)f).getPropertyEditor().setFormat(
-            DateTimeFormat.getFormat("dd/MM/y"));
-        java.util.Date date = new java.util.Date();
-        f.setValue(date);
-      } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
-        f = new TextField<String>();
-        f.setValue("");
-      }
+//      if (!field.getModifyperm()) {
+//        f.setEnabled(false);
+//      }
+//
+//      if (f instanceof DateField) {
+//        ((DateField)f).getPropertyEditor().setFormat(
+//            DateTimeFormat.getFormat("dd/MM/y"));
+//        java.util.Date date = new java.util.Date();
+//        f.setValue(date);
+//      } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
+//        f = new TextField<String>();
+//        f.setValue("");
+//      }
 
       if (field.getIsPK()) {
 
@@ -229,13 +230,8 @@ public class MassiveUpdateDialog extends Window {
     // Dialog mainLabel = new Dialog();
     HtmlContainer html = new HtmlContainer();
     html.setHtml(labelText);
-    // mainLabel.add(html);
 
-    // MessageBox.info("Modifica simultanea di più record", labelText, null);
     cp.add(html);
-    // mainLabel.okText = "ho capito";
-    // add(mainLabel);
-    // mainLabel.show();
 
   }
 
