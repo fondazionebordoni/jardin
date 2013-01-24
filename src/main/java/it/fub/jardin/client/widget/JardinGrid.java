@@ -230,12 +230,9 @@ public class JardinGrid extends Grid<BaseModelData> {
             final ModelData selectedRow =
                 be.getGrid().getSelectionModel().getSelection().get(0);
             for (final ResultsetField field : resultset.getFields()) {
-              if (JardinGrid.this.getColumnModel().
-                    getColumnById(field.getName()).
-                        getEditor().
-                          getField() instanceof SimpleComboBox) {
-                // BISogna caricare ilcombo o il valore di default non
-                // compare!!!!!!!!!!!!!!
+              if (JardinGrid.this.getColumnModel().getColumnById(
+                  field.getName()).getEditor().getField() instanceof SimpleComboBox) {
+
                 if ((field.getType().compareToIgnoreCase("int") == 0)
                     || (field.getType().compareToIgnoreCase("real") == 0)) {
                   Integer defaultValue =
@@ -250,6 +247,10 @@ public class JardinGrid extends Grid<BaseModelData> {
                   // ((SimpleComboBox<Integer>)
                   // cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
                   ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
+                } else if (field.getSpecificType().compareToIgnoreCase("enum") == 0) {
+                  String defaultValue = selectedRow.get(field.getName());
+                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(field.getFixedElements());
+                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
                 } else {
                   String defaultValue = selectedRow.get(field.getName());
                   // cm.getColumnById(field.getName()).getEditor().getField().setRawValue(
@@ -260,7 +261,8 @@ public class JardinGrid extends Grid<BaseModelData> {
                     comboStore.add(defaultValue);
                     ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
                   }
-//                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
+                  // ((SimpleComboBox<String>)
+                  // cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
                   ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
                 }
               }
