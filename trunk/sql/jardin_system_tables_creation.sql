@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `__system_field` (
   `search_grouping` tinyint(1) NOT NULL default '1',
   `id_resultset` int(11) NOT NULL,
   `id_grouping` int(11) NOT NULL default '1',
-  `type` varchar(50) NOT NULL default 'VARCHAR',
+  `type` varchar(1024) NOT NULL default 'VARCHAR',
   `defaultvalue` varchar(255) default NULL,
   PRIMARY KEY  (`id`,`id_resultset`),
   KEY `id_grouping` (`id_grouping`),
