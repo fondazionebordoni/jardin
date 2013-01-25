@@ -65,6 +65,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   private String log4jConfPath = "conf/";
   private DbConnectionHandler dbConnectionHandler;
   private DbProperties dbProperties;
+  private MailUtility mailUtility;
   private static boolean logInitialized = false;
 
   public ManagerServiceImpl() throws VisibleException {
@@ -72,6 +73,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     this.dbProperties = new DbProperties();
     this.dbConnectionHandler = this.dbProperties.getConnectionHandler();
     this.dbUtils = new DbUtils(dbProperties, dbConnectionHandler);
+    this.setMailUtility(new MailUtility(dbConnectionHandler.getDbConnectionParameters().getMailSmtpHost(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpAuth(), dbConnectionHandler.getDbConnectionParameters().getMailSmtpUser(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpPass(), dbConnectionHandler.getDbConnectionParameters().getMailSmtpSender()));
 
     subSystem = dbConnectionHandler.getDbConnectionParameters().getSubSystem();
     if (logInitialized == false) {
@@ -352,7 +356,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     int success = this.dbUtils.setObjects(resultsetId, newItemList);
     if (success > 0) {
       try {
-        this.dbUtils.notifyChanges(resultsetId, newItemListTest);
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest);
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -396,7 +400,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
         this.dbUtils.updateObjects(resultsetId, newItemList, condition);
     if (success > 0) {
       try {
-        this.dbUtils.notifyChanges(resultsetId, newItemListTest);
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest);
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -447,6 +451,20 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
    */
   public void setDbConnectionHandler(DbConnectionHandler dbConnectionHandler) {
     this.dbConnectionHandler = dbConnectionHandler;
+  }
+
+  /**
+   * @return the mailUtility
+   */
+  public MailUtility getMailUtility() {
+    return mailUtility;
+  }
+
+  /**
+   * @param mailUtility the mailUtility to set
+   */
+  public void setMailUtility(MailUtility mailUtility) {
+    this.mailUtility = mailUtility;
   }
 
   //

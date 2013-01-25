@@ -37,6 +37,11 @@ public class DbConnectionParameters {
   private String pass;
   private String view;
   private String subSystem;
+  private String mailSmtpHost;
+  private String mailSmtpAuth;
+  private String mailSmtpUser;
+  private String mailSmtpPass;
+  private String mailSmtpSender;
   
   public DbConnectionParameters() throws VisibleException {
 
@@ -58,7 +63,22 @@ public class DbConnectionParameters {
       if (myProps.getProperty("subsystem") != null) {
         this.setSubSystem(myProps.getProperty("subsystem"));                
       }
-      
+      // recupero campi per l'invio delle notifiche...se esistono
+      if (myProps.getProperty("mail.smtp.host") != null) {
+        this.setMailSmtpHost(myProps.getProperty("mail.smtp.host"));                
+      }
+      if (myProps.getProperty("mail.smtp.auth") != null) {
+        this.setMailSmtpAuth(myProps.getProperty("mail.smtp.auth"));                
+      }
+      if (myProps.getProperty("mail.smtp.user") != null) {
+        this.setMailSmtpUser(myProps.getProperty("mail.smtp.user"));                
+      }
+      if (myProps.getProperty("mail.smtp.pass") != null) {
+        this.setMailSmtpPass(myProps.getProperty("mail.smtp.pass"));                
+      }
+      if (myProps.getProperty("mail.smtp.sender") != null) {
+        this.setMailSmtpSender(myProps.getProperty("mail.smtp.sender"));                
+      }
 //      else {
 //        throw new VisibleException("Attenzione! Property \"subsystem\" assente --> impossibile loggare!");
 //      }
@@ -182,6 +202,76 @@ public class DbConnectionParameters {
    */
   public void setSubSystem(String subSystem) {
     this.subSystem = subSystem;
+  }
+
+  /**
+   * @return the mailSmtpHost
+   */
+  public String getMailSmtpHost() {
+    return mailSmtpHost;
+  }
+
+  /**
+   * @param mailSmtpHost the mailSmtpHost to set
+   */
+  public void setMailSmtpHost(String mailSmtpHost) {
+    this.mailSmtpHost = mailSmtpHost;
+  }
+
+  /**
+   * @return the mailSmtpAuth
+   */
+  public String getMailSmtpAuth() {
+    return mailSmtpAuth;
+  }
+
+  /**
+   * @param mailSmtpAuth the mailSmtpAuth to set
+   */
+  public void setMailSmtpAuth(String mailSmtpAuth) {
+    this.mailSmtpAuth = mailSmtpAuth;
+  }
+
+  /**
+   * @return the mailSmtpUser
+   */
+  public String getMailSmtpUser() {
+    return mailSmtpUser;
+  }
+
+  /**
+   * @param mailSmtpUser the mailSmtpUser to set
+   */
+  public void setMailSmtpUser(String mailSmtpUser) {
+    this.mailSmtpUser = mailSmtpUser;
+  }
+
+  /**
+   * @return the mailSmtpPass
+   */
+  public String getMailSmtpPass() {
+    return mailSmtpPass;
+  }
+
+  /**
+   * @param mailSmtpPass the mailSmtpPass to set
+   */
+  public void setMailSmtpPass(String mailSmtpPass) {
+    this.mailSmtpPass = mailSmtpPass;
+  }
+
+  /**
+   * @return the mailSmtpSender
+   */
+  public String getMailSmtpSender() {
+    return mailSmtpSender;
+  }
+
+  /**
+   * @param mailSmtpSender the mailSmtpSender to set
+   */
+  public void setMailSmtpSender(String mailSmtpSender) {
+    this.mailSmtpSender = mailSmtpSender;
   }
 
 
