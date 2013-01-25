@@ -1425,7 +1425,7 @@ public class DbUtils {
         "SELECT * FROM " + T_RESOURCE + " r JOIN " + T_RESULTSET
             + " res ON res.id=r.id JOIN " + T_MANAGEMENT
             + " m ON res.id=m.id_resource WHERE m.id_group=" + gid;
-    System.out.println("res list query: " + query);
+    JardinLogger.debug("res list query: " + query);
 
     try {
       ResultSet result = doQuery(connection, query);
@@ -2246,27 +2246,28 @@ public class DbUtils {
     return result;
   }
 
-  public void notifyChanges(final Integer resultsetId,
+  public void notifyChanges(MailUtility mailUtility, final Integer resultsetId,
       final List<BaseModelData> newItemList) throws SQLException,
       HiddenException {
     Integer id_table = 0;
-    String mitt = "notReplyJardin@fub.it";
-    String oggetto = "Situazione pratica";
+    String mitt = mailUtility.getMailSmtpSender();
+    
     Connection connection = this.dbConnectionHandler.getConn();
 
     String query =
-        "SELECT address_statement, data_statement, link_id FROM " + T_NOTIFY
+        "SELECT address_statement, data_statement, link_id, name FROM " + T_NOTIFY
             + " WHERE id_resultset = '" + resultsetId + "'";
 
-    // Log.debug("query: " + query);
+     JardinLogger.debug("query: " + query);
 
     ResultSet result = doQuery(connection, query);
     while (result.next()) {
-      String testo = "";
+      String testo = "";      
       String address_statement = result.getString(1);
       String data_statement = result.getString(2);
       String bmdid = result.getString(3);
-      // Log.debug("bmdid"+bmdid);
+      String oggetto = result.getString(4);
+       JardinLogger.debug("bmdid"+bmdid);
 
       for (BaseModelData record : newItemList) {
         if (record.get(bmdid) != null) {
@@ -2282,34 +2283,34 @@ public class DbUtils {
               testo +=
                   md.getColumnLabel(i) + ": " + resultData.getString(i) + "\n";
             }
-            // Log.debug("\nmessaggio:\n" + testo);
+             JardinLogger.debug("\nmessaggio:\n" + testo);
             testo += "\n";
           }
 
           PreparedStatement ps =
               (PreparedStatement) connection.prepareStatement(address_statement);
-          ps.setInt(1, id_table);
+//          ps.setInt(1, id_table);
           ResultSet resultAddress = ps.executeQuery();
           while (resultAddress.next()) {
-            // Log.debug("mailto: " + resultAddress.getString(1));
+             JardinLogger.debug("mailto: " + resultAddress.getString(1));
             if (!(resultAddress.getString(1) == null)) {
               try {
-                MailUtility.sendMail(resultAddress.getString(1), mitt, oggetto,
+                mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto,
                     testo);
 
               } catch (MessagingException e) {
                 e.printStackTrace();
-                // Log.info("Invio non riuscito!");
-                // Log.info("MessagingException: ");
+                 JardinLogger.error("Invio non riuscito!");
+                 JardinLogger.error("MessagingException: " + e.toString());
                 // Log.info(e.toString());
               }
-              // Log.info("Invio riuscito!");
+               JardinLogger.info("Invio riuscito!");
             } else {
               JardinLogger.error("Errore invio mail: Mail non valida!");
             }
           }
         } else {
-          // Log.error("Notifica non inviata perchè è un inserimento!");
+           JardinLogger.error("Notifica non inviata perchè è un inserimento!");
         }
       }
     }
