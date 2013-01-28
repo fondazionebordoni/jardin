@@ -146,7 +146,7 @@ public class FieldCreator {
               
               sObject.setFieldsValuesList(searchFieldList);
               
-//              f.removeAll();
+              f.removeAll();
               
               AppEvent event = new AppEvent(EventList.GetValuesOfAField);
               event.setData("object", sObject);
@@ -198,9 +198,7 @@ public class FieldCreator {
       final List<String> values, final int labelWidth, final boolean textarea, final String source) {
     Field<?> result = null;
     
-    /////////////////
-//    field.doTypeAnalisys();
-    /////////////////
+
     String fieldType = field.getType();
 
     /* Se il campo è una data non creo un combo */
@@ -232,11 +230,9 @@ public class FieldCreator {
     }
     else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.ENUM) == 0) {
       final SimpleComboBox<String> f = new SimpleComboBox<String>();
-//      for (String ele : field.getFixedElements()) {
-//        System.out.println("aggiunto al combo: " + ele);
-//      }
-//      f.add(field.getFixedElements());
-      
+
+      f.add(field.getFixedElements());
+      f.setTriggerAction(TriggerAction.ALL);
       Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
         @Override
@@ -244,8 +240,7 @@ public class FieldCreator {
           // TODO Auto-generated method stub
           f.removeAll();
           f.add(field.getFixedElements());
-          f.setTriggerAction(TriggerAction.ALL);
-//          f.expand();
+          
         }
         
       };
@@ -253,7 +248,6 @@ public class FieldCreator {
       result = f;
     } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0) {
       TextField<String> f = new TextField<String>();
-//      f.setWidth(field.getLenght());
       f.setMaxLength(field.getLenght());
       f.setMinLength(field.getLenght());      
       f.setRawValue(field.getDefaultVAlue());
