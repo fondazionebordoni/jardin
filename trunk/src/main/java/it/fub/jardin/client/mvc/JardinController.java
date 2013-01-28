@@ -144,9 +144,9 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.GotPlugins);
     this.registerEventTypes(EventList.ViewPlugin);
     this.registerEventTypes(EventList.getResultsetImproved);
-    this.registerEventTypes(EventList.getResultsetPlus);
+//    this.registerEventTypes(EventList.getResultsetPlus);
     this.registerEventTypes(EventList.gotResultsetImproved);
-    this.registerEventTypes(EventList.gotResultsetPlus);
+//    this.registerEventTypes(EventList.gotResultsetPlus);
     this.registerEventTypes(EventList.initialChangePassword);
     this.registerEventTypes(EventList.CheckCredentialAndChangePassword);
     this.registerEventTypes(EventList.changePasswordError);

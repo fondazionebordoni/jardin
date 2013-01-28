@@ -298,8 +298,9 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       this.setSpecificType(FieldDataType.FLOAT);
       this.setIsLenghtFixed(false);
       this.setLenght(20);
-      if (type.lastIndexOf("(") == -1)
-        setLenght(Integer.parseInt(type.substring(6, type.lastIndexOf(","))));
+      if (type.indexOf("(") != -1) {
+        setLenght(Integer.parseInt(type.substring(type.indexOf("(")+1, type.indexOf(",")-1)));
+      } else setLenght(20);
     } else if (type.startsWith("date") || type.startsWith("datetime")) {
       this.setSpecificType(FieldDataType.DATE);
     } else if (type.startsWith("timestamp")) {
@@ -308,17 +309,17 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       this.setSpecificType(FieldDataType.ENUM);
       this.setIsCombo(true);
       ArrayList<String> elements = new ArrayList<String>();
-//      System.out.println("campo: " + this.getName());
-//      System.out.println(" LA (: " + type.lastIndexOf("("));
-//      System.out.println(" LA ): " + type.lastIndexOf(")"));
-//      System.out.println("start: " + (type.lastIndexOf("(") + 1) + "; end:"
-//          + (type.lastIndexOf(")") - 1));
+      System.out.println("campo: " + this.getName());
+      System.out.println(" LA (: " + type.indexOf("("));
+      System.out.println(" LA ): " + type.lastIndexOf(")"));
+      System.out.println("start: " + (type.indexOf("(") + 1) + "; end:"
+          + (type.lastIndexOf(")") - 1));
       String[] elementsWithCommas =
-          (type.substring(type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)).split(",");
+          (type.substring(type.indexOf("(") + 1, type.lastIndexOf(")") - 1)).split(",");
       for (int i = 0; i < elementsWithCommas.length; i++) {
         String newElement = elementsWithCommas[i].replaceAll("\'", "");
         elements.add(newElement);
-        System.out.println("added: " + newElement + "/"+ elementsWithCommas.length);
+//        System.out.println("added: " + newElement + "/"+ elementsWithCommas.length);
       }
       this.setFixedElements(elements);
     } else {

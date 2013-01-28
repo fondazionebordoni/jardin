@@ -122,108 +122,111 @@ public class MassiveUpdateDialog extends Window {
 
     String labelText =
         "Modifica di massa dei record corrispondenti alla ricerca appena effettuata:<br>";
-    
+
     for (ResultsetField field : this.resultset.getFields()) {
-      List values = new ArrayList();
-      Field f = FieldCreator.getField(field, values, 0, true, source);
 
-//      if (!field.getModifyperm()) {
-//        f.setEnabled(false);
-//      }
-//
-//      if (f instanceof DateField) {
-//        ((DateField)f).getPropertyEditor().setFormat(
-//            DateTimeFormat.getFormat("dd/MM/y"));
-//        java.util.Date date = new java.util.Date();
-//        f.setValue(date);
-//      } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
-//        f = new TextField<String>();
-//        f.setValue("");
-//      }
+      if (field.getReadperm()) {
+        List values = new ArrayList();
+        Field f = FieldCreator.getField(field, values, 0, true, source);
 
-      if (field.getIsPK()) {
+//        System.out.println("tipo campo: " +field.getSpecificType());
+        // if (!field.getModifyperm()) {
+        // f.setEnabled(false);
+        // }
+        //
+        // if (f instanceof DateField) {
+        // ((DateField)f).getPropertyEditor().setFormat(
+        // DateTimeFormat.getFormat("dd/MM/y"));
+        // java.util.Date date = new java.util.Date();
+        // f.setValue(date);
+        // } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
+        // f = new TextField<String>();
+        // f.setValue("");
+        // }
 
-        f.setEnabled(false);
-        primaryKey = field;
-        hasPk = true;
-        primaryKeyValues = new ArrayList<String>();
+        if (field.getIsPK()) {
 
-        if (gridStore != null) {
-          for (BaseModelData m : gridStore) {
-            primaryKeyValues.add((String) m.get(field.getName()));
-            // System.out.println("aggiunto valore di pk (" + field.getAlias()
-            // + "): " + (String) m.get(field.getName()));
-            labelText += field.getName() + "=" + m.get(field.getName()) + "|";
+          f.setEnabled(false);
+          primaryKey = field;
+          hasPk = true;
+          primaryKeyValues = new ArrayList<String>();
+
+          if (gridStore != null) {
+            for (BaseModelData m : gridStore) {
+              primaryKeyValues.add((String) m.get(field.getName()));
+              // System.out.println("aggiunto valore di pk (" + field.getAlias()
+              // + "): " + (String) m.get(field.getName()));
+              labelText += field.getName() + "=" + m.get(field.getName()) + "|";
+            }
           }
         }
-      }
 
-      if (!field.getModifyperm()) {
-        f.setEnabled(false);
-      }
-      // f.setFieldLabel(field.getAlias());
-      f.setName(field.getName());
-
-      // ////////////
-
-      /* Esamino il raggruppamento a cui appartiene il campo */
-      ResultsetFieldGroupings fieldGrouping =
-          this.resultset.getFieldGrouping(field.getIdgrouping());
-
-      String fieldSetName = fieldGrouping.getName();
-
-      /*
-       * Se il fieldset non esiste lo creo e l'aggancio a pannello
-       */
-      SimpleFieldSet fieldSet = this.fieldSetList.get(fieldSetName);
-      if (fieldSet == null) {
-        fieldSet =
-            new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
-                labelWidth, padding);
-        FlexTable table = new FlexTable();
-        table.setVisible(true);
-        fieldSet.setTable(table);
-
-        fieldSet.add(fieldSet.getTable());
-
-        this.fieldSetList.put(fieldSetName, fieldSet);
-        this.formPanel.add(fieldSet);
-      }
-
-      final Field res = f;
-      res.setEnabled(false);
-
-      Label fieldLabel = new Label(field.getAlias() + ": ");
-      fieldSet.getTable().setWidget(this.resultset.getFields().indexOf(field),
-          0, fieldLabel);
-      fieldSet.getTable().setWidget(
-          this.resultset.getFields().indexOf(field), 1, f);
-      
-      if (field.getModifyperm()) {
-        CheckBox check = new CheckBox("abilita alla modifica");
-        check.setName(field.getName() + "-combo");
-        check.setValue(false);
-        check.addClickHandler(new ClickHandler() {
-
-          @Override
-          public void onClick(ClickEvent event) {
-            // TODO Auto-generated method stub
-            boolean checked = ((CheckBox) event.getSource()).getValue();
-            if (checked) {
-              enableField(res);
-            } else
-              disableField(res);
-
-          }
-        });
-
-        if (!field.getIsPK()) {
-          fieldSet.getTable().setWidget(
-              this.resultset.getFields().indexOf(field), 2, check);
+        if (!field.getModifyperm()) {
+          f.setEnabled(false);
         }
-      }
+        // f.setFieldLabel(field.getAlias());
+        f.setName(field.getName());
 
-      
+        // ////////////
+
+        /* Esamino il raggruppamento a cui appartiene il campo */
+        ResultsetFieldGroupings fieldGrouping =
+            this.resultset.getFieldGrouping(field.getIdgrouping());
+
+        String fieldSetName = fieldGrouping.getName();
+
+        /*
+         * Se il fieldset non esiste lo creo e l'aggancio a pannello
+         */
+        SimpleFieldSet fieldSet = this.fieldSetList.get(fieldSetName);
+        if (fieldSet == null) {
+          fieldSet =
+              new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
+                  labelWidth, padding);
+          FlexTable table = new FlexTable();
+          table.setVisible(true);
+          fieldSet.setTable(table);
+
+          fieldSet.add(fieldSet.getTable());
+
+          this.fieldSetList.put(fieldSetName, fieldSet);
+          this.formPanel.add(fieldSet);
+        }
+
+        final Field res = f;
+        res.setEnabled(false);
+
+        Label fieldLabel = new Label(field.getAlias() + ": ");
+        fieldSet.getTable().setWidget(
+            this.resultset.getFields().indexOf(field), 0, fieldLabel);
+        fieldSet.getTable().setWidget(
+            this.resultset.getFields().indexOf(field), 1, f);
+
+        if (field.getModifyperm()) {
+          CheckBox check = new CheckBox("abilita alla modifica");
+          check.setName(field.getName() + "-combo");
+          check.setValue(false);
+          check.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+              // TODO Auto-generated method stub
+              boolean checked = ((CheckBox) event.getSource()).getValue();
+              if (checked) {
+                enableField(res);
+              } else
+                disableField(res);
+
+            }
+          });
+
+          if (!field.getIsPK()) {
+            fieldSet.getTable().setWidget(
+                this.resultset.getFields().indexOf(field), 2, check);
+          }
+        }
+
+      }
 
     }
 
@@ -288,9 +291,13 @@ public class MassiveUpdateDialog extends Window {
                       if (f.getValue() == null) {
                         value = null;
                       } else {
-//                        SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd");
-//                        value = sdf.format(((java.util.Date)f.getValue()).getTime());
-                        value = DateTimeFormat.getFormat("yy/MM/dd").format(((java.util.Date)f.getValue()));
+                        // SimpleDateFormat sdf = new
+                        // SimpleDateFormat("yy/MM/dd");
+                        // value =
+                        // sdf.format(((java.util.Date)f.getValue()).getTime());
+                        value =
+                            DateTimeFormat.getFormat("yy/MM/dd").format(
+                                ((java.util.Date) f.getValue()));
                       }
                     } else if (f instanceof SimpleComboBox<?>) {
                       if (f.getValue() == null) {
