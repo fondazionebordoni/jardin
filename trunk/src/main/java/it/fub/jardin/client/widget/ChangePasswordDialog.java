@@ -59,7 +59,7 @@ public class ChangePasswordDialog extends Dialog {
         + " - creare nuova password");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");
-    this.setWidth(320);
+    this.setWidth(350);
     this.setResizable(false);
 
     KeyListener keyListener = new KeyListener() {
@@ -81,14 +81,14 @@ public class ChangePasswordDialog extends Dialog {
     this.oldPassword = new TextField<String>();
     this.oldPassword.setMinLength(4);
     this.oldPassword.setPassword(true);
-    this.oldPassword.setFieldLabel("Old Password");
+    this.oldPassword.setFieldLabel("New Password");
     this.oldPassword.addKeyListener(keyListener);
     this.add(this.oldPassword);
 
     this.newPassword = new TextField<String>();
     this.newPassword.setMinLength(4);
     this.newPassword.setPassword(true);
-    this.newPassword.setFieldLabel("New Password");
+    this.newPassword.setFieldLabel("Confirm New Password");
     this.newPassword.addKeyListener(keyListener);
     this.add(this.newPassword);
 
@@ -129,7 +129,9 @@ public class ChangePasswordDialog extends Dialog {
    *         quattro caratteri. false altrimenti
    */
   protected boolean isValid() {
-    if (this.hasValue(this.newPassword)
+    if (this.hasValue(this.newPassword) && this.hasValue(this.oldPassword) 
+        && this.oldPassword.getValue().compareToIgnoreCase(
+            this.newPassword.getValue()) == 0
         && (this.newPassword.getValue().length() > 3)) {
       this.status.setText("Premere il bottone Invio");
       this.submit.setEnabled(true);
@@ -145,7 +147,7 @@ public class ChangePasswordDialog extends Dialog {
     this.status.setBusy("Verifica vecchia password...");
     this.submit.setEnabled(false);
 
-//    System.out.println("creazione credentials per: " + this.user.get);
+    // System.out.println("creazione credentials per: " + this.user.get);
     Credentials c =
         new Credentials(this.user.getUsername(), this.oldPassword.getValue());
     c.setNewPassword(this.newPassword.getValue());
