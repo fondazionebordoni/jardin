@@ -309,11 +309,11 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       this.setSpecificType(FieldDataType.ENUM);
       this.setIsCombo(true);
       ArrayList<String> elements = new ArrayList<String>();
-      System.out.println("campo: " + this.getName());
-      System.out.println(" LA (: " + type.indexOf("("));
-      System.out.println(" LA ): " + type.lastIndexOf(")"));
-      System.out.println("start: " + (type.indexOf("(") + 1) + "; end:"
-          + (type.lastIndexOf(")") - 1));
+//      System.out.println("campo: " + this.getName());
+//      System.out.println(" LA (: " + type.indexOf("("));
+//      System.out.println(" LA ): " + type.lastIndexOf(")"));
+//      System.out.println("start: " + (type.indexOf("(") + 1) + "; end:"
+//          + (type.lastIndexOf(")") - 1));
       String[] elementsWithCommas =
           (type.substring(type.indexOf("(") + 1, type.lastIndexOf(")") - 1)).split(",");
       for (int i = 0; i < elementsWithCommas.length; i++) {
