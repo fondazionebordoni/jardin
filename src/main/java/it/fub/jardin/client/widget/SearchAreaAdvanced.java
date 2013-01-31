@@ -51,6 +51,7 @@ public class SearchAreaAdvanced extends FormPanel {
   private final ResultsetImproved resultset;
   private final SearchParams searchParams;
   private final List<Field<?>> fieldList;
+  private final String source = "searcharea";
 
   public SearchAreaAdvanced(final ResultsetImproved resultset) {
 
@@ -111,13 +112,15 @@ public class SearchAreaAdvanced extends FormPanel {
         Field<?> f;
         if (combo) {
           // System.out.println(field.getAlias() + ": combo");
-          f = FieldCreator.getField(field, values, true, true);
+//          f = FieldCreator.getField(field, values, true, true);
+          f = FieldCreator.getField(field, values, 0, true, source );
           // new ParametricField(resultset.getId(), field.getName(),
           // field.getName(), field.getAlias());
         } else {
-          f = new TextField<String>();
-          f.setName(field.getName());
-          f.setFieldLabel(field.getAlias());
+          f = FieldCreator.getField(field, values, 0, true);
+//          f = new TextField<String>();
+//          f.setName(field.getName());
+//          f.setFieldLabel(field.getAlias());
         }
         this.fieldList.add(f);
 
