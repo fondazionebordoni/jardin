@@ -22,6 +22,7 @@ import it.fub.jardin.client.SearchStringParser;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class SearchAreaBase extends HtmlContainer {
   private String tooltip;
   private final String tooltipAccurate;
 
-  public SearchAreaBase(final ResultsetImproved resultset) {
+  public SearchAreaBase(final ResultsetImproved resultset, User user) {
 
     this.fieldNames = new ArrayList<String>();
     this.tooltip =
@@ -81,6 +82,7 @@ public class SearchAreaBase extends HtmlContainer {
     this.setWidth("100%");
 
     this.searchParams = new SearchParams(resultset.getId());
+    this.searchParams.setGroupId(user.getGid());
 
     this.setFields();
     this.setButtons();

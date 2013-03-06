@@ -110,7 +110,8 @@ public class JardinDetailPopUp extends Window {
 
   private void setFormPanel(final BaseModelData data, final BaseModelData entry) {
 
-//    System.out.println("il RS puntato ha " + this.resultset.getResultsetListField().size() + " campi");
+    // System.out.println("il RS puntato ha " +
+    // this.resultset.getResultsetListField().size() + " campi");
     for (ResultsetField field : this.resultset.getResultsetListField()) {
 
       if (field.getReadperm()) {
@@ -119,7 +120,7 @@ public class JardinDetailPopUp extends Window {
         List values = new ArrayList();
         Field f = FieldCreator.getField(field, values, 0, true, source);
         this.fieldList.add(f);
-        
+
         if (!field.getModifyperm()) {
           f.setEnabled(false);
         }
@@ -133,10 +134,14 @@ public class JardinDetailPopUp extends Window {
           time = entry.get(field.getName());
           f.setValue(time);
         } else if (f instanceof SimpleComboBox<?>) {
-          if ((field.getType().compareToIgnoreCase("int") == 0)
-              || (field.getType().compareToIgnoreCase("real") == 0)) {
+          if ((field.getSpecificType().compareToIgnoreCase("int") == 0) || (field.getSpecificType().compareToIgnoreCase(
+                  "tinyint") == 0) || (field.getSpecificType().compareToIgnoreCase(
+                      "bigint") == 0)) {
             ((SimpleComboBox<Integer>) f).add((Integer) entry.get(field.getName()));
             ((SimpleComboBox<Integer>) f).setSimpleValue((Integer) entry.get(field.getName()));
+          } else if (field.getSpecificType().compareToIgnoreCase("float") == 0 ) {
+            ((SimpleComboBox<Float>) f).add((Float) entry.get(field.getName()));
+            ((SimpleComboBox<Float>) f).setSimpleValue((Float) entry.get(field.getName()));
           } else {
             ((SimpleComboBox<String>) f).add((String) entry.get(field.getName()));
             ((SimpleComboBox<String>) f).setSimpleValue((String) entry.get(field.getName()));
@@ -161,9 +166,9 @@ public class JardinDetailPopUp extends Window {
           this.formPanel.add(fieldSet);
         }
 
-          /* Aggancio il campo al suo raggruppamento */
-          fieldSet.add(f);
-//        }
+        /* Aggancio il campo al suo raggruppamento */
+        fieldSet.add(f);
+        // }
       }
     }
   }
@@ -204,18 +209,19 @@ public class JardinDetailPopUp extends Window {
           }
         }
         newItemList.add(newItem);
-        
-        Dispatcher.forwardEvent(EventList.UpdateObjects, new NewObjects(JardinDetailPopUp.this.resultset.getId(),newItemList));
+
+        Dispatcher.forwardEvent(EventList.UpdateObjects, new NewObjects(
+            JardinDetailPopUp.this.resultset.getId(), newItemList));
         hide();
-//        JardinDetailPopUp.this.commitChangesAsync(
-//            JardinDetailPopUp.this.resultset.getId(), newItemList);
+        // JardinDetailPopUp.this.commitChangesAsync(
+        // JardinDetailPopUp.this.resultset.getId(), newItemList);
       }
     });
 
     buttonBar.add(this.button);
     this.formPanel.setBottomComponent(buttonBar);
   }
-  
+
   public Field getFieldByName(String name) {
     for (Field fg : this.fieldList) {
       if (fg.getName().compareToIgnoreCase(name) == 0) {

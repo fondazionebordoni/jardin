@@ -83,16 +83,16 @@ public class JardinAddingPopUp extends Window {
 
   private void setFormPanel(String linkingField, String fdValue) {
 
-//    System.out.println("resultset coinvolto: " + this.resultset.getName());
-//    System.out.println("numero campi di " + this.resultset.getName() + ": "
-//        + this.resultset.getFields().size());
+    // System.out.println("resultset coinvolto: " + this.resultset.getName());
+    // System.out.println("numero campi di " + this.resultset.getName() + ": "
+    // + this.resultset.getFields().size());
     for (ResultsetField field : this.resultset.getFields()) {
 
       List values = new ArrayList();
       Field f = null;
 
       if (field.getInsertperm()) {
-//        System.out.println("aggiunto campo: " + field.getName());
+        // System.out.println("aggiunto campo: " + field.getName());
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
         if (field.getName().compareToIgnoreCase(linkingField) == 0) {
@@ -105,7 +105,11 @@ public class JardinAddingPopUp extends Window {
 
           f = FieldCreator.getField(field, values, 0, true, source);
 
-          if (!field.getModifyperm()) {
+          System.out.println("permessi campo " + field.getName() + " r:"
+              + field.getReadperm() + " m:" + field.getModifyperm() + " i:"
+              + field.getInsertperm() + " d:" + field.getDeleteperm());
+
+          if (!field.getInsertperm()) {
             f.setEnabled(false);
           }
 
@@ -208,21 +212,21 @@ public class JardinAddingPopUp extends Window {
           }
 
           if (value != null) {
-//            System.out.println("aggiungere: " + property + " con valore "
-//                + value);
+            // System.out.println("aggiungere: " + property + " con valore "
+            // + value);
             newItem.set(property, value);
             // Log.debug("aggiunto item " + newItem.get(property));
           }
         }
 
-//        BaseModelData resultsetIdentifier = new BaseModelData();
-//        resultsetIdentifier.set("RSID", resultset.getId());
+        // BaseModelData resultsetIdentifier = new BaseModelData();
+        // resultsetIdentifier.set("RSID", resultset.getId());
 
         // il primo record è l'id del RS, il secondo i valori dei campi da
         // salvare
-//        newItemList.add(resultsetIdentifier);
+        // newItemList.add(resultsetIdentifier);
         newItemList.add(newItem);
-        
+
         AppEvent event = new AppEvent(EventList.saveNewRecord);
         event.setData("object", newItemList);
         event.setData("resultsetid", resultset.getId());
@@ -237,8 +241,6 @@ public class JardinAddingPopUp extends Window {
     buttonBar.add(this.button);
     this.formPanel.setBottomComponent(buttonBar);
   }
-  
-  
 
   public Field getFieldByName(String name) {
     for (Field fg : this.fieldList) {

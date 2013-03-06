@@ -110,7 +110,9 @@ public class JardinGrid extends Grid<BaseModelData> {
         for (final ResultsetField field : resultset.getFields()) {
           if ((field.getForeignKey().compareToIgnoreCase("") != 0)
               && field.getForeignKey() != null) {
+            
             String fkinfo = field.getForeignKey();
+//            System.out.println("fk " + fkinfo + " per campo " + field.getName());
             String[] fksplitted = fkinfo.split("\\.");
             // for (final ResultsetImproved rs : resultsets) {
             for (final Resultset rs : resultsetList) {
@@ -125,7 +127,7 @@ public class JardinGrid extends Grid<BaseModelData> {
                 fk.set("GID", user.getGid());
                 // fk.set("RSLINKEDID", rs.getId());
                 MenuItem item =
-                    new MenuItem("Visualizza record corrispondente in "
+                    new MenuItem("Visualizza elemento corrispondente in "
                         + rs.getAlias());
 
                 m.add(item);
