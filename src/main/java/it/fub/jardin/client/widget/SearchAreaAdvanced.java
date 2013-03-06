@@ -24,6 +24,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.ResultsetPlus;
 import it.fub.jardin.client.model.ResultsetPlusField;
 import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,10 +54,11 @@ public class SearchAreaAdvanced extends FormPanel {
   private final List<Field<?>> fieldList;
   private final String source = "searcharea";
 
-  public SearchAreaAdvanced(final ResultsetImproved resultset) {
+  public SearchAreaAdvanced(final ResultsetImproved resultset, User user) {
 
     this.resultset = resultset;
     this.searchParams = new SearchParams(resultset.getId());
+    this.searchParams.setGroupId(user.getGid());
     this.fieldList = new ArrayList<Field<?>>();
     this.addStyleName("search-area-advanced");
 
@@ -183,7 +185,7 @@ public class SearchAreaAdvanced extends FormPanel {
           }
         }
 
-        SearchAreaAdvanced.this.searchParams.setFieldsValuesList(queryFieldList);
+        SearchAreaAdvanced.this.searchParams.setFieldsValuesList(queryFieldList);        
         Dispatcher.forwardEvent(EventList.Search,
             SearchAreaAdvanced.this.searchParams);
       }

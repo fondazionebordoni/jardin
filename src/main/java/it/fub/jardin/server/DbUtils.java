@@ -423,6 +423,9 @@ public class DbUtils {
     Connection connection = null;
     try {
       String query = this.createSearchQuery(config, searchParams);
+      ResultsetImproved resultSet =
+          getResultsetImproved(searchParams.getResultsetId(),
+              searchParams.getGroupId());
       connection = this.dbConnectionHandler.getConn();
       ResultSet result = doQuery(connection, query);
       int resultWidth = result.getMetaData().getColumnCount();
@@ -432,37 +435,44 @@ public class DbUtils {
           connection.getMetaData().getColumns(null, null,
               result.getMetaData().getTableName(1), null);
 
-      HashTable types = new HashTable();
-      while (res.next()) {
-        types.put(res.getString("COLUMN_NAME"), res.getString("TYPE_NAME"));
-      }
+      // HashTable types = new HashTable();
+      // while (res.next()) {
+      // types.put(res.getString("COLUMN_NAME"), res.getString("TYPE_NAME"));
+      // }
 
       while (result.next()) {
         BaseModelData map = new BaseModelData();
         // WARNING la prima colonna di una tabella ha indice 1 (non 0)
-        for (int i = 1; i <= resultWidth; i++) {
-          String key = result.getMetaData().getColumnLabel(i);// getColumnClassName(i);
+        // for (int i = 1; i <= resultWidth; i++) {
+        for (ResultsetField field : resultSet.getFields()) {
+          // String key = result.getMetaData().getColumnLabel(i);//
+          // getColumnClassName(i);
           Object value;
           // if (value != null) {
-          if (((String) types.get(key)).compareToIgnoreCase("VARBINARY") == 0) {
-            value = new String(result.getBytes(i));
-          } else if (((String) types.get(key)).compareToIgnoreCase("bigdecimal") == 0) {
+          System.out.println("colonna: " + field.getName() + " del tipo "
+              + field.getSpecificType());
+          if (field.getSpecificType().compareToIgnoreCase("varchar") == 0
+              || field.getSpecificType().compareToIgnoreCase("char") == 0
+              || field.getSpecificType().compareToIgnoreCase("enum") == 0
+              || field.getSpecificType().compareToIgnoreCase("text") == 0) {
+            value = result.getString(field.getName());
+          } else if (field.getSpecificType().compareToIgnoreCase("int") == 0) {
             // value = ((BigDecimal)
             // result.getObject(i)).floatValue();
-            value = result.getBigDecimal(i).floatValue();
-          } else if (((String) types.get(key)).compareToIgnoreCase("DATE") == 0) {
-            value = result.getDate(i);
-          } else if (((String) types.get(key)).compareToIgnoreCase("DATETIME") == 0) {
+            value = result.getInt(field.getName());
+          } else if (field.getSpecificType().compareToIgnoreCase("float") == 0) {
+            value = result.getFloat(field.getName());
+          } else if (field.getSpecificType().compareToIgnoreCase("DATE") == 0 || field.getSpecificType().compareToIgnoreCase("DATETIME") == 0) {
+            value = result.getDate(field.getName());
+          } else if (field.getSpecificType().compareToIgnoreCase("TIMESTAMP") == 0) {
             try {
-              value = result.getTimestamp(i);
+              value = result.getTimestamp(field.getName());
             } catch (Exception e) {
-              value = result.getObject(i);
+              value = result.getObject(field.getName());
             }
 
-          } else if (((String) types.get(key)).compareToIgnoreCase("TIMESTAMP") == 0) {
-            value = result.getTimestamp(i);
           } else {
-            value = result.getString(i);
+            value = result.getString(field.getName());
           }
           // }
           // TODO Inserire un controllo di compatibilità di
@@ -487,7 +497,7 @@ public class DbUtils {
           // }
           // }
           // System.out.println(key + ": " + value.getClass());
-          map.set(key, value);
+          map.set(field.getName(), value);
         }
         records.add(map);
       }
@@ -635,8 +645,8 @@ public class DbUtils {
       String query =
           "SELECT DISTINCT `" + fieldName + "` FROM " + resultset
               + " ORDER BY `" + fieldName + "` ASC";
-//      System.out.println("query valori possibili per " + resultset + "."
-//          + fieldName + ": " + query);
+      // System.out.println("query valori possibili per " + resultset + "."
+      // + fieldName + ": " + query);
       JardinLogger.debug(query);
       ResultSet res = doQuery(connection, query);
       while (res.next()) {
@@ -739,7 +749,7 @@ public class DbUtils {
   public int setObjects(final Integer resultsetId,
       final List<BaseModelData> records) throws HiddenException {
 
-//    JardinLogger.info("Setting records...");
+    // JardinLogger.info("Setting records...");
 
     int result = 0;
     Connection connection = this.dbConnectionHandler.getConn();
@@ -2141,7 +2151,7 @@ public class DbUtils {
       final List<BaseModelData> newItemList, final String condition)
       throws HiddenException {
 
-//    JardinLogger.info("Updating records...");
+    // JardinLogger.info("Updating records...");
 
     int result = 0;
     Connection connection = this.dbConnectionHandler.getConn();
@@ -2227,7 +2237,7 @@ public class DbUtils {
       }
       connection.commit();
       connection.setAutoCommit(true);
-//      JardinLogger.info("Records updated");
+      // JardinLogger.info("Records updated");
     } catch (Exception e) {
       try {
         connection.rollback();
@@ -2251,23 +2261,23 @@ public class DbUtils {
       HiddenException {
     Integer id_table = 0;
     String mitt = mailUtility.getMailSmtpSender();
-    
+
     Connection connection = this.dbConnectionHandler.getConn();
 
     String query =
-        "SELECT address_statement, data_statement, link_id, name FROM " + T_NOTIFY
-            + " WHERE id_resultset = '" + resultsetId + "'";
+        "SELECT address_statement, data_statement, link_id, name FROM "
+            + T_NOTIFY + " WHERE id_resultset = '" + resultsetId + "'";
 
-     JardinLogger.debug("query: " + query);
+    JardinLogger.debug("query: " + query);
 
     ResultSet result = doQuery(connection, query);
     while (result.next()) {
-      String testo = "";      
+      String testo = "";
       String address_statement = result.getString(1);
       String data_statement = result.getString(2);
       String bmdid = result.getString(3);
       String oggetto = result.getString(4);
-       JardinLogger.debug("bmdid "+bmdid);
+      JardinLogger.debug("bmdid " + bmdid);
 
       for (BaseModelData record : newItemList) {
         if (record.get(bmdid) != null) {
@@ -2283,16 +2293,17 @@ public class DbUtils {
               testo +=
                   md.getColumnLabel(i) + ": " + resultData.getString(i) + "\n";
             }
-             JardinLogger.debug("\nmessaggio:\n" + testo);
+            JardinLogger.debug("\nmessaggio:\n" + testo);
             testo += "\n";
           }
 
           PreparedStatement ps =
               (PreparedStatement) connection.prepareStatement(address_statement);
-//          ps.setInt(1, id_table);
+          // ps.setInt(1, id_table);
           ResultSet resultAddress = ps.executeQuery();
           while (resultAddress.next()) {
-             JardinLogger.info("Sending notification mail to: " + resultAddress.getString(1));
+            JardinLogger.info("Sending notification mail to: "
+                + resultAddress.getString(1));
             if (!(resultAddress.getString(1) == null)) {
               try {
                 mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto,
@@ -2300,17 +2311,17 @@ public class DbUtils {
 
               } catch (MessagingException e) {
                 e.printStackTrace();
-                 JardinLogger.error("Invio non riuscito!");
-                 JardinLogger.error("MessagingException: " + e.toString());
+                JardinLogger.error("Invio non riuscito!");
+                JardinLogger.error("MessagingException: " + e.toString());
                 // Log.info(e.toString());
               }
-               JardinLogger.info("Invio riuscito!");
+              JardinLogger.info("Invio riuscito!");
             } else {
               JardinLogger.error("Errore invio mail: Mail non valida!");
             }
           }
         } else {
-           JardinLogger.error("Notifica non inviata perchè è un inserimento!");
+          JardinLogger.error("Notifica non inviata perchè è un inserimento!");
         }
       }
     }
@@ -2663,8 +2674,8 @@ public class DbUtils {
       throw new VisibleException(e.getLocalizedMessage());
     }
 
-//    JardinLogger.info("LOGIN: tentativo di login utente "
-//        + credentials.getUsername());
+    // JardinLogger.info("LOGIN: tentativo di login utente "
+    // + credentials.getUsername());
     String query =
         "SELECT u.id, u.name, u.surname, u.email, u.office, "
             + "u.telephone, u.status AS userstatus, u.lastlogintime, "
@@ -2704,8 +2715,8 @@ public class DbUtils {
               + "due account con username e password uguali");
         }
 
-//        JardinLogger.info("LOGIN: login utente " + credentials.getUsername()
-//            + " RIUSCITO!");
+        // JardinLogger.info("LOGIN: login utente " + credentials.getUsername()
+        // + " RIUSCITO!");
         /* Creazione dell'utente con i dati del database */
         int uid = result.getInt("id");
         int gid = result.getInt("groupid");
@@ -2754,8 +2765,8 @@ public class DbUtils {
       }
     }
 
-//    JardinLogger.info("Errore LOGIN: tentativo di login utente "
-//        + credentials.getUsername() + " FALLITO!");
+    // JardinLogger.info("Errore LOGIN: tentativo di login utente "
+    // + credentials.getUsername() + " FALLITO!");
     throw new VisibleException("Errore di accesso: username o password errati");
   }
 
@@ -2820,7 +2831,7 @@ public class DbUtils {
       connection.setAutoCommit(false);
 
       // String[] transQueries = null;
-      
+
       // int i = 0;
       for (String pkValue : muo.getPrimaryKeyValues()) {
         transQueries = "UPDATE `" + tableName + "` SET ";
@@ -2835,7 +2846,7 @@ public class DbUtils {
             " WHERE " + muo.getFieldName() + " = '" + pkValue + "'; ";
         // i++;
         Statement stmt = connection.createStatement();
-//        System.out.println("query update massivo: " + transQueries);
+        // System.out.println("query update massivo: " + transQueries);
         JardinLogger.debug("query update massivo: " + transQueries);
         stmt.executeUpdate(transQueries);
       }
@@ -2854,7 +2865,7 @@ public class DbUtils {
         // TODO Auto-generated catch block
         e1.printStackTrace();
       }
-      
+
       JardinLogger.debug("query update massivo: " + transQueries);
       e.printStackTrace();
       throw new VisibleException("Impossibile eseguire update massivo");

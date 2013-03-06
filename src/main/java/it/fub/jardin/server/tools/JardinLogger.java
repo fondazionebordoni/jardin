@@ -1,5 +1,6 @@
 package it.fub.jardin.server.tools;
 
+import it.fub.jardin.client.model.User;
 import it.fub.utilities.*;
 
 import java.io.FileInputStream;
@@ -34,11 +35,12 @@ public class JardinLogger {
   private static String logSubsystem;
   private static String sessionValue;
   private static String hostname;
+  private static String username;
 
   /**
    * This should be removed
    */
-  public JardinLogger(String confDir, String subSystem) {
+  public JardinLogger(String confDir, String subSystem, User user) {
     // TODO Auto-generated constructor stub
     logSubsystem = subSystem;
 
@@ -50,7 +52,7 @@ public class JardinLogger {
     }
 
     LOG_PROPERTIES_FILE = LOG_PROPERTIES_FILE + "/log4j.properties";
-    initializeLogger();
+    initializeLogger(user);
   }
 
   public static void setContext(Hashtable threadContext) {
@@ -59,6 +61,7 @@ public class JardinLogger {
         || !threadContext.containsKey("log4j_initialized")) {
 
       MDC.put("hostname", hostname);
+      MDC.put("username", username);
       MDC.put("subsystem", logSubsystem);
       MDC.put("session", sessionValue);
       MDC.put("log4j_initialized", "yes");
@@ -66,7 +69,7 @@ public class JardinLogger {
     }
   }
 
-  public static void init(String confDir, String subSystem) {
+  public static void init(String confDir, String subSystem, User user) {
     logSubsystem = subSystem;
 
     if (confDir.startsWith("/")) {
@@ -77,11 +80,11 @@ public class JardinLogger {
     }
 
     LOG_PROPERTIES_FILE = LOG_PROPERTIES_FILE + "/log4j.properties";
-    initializeLogger();
+    initializeLogger(user);
 
   }
 
-  private static void initializeLogger() {
+  private static void initializeLogger(User user) {
     logger = Logger.getLogger("log4j dataserver logger");
     Properties logProperties = new Properties();
 
@@ -92,6 +95,8 @@ public class JardinLogger {
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
+    
+    username = user.getUsername();
     // MDC.put("hostname", hostname);
     // MDC.put("subsystem", logSubsystem);
 

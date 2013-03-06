@@ -374,14 +374,14 @@ public class JardinView extends View {
     this.main.add(newTab);
 
     /* Creazione dell'area di ricerca avanzata */
-    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
+    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset, user);
 
     /* Creazione della griglia */
     ListStore<BaseModelData> store = new ListStore<BaseModelData>();
     JardinColumnModel cm = new JardinColumnModel(resultset);
     JardinGrid grid = new JardinGrid(store, cm, resultset, user);
 
-    new SearchAreaBase(resultset);
+    new SearchAreaBase(resultset, user);
     /* Creazione del dettaglio */
     JardinDetail detail = new JardinDetail(resultset);
 

@@ -180,7 +180,7 @@ public class JardinController extends Controller {
     // System.out.println("CONTROLLER: catturato plugins " + t.toString());
     // }
     if (t == EventList.Login) {
-      this.forwardToView(this.view, EventList.Login, this.loginMessage());
+      this.forwardToView(this.view, EventList.Login, null);
     } else if (t == EventList.CheckUser) {
       if (event.getData() instanceof Credentials) {
         Credentials credentials = (Credentials) event.getData();
@@ -883,11 +883,12 @@ public class JardinController extends Controller {
   }
 
   private String loginMessage() {
-    if (GXT.isWebKit) {
-      return null;
-    } else {
-      return webKitSuggest;
-    }
+//    if (GXT.isWebKit) {
+//      return null;
+//    } else {
+//      return webKitSuggest;
+//    }
+    return null;
   }
 
   private void onError(final String error) {
