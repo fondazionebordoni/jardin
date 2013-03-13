@@ -1545,8 +1545,10 @@ public class JardinController extends Controller {
   }
 
   private void onViewLinkedResultset(final IncomingForeignKeyInformation ifki) {
+    
     ResultsetImproved rs = ifki.getInterestedResultset();
     SearchParams searchParams = new SearchParams(rs.getId());
+    searchParams.setGroupId(user.getGid());
     searchParams.setAccurate(true);
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
     SearchStringParser parser =
