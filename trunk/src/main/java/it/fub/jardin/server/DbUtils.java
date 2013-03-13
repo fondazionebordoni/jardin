@@ -427,6 +427,7 @@ public class DbUtils {
           getResultsetImproved(searchParams.getResultsetId(),
               searchParams.getGroupId());
       connection = this.dbConnectionHandler.getConn();
+      System.out.println(query);
       ResultSet result = doQuery(connection, query);
       int resultWidth = result.getMetaData().getColumnCount();
       JardinLogger.debug("INFO SQL: query di ricerca: " + query);
@@ -449,8 +450,8 @@ public class DbUtils {
           // getColumnClassName(i);
           Object value;
           // if (value != null) {
-          System.out.println("colonna: " + field.getName() + " del tipo "
-              + field.getSpecificType());
+//          System.out.println("colonna: " + field.getName() + " del tipo "
+//              + field.getSpecificType());
           if (field.getSpecificType().compareToIgnoreCase("varchar") == 0
               || field.getSpecificType().compareToIgnoreCase("char") == 0
               || field.getSpecificType().compareToIgnoreCase("enum") == 0

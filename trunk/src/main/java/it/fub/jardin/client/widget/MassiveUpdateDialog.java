@@ -13,6 +13,7 @@ import it.fub.jardin.client.model.SearchParams;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.text.DateFormatter;
@@ -151,11 +152,17 @@ public class MassiveUpdateDialog extends Window {
           hasPk = true;
           primaryKeyValues = new ArrayList<String>();
 
-          if (gridStore != null) {
+          if (gridStore != null) {            
             for (BaseModelData m : gridStore) {
-              primaryKeyValues.add((String) m.get(field.getName()));
-              // System.out.println("aggiunto valore di pk (" + field.getAlias()
-              // + "): " + (String) m.get(field.getName()));
+//              Iterator itt = m.getProperties().keySet().iterator();
+//              while (itt.hasNext()) {
+//                System.out.println("chiave: " + itt.next());
+//              }
+//              System.out.println("MUD - aggiunto valore di pk (" + field.getName()+ "): ");
+//              System.out.println((String) m.get(field.getName()));
+              
+              primaryKeyValues.add(m.get(field.getName()).toString());
+               
               labelText += field.getName() + "=" + m.get(field.getName()) + "|";
             }
           }

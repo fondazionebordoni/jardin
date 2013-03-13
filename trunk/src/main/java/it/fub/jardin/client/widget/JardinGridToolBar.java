@@ -265,6 +265,8 @@ public class JardinGridToolBar extends ToolBar {
           }
         }
       }
+      
+//      parser.printMap(searchMap);
     }
 
     grid.getSearchparams().setFieldsValuesList(queryFieldList);
