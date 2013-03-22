@@ -68,7 +68,7 @@ public class JardinTabItem extends TabItem {
   public JardinTabItem(final ResultsetImproved resultset) {
     super(resultset.getAlias());
 
-    this.setClosable(true);    
+    this.setClosable(true);
     this.setLayout(new FitLayout());
 
     this.main = new ContentPanel(new BorderLayout());
@@ -199,8 +199,8 @@ public class JardinTabItem extends TabItem {
   public void updateStore(final ListStore<BaseModelData> store) {
 
     /* Loading dello store */
-//    setStore(store);
-//    this.grid.setCompleteSearchedStore(store);
+    // setStore(store);
+    // this.grid.setCompleteSearchedStore(store);
     final PagingLoader<PagingLoadResult<BaseModelData>> loader =
         (PagingLoader<PagingLoadResult<BaseModelData>>) store.getLoader();
     loader.load(0, PAGESIZE);
@@ -251,12 +251,16 @@ public class JardinTabItem extends TabItem {
                   if (record.get(field.getName()) instanceof Integer) {
                     Integer defaultValue = record.get(field.getName());
                     ArrayList<Integer> defval = new ArrayList<Integer>();
-                    defval.add(defaultValue);
+                    if (defaultValue != null) {
+                      defval.add(defaultValue);
+                    }
                     ((SimpleComboBox) field).add(defval);
                   } else {
                     String defaultValue = record.get(field.getName());
                     ArrayList<String> defval = new ArrayList<String>();
-                    defval.add(defaultValue);
+                    if (defaultValue != null) {
+                      defval.add(defaultValue);
+                    }
                     ((SimpleComboBox) field).add(defval);
                   }
                 }
@@ -291,11 +295,11 @@ public class JardinTabItem extends TabItem {
   }
 
   /**
-   * @param searchAreaAdvanced the searchAreaAdvanced to set
+   * @param searchAreaAdvanced
+   *          the searchAreaAdvanced to set
    */
   public void setSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
     this.searchAreaAdvanced = searchAreaAdvanced;
   }
 
-  
 }
