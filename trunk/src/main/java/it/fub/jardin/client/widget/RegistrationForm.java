@@ -120,7 +120,7 @@ public class RegistrationForm extends Window {
     // && hasValue(username) && hasValue(password)
     // && password.getValue().length() > 7) {
     if (hasValue(nome) && hasValue(cognome) && hasValue(email)
-        && hasValue(username) && username.getValue().length() > 4) {
+        && hasValue(username) && username.getValue().length() >= 4) {
       this.button.setEnabled(true);
       return true;
     } else

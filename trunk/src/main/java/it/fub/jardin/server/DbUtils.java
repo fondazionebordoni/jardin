@@ -59,7 +59,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -67,15 +66,14 @@ import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
 
-import org.apache.batik.dom.util.HashTable;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 
 import com.Ostermiller.util.CSVParser;
-//import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+//import com.allen_sauer.gwt.log.client.Log;
 
 public class DbUtils {
 
