@@ -38,6 +38,7 @@ import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinTabItem;
 import it.fub.jardin.client.widget.LoginDialog;
 import it.fub.jardin.client.widget.MassiveUpdateDialog;
+import it.fub.jardin.client.widget.RegistrationForm;
 import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
@@ -96,6 +97,7 @@ public class JardinView extends View {
   private HeaderArea header;
   private LoginDialog dialog;
   private ChangePasswordDialog pwDialog;
+  private RegistrationForm regForm;
   private User user;
   private List<Resultset> resultSetList; // listsa dei resultset almeno
                                          // leggibili dall'utente
@@ -135,6 +137,24 @@ public class JardinView extends View {
         message = "Login - Errore durante l'accesso";
       }
       this.loginError(message);
+    } else if (t == EventList.OpenRegistrationForm) {
+      regForm = new RegistrationForm();
+    } else if (t == EventList.RegistrationSuccessfull) {
+      Integer output = event.getData(); 
+      regForm.hide();
+      if (output == 2 || output == 3) {
+      MessageBox.info(
+          "Registrazione utente",
+          "utente registrato con successo! controllare l'indirizzo email fornito per proseguire",
+          null);
+      } else MessageBox.alert(
+          "Registrazione utente",
+          "IMPOSSIBILE registrare utente!!! controllare che i dati inseriti siano quelli pre registrati",
+          null);
+    } else if (t == EventList.RegistrationError) {
+      regForm.hide();
+      MessageBox.info("Registrazione utente",
+          "ERRORE: impossibile registrare l'utente", null);
     } else if (t == EventList.initialChangePassword) {
       this.dialog.hide();
       this.forcePasswordChange((User) event.getData());
@@ -188,11 +208,11 @@ public class JardinView extends View {
        * Gestione eventi della toolbar
        */
     }
-//    else if (t == EventList.AddRow) {
-//      if (event.getData() instanceof Integer) {
-//        this.onAddRow((Integer) event.getData());
-//      }
-//    }
+    // else if (t == EventList.AddRow) {
+    // if (event.getData() instanceof Integer) {
+    // this.onAddRow((Integer) event.getData());
+    // }
+    // }
     else if (t == EventList.ViewPopUpDetail) {
       if (event.getData() instanceof ArrayList<?>) {
         this.onViewPopUpDetail((ArrayList<BaseModelData>) event.getData());
@@ -231,7 +251,7 @@ public class JardinView extends View {
           ((SearchResult) event.getData()).getResultsetId()).getGrid()).setMassiveUpdateDialog(mud);
     } else if (t == EventList.GotValuesOfAField) {
 
-      System.out.println("sorgente: " + event.getData("source"));
+      // System.out.println("sorgente: " + event.getData("source"));
 
       if (event.getData("source").toString().compareToIgnoreCase("detail") == 0) {
         String interestedFieldName =
@@ -241,16 +261,11 @@ public class JardinView extends View {
             (JardinDetail) this.getItemByResultsetId(
                 ((ForeignKey) event.getData("object")).getPointingResultsetId()).getDetail();
 
-//        ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).removeAll();
         ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).add(valuesList);
-        // System.out.println("numero elementi nel combo "
-        // + interestedFieldName
-        // + ": "
-        // + ((ComboBox)
-        // interestedDetail.getFieldByName(interestedFieldName)).getStore().getCount());
-        // System.out.println("lunghezza lista sulla view: " +
-        // valuesList.size());
-      } if (event.getData("source").toString().compareToIgnoreCase("addingrowpopup") == 0) {
+
+      }
+      if (event.getData("source").toString().compareToIgnoreCase(
+          "addingrowpopup") == 0) {
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
         List valuesList = ((ForeignKey) event.getData("object")).getValues();
@@ -258,15 +273,10 @@ public class JardinView extends View {
             (AddRowForm) this.getItemByResultsetId(
                 ((ForeignKey) event.getData("object")).getPointingResultsetId()).getGrid().getAddRowForm();
 
-//        ((SimpleComboBox) interestedRF.getFieldByName(interestedFieldName)).removeAll();
+        // ((SimpleComboBox)
+        // interestedRF.getFieldByName(interestedFieldName)).removeAll();
         ((SimpleComboBox) interestedRF.getFieldByName(interestedFieldName)).add(valuesList);
-//         System.out.println("numero elementi nel combo "
-//         + interestedFieldName
-//         + ": "
-//         + ((ComboBox)
-//             interestedRF.getFieldByName(interestedFieldName)).getStore().getCount());
-//         System.out.println("lunghezza lista sulla view: " +
-//         valuesList.size());
+
       } else if (event.getData("source").toString().compareToIgnoreCase("grid") == 0) {
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
@@ -274,15 +284,10 @@ public class JardinView extends View {
         JardinGrid interestedGrid =
             (JardinGrid) this.getItemByResultsetId(
                 ((ForeignKey) event.getData("object")).getPointingResultsetId()).getGrid();
-//        ((SimpleComboBox) interestedGrid.getColumnModel().getColumnById(
-//            interestedFieldName).getEditor().getField()).removeAll();
+
         ((SimpleComboBox) interestedGrid.getColumnModel().getColumnById(
             interestedFieldName).getEditor().getField()).add(valuesList);
-        // System.out.println("numero elementi nel combo "
-        // + interestedFieldName
-        // + ": "
-        // + ((ComboBox)
-        // interestedGrid.getColumnModel().getColumnById(interestedFieldName).getEditor().getField()).getStore().getCount());
+
       } else if (event.getData("source").toString().compareToIgnoreCase(
           "searcharea") == 0) {
         String interestedFieldName =
@@ -298,58 +303,41 @@ public class JardinView extends View {
                 ((SearchResult) event.getData("object")).getResultsetId()).getSearchAreaAdvanced();
 
         ((SimpleComboBox) interestedSA.getFieldByName(interestedFieldName)).setToolTip("iniziare a scrivere...");
-//        ((SimpleComboBox) interestedSA.getFieldByName(interestedFieldName)).removeAll();
+        // ((SimpleComboBox)
+        // interestedSA.getFieldByName(interestedFieldName)).removeAll();
         ((SimpleComboBox) interestedSA.getFieldByName(interestedFieldName)).add(valuesList);
-        // System.out.println("numero elementi nel combo "
-        // + interestedFieldName
-        // + ": "
-        // + ((ComboBox)
-        // interestedSA.getFieldByName(interestedFieldName)).getStore().getCount());
-      } else if (event.getData("source").toString().compareToIgnoreCase("addingpopup") == 0) {
-        
-        JardinAddingPopUp interestedJAP =            
+
+      } else if (event.getData("source").toString().compareToIgnoreCase(
+          "addingpopup") == 0) {
+
+        JardinAddingPopUp interestedJAP =
             ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinAddingPopUp();
 
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
-        
-//        System.out.println("numero elementi nel combo "
-//            + interestedFieldName
-//            + ": "
-//            + ((ComboBox)
-//                interestedJAP.getFieldByName(interestedFieldName)).getStore().getCount());
-        
-//        ((SimpleComboBox) interestedJAP.getFieldByName(interestedFieldName)).removeAll();
+
         ((SimpleComboBox) interestedJAP.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
-      
-      } else if (event.getData("source").toString().compareToIgnoreCase("detailpopup") == 0) {
+
+      } else if (event.getData("source").toString().compareToIgnoreCase(
+          "detailpopup") == 0) {
         JardinDetailPopUp interestedJDP =
             ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinDetailPopup();
 
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
-//        System.out.println("numero elementi nel combo "
-//            + interestedFieldName
-//            + ": "
-//            + ((ComboBox)
-//                interestedJDP.getFieldByName(interestedFieldName)).getStore().getCount());
-//        ((SimpleComboBox) interestedJDP.getFieldByName(interestedFieldName)).removeAll();
+
         ((SimpleComboBox) interestedJDP.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
-        
-      } else if (event.getData("source").toString().compareToIgnoreCase("massupdatepopup") == 0) {
+
+      } else if (event.getData("source").toString().compareToIgnoreCase(
+          "massupdatepopup") == 0) {
         MassiveUpdateDialog interestedMUD =
             ((JardinTabItem) this.main.getSelectedItem()).getGrid().getMassiveUpdateDialog();
 
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
-//        System.out.println("numero elementi nel combo "
-//            + interestedFieldName
-//            + ": "
-//            + ((ComboBox)
-//                interestedMUD.getFieldByName(interestedFieldName)).getStore().getCount());
-//        ((SimpleComboBox) interestedMUD.getFieldByName(interestedFieldName)).removeAll();
+
         ((SimpleComboBox) interestedMUD.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
-        
+
       }
     }
   }
@@ -374,7 +362,8 @@ public class JardinView extends View {
     this.main.add(newTab);
 
     /* Creazione dell'area di ricerca avanzata */
-    SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset, user);
+    SearchAreaAdvanced searchAreaAdvanced =
+        new SearchAreaAdvanced(resultset, user);
 
     /* Creazione della griglia */
     ListStore<BaseModelData> store = new ListStore<BaseModelData>();
@@ -551,10 +540,10 @@ public class JardinView extends View {
     item.getGrid().showAllColumns();
   }
 
-//  private void onAddRow(final int resultset) {
-//    JardinTabItem item = this.getItemByResultsetId(resultset);
-//    item.getGrid().addRow();
-//  }
+  // private void onAddRow(final int resultset) {
+  // JardinTabItem item = this.getItemByResultsetId(resultset);
+  // item.getGrid().addRow();
+  // }
 
   private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {
     BaseModelData data = infoToView.get(0);

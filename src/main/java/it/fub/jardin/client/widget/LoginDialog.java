@@ -30,10 +30,9 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 public class LoginDialog extends Dialog {
@@ -42,6 +41,7 @@ public class LoginDialog extends Dialog {
   private final TextField<String> password;
   private Button login;
   private Status status;
+  private Button registrationFormButton;
 
   public LoginDialog() {
     FormLayout layout = new FormLayout();
@@ -54,7 +54,7 @@ public class LoginDialog extends Dialog {
     this.setHeading("Manager Login");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");
-    this.setWidth(320);
+    this.setWidth(440);
     this.setResizable(false);
 
     KeyListener keyListener = new KeyListener() {
@@ -79,7 +79,9 @@ public class LoginDialog extends Dialog {
     this.password.setFieldLabel("Password");
     this.password.addKeyListener(keyListener);
     this.add(this.password);
-
+    
+    
+//    this.add(this.registrationFormButton);
     this.setFocusWidget(this.username);
   }
 
@@ -92,7 +94,7 @@ public class LoginDialog extends Dialog {
     this.status = new Status();
     this.status.setText("Inserire Username e Password");
     bb.add(this.status);
-    bb.add(new FillToolItem());
+//    bb.add(new FillToolItem());
 
     this.login = new Button("Login");
     this.login.setEnabled(false);
@@ -103,6 +105,21 @@ public class LoginDialog extends Dialog {
       }
     });
     bb.add(this.login);
+    
+    registrationFormButton = new Button("Accedi al form di registrazione");
+    registrationFormButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        // TODO Auto-generated method stub
+        Dispatcher.forwardEvent(EventList.OpenRegistrationForm);
+      }    
+        
+       
+    });
+    
+    
+    bb.add(registrationFormButton);
 
   }
 
@@ -138,6 +155,20 @@ public class LoginDialog extends Dialog {
         new Credentials(this.username.getValue(), this.password.getValue());
 //    Dispatcher.forwardEvent(EventList.CheckUser, c);
     Dispatcher.forwardEvent(EventList.CheckCredential, c);
+  }
+
+  /**
+   * @return the registrationForm
+   */
+  public Button getRegistrationForm() {
+    return registrationFormButton;
+  }
+
+  /**
+   * @param registrationForm the registrationForm to set
+   */
+  public void setRegistrationForm(Button registrationForm) {
+    this.registrationFormButton = registrationForm;
   }
 
 }

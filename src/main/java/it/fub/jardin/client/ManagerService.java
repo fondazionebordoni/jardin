@@ -25,6 +25,7 @@ import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.RegistrationInfo;
 import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.ResultsetPlus;
@@ -32,7 +33,6 @@ import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.User;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +43,8 @@ import com.extjs.gxt.ui.client.event.EventType;
 import com.google.gwt.user.client.rpc.RemoteService;
 
 public interface ManagerService extends RemoteService {
+  
+  public Integer checkRegistrationInfo(RegistrationInfo regInfo) throws VisibleException, HiddenException ;
   
   public Integer massiveUpdate(MassiveUpdateObject muo) throws VisibleException, HiddenException;
 

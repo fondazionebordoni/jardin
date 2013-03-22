@@ -75,10 +75,6 @@ public class JardinDetail extends FormPanel {
     /* Esamino tutti i campi */
     for (final ResultsetField field : this.resultset.getFields()) {
 
-//      Field f = null;
-
-//      field.doTypeAnalisys(); // specifica variabili tipo, lunghezza e valori
-
       if (field.getReadperm()) {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
         // System.out.println("campo del dettaglio: " + field.getName());

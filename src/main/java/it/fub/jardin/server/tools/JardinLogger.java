@@ -52,7 +52,12 @@ public class JardinLogger {
     }
 
     LOG_PROPERTIES_FILE = LOG_PROPERTIES_FILE + "/log4j.properties";
-    initializeLogger(user);
+    if (user == null) { // è una registrazione!!!
+      username = "REGISTRAZIONE";
+    } else username = user.getUsername();
+    
+    initializeLogger(username);
+    
   }
 
   public static void setContext(Hashtable threadContext) {
@@ -80,11 +85,15 @@ public class JardinLogger {
     }
 
     LOG_PROPERTIES_FILE = LOG_PROPERTIES_FILE + "/log4j.properties";
-    initializeLogger(user);
+    if (user == null) { // è una registrazione!!!
+      username = "REGISTRAZIONE";
+    } else username = user.getUsername();
+    
+    initializeLogger(username);
 
   }
 
-  private static void initializeLogger(User user) {
+  private static void initializeLogger(String username) {
     logger = Logger.getLogger("log4j dataserver logger");
     Properties logProperties = new Properties();
 
@@ -96,7 +105,7 @@ public class JardinLogger {
       e1.printStackTrace();
     }
     
-    username = user.getUsername();
+//    username = user.getUsername();
     // MDC.put("hostname", hostname);
     // MDC.put("subsystem", logSubsystem);
 

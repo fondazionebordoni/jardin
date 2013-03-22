@@ -138,25 +138,27 @@ public class EventList {
 
   public static final EventType GotResultsetList = new EventType();
 
-  public static final EventType newRecordPopUp =  new EventType();
+  public static final EventType newRecordPopUp = new EventType();
 
-  public static final EventType getResultsetImproved  =  new EventType();
+  public static final EventType getResultsetImproved = new EventType();
 
   public static final EventType gotResultsetImproved = new EventType();
 
-  public static final EventType CheckCredential  = new EventType();
+  public static final EventType CheckCredential = new EventType();
 
   public static final EventType gotResultsetPlus = new EventType();
-  
+
   public static final EventType getResultsetPlus = new EventType();
 
   public static final EventType initialChangePassword = new EventType();
 
-  public static final EventType CheckCredentialAndChangePassword = new EventType();
+  public static final EventType CheckCredentialAndChangePassword =
+      new EventType();
 
   public static final EventType changePasswordError = new EventType();
 
-  public static final EventType getResultsetImprovedFromContextMenu = new EventType();
+  public static final EventType getResultsetImprovedFromContextMenu =
+      new EventType();
 
   public static final EventType ViewAddingPopup = new EventType();
 
@@ -173,5 +175,13 @@ public class EventList {
   public static final EventType FkValuesRetrieved = new EventType();
 
   public static final EventType UpdateObjects = new EventType();
-  
+
+  public static final EventType CheckRegistrationInfo = new EventType();
+
+  public static final EventType RegistrationError = new EventType();
+
+  public static final EventType RegistrationSuccessfull = new EventType();
+
+  public static final EventType OpenRegistrationForm = new EventType();
+
 }
