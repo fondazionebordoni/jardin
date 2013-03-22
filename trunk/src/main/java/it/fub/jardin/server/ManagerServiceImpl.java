@@ -28,6 +28,7 @@ import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.RegistrationInfo;
 import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.ResultsetPlus;
@@ -497,6 +498,37 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
    */
   public void setMailUtility(MailUtility mailUtility) {
     this.mailUtility = mailUtility;
+  }
+
+  public Integer checkRegistrationInfo(RegistrationInfo regInfo)
+      throws VisibleException, HiddenException {
+    // TODO Auto-generated method stub
+    if (logInitialized == false) {
+
+      String confDir =
+          this.getClass().getClassLoader().getResource("/").getPath()
+              + log4jConfPath;
+      // System.out.println("dir: " + confDir);
+      JardinLogger.init(confDir, subSystem, getCurrentUser());
+
+      logInitialized = true;
+    }
+    
+    Integer output = dbUtils.checkRegistrationInfo(regInfo);
+
+    if (output == 0 || output == 1) {
+      JardinLogger.info("REGISTRAZIONE: impossibile registrare l'utente "
+          + regInfo.getUsername());
+    } else if (output == 2 || output == 3) {
+      JardinLogger.info("REGISTRAZIONE: utente " + regInfo.getUsername()
+          + " registrato con successo");
+      JardinLogger.info("REGISTRAZIONE: invio email con password primo accesso all'utente "
+          + regInfo.getUsername());
+      this.dbUtils.sendRegistrationMail(mailUtility, regInfo, output);
+      JardinLogger.info("REGISTRAZIONE: email con password primo accesso all'utente "
+          + regInfo.getUsername() + " inviata");
+    }
+    return output;
   }
 
   //

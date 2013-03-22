@@ -230,7 +230,7 @@ public class SearchStringParser {
 
   public void printMap(final Map<String, String> map) {
     for (String key : map.keySet()) {
-//      Log.debug("k: " + key + ", value: " + map.get(key));
+      System.out.println("k: " + key + ", value: " + map.get(key));
     }
   }
 

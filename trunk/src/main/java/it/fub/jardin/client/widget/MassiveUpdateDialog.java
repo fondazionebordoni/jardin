@@ -10,13 +10,9 @@ import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.text.DateFormatter;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -33,13 +29,11 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -131,19 +125,7 @@ public class MassiveUpdateDialog extends Window {
         Field f = FieldCreator.getField(field, values, 0, true, source);
 
 //        System.out.println("tipo campo: " +field.getSpecificType());
-        // if (!field.getModifyperm()) {
-        // f.setEnabled(false);
-        // }
-        //
-        // if (f instanceof DateField) {
-        // ((DateField)f).getPropertyEditor().setFormat(
-        // DateTimeFormat.getFormat("dd/MM/y"));
-        // java.util.Date date = new java.util.Date();
-        // f.setValue(date);
-        // } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
-        // f = new TextField<String>();
-        // f.setValue("");
-        // }
+
 
         if (field.getIsPK()) {
 

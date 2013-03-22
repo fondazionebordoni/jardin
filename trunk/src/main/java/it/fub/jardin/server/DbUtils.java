@@ -27,6 +27,7 @@ import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
 import it.fub.jardin.client.model.MessageType;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.RegistrationInfo;
 import it.fub.jardin.client.model.ResourcePermissions;
 import it.fub.jardin.client.model.Resultset;
 import it.fub.jardin.client.model.ResultsetField;
@@ -58,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -66,6 +68,8 @@ import java.util.StringTokenizer;
 import javax.mail.MessagingException;
 
 import org.apache.batik.dom.util.HashTable;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
 import com.Ostermiller.util.CSVParser;
 //import com.allen_sauer.gwt.log.client.Log;
@@ -181,6 +185,34 @@ public class DbUtils {
       JardinLogger.error("Errore SQL: impossibile aggiornare conto login");
       throw new HiddenException(
           "Errore durante il salvataggio delle preferenze");
+    } finally {
+      this.dbConnectionHandler.closeConn(connection);
+    }
+  }
+
+  public void updateUserCreds(RegistrationInfo regInfo, String password)
+      throws HiddenException {
+    Connection connection = this.dbConnectionHandler.getConn();
+    String query =
+        "UPDATE " + T_USER + " SET" + " password=PASSWORD('" + password
+            + "') ,username = '" + regInfo.getUsername() + "', status='1' WHERE name='"
+            + regInfo.getNome() + "' AND surname='" + regInfo.getCognome()
+            + "' AND email='" + regInfo.getEmail() + "'";
+    if (regInfo.getTelefono() != null
+        && regInfo.getTelefono().compareToIgnoreCase("") != 0) {
+      query = query + " AND telephone='" + regInfo.getTelefono() + "'";
+    }
+    try {
+      this.doUpdate(connection, query);
+      JardinLogger.info("REGISTRAZIONE: password aggiornata per l'utente "
+          + regInfo.getUsername());
+    } catch (SQLException e) {
+      // Log.warn("Errore SQL", e);
+      JardinLogger.error("Errore SQL: impossibile aggiornare password per l'utente "
+          + regInfo.getUsername());
+      throw new HiddenException(
+          "Errore durante il salvataggio della password per l'utente "
+              + regInfo.getUsername());
     } finally {
       this.dbConnectionHandler.closeConn(connection);
     }
@@ -450,8 +482,8 @@ public class DbUtils {
           // getColumnClassName(i);
           Object value;
           // if (value != null) {
-//          System.out.println("colonna: " + field.getName() + " del tipo "
-//              + field.getSpecificType());
+          // System.out.println("colonna: " + field.getName() + " del tipo "
+          // + field.getSpecificType());
           if (field.getSpecificType().compareToIgnoreCase("varchar") == 0
               || field.getSpecificType().compareToIgnoreCase("char") == 0
               || field.getSpecificType().compareToIgnoreCase("enum") == 0
@@ -463,7 +495,8 @@ public class DbUtils {
             value = result.getInt(field.getName());
           } else if (field.getSpecificType().compareToIgnoreCase("float") == 0) {
             value = result.getFloat(field.getName());
-          } else if (field.getSpecificType().compareToIgnoreCase("DATE") == 0 || field.getSpecificType().compareToIgnoreCase("DATETIME") == 0) {
+          } else if (field.getSpecificType().compareToIgnoreCase("DATE") == 0
+              || field.getSpecificType().compareToIgnoreCase("DATETIME") == 0) {
             value = result.getDate(field.getName());
           } else if (field.getSpecificType().compareToIgnoreCase("TIMESTAMP") == 0) {
             try {
@@ -997,7 +1030,7 @@ public class DbUtils {
             + "u.telephone, u.status AS userstatus, u.lastlogintime, "
             + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
             + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
-            + "WHERE username = ? and password = PASSWORD(?)";
+            + "WHERE username = ? and password = PASSWORD(?) and status='1'";
 
     PreparedStatement ps;
     try {
@@ -2675,21 +2708,19 @@ public class DbUtils {
       throw new VisibleException(e.getLocalizedMessage());
     }
 
-    // JardinLogger.info("LOGIN: tentativo di login utente "
-    // + credentials.getUsername());
     String query =
         "SELECT u.id, u.name, u.surname, u.email, u.office, "
             + "u.telephone, u.status AS userstatus, u.lastlogintime, "
             + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
             + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
-            + "WHERE username = ? and password = PASSWORD(?)";
-    // System.out.println("query getuser:"
-    // + "SELECT u.id, u.name, u.surname, u.email, u.office, "
-    // + "u.telephone, u.status AS userstatus, u.lastlogintime, "
-    // + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
-    // + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
-    // + "WHERE username = " + username + " and password = PASSWORD("
-    // + password + ")");
+            + "WHERE username = ? and password = PASSWORD(?) AND u.status = '1'";
+//    JardinLogger.debug("query getuser:"
+//        + "SELECT u.id, u.name, u.surname, u.email, u.office, "
+//        + "u.telephone, u.status AS userstatus, u.lastlogintime, "
+//        + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
+//        + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
+//        + "WHERE username = " + username + " and password = PASSWORD("
+//        + password + ") AND status = '1'");
     PreparedStatement ps;
     try {
       ps = connection.prepareStatement(query);
@@ -2704,6 +2735,7 @@ public class DbUtils {
       result = ps.executeQuery();
     } catch (SQLException e) {
       // Log.debug("User validation query: " + ps.toString());
+      e.printStackTrace();
       throw new VisibleException("Errore durante l'interrogazione su database");
     }
 
@@ -2879,4 +2911,131 @@ public class DbUtils {
       }
     }
   }
+
+  public Integer checkRegistrationInfo(RegistrationInfo regInfo)
+      throws VisibleException {
+    // TODO Auto-generated method stub
+    ResultSet result;
+
+    Connection connection;
+    try {
+      connection = this.dbConnectionHandler.getConn();
+    } catch (HiddenException e) {
+      throw new VisibleException(e.getLocalizedMessage());
+    }
+
+    String query =
+        "SELECT status FROM " + T_USER
+            + " WHERE name = ? AND surname = ? AND email = ? ";
+    if (regInfo.getTelefono() != null) {
+      query = query + " AND telephone = ? ";
+    }
+    // System.out.println("nome:" + regInfo.getNome());
+    // System.out.println("cognome:" + regInfo.getCognome());
+    // System.out.println("email:" + regInfo.getEmail());
+    // System.out.println(query);
+
+    PreparedStatement ps;
+    try {
+      ps = connection.prepareStatement(query);
+      ps.setString(1, regInfo.getNome());
+      ps.setString(2, regInfo.getCognome());
+      ps.setString(3, regInfo.getEmail());
+      if (regInfo.getTelefono() != null) {
+        // System.out.println("tel:" + regInfo.getTelefono());
+        ps.setString(4, regInfo.getTelefono());
+      }
+    } catch (SQLException e) {
+      throw new VisibleException(
+          "Errore nella query per il check della registrazione");
+    }
+
+    try {
+      JardinLogger.info("REGISTRAZIONE: tentativo di registrazione per l'utente "
+          + regInfo.getUsername());
+      JardinLogger.info("REGISTRAZIONE: sottomessi i dati [nome="
+          + regInfo.getNome() + ",cognome=" + regInfo.getCognome() + ",email="
+          + regInfo.getEmail() + ",telefono=" + regInfo.getTelefono() + "]");
+      result = ps.executeQuery();
+    } catch (SQLException e) {
+      JardinLogger.error("Errore SQL: Errore durante l'interrogazione su database");
+      throw new VisibleException("Errore durante l'interrogazione su database");
+    }
+
+    int rows = 0;
+
+    try {
+      while (result.next()) {
+        rows++;
+        if (rows > 1) {
+          throw new VisibleException("Errore nel database degli utenti: "
+              + "due account con username e password uguali");
+        } else {
+          // System.out.println("status: " + result.getInt("status"));
+          return result.getInt("status");
+
+        }
+      }
+      if (rows == 0)
+        return 0;
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      throw new VisibleException("Errore di accesso "
+          + "al risultato dell'interrogazione su database");
+    } finally {
+      try {
+        this.dbConnectionHandler.closeConn(connection);
+      } catch (HiddenException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+    throw new VisibleException("Errore: impossibile registrare l'utente "
+        + regInfo.getUsername());
+  }
+
+  public void sendRegistrationMail(MailUtility mailUtility,
+      RegistrationInfo regInfo, Integer output) throws HiddenException {
+
+    String mitt = mailUtility.getMailSmtpSender();
+    String oggetto = "Jardin Manager - conferma registrazione";
+    String password =
+        RandomStringUtils.randomAlphanumeric(RandomUtils.nextInt(13) + 8);
+    String testo =
+        "Jardin Manager\n\n Conferma della registrazione al portale per l'utente "
+            + regInfo.getNome() + " " + regInfo.getCognome() + "\n\n"
+            + "Credenziali primo accesso:\n" + "Username: "
+            + regInfo.getUsername() + "\n";
+
+    testo = testo + "Password: " + password;
+    
+    if (output == 2) {
+      updateUserCreds(regInfo, password);
+    } else if (output == 3) {
+      // la seconda parte della password è inviata tramite sms o telefonata
+      String password2 =
+          RandomStringUtils.randomAlphanumeric(RandomUtils.nextInt(13) + 8);
+
+      JardinLogger.info("REGISTRAZIONE: all'utente " + regInfo.getUsername()
+          + " deve essere fornita la seconda parte della password: "
+          + password2 + " (la prima parte è " + password + ")");
+
+      updateUserCreds(regInfo, password + password2);
+      
+      testo = testo + "\n\n La seconda parte della password verrà fornita tramite il numero di telefono indicato";
+    }
+
+    
+
+    try {
+      mailUtility.sendMail(regInfo.getEmail(), mitt, oggetto, testo);
+
+    } catch (MessagingException e) {
+      e.printStackTrace();
+      JardinLogger.error("Invio non riuscito!");
+      JardinLogger.error("MessagingException: " + e.toString());
+      // Log.info(e.toString());
+    }
+  }
+
 }
