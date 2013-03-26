@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -104,6 +105,8 @@ public class RegistrationForm extends Window {
     this.formPanel.add(telefono);
     this.formPanel.add(username);
 
+//    Label alert = new Label("*I dati devono essere precaricati. Contattare gli amministratori di sistema");
+//    this.formPanel.add(alert);
     this.add(this.formPanel);
     this.setButtons();
 
