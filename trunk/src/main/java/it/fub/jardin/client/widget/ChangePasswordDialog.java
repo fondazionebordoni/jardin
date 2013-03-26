@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
@@ -36,11 +37,13 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.ui.Label;
 
 public class ChangePasswordDialog extends Dialog {
 
   private TextField<String> newPassword;
   private TextField<String> oldPassword;
+  private Label indicator;
   private Button submit;
   private Status status;
   private User user;
@@ -59,7 +62,7 @@ public class ChangePasswordDialog extends Dialog {
         + " - creare nuova password");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");
-    this.setWidth(350);
+    this.setWidth(400);
     this.setResizable(false);
 
     KeyListener keyListener = new KeyListener() {
@@ -91,6 +94,10 @@ public class ChangePasswordDialog extends Dialog {
     this.newPassword.setFieldLabel("Confirm New Password");
     this.newPassword.addKeyListener(keyListener);
     this.add(this.newPassword);
+    
+    this.indicator = new Label();
+    this.add(this.indicator);
+    
 
     this.setFocusWidget(this.oldPassword);
   }
@@ -102,7 +109,7 @@ public class ChangePasswordDialog extends Dialog {
     bb.setAlignment(HorizontalAlignment.LEFT);
 
     this.status = new Status();
-    this.status.setText("Inserire vecchia password e nuova password");
+    this.status.setText("La nuova password deve essere di almeno 8 caratteri");
     bb.add(this.status);
     bb.add(new FillToolItem());
 
@@ -129,22 +136,21 @@ public class ChangePasswordDialog extends Dialog {
    *         quattro caratteri. false altrimenti
    */
   protected boolean isValid() {
-    if (this.hasValue(this.newPassword) && this.hasValue(this.oldPassword) 
-        && this.oldPassword.getValue().compareToIgnoreCase(
-            this.newPassword.getValue()) == 0
-        && (this.newPassword.getValue().length() > 3)) {
+    PasswordStrengthWidget.updateStrengthIndicator(newPassword, indicator);
+    if (this.hasValue(this.newPassword) && this.hasValue(this.oldPassword) && (this.newPassword.getValue().length() > 7)) {
       this.status.setText("Premere il bottone Invio");
-      this.submit.setEnabled(true);
+      this.submit.setEnabled(true);      
       return true;
     } else {
-      this.status.setText("Inserire vecchia password e nuova password");
+//      this.status.setText("Inserire nuova password");
       this.submit.setEnabled(false);
     }
+    
     return false;
   }
 
   private void submit() {
-    this.status.setBusy("Verifica vecchia password...");
+    this.status.setBusy("Verifica password...");
     this.submit.setEnabled(false);
 
     // System.out.println("creazione credentials per: " + this.user.get);
@@ -152,7 +158,26 @@ public class ChangePasswordDialog extends Dialog {
         new Credentials(this.user.getUsername(), this.oldPassword.getValue());
     c.setNewPassword(this.newPassword.getValue());
     // Dispatcher.forwardEvent(EventList.CheckUser, c);
-    Dispatcher.forwardEvent(EventList.CheckCredentialAndChangePassword, c);
+    if (newPassword.getValue().compareTo(oldPassword.getValue()) == 0) {
+      Dispatcher.forwardEvent(EventList.CheckCredentialAndChangePassword, c);
+    } else {
+      this.status.clearStatus("La nuova password deve essere di almeno 8 caratteri");      
+      MessageBox.alert("Password non coincidenti", "Le password inserite non coincidono", null);
+    }
+  }
+
+  /**
+   * @return the indicator
+   */
+  public Label getIndicator() {
+    return indicator;
+  }
+
+  /**
+   * @param indicator the indicator to set
+   */
+  public void setIndicator(Label indicator) {
+    this.indicator = indicator;
   }
 
 }

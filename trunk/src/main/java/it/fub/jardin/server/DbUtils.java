@@ -2771,8 +2771,6 @@ public class DbUtils {
 
         List<Message> messages = new ArrayList<Message>();
 
-        this.updateLoginCount(uid, ++login);
-
         // User user =
         // new User(uid, gid, new Credentials(username, password), name,
         // surname, group, email, office, telephone, status, login, last,
@@ -2781,6 +2779,9 @@ public class DbUtils {
             new User(uid, gid, new Credentials(username, password), name,
                 surname, group, email, office, telephone, status, login, last);
         this.user = user;
+        
+        if (login > 0) this.updateLoginCount(uid, ++login);
+        
         return user;
       }
     } catch (Exception e) {
@@ -2812,10 +2813,10 @@ public class DbUtils {
     String query =
         "UPDATE " + T_USER + " SET password=PASSWORD('"
             + credentials.getNewPassword()
-            + "'), lastlogintime=NOW() WHERE username=?";
+            + "'), lastlogintime=NOW(), logincount=1 WHERE username=?";
     JardinLogger.debug("UPDATE " + T_USER + " SET password=PASSWORD('"
         + credentials.getNewPassword()
-        + "'), lastlogintime=NOW(), logincount=1 WHERE username="
+        + "'), lastlogintime=NOW(), logincount='1' WHERE username="
         + credentials.getUsername());
     User newuser = null;
     try {
@@ -3005,11 +3006,13 @@ public class DbUtils {
             + "Credenziali primo accesso:\n" + "Username: "
             + regInfo.getUsername() + "\n";
 
-    testo = testo + "Password: " + password;
+    
     
     if (output == 2) {
+      testo = testo + "Password: " + password;
       updateUserCreds(regInfo, password);
     } else if (output == 3) {
+      testo = testo + "Prima parte della password: " + password;
       // la seconda parte della password è inviata tramite sms o telefonata
       String password2 =
           RandomStringUtils.randomAlphanumeric(RandomUtils.nextInt(13) + 8);
