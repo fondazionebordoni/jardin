@@ -457,7 +457,7 @@ public class DbUtils {
           getResultsetImproved(searchParams.getResultsetId(),
               searchParams.getGroupId());
       connection = this.dbConnectionHandler.getConn();
-      System.out.println(query);
+//      System.out.println(query);
       ResultSet result = doQuery(connection, query);
       int resultWidth = result.getMetaData().getColumnCount();
       JardinLogger.debug("INFO SQL: query di ricerca: " + query);
@@ -652,7 +652,8 @@ public class DbUtils {
         m.setName(result.getString("name"));
         m.setAlias(result.getString("alias"));
 
-        System.out.println("id :" + m.getId() + " m: " + m.getName());
+//        System.out.println("id :" + m.getId() + " m: " + m.getName());
+        JardinLogger.debug("id :" + m.getId() + " m: " + m.getName());
         groups.put(m.getId(), m);
       }
     } catch (SQLException e) {
@@ -1404,8 +1405,10 @@ public class DbUtils {
         for (final Resultset rs : resultSetList) {
 
           if (rs.getName().compareTo(linkingTable) == 0) {
-            System.out.println("aggiunta FK entrante per il campo " + field
+            JardinLogger.debug("aggiunta FK entrante per il campo " + field
                 + ": " + linkingTable + "." + linkingField);
+//            System.out.println("aggiunta FK entrante per il campo " + field
+//                + ": " + linkingTable + "." + linkingField);
 
             IncomingForeignKeyInformation ifki =
                 new IncomingForeignKeyInformation(linkingTable, linkingField,
