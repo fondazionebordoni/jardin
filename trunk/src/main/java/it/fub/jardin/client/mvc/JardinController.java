@@ -739,7 +739,7 @@ public class JardinController extends Controller {
       }
 
       public void onSuccess(final User user) {
-        if (user.getLogin() == 1) {
+        if (user.getLogin() == 0) {
           forwardToView(view, EventList.initialChangePassword, user);
         } else
           Dispatcher.forwardEvent(EventList.Init, user);
