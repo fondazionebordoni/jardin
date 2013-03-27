@@ -493,6 +493,8 @@ public class DbUtils {
             value = result.getInt(field.getName());
           } else if (field.getSpecificType().compareToIgnoreCase("float") == 0) {
             value = result.getFloat(field.getName());
+          } else if (field.getSpecificType().compareToIgnoreCase("double") == 0) {
+            value = result.getDouble(field.getName());
           } else if (field.getSpecificType().compareToIgnoreCase("DATE") == 0
               || field.getSpecificType().compareToIgnoreCase("DATETIME") == 0) {
             value = result.getDate(field.getName());
