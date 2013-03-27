@@ -24,6 +24,7 @@ import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -234,11 +235,10 @@ public class JardinGrid extends Grid<BaseModelData> {
             for (final ResultsetField field : resultset.getFields()) {
               if (JardinGrid.this.getColumnModel().getColumnById(
                   field.getName()).getEditor().getField() instanceof SimpleComboBox) {
-
-                if ((field.getType().compareToIgnoreCase("int") == 0)
-                    || (field.getType().compareToIgnoreCase("real") == 0)) {
+                String fieldType = field.getSpecificType();
+                if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
                   Integer defaultValue =
-                      Integer.parseInt((String) selectedRow.get(field.getName()));
+                      Integer.parseInt(selectedRow.get(field.getName()).toString());
                   // cm.getColumnById(field.getName()).getEditor().getField().setRawValue(defaultValue.toString());
                   if (((SimpleComboBox<Integer>) cm.getColumnById(
                       field.getName()).getEditor().getField()).getStore().getCount() == 0) {
@@ -249,7 +249,25 @@ public class JardinGrid extends Grid<BaseModelData> {
                   // ((SimpleComboBox<Integer>)
                   // cm.getColumnById(field.getName()).getEditor().getField()).add(defaultValue);
                   ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
-                } else if (field.getSpecificType().compareToIgnoreCase("enum") == 0) {
+                } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
+                  Float defaultValue =
+                      Float.parseFloat(selectedRow.get(field.getName()).toString());
+                  if (((SimpleComboBox<Float>) cm.getColumnById(
+                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
+                    List<Float> comboStore = new ArrayList<Float>();
+                    comboStore.add(defaultValue);
+                    ((SimpleComboBox<Float>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
+                  }
+                } else if (fieldType.compareToIgnoreCase(FieldDataType.DOUBLE) == 0) {
+                  Double defaultValue =
+                      Double.parseDouble(selectedRow.get(field.getName()).toString());
+                  if (((SimpleComboBox<Double>) cm.getColumnById(
+                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
+                    List<Double> comboStore = new ArrayList<Double>();
+                    comboStore.add(defaultValue);
+                    ((SimpleComboBox<Double>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
+                  }
+                } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.ENUM) == 0) {
                   String defaultValue = selectedRow.get(field.getName());
                   ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(field.getFixedElements());
                   ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
