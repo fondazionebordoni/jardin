@@ -84,7 +84,7 @@ public class EventList {
 
   public static final EventType NewResultset = new EventType();
 
-  public static final EventType Refresh = new EventType();
+  public static final EventType Logout = new EventType();
 
   public static final EventType RemoveRows = new EventType();
 

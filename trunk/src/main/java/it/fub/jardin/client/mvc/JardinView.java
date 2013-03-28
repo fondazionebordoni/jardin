@@ -125,7 +125,7 @@ public class JardinView extends View {
       if (pwDialog != null)
         this.pwDialog.hide();
       this.initUI();
-    } else if (t == EventList.Refresh) {
+    } else if (t == EventList.Logout) {
       this.viewport.removeAll();
       Dispatcher.forwardEvent(new AppEvent(EventList.Login));
     } else if (t == EventList.LoginError) {
@@ -635,62 +635,6 @@ public class JardinView extends View {
     MessageBox.alert("Errore", message, l);
   }
 
-  // private void newResultset(final Integer resultsetId) {
-  // /* Prendi le proprietà del resultset in base all'id dall'utente */
-  // ResultsetImproved resultset =
-  // this.controller.getUser().getResultsetFromId(resultsetId);
-  // JardinTabItem item = new JardinTabItem(resultset);
-  // item.setId(ITEM_PREFIX + resultsetId);
-  // this.main.add(item);
-  // }
-
-  // private synchronized void gotValuesOfFields(final Integer resultsetId) {
-  // ResultsetImproved resultset =
-  // this.controller.getUser().getResultsetImprovedFromId(resultsetId);
-  //
-  // /* Creazione dell'area di ricerca avanzata */
-  // SearchAreaAdvanced searchAreaAdvanced = new SearchAreaAdvanced(resultset);
-  //
-  // JardinTabItem item = this.getItemByResultsetId(resultsetId);
-  // if (item != null) {
-  // /* Aggiungere la ricerca avanzata al tabitem */
-  // item.addSearchAreaAdvanced(searchAreaAdvanced);
-  // }
-  // }
-  //
-  // private synchronized void gotValuesOfForeignKeys(final Integer resultsetId)
-  // {
-  // ResultsetImproved resultset =
-  // this.controller.getUser().getResultsetImprovedFromId(resultsetId);
-  //
-  // /* Creazione della griglia */
-  // ListStore<BaseModelData> store = new ListStore<BaseModelData>();
-  // JardinColumnModel cm = new JardinColumnModel(resultset);
-  // JardinGrid grid = new JardinGrid(store, cm, resultset, user);
-  //
-  // new SearchAreaBase(resultset);
-  //
-  // /* Creazione del dettaglio */
-  // JardinDetail detail = new JardinDetail(resultset);
-  //
-  // JardinTabItem item = this.getItemByResultsetId(resultsetId);
-  // if (item != null) {
-  // /* Aggiungere la griglia al tabItem */
-  // item.setGrid(grid);
-  //
-  // /* Aggiungere il dettaglio al tabitem */
-  // item.addDetail(detail);
-  //
-  // /*
-  // * Eseguo una ricerca per riempire il resultset
-  // *
-  // * SearchParams searchParams = new SearchParams(resultsetId);
-  // * List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-  // * searchParams.setFieldsValuesList(queryFieldList);
-  // * Dispatcher.forwardEvent(EventList.Search, searchParams);
-  // */
-  // }
-  // }
 
   private void onSearch(final SearchParams searchParams) {
     // TODO Auto-generated method stub

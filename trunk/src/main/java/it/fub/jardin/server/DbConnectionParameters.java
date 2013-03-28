@@ -42,6 +42,7 @@ public class DbConnectionParameters {
   private String mailSmtpUser;
   private String mailSmtpPass;
   private String mailSmtpSender;
+  private Boolean multigroup;
   
   public DbConnectionParameters() throws VisibleException {
 
@@ -62,6 +63,9 @@ public class DbConnectionParameters {
       this.setView(myProps.getProperty("view"));
       if (myProps.getProperty("subsystem") != null) {
         this.setSubSystem(myProps.getProperty("subsystem"));                
+      }
+      if (myProps.getProperty("multigroup") != null) {
+        this.setMultigroup(Boolean.valueOf(myProps.getProperty("multigroup")));                
       }
       // recupero campi per l'invio delle notifiche...se esistono
       if (myProps.getProperty("mail.smtp.host") != null) {
@@ -272,6 +276,20 @@ public class DbConnectionParameters {
    */
   public void setMailSmtpSender(String mailSmtpSender) {
     this.mailSmtpSender = mailSmtpSender;
+  }
+
+  /**
+   * @return the multigroup
+   */
+  public Boolean getMultigroup() {
+    return multigroup;
+  }
+
+  /**
+   * @param multigroup the multigroup to set
+   */
+  public void setMultigroup(Boolean multigroup) {
+    this.multigroup = multigroup;
   }
 
 
