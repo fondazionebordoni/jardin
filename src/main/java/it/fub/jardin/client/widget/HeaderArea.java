@@ -138,7 +138,7 @@ public class HeaderArea extends HtmlContainer {
       public void handleEvent(final MessageBoxEvent ce) {
         Button btn = ce.getButtonClicked();
         if (btn.getText().compareToIgnoreCase("yes") == 0) {
-          Dispatcher.forwardEvent(EventList.Refresh);
+          Dispatcher.forwardEvent(EventList.Logout);
         }
       }
     };

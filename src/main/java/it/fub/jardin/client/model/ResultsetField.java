@@ -279,7 +279,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
             type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
       this.setIsLenghtFixed(true);
 
-    } else if (type.startsWith("int") || type.startsWith("tinyint")) {
+    } else if (type.startsWith("int") || type.startsWith("tinyint") || type.startsWith("bigint")) {
       this.setSpecificType(FieldDataType.INT);
       // System.out.println(" LA (: " + type.lastIndexOf("("));
       // System.out.println(" LA ): " + type.lastIndexOf(")"));
@@ -301,10 +301,18 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       if (type.indexOf("(") != -1) {
         setLenght(Integer.parseInt(type.substring(type.indexOf("(")+1, type.indexOf(",")-1)));
       } else setLenght(20);
-    } else if (type.startsWith("date") || type.startsWith("datetime")) {
+    } else if (type.startsWith("double")) {
+      this.setSpecificType(FieldDataType.DOUBLE);
+    } else if (type.startsWith("date")) {
       this.setSpecificType(FieldDataType.DATE);
-    } else if (type.startsWith("timestamp")) {
-      this.setSpecificType(FieldDataType.DATE);
+    } else if (type.startsWith("timestamp") || type.startsWith("datetime")) {
+      this.setSpecificType(FieldDataType.DATETIME);
+    } else if (type.startsWith("time")) {
+      this.setSpecificType(FieldDataType.TIME);
+    } else if (type.startsWith("text")) {
+      this.setSpecificType(FieldDataType.TEXT);
+    } else if (type.startsWith("blob")) {
+      this.setSpecificType(FieldDataType.BLOB);
     } else if (type.startsWith("enum")) {
       this.setSpecificType(FieldDataType.ENUM);
       this.setIsCombo(true);

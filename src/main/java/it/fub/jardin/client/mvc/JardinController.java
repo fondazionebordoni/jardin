@@ -112,7 +112,7 @@ public class JardinController extends Controller {
     this.registerEventTypes(EventList.CheckUser);
     this.registerEventTypes(EventList.CheckCredential);
     this.registerEventTypes(EventList.LoginError);
-    this.registerEventTypes(EventList.Refresh);
+    this.registerEventTypes(EventList.Logout);
     this.registerEventTypes(EventList.Init);
     this.registerEventTypes(EventList.CreateUI);
     this.registerEventTypes(EventList.CreateFirstTab);
@@ -223,8 +223,8 @@ public class JardinController extends Controller {
       } else {
         // TODO Gestire errore nei dati di EventList.Init
       }
-    } else if (t == EventList.Refresh) {
-      this.onRefresh(event);
+    } else if (t == EventList.Logout) {
+      this.onLogout(event);
     } else if (t == EventList.Error) {
       if (event.getData() instanceof String) {
         this.onError((String) event.getData());
@@ -954,7 +954,7 @@ public class JardinController extends Controller {
     this.forwardToView(this.view, event);
   }
 
-  private void onRefresh(final AppEvent event) {
+  private void onLogout(final AppEvent event) {
     this.forwardToView(this.view, event);
   }
 

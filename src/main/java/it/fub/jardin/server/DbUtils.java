@@ -73,6 +73,7 @@ import com.Ostermiller.util.CSVParser;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
+
 //import com.allen_sauer.gwt.log.client.Log;
 
 public class DbUtils {
@@ -193,9 +194,10 @@ public class DbUtils {
     Connection connection = this.dbConnectionHandler.getConn();
     String query =
         "UPDATE " + T_USER + " SET" + " password=PASSWORD('" + password
-            + "') ,username = '" + regInfo.getUsername() + "', status='1' WHERE name='"
-            + regInfo.getNome() + "' AND surname='" + regInfo.getCognome()
-            + "' AND email='" + regInfo.getEmail() + "'";
+            + "') ,username = '" + regInfo.getUsername()
+            + "', status='1' WHERE name='" + regInfo.getNome()
+            + "' AND surname='" + regInfo.getCognome() + "' AND email='"
+            + regInfo.getEmail() + "'";
     if (regInfo.getTelefono() != null
         && regInfo.getTelefono().compareToIgnoreCase("") != 0) {
       query = query + " AND telephone='" + regInfo.getTelefono() + "'";
@@ -457,7 +459,7 @@ public class DbUtils {
           getResultsetImproved(searchParams.getResultsetId(),
               searchParams.getGroupId());
       connection = this.dbConnectionHandler.getConn();
-//      System.out.println(query);
+      // System.out.println(query);
       ResultSet result = doQuery(connection, query);
       int resultWidth = result.getMetaData().getColumnCount();
       JardinLogger.debug("INFO SQL: query di ricerca: " + query);
@@ -652,7 +654,7 @@ public class DbUtils {
         m.setName(result.getString("name"));
         m.setAlias(result.getString("alias"));
 
-//        System.out.println("id :" + m.getId() + " m: " + m.getName());
+        // System.out.println("id :" + m.getId() + " m: " + m.getName());
         JardinLogger.debug("id :" + m.getId() + " m: " + m.getName());
         groups.put(m.getId(), m);
       }
@@ -1031,7 +1033,7 @@ public class DbUtils {
             + "u.telephone, u.status AS userstatus, u.lastlogintime, "
             + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
             + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
-            + "WHERE username = ? and password = PASSWORD(?) and status='1'";
+            + "WHERE username = ? and password = PASSWORD(?) and u.status='1'";
 
     PreparedStatement ps;
     try {
@@ -1048,6 +1050,7 @@ public class DbUtils {
           + credentials.getUsername());
       result = ps.executeQuery();
     } catch (SQLException e) {
+      e.printStackTrace();
       JardinLogger.error("Errore SQL: Errore durante l'interrogazione su database");
       throw new VisibleException("Errore durante l'interrogazione su database");
     }
@@ -1407,8 +1410,8 @@ public class DbUtils {
           if (rs.getName().compareTo(linkingTable) == 0) {
             JardinLogger.debug("aggiunta FK entrante per il campo " + field
                 + ": " + linkingTable + "." + linkingField);
-//            System.out.println("aggiunta FK entrante per il campo " + field
-//                + ": " + linkingTable + "." + linkingField);
+            // System.out.println("aggiunta FK entrante per il campo " + field
+            // + ": " + linkingTable + "." + linkingField);
 
             IncomingForeignKeyInformation ifki =
                 new IncomingForeignKeyInformation(linkingTable, linkingField,
@@ -1998,7 +2001,7 @@ public class DbUtils {
       final String tipologia, final String type, final String condition)
       throws HiddenException, VisibleException, SQLException {
 
-    this.getUser(credentials);
+    // this.getUser(credentials);
 
     int opCode = 0;
     BufferedReader in = null;
@@ -2008,18 +2011,6 @@ public class DbUtils {
     } catch (FileNotFoundException e) {
       e.printStackTrace();
       throw new HiddenException("file " + importFile.getName() + " non trovato");
-    }
-
-    Connection connection = this.dbConnectionHandler.getConn();
-    ResultSetMetaData rsmd = null;
-
-    try {
-      rsmd = this.dbProperties.getResultsetMetadata(connection, resultsetId);
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      throw new HiddenException(
-          "impossibile recuperare metadati per resultset: " + resultsetId);
     }
 
     String recordLine;
@@ -2050,24 +2041,7 @@ public class DbUtils {
       if (tipologia.compareToIgnoreCase("fix") == 0) {
         // TODO gestione campo a lunghezza fissa da db!
       } else {
-        // if (ts == null || ts == "" || ts.compareToIgnoreCase("null")
-        // == 0) {
-        // // import solo split senza replaceAll
-        // columns = recordLine.split(fs);
-        // } else {
-        // // import normale
-        // recordLine = recordLine.substring(1, recordLine.length() -
-        // 1);
-        // if (regExSpecialChars.contains(fs)) {
-        // fs = "\\" + fs;
-        // }
-        // ts = "\\" + ts;
-        // // columns = recordLine.split("\"\\|\"");
-        // columns = recordLine.split(ts + fs + ts);
-        // // for (int i = 0; i < columns.length; i++) {
-        // // System.out.println(columns[i]);
-        // // }
-        // }
+
       }
 
       // recordLine = in.readLine();
@@ -2082,26 +2056,14 @@ public class DbUtils {
       String[] t = null;
       columns = csvp.getLine(); // la prima riga deve contenere i nomi delle
       // colonne
-      /*
-       * check nomi dei campi corretti
-       */
-      // for (String col : columns) {
-      // for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-      //
-      // if (col.compareToIgnoreCase(rsmd.getColumnName(i)) != 0) {
-      // throw new VisibleException("Attenzione!!! La colonna " + col
-      // + " non è riconosciuta!");
-      // }
-      // }
-      // }
 
       ArrayList<String> colsCheck = new ArrayList<String>();
       for (String col : columns) {
         boolean present = false;
-        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-          if (col.compareToIgnoreCase(rsmd.getColumnName(i)) == 0) {
-            present = true;
-          }
+        HashMap<Integer, String> rsFieldList = getResultsetFields(resultsetId);
+
+        if (rsFieldList.containsValue(col)) {
+          present = true;
         }
         if (!present) {
           colsCheck.add(col);
@@ -2714,16 +2676,20 @@ public class DbUtils {
     String query =
         "SELECT u.id, u.name, u.surname, u.email, u.office, "
             + "u.telephone, u.status AS userstatus, u.lastlogintime, "
-            + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
-            + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
+            + "u.logincount, g.id AS groupid, g.name AS groupname "
+            + "FROM "
+            + T_USER
+            + " u JOIN "
+            + T_GROUP
+            + " g ON g.id = u.id_group "
             + "WHERE username = ? and password = PASSWORD(?) AND u.status = '1'";
-//    JardinLogger.debug("query getuser:"
-//        + "SELECT u.id, u.name, u.surname, u.email, u.office, "
-//        + "u.telephone, u.status AS userstatus, u.lastlogintime, "
-//        + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
-//        + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
-//        + "WHERE username = " + username + " and password = PASSWORD("
-//        + password + ") AND status = '1'");
+    // JardinLogger.debug("query getuser:"
+    // + "SELECT u.id, u.name, u.surname, u.email, u.office, "
+    // + "u.telephone, u.status AS userstatus, u.lastlogintime, "
+    // + "u.logincount, g.id AS groupid, g.name AS groupname " + "FROM "
+    // + T_USER + " u JOIN " + T_GROUP + " g ON g.id = u.id_group "
+    // + "WHERE username = " + username + " and password = PASSWORD("
+    // + password + ") AND status = '1'");
     PreparedStatement ps;
     try {
       ps = connection.prepareStatement(query);
@@ -2765,28 +2731,23 @@ public class DbUtils {
         int status = result.getInt("userstatus");
         int login = result.getInt("logincount");
 
-        // String lastlogintime = result.getString("lastlogintime");
         DateFormat df =
             DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
         String last = df.format(new Date());
 
         /* Carica le preferenze dell'utente */
-        // List<ResultsetImproved> resultsets =
-        // this.getUserResultsetImproved(uid, gid);
-
+        
         List<Message> messages = new ArrayList<Message>();
 
-        // User user =
-        // new User(uid, gid, new Credentials(username, password), name,
-        // surname, group, email, office, telephone, status, login, last,
-        // resultsets, messages);
+
         User user =
             new User(uid, gid, new Credentials(username, password), name,
                 surname, group, email, office, telephone, status, login, last);
         this.user = user;
-        
-        if (login > 0) this.updateLoginCount(uid, ++login);
-        
+
+        if (login > 0)
+          this.updateLoginCount(uid, ++login);
+
         return user;
       }
     } catch (Exception e) {
@@ -2962,6 +2923,7 @@ public class DbUtils {
           + regInfo.getEmail() + ",telefono=" + regInfo.getTelefono() + "]");
       result = ps.executeQuery();
     } catch (SQLException e) {
+      e.printStackTrace();
       JardinLogger.error("Errore SQL: Errore durante l'interrogazione su database");
       throw new VisibleException("Errore durante l'interrogazione su database");
     }
@@ -3011,8 +2973,6 @@ public class DbUtils {
             + "Credenziali primo accesso:\n" + "Username: "
             + regInfo.getUsername() + "\n";
 
-    
-    
     if (output == 2) {
       testo = testo + "Password: " + password;
       updateUserCreds(regInfo, password);
@@ -3027,11 +2987,11 @@ public class DbUtils {
           + password2 + " (la prima parte è " + password + ")");
 
       updateUserCreds(regInfo, password + password2);
-      
-      testo = testo + "\n\n La seconda parte della password verrà fornita tramite il numero di telefono indicato";
-    }
 
-    
+      testo =
+          testo
+              + "\n\n La seconda parte della password verrà fornita tramite il numero di telefono indicato";
+    }
 
     try {
       mailUtility.sendMail(regInfo.getEmail(), mitt, oggetto, testo);
