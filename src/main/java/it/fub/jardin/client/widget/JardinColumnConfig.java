@@ -18,15 +18,19 @@
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class JardinColumnConfig extends ColumnConfig {
 
@@ -65,7 +69,9 @@ public class JardinColumnConfig extends ColumnConfig {
     CellEditor editor = null;
 
     if (f instanceof SimpleComboBox) {
-      if (field.getType().compareToIgnoreCase("int") == 0) {
+      if (field.getType().compareToIgnoreCase("int") == 0
+          || field.getType().compareToIgnoreCase("tinyint") == 0
+          || field.getType().compareToIgnoreCase("bigint") == 0) {
         ((SimpleComboBox) f).setEditable(false);
         editor = new CellEditor(f) {
           @Override
@@ -104,6 +110,17 @@ public class JardinColumnConfig extends ColumnConfig {
           }
         };
       }
+    } else if (f instanceof DateField) {
+      editor = new CellEditor((DateField) f);
+      if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
+        this.setDateTimeFormat(DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));
+      } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATE) == 0) {
+        this.setDateTimeFormat(DateTimeFormat.getFormat("y-MM-dd"));
+      }
+
+    } else if (f instanceof TimeField) {
+      editor = new CellEditor((TimeField) f);
+      this.setDateTimeFormat(DateTimeFormat.getFormat("HH:mm:ss"));
     } else {
       editor = new CellEditor(f);
     }
