@@ -18,8 +18,6 @@
 package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.EventList;
-import it.fub.jardin.client.Jardin;
-import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.ForeignKey;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.SearchParams;
@@ -28,20 +26,12 @@ import it.fub.jardin.client.tools.FieldDataType;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.charts.client.model.Text;
-import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.data.LoadEvent;
-import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -50,10 +40,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
-import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class FieldCreator {
 
@@ -84,7 +71,7 @@ public class FieldCreator {
 
     if (fieldType.compareToIgnoreCase("DATE") == 0) {
       DateField f = new DateField();
-      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
+      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("y-MM-dd"));
 
       result = f;
       // Log.debug(field.getName() + ": DATE");
@@ -92,7 +79,7 @@ public class FieldCreator {
         || fieldType.compareToIgnoreCase("TIMESTAMP") == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(
-          DateTimeFormat.getFormat("dd/MM/y HH:mm:ss"));
+          DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));
       result = f;
     }/*
       * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
@@ -323,14 +310,14 @@ public class FieldCreator {
 
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATE) == 0) {
       DateField f = new DateField();
-      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("dd/MM/y"));
+      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("y-MM-dd"));
 
       result = f;
       // Log.debug(field.getName() + ": DATE");
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(
-          DateTimeFormat.getFormat("dd/MM/y HH:mm:ss"));
+          DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
       NumberField f = new NumberField();

@@ -105,7 +105,7 @@ public class JardinGridToolBar extends ToolBar {
     this.tooltip +=
         "<br>Costruire un testo per la ricerca usando parole "
             + "chiave e valori da cercare in questo modo:<br>"
-            + "[parola_chiave:]valore [parola_chiave:valore ...]";
+            + "[parola_chiave=]valore [parola_chiave=valore ...]";
     this.addSearch();
     this.add(new SeparatorToolItem());
 
