@@ -303,10 +303,10 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       } else setLenght(20);
     } else if (type.startsWith("double")) {
       this.setSpecificType(FieldDataType.DOUBLE);
-    } else if (type.startsWith("date")) {
-      this.setSpecificType(FieldDataType.DATE);
     } else if (type.startsWith("timestamp") || type.startsWith("datetime")) {
       this.setSpecificType(FieldDataType.DATETIME);
+    } else if (type.startsWith("date")) {
+      this.setSpecificType(FieldDataType.DATE);
     } else if (type.startsWith("time")) {
       this.setSpecificType(FieldDataType.TIME);
     } else if (type.startsWith("text")) {
