@@ -67,16 +67,13 @@ public class FieldCreator {
       final List<String> values, final int labelWidth, final boolean textarea) {
     Field<?> result = null;
 
-    String fieldType = field.getType();
+    String fieldType = field.getSpecificType();
 
-    if (fieldType.compareToIgnoreCase("DATE") == 0) {
+    if (fieldType.compareToIgnoreCase(FieldDataType.DATE) == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("y-MM-dd"));
-
       result = f;
-      // Log.debug(field.getName() + ": DATE");
-    } else if (fieldType.compareToIgnoreCase("DATETIME") == 0
-        || fieldType.compareToIgnoreCase("TIMESTAMP") == 0) {
+    } else if (fieldType.compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(
           DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));
@@ -85,12 +82,12 @@ public class FieldCreator {
       * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
       * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result = f;
       * }
-      */else if (fieldType.compareToIgnoreCase("TIME") == 0) {
+      */else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
       TimeField f = new TimeField();
       f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
       // Log.debug(field.getName() + ": TIME");
-    } else if (((fieldType.compareToIgnoreCase("BLOB") == 0) || (fieldType.compareToIgnoreCase("TEXT") == 0))
+    } else if ((fieldType.compareToIgnoreCase(FieldDataType.TEXT) == 0)
         && textarea) {
       TextArea f = new TextArea();
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
@@ -164,9 +161,7 @@ public class FieldCreator {
 
     if (source.compareToIgnoreCase("searcharea") == 0) {
       final SimpleComboBox f;
-      if ((fieldType.compareToIgnoreCase("int") == 0)
-          || (fieldType.compareToIgnoreCase("bigint") == 0)
-          || (fieldType.compareToIgnoreCase("tinyint") == 0)) {
+      if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
         f = new SimpleComboBox<Integer>();
         List<Integer> intVals = new ArrayList<Integer>();
         for (int i = 0; i < values.size(); i++) {
@@ -175,7 +170,7 @@ public class FieldCreator {
         }
         //
         f.add(intVals);
-      } else if (fieldType.compareToIgnoreCase("float") == 0) {
+      } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
         f = new SimpleComboBox<Float>();
         List<Float> intVals = new ArrayList<Float>();
         for (int i = 0; i < values.size(); i++) {
@@ -183,7 +178,7 @@ public class FieldCreator {
           intVals.add(i, intVal);
         }
         f.add(intVals);
-      } else if (fieldType.compareToIgnoreCase("double") == 0) {
+      } else if (fieldType.compareToIgnoreCase(FieldDataType.DOUBLE) == 0) {
         f = new SimpleComboBox<Double>();
         List<Double> intVals = new ArrayList<Double>();
         for (int i = 0; i < values.size(); i++) {
@@ -230,9 +225,7 @@ public class FieldCreator {
       // Log.debug(field.getName() + ": COMBO");
 
       final SimpleComboBox f;
-      if ((fieldType.compareToIgnoreCase("int") == 0)
-          || (fieldType.compareToIgnoreCase("bigint") == 0)
-          || (fieldType.compareToIgnoreCase("tinyint") == 0)) {
+      if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
         f = new SimpleComboBox<Integer>();
         // f.setTriggerAction(TriggerAction.ALL);
         // Trasforno la List<String> in List<Integer>
@@ -250,7 +243,7 @@ public class FieldCreator {
           }
         }
         f.add(intVals);
-      } else if (fieldType.compareToIgnoreCase("float") == 0) {
+      } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
         f = new SimpleComboBox<Float>();
         List<Float> intVals = new ArrayList<Float>();
         for (int i = 0; i < values.size(); i++) {
@@ -262,7 +255,7 @@ public class FieldCreator {
           }
         }
         f.add(intVals);
-      } else if (fieldType.compareToIgnoreCase("double") == 0) {
+      } else if (fieldType.compareToIgnoreCase(FieldDataType.DOUBLE) == 0) {
         f = new SimpleComboBox<Double>();
         List<Double> intVals = new ArrayList<Double>();
         for (int i = 0; i < values.size(); i++) {
@@ -341,7 +334,7 @@ public class FieldCreator {
       f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
       // Log.debug(field.getName() + ": TIME");
-    } else if (((fieldType.compareToIgnoreCase(FieldDataType.BLOB) == 0) || (fieldType.compareToIgnoreCase(FieldDataType.TEXT) == 0))
+    } else if ((fieldType.compareToIgnoreCase(FieldDataType.TEXT) == 0)
         && textarea) {
       TextArea f = new TextArea();
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
