@@ -2367,7 +2367,7 @@ public class DbUtils {
     String linkingField = data.get("FK");
     String linkingValue = "" + data.get("VALUE");
     String queryStatement = ((Resultset) data.get("RSLINKED")).getStatement();
-    int groupId = data.get("GID");
+    int groupId = (Integer) data.get("GID");
     String query =
         "SELECT * FROM (" + queryStatement + ") AS entry WHERE " + linkingField
             + " = '" + linkingValue + "' LIMIT 1";
@@ -2746,7 +2746,7 @@ public class DbUtils {
         this.user = user;
 
         if (login > 0)
-          this.updateLoginCount(uid, ++login);
+          this.updateLoginCount(uid, login++);
 
         return user;
       }

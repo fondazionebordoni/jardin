@@ -19,6 +19,6 @@ public class FieldDataType {
   public static final String CHAR = "char";
   public static final String DOUBLE = "double";
   public static final String TEXT = "text";
-  public static final String BLOB = "blob";
+//  public static final String BLOB = "blob";
 
 }

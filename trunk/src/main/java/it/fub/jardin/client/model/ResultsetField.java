@@ -223,7 +223,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
   }
 
   public boolean isLenghtFixed() {
-    return this.get("islenghtfixed");
+    return (Boolean) this.get("islenghtfixed");
   }
 
   public void setIsCombo(boolean isCombo) {
@@ -231,7 +231,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
   }
 
   public boolean isCombo() {
-    return this.get("iscombo");
+    return (Boolean) this.get("iscombo");
   }
 
   /**
@@ -309,10 +309,8 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       this.setSpecificType(FieldDataType.DATE);
     } else if (type.startsWith("time")) {
       this.setSpecificType(FieldDataType.TIME);
-    } else if (type.startsWith("text")) {
+    } else if (type.startsWith("text") || type.startsWith("blob")) {
       this.setSpecificType(FieldDataType.TEXT);
-    } else if (type.startsWith("blob")) {
-      this.setSpecificType(FieldDataType.BLOB);
     } else if (type.startsWith("enum")) {
       this.setSpecificType(FieldDataType.ENUM);
       this.setIsCombo(true);
