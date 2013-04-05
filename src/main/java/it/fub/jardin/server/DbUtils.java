@@ -2736,9 +2736,8 @@ public class DbUtils {
         String last = df.format(new Date());
 
         /* Carica le preferenze dell'utente */
-        
-        List<Message> messages = new ArrayList<Message>();
 
+        List<Message> messages = new ArrayList<Message>();
 
         User user =
             new User(uid, gid, new Credentials(username, password), name,
@@ -2889,16 +2888,18 @@ public class DbUtils {
       throw new VisibleException(e.getLocalizedMessage());
     }
 
+    if (checkUsername(regInfo.getUsername(), connection) > 0) {
+      JardinLogger.info("REGISTRAZIONE: impossibile registrare l'utente " + regInfo.getUsername() + " - username già presente nel db");
+      throw new VisibleException("Errore nel database degli utenti: username già presente!!!");
+    }
+
     String query =
         "SELECT status FROM " + T_USER
             + " WHERE name = ? AND surname = ? AND email = ? ";
     if (regInfo.getTelefono() != null) {
       query = query + " AND telephone = ? ";
     }
-    // System.out.println("nome:" + regInfo.getNome());
-    // System.out.println("cognome:" + regInfo.getCognome());
-    // System.out.println("email:" + regInfo.getEmail());
-    // System.out.println(query);
+    
 
     PreparedStatement ps;
     try {
@@ -2906,8 +2907,8 @@ public class DbUtils {
       ps.setString(1, regInfo.getNome());
       ps.setString(2, regInfo.getCognome());
       ps.setString(3, regInfo.getEmail());
+      
       if (regInfo.getTelefono() != null) {
-        // System.out.println("tel:" + regInfo.getTelefono());
         ps.setString(4, regInfo.getTelefono());
       }
     } catch (SQLException e) {
@@ -2936,24 +2937,24 @@ public class DbUtils {
         if (rows > 1) {
           throw new VisibleException("Errore nel database degli utenti: "
               + "due account con username e password uguali");
-        } else {
-          // System.out.println("status: " + result.getInt("status"));
+        } else
           return result.getInt("status");
-
-        }
       }
       if (rows == 0)
         return 0;
     } catch (SQLException e) {
       // TODO Auto-generated catch block
-      throw new VisibleException("Errore di accesso "
-          + "al risultato dell'interrogazione su database");
+      e.printStackTrace();
+      JardinLogger.error("REGISTRAZIONE: Errore di accesso al risultato dell'interrogazione su database");
+      throw new VisibleException("REGISTRAZIONE: Errore di accesso al risultato dell'interrogazione su database");
     } finally {
       try {
         this.dbConnectionHandler.closeConn(connection);
       } catch (HiddenException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
+        throw new VisibleException("Errore: impossibile registrare l'utente "
+            + regInfo.getUsername());
       }
     }
     throw new VisibleException("Errore: impossibile registrare l'utente "
@@ -2970,12 +2971,32 @@ public class DbUtils {
     String testo =
         "Jardin Manager\n\n Conferma della registrazione al portale per l'utente "
             + regInfo.getNome() + " " + regInfo.getCognome() + "\n\n"
-            + "Credenziali primo accesso:\n" + "Username: "
+            + "Credenziali primo accesso:\n\n" + "Username: "
             + regInfo.getUsername() + "\n";
 
     if (output == 2) {
       testo = testo + "Password: " + password;
       updateUserCreds(regInfo, password);
+
+      // invio email al sysadmin
+      String sysadminMailText1 =
+          "Jardin Manager\n\n Effettuata nuova registrazione per l'utente"
+              + regInfo.getNome() + " " + regInfo.getCognome() + "\n\n"
+              + "Credenziali primo accesso:\n\n" + "Username: "
+              + regInfo.getUsername() + "\n"
+              + "Password: inviata tramite mail all'utente";
+
+      try {
+
+        mailUtility.sendMail(mailUtility.getMailSmtpSysadmin(), mitt,
+            "JardinManager - effettuata nuova registrazione con sola email",
+            sysadminMailText1);
+      } catch (MessagingException e) {
+        e.printStackTrace();
+        JardinLogger.error("Invio email per nuova registrazione a sysadmin non riuscito!");
+        JardinLogger.error("MessagingException: " + e.toString());
+        // Log.info(e.toString());
+      }
     } else if (output == 3) {
       testo = testo + "Prima parte della password: " + password;
       // la seconda parte della password è inviata tramite sms o telefonata
@@ -2991,9 +3012,42 @@ public class DbUtils {
       testo =
           testo
               + "\n\n La seconda parte della password verrà fornita tramite il numero di telefono indicato";
+
+      // invio email al sysadmin
+      String sysadminMailText2 =
+          "Jardin Manager\n\n Effettuata nuova registrazione per l'utente"
+              + regInfo.getNome()
+              + " "
+              + regInfo.getCognome()
+              + "\n\n"
+              + "Credenziali primo accesso:\n\n"
+              + "Username: "
+              + regInfo.getUsername()
+              + "\n"
+              + "Seconda parte della password: "
+              + password2
+              + "\n"
+              + "(La prima parte della password è stata inviata tramite mail all'utente)\n\n"
+              + "FORNIRE ALL'UTENTE LA SECONDA PARTE DELLA PASSWORD USANDO IL NUMERO DI TELEFONO "
+              + regInfo.getTelefono() + "\n";
+
+      try {
+
+        mailUtility.sendMail(
+            mailUtility.getMailSmtpSysadmin(),
+            mitt,
+            "JardinManager - effettuata nuova registrazione con email e telefono",
+            sysadminMailText2);
+      } catch (MessagingException e) {
+        e.printStackTrace();
+        JardinLogger.error("Invio email per nuova registrazione a sysadmin non riuscito!");
+        JardinLogger.error("MessagingException: " + e.toString());
+        // Log.info(e.toString());
+      }
     }
 
     try {
+      // invio mail all'utente
       mailUtility.sendMail(regInfo.getEmail(), mitt, oggetto, testo);
 
     } catch (MessagingException e) {
@@ -3002,6 +3056,41 @@ public class DbUtils {
       JardinLogger.error("MessagingException: " + e.toString());
       // Log.info(e.toString());
     }
-  }
 
+  }
+  
+  
+  private int checkUsername(String username, Connection connection) throws VisibleException {
+    String query = "SELECT count(*) as num FROM " + T_USER
+        + " WHERE username=?";
+    PreparedStatement ps;
+    ResultSet result;
+    try {
+      ps = connection.prepareStatement(query);
+      ps.setString(1, username);
+      result = ps.executeQuery();
+    }  catch (SQLException e) {
+      throw new VisibleException(
+          "Errore nella query per il check dello username scelto in fase di registrazione");
+    }
+    
+    int rows = 0;
+    int usernameCheck = 0;
+    try {
+      while (result.next()) {
+        rows++;
+        if (rows > 1) {
+          throw new VisibleException("Errore nel database degli utenti: "
+              + "due account con username uguali!!! contattare supporto tecnico");
+        } 
+        usernameCheck = result.getInt("num");
+      }
+    }  catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      throw new VisibleException("Errore di accesso "
+          + "al risultato dell'interrogazione su database");
+    }
+    return usernameCheck;
+  }
 }

@@ -35,17 +35,19 @@ public class MailUtility {
   private String mailSmtpUser;
   private String mailSmtpPass;
   private String mailSmtpSender;
+  private String mailSmtpSysadmin;
 
   private final static int smtpPort = 25;
 
   public MailUtility(String mailSmtpHost, String mailSmtpAuth,
-      String mailSmtpUser, String mailSmtpPass, String mailSmtpSender) {
+      String mailSmtpUser, String mailSmtpPass, String mailSmtpSender, String mailSmtpSysadmin) {
     // TODO Auto-generated constructor stub
     setMailSmtpHost(mailSmtpHost);
     setMailSmtpAuth(mailSmtpAuth);
     setMailSmtpUser(mailSmtpUser);
     setMailSmtpPass(mailSmtpPass);
     setMailSmtpSender(mailSmtpSender);
+    setMailSmtpSysadmin(mailSmtpSysadmin);
   }
 
   public void sendMail(final String dest, final String mitt,
@@ -57,6 +59,7 @@ public class MailUtility {
     props.put("mail.smtp.user", getMailSmtpUser());
     props.put("mail.smtp.pass", getMailSmtpPass());
     props.put("mail.smtp.sender", getMailSmtpSender());
+    props.put("mail.smtp.sysadmin", getMailSmtpSysadmin());
     Session session = Session.getDefaultInstance(props);
 
     if (getMailSmtpAuth().compareToIgnoreCase("true") == 0) {
@@ -169,5 +172,19 @@ public class MailUtility {
    */
   public static int getSmtpPort() {
     return smtpPort;
+  }
+
+  /**
+   * @return the mailSmtpSysadmin
+   */
+  public String getMailSmtpSysadmin() {
+    return mailSmtpSysadmin;
+  }
+
+  /**
+   * @param mailSmtpSysadmin the mailSmtpSysadmin to set
+   */
+  public void setMailSmtpSysadmin(String mailSmtpSysadmin) {
+    this.mailSmtpSysadmin = mailSmtpSysadmin;
   }
 }

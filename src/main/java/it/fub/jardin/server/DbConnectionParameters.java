@@ -42,6 +42,7 @@ public class DbConnectionParameters {
   private String mailSmtpUser;
   private String mailSmtpPass;
   private String mailSmtpSender;
+  private String mailSmtpSysadmin;
   private Boolean multigroup;
   
   public DbConnectionParameters() throws VisibleException {
@@ -82,6 +83,9 @@ public class DbConnectionParameters {
       }
       if (myProps.getProperty("mail.smtp.sender") != null) {
         this.setMailSmtpSender(myProps.getProperty("mail.smtp.sender"));                
+      }
+      if (myProps.getProperty("mail.smtp.sysadmin") != null) {
+        this.setMailSmtpSysadmin(myProps.getProperty("mail.smtp.sysadmin"));                
       }
 //      else {
 //        throw new VisibleException("Attenzione! Property \"subsystem\" assente --> impossibile loggare!");
@@ -290,6 +294,20 @@ public class DbConnectionParameters {
    */
   public void setMultigroup(Boolean multigroup) {
     this.multigroup = multigroup;
+  }
+
+  /**
+   * @return the mailSmtpSysadmin
+   */
+  public String getMailSmtpSysadmin() {
+    return mailSmtpSysadmin;
+  }
+
+  /**
+   * @param mailSmtpSysadmin the mailSmtpSysadmin to set
+   */
+  public void setMailSmtpSysadmin(String mailSmtpSysadmin) {
+    this.mailSmtpSysadmin = mailSmtpSysadmin;
   }
 
 
