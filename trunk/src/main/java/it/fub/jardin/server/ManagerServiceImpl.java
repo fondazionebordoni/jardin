@@ -79,7 +79,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
         dbConnectionHandler.getDbConnectionParameters().getMailSmtpAuth(),
         dbConnectionHandler.getDbConnectionParameters().getMailSmtpUser(),
         dbConnectionHandler.getDbConnectionParameters().getMailSmtpPass(),
-        dbConnectionHandler.getDbConnectionParameters().getMailSmtpSender()));
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpSender(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpSysadmin()));
 
     subSystem = dbConnectionHandler.getDbConnectionParameters().getSubSystem();
 
@@ -513,7 +514,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
       logInitialized = true;
     }
-    
+
     Integer output = dbUtils.checkRegistrationInfo(regInfo);
 
     if (output == 0 || output == 1) {
