@@ -24,6 +24,7 @@ import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -32,6 +33,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -74,9 +76,9 @@ public class FieldCreator {
       f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("y-MM-dd"));
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
-      DateField f = new DateField();
+      final DateField f = new DateField();
       f.getPropertyEditor().setFormat(
-          DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));
+          DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));  
       result = f;
     }/*
       * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
@@ -325,11 +327,10 @@ public class FieldCreator {
       f.setPropertyEditorType(Double.class);
       result = f;
     }
-      /*
-      * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
-      * new NumberField(); f.setFormat(NumberFormat.getFormat("#")); result = f;
-      * }
-      */else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
+    /*
+     * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f = new
+     * NumberField(); f.setFormat(NumberFormat.getFormat("#")); result = f; }
+     */else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
       TimeField f = new TimeField();
       f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
