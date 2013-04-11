@@ -250,8 +250,15 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
   }
 
   public void setSpecificType() {
-
+    
+//    System.out.println("campo " + this.getName() + " di tipo " + this.getType());
+  
     String type = this.getType();
+//    System.out.println("campo: " + this.getName());
+//    System.out.println(" LA (: " + type.indexOf("("));
+//    System.out.println(" LA ): " + type.lastIndexOf(")"));
+//    System.out.println("start: " + (type.indexOf("(") + 1) + "; end:"
+//        + (type.lastIndexOf(")") - 1));
     String fk = this.getForeignKey();
     this.setIsCombo(false);
     if (fk != null && fk.compareToIgnoreCase("") != 0)
@@ -298,9 +305,9 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       this.setSpecificType(FieldDataType.FLOAT);
       this.setIsLenghtFixed(false);
       this.setLenght(20);
-      if (type.indexOf("(") != -1) {
-        setLenght(Integer.parseInt(type.substring(type.indexOf("(")+1, type.indexOf(",")-1)));
-      } else setLenght(20);
+//      if (type.indexOf("(") != -1) {
+//        setLenght(Integer.parseInt(type.substring(type.indexOf("(")+1, type.indexOf(",")-1)));
+//      } else setLenght(20);
     } else if (type.startsWith("double")) {
       this.setSpecificType(FieldDataType.DOUBLE);
     } else if (type.startsWith("timestamp") || type.startsWith("datetime")) {
@@ -315,11 +322,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       this.setSpecificType(FieldDataType.ENUM);
       this.setIsCombo(true);
       ArrayList<String> elements = new ArrayList<String>();
-//      System.out.println("campo: " + this.getName());
-//      System.out.println(" LA (: " + type.indexOf("("));
-//      System.out.println(" LA ): " + type.lastIndexOf(")"));
-//      System.out.println("start: " + (type.indexOf("(") + 1) + "; end:"
-//          + (type.lastIndexOf(")") - 1));
+
       String[] elementsWithCommas =
           (type.substring(type.indexOf("(") + 1, type.lastIndexOf(")") - 1)).split(",");
       for (int i = 0; i < elementsWithCommas.length; i++) {

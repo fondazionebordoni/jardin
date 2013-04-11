@@ -98,12 +98,14 @@ public class RegistrationForm extends Window {
     // password.setFieldLabel("scegli una password");
     // password.setMinLength(8);
     // password.setPassword(true);
+    Label noteLabel = new Label("* Attenzione!!! Rispettare maiuscole e minuscole dei dati forniti!");
 
     this.formPanel.add(nome);
     this.formPanel.add(cognome);
     this.formPanel.add(email);
     this.formPanel.add(telefono);
     this.formPanel.add(username);
+    this.formPanel.add(noteLabel);
 
 //    Label alert = new Label("*I dati devono essere precaricati. Contattare gli amministratori di sistema");
 //    this.formPanel.add(alert);

@@ -147,6 +147,8 @@ public class DbUtils {
     update.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
     return update.getGeneratedKeys();
   }
+  
+  
 
   private void updateLoginCount(final int userId, final int loginCount)
       throws SQLException, HiddenException {
@@ -160,7 +162,10 @@ public class DbUtils {
       ps.setInt(1, loginCount);
       ps.setInt(2, userId);
       ps.executeUpdate();
+//      System.out.println("UPDATE " + T_USER
+//            + " SET logincount="+loginCount+", lastlogintime=NOW() WHERE id=" + userId);
     } catch (SQLException e) {
+      e.printStackTrace();
       JardinLogger.error("impossibile aggiornare conto login");
       throw new HiddenException("impossibile aggiornare conto login");
     } finally {
@@ -2744,8 +2749,12 @@ public class DbUtils {
                 surname, group, email, office, telephone, status, login, last);
         this.user = user;
 
-        if (login > 0)
-          this.updateLoginCount(uid, login++);
+        if (login > 0) {
+          login++;
+          this.updateLoginCount(uid, login);
+//          System.out.println("conto login: " + login);
+        }
+        
 
         return user;
       }
@@ -2930,6 +2939,7 @@ public class DbUtils {
     }
 
     int rows = 0;
+    int status = 0;
 
     try {
       while (result.next()) {
@@ -2938,10 +2948,9 @@ public class DbUtils {
           throw new VisibleException("Errore nel database degli utenti: "
               + "due account con username e password uguali");
         } else
-          return result.getInt("status");
+          status = result.getInt("status");
       }
-      if (rows == 0)
-        return 0;
+      if (rows == 0) status = 0;
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -2957,8 +2966,8 @@ public class DbUtils {
             + regInfo.getUsername());
       }
     }
-    throw new VisibleException("Errore: impossibile registrare l'utente "
-        + regInfo.getUsername());
+    return status;
+    
   }
 
   public void sendRegistrationMail(MailUtility mailUtility,
@@ -2980,7 +2989,7 @@ public class DbUtils {
 
       // invio email al sysadmin
       String sysadminMailText1 =
-          "Jardin Manager\n\n Effettuata nuova registrazione per l'utente"
+          "Jardin Manager\n\n Effettuata nuova registrazione per l'utente "
               + regInfo.getNome() + " " + regInfo.getCognome() + "\n\n"
               + "Credenziali primo accesso:\n\n" + "Username: "
               + regInfo.getUsername() + "\n"
