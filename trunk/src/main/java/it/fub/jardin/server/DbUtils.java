@@ -2260,8 +2260,25 @@ public class DbUtils {
     return result;
   }
 
+  
+//  public void notifyRemove(MailUtility mailUtility, final Integer resultsetId,
+//  final List<BaseModelData> newItemList) throws SQLException,
+//  HiddenException {
+//    Connection connection = this.dbConnectionHandler.getConn();
+//
+//    String query =
+//        "SELECT address_statement, data_statement, link_id, name FROM "
+//            + T_NOTIFY + " WHERE id_resultset = '" + resultsetId + "'";
+//
+//    JardinLogger.debug("query: " + query);
+//
+//    ResultSet result = doQuery(connection, query);
+//    
+//  }
+  
+  
   public void notifyChanges(MailUtility mailUtility, final Integer resultsetId,
-      final List<BaseModelData> newItemList) throws SQLException,
+      final List<BaseModelData> newItemList, String operazione) throws SQLException,
       HiddenException {
     Integer id_table = 0;
     String mitt = mailUtility.getMailSmtpSender();
@@ -2310,7 +2327,7 @@ public class DbUtils {
                 + resultAddress.getString(1));
             if (!(resultAddress.getString(1) == null)) {
               try {
-                mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto,
+                mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto + " - " + operazione,
                     testo);
 
               } catch (MessagingException e) {
@@ -2325,6 +2342,8 @@ public class DbUtils {
             }
           }
         } else {
+          
+          // gestire notifica per inserimento righe nel db
           JardinLogger.error("Notifica non inviata perchè è un inserimento!");
         }
       }

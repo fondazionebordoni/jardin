@@ -312,10 +312,24 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return this.dbUtils.getValuesOfForeignKeys(resultsetId);
   }
 
-  public Integer removeObjects(final Integer resultset,
+  public Integer removeObjects(final Integer resultsetId,
       final List<BaseModelData> selectedRows) throws HiddenException {
     this.log("Removing records...");
-    return this.dbUtils.removeObjects(resultset, selectedRows);
+    try {
+      this.dbUtils.notifyChanges(mailUtility, resultsetId, selectedRows, "cancellazione");
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    int success = this.dbUtils.removeObjects(resultsetId, selectedRows);
+    if (success > 0) {
+      JardinLogger.info("Objects successfull removed for resultset "
+          + resultsetId);
+      
+    } else
+      JardinLogger.error("Error in setting objects for resultset "
+          + resultsetId + "!");
+    return success;
   }
 
   protected synchronized User getUserByUid(final int uid) {
@@ -371,7 +385,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       JardinLogger.info("Objects successfull setted for resultset "
           + resultsetId);
       try {
-        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest);
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "inserimento");
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -418,7 +432,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     if (success > 0) {
       JardinLogger.info("Records for resultset " + resultsetId + " UPDATED!");
       try {
-        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest);
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "aggiormamento");
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
