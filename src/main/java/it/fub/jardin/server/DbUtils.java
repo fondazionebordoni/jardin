@@ -147,8 +147,6 @@ public class DbUtils {
     update.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
     return update.getGeneratedKeys();
   }
-  
-  
 
   private void updateLoginCount(final int userId, final int loginCount)
       throws SQLException, HiddenException {
@@ -162,8 +160,9 @@ public class DbUtils {
       ps.setInt(1, loginCount);
       ps.setInt(2, userId);
       ps.executeUpdate();
-//      System.out.println("UPDATE " + T_USER
-//            + " SET logincount="+loginCount+", lastlogintime=NOW() WHERE id=" + userId);
+      // System.out.println("UPDATE " + T_USER
+      // + " SET logincount="+loginCount+", lastlogintime=NOW() WHERE id=" +
+      // userId);
     } catch (SQLException e) {
       e.printStackTrace();
       JardinLogger.error("impossibile aggiornare conto login");
@@ -2260,10 +2259,9 @@ public class DbUtils {
     return result;
   }
 
-  
   public void notifyChanges(MailUtility mailUtility, final Integer resultsetId,
-      final List<BaseModelData> newItemList, String operazione) throws SQLException,
-      HiddenException {
+      final List<BaseModelData> newItemList, String operazione)
+      throws SQLException, HiddenException {
     Integer id_table = 0;
     String mitt = mailUtility.getMailSmtpSender();
 
@@ -2302,14 +2300,13 @@ public class DbUtils {
             testo += "\n";
           }
 
-          
         } else {
-          
+
           // gestire notifica per inserimento righe nel db
           JardinLogger.error("Notifica non inviata perchè è un inserimento!");
         }
       }
-      
+
       PreparedStatement ps =
           (PreparedStatement) connection.prepareStatement(address_statement);
       // ps.setInt(1, id_table);
@@ -2319,8 +2316,8 @@ public class DbUtils {
             + resultAddress.getString(1));
         if (!(resultAddress.getString(1) == null)) {
           try {
-            mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto + " - " + operazione,
-                testo);
+            mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto
+                + " - " + operazione, testo);
 
           } catch (MessagingException e) {
             e.printStackTrace();
@@ -2333,7 +2330,7 @@ public class DbUtils {
           JardinLogger.error("Errore invio mail: Mail non valida!");
         }
       }
-      
+
     }
   }
 
@@ -2758,9 +2755,8 @@ public class DbUtils {
         if (login > 0) {
           login++;
           this.updateLoginCount(uid, login);
-//          System.out.println("conto login: " + login);
+          // System.out.println("conto login: " + login);
         }
-        
 
         return user;
       }
@@ -2904,8 +2900,10 @@ public class DbUtils {
     }
 
     if (checkUsername(regInfo.getUsername(), connection) > 0) {
-      JardinLogger.info("REGISTRAZIONE: impossibile registrare l'utente " + regInfo.getUsername() + " - username già presente nel db");
-      throw new VisibleException("Errore nel database degli utenti: username già presente!!!");
+      JardinLogger.info("REGISTRAZIONE: impossibile registrare l'utente "
+          + regInfo.getUsername() + " - username già presente nel db");
+      throw new VisibleException(
+          "Errore nel database degli utenti: username già presente!!!");
     }
 
     String query =
@@ -2914,7 +2912,6 @@ public class DbUtils {
     if (regInfo.getTelefono() != null) {
       query = query + " AND telephone = ? ";
     }
-    
 
     PreparedStatement ps;
     try {
@@ -2922,7 +2919,7 @@ public class DbUtils {
       ps.setString(1, regInfo.getNome());
       ps.setString(2, regInfo.getCognome());
       ps.setString(3, regInfo.getEmail());
-      
+
       if (regInfo.getTelefono() != null) {
         ps.setString(4, regInfo.getTelefono());
       }
@@ -2956,12 +2953,14 @@ public class DbUtils {
         } else
           status = result.getInt("status");
       }
-      if (rows == 0) status = 0;
+      if (rows == 0)
+        status = 0;
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
       JardinLogger.error("REGISTRAZIONE: Errore di accesso al risultato dell'interrogazione su database");
-      throw new VisibleException("REGISTRAZIONE: Errore di accesso al risultato dell'interrogazione su database");
+      throw new VisibleException(
+          "REGISTRAZIONE: Errore di accesso al risultato dell'interrogazione su database");
     } finally {
       try {
         this.dbConnectionHandler.closeConn(connection);
@@ -2973,7 +2972,7 @@ public class DbUtils {
       }
     }
     return status;
-    
+
   }
 
   public void sendRegistrationMail(MailUtility mailUtility,
@@ -3073,34 +3072,35 @@ public class DbUtils {
     }
 
   }
-  
-  
-  private int checkUsername(String username, Connection connection) throws VisibleException {
-    String query = "SELECT count(*) as num FROM " + T_USER
-        + " WHERE username=?";
+
+  private int checkUsername(String username, Connection connection)
+      throws VisibleException {
+    String query =
+        "SELECT count(*) as num FROM " + T_USER + " WHERE username=?";
     PreparedStatement ps;
     ResultSet result;
     try {
       ps = connection.prepareStatement(query);
       ps.setString(1, username);
       result = ps.executeQuery();
-    }  catch (SQLException e) {
+    } catch (SQLException e) {
       throw new VisibleException(
           "Errore nella query per il check dello username scelto in fase di registrazione");
     }
-    
+
     int rows = 0;
     int usernameCheck = 0;
     try {
       while (result.next()) {
         rows++;
         if (rows > 1) {
-          throw new VisibleException("Errore nel database degli utenti: "
-              + "due account con username uguali!!! contattare supporto tecnico");
-        } 
+          throw new VisibleException(
+              "Errore nel database degli utenti: "
+                  + "due account con username uguali!!! contattare supporto tecnico");
+        }
         usernameCheck = result.getInt("num");
       }
-    }  catch (SQLException e) {
+    } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
       throw new VisibleException("Errore di accesso "

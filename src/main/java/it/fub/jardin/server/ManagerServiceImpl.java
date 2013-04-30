@@ -384,12 +384,12 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     if (success > 0) {
       JardinLogger.info("Objects successfull setted for resultset "
           + resultsetId);
-      try {
-        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "inserimento");
-      } catch (SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+//      try {
+//        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "inserimento");
+//      } catch (SQLException e) {
+//        // TODO Auto-generated catch block
+//        e.printStackTrace();
+//      }
     } else
       JardinLogger.error("Error in setting objects for resultset "
           + resultsetId + "!");
