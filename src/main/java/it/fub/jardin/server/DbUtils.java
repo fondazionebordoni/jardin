@@ -2261,22 +2261,6 @@ public class DbUtils {
   }
 
   
-//  public void notifyRemove(MailUtility mailUtility, final Integer resultsetId,
-//  final List<BaseModelData> newItemList) throws SQLException,
-//  HiddenException {
-//    Connection connection = this.dbConnectionHandler.getConn();
-//
-//    String query =
-//        "SELECT address_statement, data_statement, link_id, name FROM "
-//            + T_NOTIFY + " WHERE id_resultset = '" + resultsetId + "'";
-//
-//    JardinLogger.debug("query: " + query);
-//
-//    ResultSet result = doQuery(connection, query);
-//    
-//  }
-  
-  
   public void notifyChanges(MailUtility mailUtility, final Integer resultsetId,
       final List<BaseModelData> newItemList, String operazione) throws SQLException,
       HiddenException {
@@ -2318,35 +2302,38 @@ public class DbUtils {
             testo += "\n";
           }
 
-          PreparedStatement ps =
-              (PreparedStatement) connection.prepareStatement(address_statement);
-          // ps.setInt(1, id_table);
-          ResultSet resultAddress = ps.executeQuery();
-          while (resultAddress.next()) {
-            JardinLogger.info("Sending notification mail to: "
-                + resultAddress.getString(1));
-            if (!(resultAddress.getString(1) == null)) {
-              try {
-                mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto + " - " + operazione,
-                    testo);
-
-              } catch (MessagingException e) {
-                e.printStackTrace();
-                JardinLogger.error("Invio non riuscito!");
-                JardinLogger.error("MessagingException: " + e.toString());
-                // Log.info(e.toString());
-              }
-              JardinLogger.info("Invio riuscito!");
-            } else {
-              JardinLogger.error("Errore invio mail: Mail non valida!");
-            }
-          }
+          
         } else {
           
           // gestire notifica per inserimento righe nel db
           JardinLogger.error("Notifica non inviata perchè è un inserimento!");
         }
       }
+      
+      PreparedStatement ps =
+          (PreparedStatement) connection.prepareStatement(address_statement);
+      // ps.setInt(1, id_table);
+      ResultSet resultAddress = ps.executeQuery();
+      while (resultAddress.next()) {
+        JardinLogger.info("Sending notification mail to: "
+            + resultAddress.getString(1));
+        if (!(resultAddress.getString(1) == null)) {
+          try {
+            mailUtility.sendMail(resultAddress.getString(1), mitt, oggetto + " - " + operazione,
+                testo);
+
+          } catch (MessagingException e) {
+            e.printStackTrace();
+            JardinLogger.error("Invio non riuscito!");
+            JardinLogger.error("MessagingException: " + e.toString());
+            // Log.info(e.toString());
+          }
+          JardinLogger.info("Invio riuscito!");
+        } else {
+          JardinLogger.error("Errore invio mail: Mail non valida!");
+        }
+      }
+      
     }
   }
 
