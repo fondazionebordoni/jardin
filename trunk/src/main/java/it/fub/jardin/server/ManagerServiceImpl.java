@@ -432,7 +432,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     if (success > 0) {
       JardinLogger.info("Records for resultset " + resultsetId + " UPDATED!");
       try {
-        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "aggiormamento");
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "aggiornamento");
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
