@@ -2301,7 +2301,8 @@ public class DbUtils {
       JardinLogger.debug("bmdid " + bmdid);
 
       for (BaseModelData record : newItemList) {
-        if (record.get(bmdid) != null || record.get(bmdid) != "") {
+//        System.out.println("idrecord:"+record.get(bmdid)+":idrecord");
+        if (record.get(bmdid) != null && record.get(bmdid) != "" && record.get(bmdid) != " " && record.get(bmdid) != "\"\"") {
           id_table = Integer.valueOf(record.get(bmdid).toString());
           PreparedStatement psData =
               (PreparedStatement) connection.prepareStatement(data_statement);
@@ -2321,14 +2322,14 @@ public class DbUtils {
         } else {
 
           // gestire notifica per inserimento righe nel db
-          testo = "nuovo record\n\n" ;
+          testo += "nuovo record\n" ;
           Iterator itr = record.getPropertyNames().iterator();
           while (itr.hasNext()) {
             String key = itr.next().toString();
             testo += key + ": " + record.get(key) + "\n";
 //            System.out.print(key + ": " + record.get(key) + "\n");
           }
-          testo += "\n";
+          testo += "\n\n";
          System.out.println(testo);
           JardinLogger.error("Notifica non inviata perchè è un inserimento!");
         }
