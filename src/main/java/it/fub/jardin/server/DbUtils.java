@@ -37,6 +37,7 @@ import it.fub.jardin.client.model.ResultsetPlus;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Tool;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.tools.FieldDataType;
 import it.fub.jardin.client.widget.UploadDialog;
 import it.fub.jardin.server.tools.JardinLogger;
 
@@ -59,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -488,23 +490,27 @@ public class DbUtils {
           // if (value != null) {
           // System.out.println("colonna: " + field.getName() + " del tipo "
           // + field.getSpecificType());
-          if (field.getSpecificType().compareToIgnoreCase("varchar") == 0
-              || field.getSpecificType().compareToIgnoreCase("char") == 0
-              || field.getSpecificType().compareToIgnoreCase("enum") == 0
-              || field.getSpecificType().compareToIgnoreCase("text") == 0) {
+          if (field.getSpecificType().compareToIgnoreCase(FieldDataType.VARCHAR) == 0
+              || field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0
+              || field.getSpecificType().compareToIgnoreCase(FieldDataType.ENUM) == 0
+              || field.getSpecificType().compareToIgnoreCase(FieldDataType.TEXT) == 0) {
             value = result.getString(field.getName());
-          } else if (field.getSpecificType().compareToIgnoreCase("int") == 0) {
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.INT) == 0) {
             // value = ((BigDecimal)
             // result.getObject(i)).floatValue();
             value = result.getInt(field.getName());
-          } else if (field.getSpecificType().compareToIgnoreCase("float") == 0) {
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.FLOAT) == 0) {
             value = result.getFloat(field.getName());
-          } else if (field.getSpecificType().compareToIgnoreCase("double") == 0) {
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.DOUBLE) == 0) {
             value = result.getDouble(field.getName());
-          } else if (field.getSpecificType().compareToIgnoreCase("DATE") == 0
-              || field.getSpecificType().compareToIgnoreCase("DATETIME") == 0) {
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.DATE) == 0) {
             value = result.getDate(field.getName());
-          } else if (field.getSpecificType().compareToIgnoreCase("TIMESTAMP") == 0) {
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.DATETIME) == 0) {
             try {
               value = result.getTimestamp(field.getName());
             } catch (Exception e) {
@@ -2000,9 +2006,9 @@ public class DbUtils {
     return fieldInPref;
   }
 
-  public int importFile(final Credentials credentials, final int resultsetId,
+  public int importFile(MailUtility mailUtility, final Credentials credentials, final int resultsetId,
       final File importFile, final String ts, final String fs,
-      final String tipologia, final String type, final String condition)
+      final String tipologia, final String type, final String condition, String operazione)
       throws HiddenException, VisibleException, SQLException {
 
     // this.getUser(credentials);
@@ -2116,6 +2122,18 @@ public class DbUtils {
     } else {
       opCode = this.updateObjects(resultsetId, recordList, condition);
     }
+    if (opCode > 0) {
+      JardinLogger.info("Objects successfull setted for resultset "
+          + resultsetId);
+      try {
+        this.notifyChanges(mailUtility, resultsetId, recordList, operazione);
+      } catch (SQLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    } else
+      JardinLogger.error("Error in setting objects for resultset "
+          + resultsetId + "!");
     return opCode;
   }
 
@@ -2283,7 +2301,7 @@ public class DbUtils {
       JardinLogger.debug("bmdid " + bmdid);
 
       for (BaseModelData record : newItemList) {
-        if (record.get(bmdid) != null) {
+        if (record.get(bmdid) != null || record.get(bmdid) != "") {
           id_table = Integer.valueOf(record.get(bmdid).toString());
           PreparedStatement psData =
               (PreparedStatement) connection.prepareStatement(data_statement);
@@ -2303,6 +2321,15 @@ public class DbUtils {
         } else {
 
           // gestire notifica per inserimento righe nel db
+          testo = "nuovo record\n\n" ;
+          Iterator itr = record.getPropertyNames().iterator();
+          while (itr.hasNext()) {
+            String key = itr.next().toString();
+            testo += key + ": " + record.get(key) + "\n";
+//            System.out.print(key + ": " + record.get(key) + "\n");
+          }
+          testo += "\n";
+         System.out.println(testo);
           JardinLogger.error("Notifica non inviata perchè è un inserimento!");
         }
       }

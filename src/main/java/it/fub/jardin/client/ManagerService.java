@@ -57,7 +57,7 @@ public interface ManagerService extends RemoteService {
   public String createReport(String file, Template template,
     PagingLoadConfig config, List<BaseModelData> selectedRows,
     List<String> columns, SearchParams searchParams, char fs, char ts)
-    throws VisibleException;
+    throws VisibleException, HiddenException;
 
   /**
    * Sits on listening and gets events from server.
