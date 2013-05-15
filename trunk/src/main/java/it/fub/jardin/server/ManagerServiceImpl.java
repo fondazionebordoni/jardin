@@ -107,7 +107,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public String createReport(final String file, final Template template,
       final PagingLoadConfig config, final List<BaseModelData> selectedRows,
       final List<String> columns, final SearchParams searchParams,
-      final char fs, final char ts) throws VisibleException {
+      final char fs, final char ts) throws VisibleException, HiddenException {
     if (searchParams == null) {
       throw new VisibleException("Effettuare prima una ricerca");
     } else if ((template.getInfo().compareTo(Template.CSV.getInfo()) == 0)
@@ -136,8 +136,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     /* Gestione del template di default */
     User user = this.getCurrentUser();
     if (template.getInfo().compareTo(Template.DEFAULT.getInfo()) == 0) {
-      ResultsetImproved resultset =
-          user.getResultsetImprovedFromId(searchParams.getResultsetId());
+      ResultsetImproved resultset = dbUtils.getResultsetImproved(searchParams.getResultsetId(), searchParams.getGroupId());
+//          user.getResultsetImprovedFromId(searchParams.getResultsetId());
       try {
         FileUtils.prepareDefaultTemplate(resultset, xsl, columns);
       } catch (IOException e) {
@@ -384,12 +384,12 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     if (success > 0) {
       JardinLogger.info("Objects successfull setted for resultset "
           + resultsetId);
-//      try {
-//        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "inserimento");
-//      } catch (SQLException e) {
-//        // TODO Auto-generated catch block
-//        e.printStackTrace();
-//      }
+      try {
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "inserimento");
+      } catch (SQLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
     } else
       JardinLogger.error("Error in setting objects for resultset "
           + resultsetId + "!");

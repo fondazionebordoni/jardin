@@ -61,6 +61,8 @@ public class Upload extends HttpServlet {
   
   private DbProperties dbProperties;
   private DbConnectionHandler dbConnectionHandler;
+  private MailUtility mailUtility;
+  private String subSystem = "JARDiN";
   private DbUtils dbUtils;
   
 
@@ -81,7 +83,15 @@ public class Upload extends HttpServlet {
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
+    this.mailUtility = new MailUtility(
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpHost(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpAuth(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpUser(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpPass(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpSender(),
+        dbConnectionHandler.getDbConnectionParameters().getMailSmtpSysadmin());
 
+    subSystem = dbConnectionHandler.getDbConnectionParameters().getSubSystem();
     // Create a factory for disk-based file items
     DiskFileItemFactory factory = new DiskFileItemFactory();
 
@@ -207,15 +217,15 @@ public class Upload extends HttpServlet {
 
         /* Decisione delle azioni da eseguire con il file */
         if (this.type.compareToIgnoreCase(UploadDialog.TYPE_IMPORT) == 0) {
-          dbUtils.importFile(this.credentials, this.resultset, f,
+          dbUtils.importFile(this.mailUtility,this.credentials, this.resultset, f,
               this.ts, this.fs, this.tipologia, UploadDialog.TYPE_IMPORT,
-              this.condition);
+              this.condition, "aggiornamento");
           return UploadDialog.SUCCESS
               + "Importazione dati avvenuta con successo";
         } else if (this.type.compareToIgnoreCase(UploadDialog.TYPE_INSERT) == 0) {
-          dbUtils.importFile(this.credentials, this.resultset, f,
+          dbUtils.importFile(this.mailUtility,this.credentials, this.resultset, f,
               this.ts, this.fs, this.tipologia, UploadDialog.TYPE_INSERT,
-              this.condition);
+              this.condition, "inserimento");
           return UploadDialog.SUCCESS
               + "Importazione dati avvenuta con successo";
         } else {
@@ -234,6 +244,7 @@ public class Upload extends HttpServlet {
       return e.getMessage();
     } catch (Exception e) {
 //      Log.warn("Errore durante l'upload del file", e);
+      e.printStackTrace();
       return "Errore. Impossibile salvare il file sul server";
     }
   }

@@ -113,9 +113,9 @@ public class JardinColumnConfig extends ColumnConfig {
     } else if (f instanceof DateField) {
       editor = new CellEditor((DateField) f);
       if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
-        this.setDateTimeFormat(DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));
+        this.setDateTimeFormat(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
       } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATE) == 0) {
-        this.setDateTimeFormat(DateTimeFormat.getFormat("y-MM-dd"));
+        this.setDateTimeFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
       }
 
     } else if (f instanceof TimeField) {

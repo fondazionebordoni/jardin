@@ -301,6 +301,7 @@ public class FileUtils {
      */
 
     /* Prendi lo scheletro dell'XSL di default */
+//    System.out.println(f.getParent() + "/default.xsl");
     Reader is = new FileReader(f.getParent() + "/default.xsl");
     String input = FileIO.readerToString(is);
 

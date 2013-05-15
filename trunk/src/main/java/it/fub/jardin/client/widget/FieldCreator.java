@@ -73,12 +73,12 @@ public class FieldCreator {
 
     if (fieldType.compareToIgnoreCase(FieldDataType.DATE) == 0) {
       DateField f = new DateField();
-      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("y-MM-dd"));
+      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
       final DateField f = new DateField();
       f.getPropertyEditor().setFormat(
-          DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));  
+          DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));  
       result = f;
     }/*
       * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
@@ -86,7 +86,7 @@ public class FieldCreator {
       * }
       */else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
       TimeField f = new TimeField();
-      f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+      f.setFormat(DateTimeFormat.getFormat("HH:mm:ss"));
       result = f;
       // Log.debug(field.getName() + ": TIME");
     } else if ((fieldType.compareToIgnoreCase(FieldDataType.TEXT) == 0)
@@ -305,14 +305,14 @@ public class FieldCreator {
 
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATE) == 0) {
       DateField f = new DateField();
-      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("y-MM-dd"));
+      f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
 
       result = f;
       // Log.debug(field.getName() + ": DATE");
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(
-          DateTimeFormat.getFormat("y-MM-dd HH:mm:ss"));
+          DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
       NumberField f = new NumberField();
@@ -332,7 +332,7 @@ public class FieldCreator {
      * NumberField(); f.setFormat(NumberFormat.getFormat("#")); result = f; }
      */else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
       TimeField f = new TimeField();
-      f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+      f.setFormat(DateTimeFormat.getFormat("HH:mm:ss"));
       result = f;
       // Log.debug(field.getName() + ": TIME");
     } else if ((fieldType.compareToIgnoreCase(FieldDataType.TEXT) == 0)
