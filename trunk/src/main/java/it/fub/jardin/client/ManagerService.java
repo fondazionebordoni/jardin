@@ -46,7 +46,7 @@ public interface ManagerService extends RemoteService {
   
   public Integer checkRegistrationInfo(RegistrationInfo regInfo) throws VisibleException, HiddenException ;
   
-  public Integer massiveUpdate(MassiveUpdateObject muo) throws VisibleException, HiddenException;
+  public Integer massiveUpdate(MassiveUpdateObject muo, int userId) throws VisibleException, HiddenException;
 
   public User changePassword(Credentials credentials) throws VisibleException, HiddenException;
   
@@ -62,7 +62,7 @@ public interface ManagerService extends RemoteService {
   /**
    * Sits on listening and gets events from server.
    */
-  public List<EventType> getEvents();
+  public List<EventType> getEvents(int userId);
 
   public HeaderPreferenceList getGridViews(Integer userId, Integer resultsetId)
     throws HiddenException;
@@ -117,17 +117,17 @@ public interface ManagerService extends RemoteService {
     throws HiddenException;
 
   public Integer removeObjects(Integer resultset,
-    List<BaseModelData> selectedRows) throws HiddenException;
+    List<BaseModelData> selectedRows, Integer userId) throws HiddenException, VisibleException;
 
   // TODO implement USER direct messages
   public void sendMessage(Message message) throws HiddenException,
     VisibleException;
 
-  public Integer setObjects(Integer resultsetId, List<BaseModelData> newItemList)
+  public Integer setObjects(Integer resultsetId, List<BaseModelData> newItemList, Integer userId)
     throws HiddenException;
 
   public Integer updateObjects(Integer resultsetId,
-    List<BaseModelData> newItemList, String condition) throws HiddenException;
+    List<BaseModelData> newItemList, String condition, Integer userId) throws HiddenException;
 
   public boolean setUserResultsetHeaderPreferencesNoDefault(Integer userid,
     Integer resultsetId, ArrayList<Integer> listfields, String value)

@@ -105,9 +105,9 @@ public class JardinAddingPopUp extends Window {
 
           f = FieldCreator.getField(field, values, 0, true, source);
 
-          System.out.println("permessi campo " + field.getName() + " r:"
-              + field.getReadperm() + " m:" + field.getModifyperm() + " i:"
-              + field.getInsertperm() + " d:" + field.getDeleteperm());
+//          System.out.println("permessi campo " + field.getName() + " r:"
+//              + field.getReadperm() + " m:" + field.getModifyperm() + " i:"
+//              + field.getInsertperm() + " d:" + field.getDeleteperm());
 
           if (!field.getInsertperm()) {
             f.setEnabled(false);

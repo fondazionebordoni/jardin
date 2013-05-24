@@ -21,10 +21,12 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.Jardin;
 import it.fub.jardin.client.ManagerServiceAsync;
 import it.fub.jardin.client.model.ResultsetField;
+import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -35,6 +37,7 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -44,6 +47,7 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
@@ -62,6 +66,10 @@ public class AddRowForm extends Window {
   private static final String source = "addingrowpopup";
 
   List<Field<?>> fieldList = new ArrayList<Field<?>>();
+  HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
+  private static final int defaultWidth = 270; // width dei campi
+  private static final int labelWidth = 170;
+  private static final int padding = 0;
 
   final FormPanel formPanel;
   Button button;
@@ -92,44 +100,6 @@ public class AddRowForm extends Window {
     this.formPanel.setHeaderVisible(false);
     this.formPanel.setScrollMode(Scroll.AUTO);
 
-    // Radio radio1 = new Radio();
-    // radio1.setBoxLabel("Yes");
-    // radio1.setData("valore", "yes");
-    // radio1.setValue(false);
-    //
-    // Radio radio2 = new Radio();
-    // radio2.setBoxLabel("No");
-    // radio2.setData("valore", "no");
-    // radio2.setValue(true);
-    //
-    // final RadioGroup group = new RadioGroup();
-    // group.setFieldLabel("usare tendine per delimitare i valori consentiti?");
-    // group.add(radio1);
-    // group.add(radio2);
-    //
-    // this.formPanel.add(group);
-    //
-    // group.addListener(Events.Change, new Listener<ComponentEvent>() {
-    //
-    // public void handleEvent(final ComponentEvent be) {
-    // Radio selected = group.getValue();
-    // // MessageBox.alert("selezione", "selezionato: "
-    // // + selected.getData("valore"), null);
-    //
-    // if (((String) selected.getData("valore")).compareToIgnoreCase("yes") ==
-    // 0) {
-    // AddRowForm.this.formPanel.removeAll();
-    // AddRowForm.this.setAssistedFormPanel();
-    // AddRowForm.this.layout();
-    // } else {
-    // AddRowForm.this.formPanel.removeAll();
-    // AddRowForm.this.setUnAssistedFormPanel();
-    // AddRowForm.this.layout();
-    // }
-    // }
-    //
-    // });
-
     this.setAssistedFormPanel();
     // for (final ResultsetField field : this.resultset.getFields()) {
 
@@ -154,146 +124,41 @@ public class AddRowForm extends Window {
   private void setAssistedFormPanel() {
     for (ResultsetField field : this.resultset.getFields()) {
 
-      if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-        List values = new ArrayList();
+      List values = new ArrayList();
+      Field PF = FieldCreator.getField(field, values, 0, true, source);
 
-        Field<?> PF = FieldCreator.getField(field, values, 0, true, source);
-
-        if (!field.getInsertperm()) {
-          PF.setEnabled(false);
-        }
-
-        this.fieldList.add(PF);
-        this.formPanel.add(PF);
-
-      } else {
-        if ((field.getType()).compareToIgnoreCase("TIME") == 0) {
-          TimeField textField = new TimeField();
-          textField.setName(field.getName());
-          textField.setFieldLabel(field.getAlias());
-          textField.setFormat(DateTimeFormat.getFormat("kk:mm:ss"));
-
-          this.fieldList.add(textField);
-          this.formPanel.add(textField);
-
-          if (!field.getInsertperm()) {
-            textField.setEnabled(false);
-            textField.setValue(null);
-          }
-
-        } else if (((field.getType()).compareToIgnoreCase("DATE") == 0)
-            || ((field.getType()).compareToIgnoreCase("DATETIME") == 0)) {
-
-          DateField textField = new DateField();
-          textField.setName(field.getName());
-          textField.setFieldLabel(field.getAlias());
-          textField.getPropertyEditor().setFormat(
-              DateTimeFormat.getFormat("dd/MM/y"));
-          java.util.Date date = new java.util.Date();
-          textField.setValue(date);
-
-          if (!field.getInsertperm()) {
-            textField.setEnabled(false);
-            textField.setValue(null);
-          }
-
-          this.fieldList.add(textField);
-          this.formPanel.add(textField);
-
-        } else if (((field.getType()).compareToIgnoreCase("BLOB") == 0)
-            || ((field.getType()).compareToIgnoreCase("TEXT") == 0)) {
-          TextArea textField = new TextArea();
-          textField.setName(field.getName());
-          textField.setFieldLabel(field.getAlias());
-          this.fieldList.add(textField);
-          this.formPanel.add(textField);
-        } else {
-
-          TextField<String> textField = new TextField<String>();
-          textField.setName(field.getName());
-          textField.setFieldLabel(field.getAlias());
-
-          if (!field.getInsertperm()) {
-            textField.setEnabled(false);
-            textField.setValue(null);
-          }
-
-          this.fieldList.add(textField);
-          this.formPanel.add(textField);
-        }
+      if (!field.getInsertperm()) {
+        PF.setEnabled(false);
       }
+
+      /* Esamino il raggruppamento a cui appartiene il campo */
+      ResultsetFieldGroupings fieldGrouping =
+          this.resultset.getFieldGrouping(field.getIdgrouping());
+
+      String fieldSetName = fieldGrouping.getName();
+
+      /*
+       * Se il fieldset non esiste lo creo e l'aggancio a pannello
+       */
+      FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
+      if (fieldSet == null) {
+        fieldSet =
+            new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
+                labelWidth, padding);
+        this.fieldSetList.put(fieldSetName, fieldSet);
+        this.formPanel.add(fieldSet);
+      }
+
+      /* Aggancio il campo al suo raggruppamento */
+      fieldSet.add(PF);
+      
+      this.fieldList.add(PF);
+//      this.formPanel.add(PF);
+
     }
   }
 
-  // private void setUnAssistedFormPanel() {
-  // for (ResultsetField field : this.resultset.getFields()) {
-  //
-  // if (field.getForeignKey().compareToIgnoreCase("") != 0) {
-  //
-  // ParametricField PF =
-  // new ParametricField(this.grid.getResultset().getId(),
-  // field.getForeignKey().split("\\.")[1], field.getName(),
-  // field.getAlias());
-  //
-  // if (!field.getInsertperm()) {
-  // PF.setEnabled(false);
-  // }
-  //
-  // // if (!field.getDeleteperm()) {
-  //
-  // this.fieldList.add(PF);
-  // this.formPanel.add(PF);
-  //
-  // } else {
-  // if ((field.getType()).compareToIgnoreCase("TIME") == 0) {
-  // TimeField textField = new TimeField();
-  // textField.setName(field.getName());
-  // textField.setFieldLabel(field.getAlias());
-  // textField.setFormat(DateTimeFormat.getFormat("kk:mm:ss"));
-  //
-  // this.fieldList.add(textField);
-  // this.formPanel.add(textField);
-  //
-  // if (!field.getInsertperm()) {
-  // textField.setEnabled(false);
-  // textField.setValue(null);
-  // }
-  //
-  // } else if (((field.getType()).compareToIgnoreCase("DATE") == 0)
-  // || ((field.getType()).compareToIgnoreCase("DATETIME") == 0)) {
-  //
-  // DateField textField = new DateField();
-  // textField.setName(field.getName());
-  // textField.setFieldLabel(field.getAlias());
-  // java.util.Date date = new java.util.Date();
-  // textField.setValue(date);
-  //
-  // if (!field.getInsertperm()) {
-  // textField.setEnabled(false);
-  // textField.setValue(null);
-  // }
-  //
-  // this.fieldList.add(textField);
-  // this.formPanel.add(textField);
-  //
-  // } else {
-  //
-  // TextField<String> textField = new TextField<String>();
-  // textField.setName(field.getName());
-  // textField.setFieldLabel(field.getAlias());
-  //
-  // if (!field.getInsertperm()) {
-  // textField.setEnabled(false);
-  // textField.setValue(null);
-  // }
-  //
-  // this.fieldList.add(textField);
-  // this.formPanel.add(textField);
-  // }
-  // }
-  // }
-  // }
-
+  
   private void setButtons() {
     ButtonBar buttonBar = new ButtonBar();
     this.button = new Button("Aggiungi", new SelectionListener<ButtonEvent>() {
@@ -340,8 +205,15 @@ public class AddRowForm extends Window {
           }
         }
         newItemList.add(newItem);
-        AddRowForm.this.commitChangesAsync(AddRowForm.this.resultset.getId(),
-            newItemList);
+
+//        AppEvent event = new AppEvent(EventList.saveNewRecord, newItemList);
+//        Dispatcher.forwardEvent(EventList.saveNewRecord, AddRowForm.this.resultset.getId());
+        AppEvent event = new AppEvent(EventList.saveNewRecord);
+        event.setData("object", newItemList);
+        event.setData("resultsetid", AddRowForm.this.resultset.getId());
+        Dispatcher.forwardEvent(event);
+//        AddRowForm.this.commitChangesAsync(AddRowForm.this.resultset.getId(),
+//            newItemList);
       }
     });
 
@@ -353,47 +225,47 @@ public class AddRowForm extends Window {
    * @param resultsetId
    * @param items
    */
-  private void commitChangesAsync(final Integer resultsetId,
-      final List<BaseModelData> items) {
-
-    final MessageBox waitbox =
-        MessageBox.wait("Attendere", "Salvataggio in corso...", "");
-
-    /* Create the service proxy class */
-    final ManagerServiceAsync service =
-        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-
-    /* Set up the callback */
-    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-      public void onFailure(final Throwable caught) {
-        waitbox.close();
-        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
-      }
-
-      public void onSuccess(final Integer result) {
-        waitbox.close();
-        if (result.intValue() > 0) {
-          Info.display("Informazione", "Dati salvati", "");
-          SearchParams sp = new SearchParams(resultsetId);
-          List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-          BaseModelData bm = new BaseModelData();
-
-          bm.set("searchField", "");
-          queryFieldList.add(bm);
-          sp.setFieldsValuesList(queryFieldList);
-          AddRowForm.this.hide();
-          Dispatcher.forwardEvent(EventList.Search, sp);
-
-        } else {
-          Dispatcher.forwardEvent(EventList.Error,
-              "Impossibile salvare le modifiche");
-        }
-      }
-    };
-
-    /* Make the call */
-    service.setObjects(resultsetId, items, callback);
-    // service.updateObjects(resultsetId, items, "$-notspec-$", callback);
-  }
+//  private void commitChangesAsync(final Integer resultsetId,
+//      final List<BaseModelData> items) {
+//
+//    final MessageBox waitbox =
+//        MessageBox.wait("Attendere", "Salvataggio in corso...", "");
+//
+//    /* Create the service proxy class */
+//    final ManagerServiceAsync service =
+//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
+//
+//    /* Set up the callback */
+//    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
+//      public void onFailure(final Throwable caught) {
+//        waitbox.close();
+//        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
+//      }
+//
+//      public void onSuccess(final Integer result) {
+//        waitbox.close();
+//        if (result.intValue() > 0) {
+//          Info.display("Informazione", "Dati salvati", "");
+//          SearchParams sp = new SearchParams(resultsetId);
+//          List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
+//          BaseModelData bm = new BaseModelData();
+//
+//          bm.set("searchField", "");
+//          queryFieldList.add(bm);
+//          sp.setFieldsValuesList(queryFieldList);
+//          AddRowForm.this.hide();
+//          Dispatcher.forwardEvent(EventList.Search, sp);
+//
+//        } else {
+//          Dispatcher.forwardEvent(EventList.Error,
+//              "Impossibile salvare le modifiche");
+//        }
+//      }
+//    };
+//
+//    /* Make the call */
+//    service.setObjects(resultsetId, items, callback);
+//    // service.updateObjects(resultsetId, items, "$-notspec-$", callback);
+//  }
 
 }

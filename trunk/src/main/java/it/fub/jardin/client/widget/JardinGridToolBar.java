@@ -272,6 +272,7 @@ public class JardinGridToolBar extends ToolBar {
     grid.getSearchparams().setFieldsValuesList(queryFieldList);
     grid.getSearchparams().setAccurate(this.accurate.isChecked());
     grid.getSearchparams().setGroupId(grid.getUser().getGid());
+    grid.getSearchparams().setUserId(grid.getUser().getUid());
     Dispatcher.forwardEvent(EventList.Search, grid.getSearchparams());
   }
 

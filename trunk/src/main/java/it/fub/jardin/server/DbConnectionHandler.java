@@ -63,6 +63,7 @@ public class DbConnectionHandler {
           DriverManager.getConnection(this.url + this.db, this.user, this.pass);
     } catch (Exception e) {
 //      Log.error("Errore durante la creazione della connesione a database", e);
+      e.printStackTrace();
       throw new HiddenException(
           "Errore durante la creazione della connessione a database");
     }
