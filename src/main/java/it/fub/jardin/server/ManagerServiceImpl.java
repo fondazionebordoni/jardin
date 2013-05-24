@@ -61,7 +61,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   private static final long serialVersionUID = 1L;
   private final DbUtils dbUtils;
-  private final Map<String, User> users = new HashMap<String, User>();
+  private final Map<Integer, User> users = new HashMap<Integer, User>();
   private String subSystem = "JARDiN";
   private String log4jConfPath = "conf/";
   private DbConnectionHandler dbConnectionHandler;
@@ -86,21 +86,25 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
   }
 
-  public Integer massiveUpdate(MassiveUpdateObject muo)
+  public Integer massiveUpdate(MassiveUpdateObject muo, int userId)
       throws VisibleException, HiddenException {
 
+    User user = getUserByUid(userId);
     String logtext = "";
     for (String pkvalue : muo.getPrimaryKeyValues()) {
       logtext += muo.getFieldName() + "=" + pkvalue + ";";
     }
-    JardinLogger.info("avviata modifica massiva per: " + logtext);
+    JardinLogger.info(user.getUsername(), "avviata modifica massiva per: "
+        + logtext);
 
-    int result = dbUtils.massiveUpdate(muo);
+    int result = dbUtils.massiveUpdate(muo, user.getUsername());
     if (result != 1) {
-      JardinLogger.error("impossibile completare update massivo " + logtext);
+      JardinLogger.error(user.getUsername(),
+          "impossibile completare update massivo " + logtext);
       return 0;
     } else
-      JardinLogger.info("COMPLETATA modifica massiva per: " + logtext);
+      JardinLogger.info(user.getUsername(), "COMPLETATA modifica massiva per: "
+          + logtext);
     return result;
   }
 
@@ -125,7 +129,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     }
     List<BaseModelData> records = null;
     if (selectedRows == null) {
-      records = this.dbUtils.getObjects(config, searchParams);
+      records =
+          this.dbUtils.getObjects(config, searchParams,
+              getUserByUid(searchParams.getUserId()).getUsername());
     } else {
       records = selectedRows;
     }
@@ -134,14 +140,17 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
             Template.TEMPLATE_DIR + template.getXsl());
 
     /* Gestione del template di default */
-    User user = this.getCurrentUser();
+    User user = getUserByUid(searchParams.getUserId());
     if (template.getInfo().compareTo(Template.DEFAULT.getInfo()) == 0) {
-      ResultsetImproved resultset = dbUtils.getResultsetImproved(searchParams.getResultsetId(), searchParams.getGroupId());
-//          user.getResultsetImprovedFromId(searchParams.getResultsetId());
+      ResultsetImproved resultset =
+          dbUtils.getResultsetImproved(searchParams.getResultsetId(),
+              searchParams.getGroupId());
+      // user.getResultsetImprovedFromId(searchParams.getResultsetId());
       try {
         FileUtils.prepareDefaultTemplate(resultset, xsl, columns);
       } catch (IOException e) {
-        JardinLogger.error("template per l'export non trovato");
+        JardinLogger.error(user.getUsername(),
+            "template per l'export non trovato");
         // Log.error("Impossibile ottenere il template di default", e);
         e.printStackTrace();
 
@@ -156,11 +165,12 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       String result =
           FileUtils.createReport(realpath, xsl, template, records, columns, fs,
               ts);
-      JardinLogger.info("File esportato: " + result);
+      JardinLogger.info(user.getUsername(), "File esportato: " + result);
       // JardinLogger.debug("Servlet context path: " + context);
       return result.substring(context.length());
     } else {
-      JardinLogger.error("template per l'export non leggibile");
+      JardinLogger.error(user.getUsername(),
+          "template per l'export non leggibile");
       throw new VisibleException("Impossibile leggere il template");
     }
   }
@@ -180,10 +190,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return group;
   }
 
-  public List<EventType> getEvents() {
+  public List<EventType> getEvents(int userId) {
 
     List<EventType> events = null;
-    User user = this.getCurrentUser();
+    // User user = this.getCurrentUser();
+    User user = this.getUserByUid(userId);
     if (user != null) {
       while (user.getEvents().size() == 0) {
         try {
@@ -219,7 +230,11 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public PagingLoadResult<BaseModelData> getRecords(
       final PagingLoadConfig config, final SearchParams searchParams)
       throws HiddenException {
-    List<BaseModelData> records = this.dbUtils.getObjects(config, searchParams);
+    User user = getUserByUid(searchParams.getUserId());
+    JardinLogger.info(user.getUsername(), "avviata query di ricerca su RS "
+        + searchParams.getResultsetId());
+    List<BaseModelData> records =
+        this.dbUtils.getObjects(config, searchParams, user.getUsername());
 
     if (config != null) {
       int recordSize = this.dbUtils.countObjects(searchParams);
@@ -249,10 +264,10 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     User user = this.dbUtils.getUser(credentials);
     String id = this.getThreadLocalRequest().getSession().getId();
     synchronized (this) {
-      this.users.put(id, user);
+      this.users.put(Integer.valueOf(id), user);
     }
 
-    JardinLogger.info("LOGIN utente " + user.getName());
+    JardinLogger.info(user.getUsername(), "LOGIN utente " + user.getName());
     return user;
   }
 
@@ -261,9 +276,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
 
     User user = this.dbUtils.getSimpleUser(credentials);
 
-    String id = this.getThreadLocalRequest().getSession().getId();
+    // String id = this.getThreadLocalRequest().getSession().getId();
     synchronized (this) {
-      this.users.put(id, user);
+      this.users.put(user.getUid(), user);
     }
 
     if (user != null) {
@@ -273,15 +288,16 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
             this.getClass().getClassLoader().getResource("/").getPath()
                 + log4jConfPath;
         // System.out.println("dir: " + confDir);
-        JardinLogger.init(confDir, subSystem, getCurrentUser());
+        // JardinLogger.init(confDir, subSystem, getCurrentUser());
+        JardinLogger.init(confDir, subSystem);
 
         logInitialized = true;
       }
 
     }
 
-    JardinLogger.info("LOGIN utente effettuato (accesso numero "
-        + user.getLogin() + ")");
+    JardinLogger.info(user.getUsername(),
+        "LOGIN utente effettuato (accesso numero " + user.getLogin() + ")");
     return user;
   }
 
@@ -313,22 +329,28 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public Integer removeObjects(final Integer resultsetId,
-      final List<BaseModelData> selectedRows) throws HiddenException {
-    this.log("Removing records...");
+      final List<BaseModelData> selectedRows, Integer userId)
+      throws HiddenException, VisibleException {
+
+    User user = getUserByUid(userId);
+    JardinLogger.info(user.getUsername(), "Removing records...");
     try {
-      this.dbUtils.notifyChanges(mailUtility, resultsetId, selectedRows, "cancellazione");
+      this.dbUtils.notifyChanges(mailUtility, resultsetId, selectedRows,
+          "cancellazione", user.getUsername());
     } catch (SQLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    int success = this.dbUtils.removeObjects(resultsetId, selectedRows);
+    int success =
+        this.dbUtils.removeObjects(resultsetId, selectedRows,
+            user.getUsername());
     if (success > 0) {
-      JardinLogger.info("Objects successfull removed for resultset "
-          + resultsetId);
-      
+      JardinLogger.info(user.getUsername(),
+          "Objects successfull removed for resultset " + resultsetId);
+
     } else
-      JardinLogger.error("Error in setting objects for resultset "
-          + resultsetId + "!");
+      JardinLogger.error(user.getUsername(),
+          "Error in setting objects for resultset " + resultsetId + "!");
     return success;
   }
 
@@ -374,25 +396,30 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public Integer setObjects(final Integer resultsetId,
-      final List<BaseModelData> newItemList) throws HiddenException {
+      final List<BaseModelData> newItemList, Integer userId)
+      throws HiddenException {
 
-    JardinLogger.info("Setting objects for resultset " + resultsetId + "...");
+    User user = getUserByUid(userId);
+    JardinLogger.info(user.getUsername(), "Setting objects for resultset "
+        + resultsetId + "...");
     // recupero dei vecchi parametri
     // e passaggio a notifyCanges
     List<BaseModelData> newItemListTest = newItemList;
-    int success = this.dbUtils.setObjects(resultsetId, newItemList);
+    int success =
+        this.dbUtils.setObjects(resultsetId, newItemList, user.getUsername());
     if (success > 0) {
-      JardinLogger.info("Objects successfull setted for resultset "
-          + resultsetId);
+      JardinLogger.info(user.getUsername(),
+          "Objects successfull setted for resultset " + resultsetId);
       try {
-        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "inserimento");
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest,
+            "inserimento", user.getUsername());
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else
-      JardinLogger.error("Error in setting objects for resultset "
-          + resultsetId + "!");
+      JardinLogger.error(user.getUsername(),
+          "Error in setting objects for resultset " + resultsetId + "!");
     return success;
   }
 
@@ -421,29 +448,37 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   }
 
   public Integer updateObjects(final Integer resultsetId,
-      final List<BaseModelData> newItemList, final String condition)
-      throws HiddenException {
-    JardinLogger.info("Updating records for resultset " + resultsetId + "...");
+      final List<BaseModelData> newItemList, final String condition,
+      Integer userId) throws HiddenException {
+    User user = getUserByUid(userId);
+    JardinLogger.info(user.getUsername(), "Updating records for resultset "
+        + resultsetId + "...");
     // recupero dei vecchi parametri
     // e passaggio a notifyCanges
     List<BaseModelData> newItemListTest = newItemList;
     int success =
-        this.dbUtils.updateObjects(resultsetId, newItemList, condition);
+        this.dbUtils.updateObjects(resultsetId, newItemList, condition,
+            user.getUsername());
     if (success > 0) {
-      JardinLogger.info("Records for resultset " + resultsetId + " UPDATED!");
+      JardinLogger.info(user.getUsername(), "Records for resultset "
+          + resultsetId + " UPDATED!");
       try {
-        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest, "aggiornamento");
+        this.dbUtils.notifyChanges(mailUtility, resultsetId, newItemListTest,
+            "aggiornamento", user.getUsername());
       } catch (SQLException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else
-      JardinLogger.error("Cannot update records for resultset " + resultsetId);
+      JardinLogger.error(user.getUsername(),
+          "Cannot update records for resultset " + resultsetId);
     return success;
   }
 
   public List<Resultset> getUserResultsetList(int uid) throws HiddenException {
     // List<BaseModelData> resultsetList = new ArrayList<BaseModelData>();
+    User user = getUserByUid(uid);
+    JardinLogger.info(user.getUsername(), "avviata interfaccia per l'utente");
     return this.dbUtils.getUserResultSetList(uid);
   }
 
@@ -452,15 +487,18 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     return "Hello!";
   }
 
-  public ResultsetImproved getResultsetImproved(int resultsetId, int gid)
+  public ResultsetImproved getResultsetImproved(int resultsetId, int uid)
       throws HiddenException {
+    User user = getUserByUid(uid);
     ResultsetImproved resultset =
-        this.dbUtils.getResultsetImproved(resultsetId, gid);
+        this.dbUtils.getResultsetImproved(resultsetId, user.getGid());
 
     if (resultset != null) {
-      JardinLogger.info("apertura resultset " + resultset.getAlias());
+      JardinLogger.info(user.getUsername(),
+          "apertura resultset " + resultset.getAlias());
     } else
-      JardinLogger.error("apertura resultset " + resultsetId + " non riuscita!");
+      JardinLogger.error(user.getUsername(), "apertura resultset "
+          + resultsetId + " non riuscita!");
 
     return resultset;
 
@@ -478,10 +516,10 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     // TODO Auto-generated method stub
     User newUser = this.dbUtils.changePassword(credentials);
     if (newUser != null) {
-      JardinLogger.info("Password successfull changed!");
+      JardinLogger.info(newUser.getUsername(), "Password successfull changed!");
     } else
-      JardinLogger.error("Cannot change password for user"
-          + credentials.getUsername() + "!");
+      JardinLogger.error(newUser.getUsername(),
+          "Cannot change password for user" + credentials.getUsername() + "!");
     return newUser;
   }
 
@@ -524,7 +562,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
           this.getClass().getClassLoader().getResource("/").getPath()
               + log4jConfPath;
       // System.out.println("dir: " + confDir);
-      JardinLogger.init(confDir, subSystem, getCurrentUser());
+      JardinLogger.init(confDir, subSystem);
 
       logInitialized = true;
     }
@@ -532,16 +570,20 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     Integer output = dbUtils.checkRegistrationInfo(regInfo);
 
     if (output == 0 || output == 1) {
-      JardinLogger.info("REGISTRAZIONE: impossibile registrare l'utente "
+      JardinLogger.info("REGISTRAZIONE", "impossibile registrare l'utente "
           + regInfo.getUsername());
     } else if (output == 2 || output == 3) {
-      JardinLogger.info("REGISTRAZIONE: utente " + regInfo.getUsername()
+      JardinLogger.info("REGISTRAZIONE", "utente " + regInfo.getUsername()
           + " registrato con successo");
-      JardinLogger.info("REGISTRAZIONE: invio email con password primo accesso all'utente "
-          + regInfo.getUsername());
+      JardinLogger.info(
+          "REGISTRAZIONE",
+          "invio email con password primo accesso all'utente "
+              + regInfo.getUsername());
       this.dbUtils.sendRegistrationMail(mailUtility, regInfo, output);
-      JardinLogger.info("REGISTRAZIONE: email con password primo accesso all'utente "
-          + regInfo.getUsername() + " inviata");
+      JardinLogger.info(
+          "REGISTRAZIONE",
+          "email con password primo accesso all'utente "
+              + regInfo.getUsername() + " inviata");
     }
     return output;
   }

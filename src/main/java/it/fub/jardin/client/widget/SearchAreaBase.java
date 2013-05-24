@@ -83,6 +83,7 @@ public class SearchAreaBase extends HtmlContainer {
 
     this.searchParams = new SearchParams(resultset.getId());
     this.searchParams.setGroupId(user.getGid());
+    this.searchParams.setUserId(user.getUid());
 
     this.setFields();
     this.setButtons();

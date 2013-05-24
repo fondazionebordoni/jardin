@@ -35,7 +35,8 @@ public class JardinLogger {
   private static String logSubsystem;
   private static String sessionValue;
   private static String hostname;
-  private static String username;
+
+  // private static String username;
 
   /**
    * This should be removed
@@ -52,12 +53,12 @@ public class JardinLogger {
     }
 
     LOG_PROPERTIES_FILE = LOG_PROPERTIES_FILE + "/log4j.properties";
-    if (user == null) { // è una registrazione!!!
-      username = "REGISTRAZIONE";
-    } else username = user.getUsername();
-    
-    initializeLogger(username);
-    
+    // if (user == null) {
+    // username = "REGISTRAZIONE";
+    // } else username = user.getUsername();
+
+    initializeLogger();
+
   }
 
   public static void setContext(Hashtable threadContext) {
@@ -66,7 +67,7 @@ public class JardinLogger {
         || !threadContext.containsKey("log4j_initialized")) {
 
       MDC.put("hostname", hostname);
-      MDC.put("username", username);
+      // MDC.put("username", username);
       MDC.put("subsystem", logSubsystem);
       MDC.put("session", sessionValue);
       MDC.put("log4j_initialized", "yes");
@@ -74,7 +75,7 @@ public class JardinLogger {
     }
   }
 
-  public static void init(String confDir, String subSystem, User user) {
+  public static void init(String confDir, String subSystem) {
     logSubsystem = subSystem;
 
     if (confDir.startsWith("/")) {
@@ -85,15 +86,16 @@ public class JardinLogger {
     }
 
     LOG_PROPERTIES_FILE = LOG_PROPERTIES_FILE + "/log4j.properties";
-    if (user == null) { // è una registrazione!!!
-      username = "REGISTRAZIONE";
-    } else username = user.getUsername();
-    
-    initializeLogger(username);
+    // if (user == null) {
+    // username = "REGISTRAZIONE";
+    // } else username = user.getUsername();
+
+    // initializeLogger(username);
+    initializeLogger();
 
   }
 
-  private static void initializeLogger(String username) {
+  private static void initializeLogger() {
     logger = Logger.getLogger("log4j dataserver logger");
     Properties logProperties = new Properties();
 
@@ -104,8 +106,8 @@ public class JardinLogger {
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
-    
-//    username = user.getUsername();
+
+    // username = user.getUsername();
     // MDC.put("hostname", hostname);
     // MDC.put("subsystem", logSubsystem);
 
@@ -130,29 +132,29 @@ public class JardinLogger {
 
   }
 
-  public static void debug(String string) {
+  public static void debug(String username, String string) {
     setContext(MDC.getContext());
-    logger.debug(string);
+    logger.debug("[" + username + "]: " + string);
   }
 
-  public static void info(String string) {
+  public static void info(String username, String string) {
     setContext(MDC.getContext());
-    logger.info(string);
+    logger.info("[" + username + "]: " + string);
   }
 
-  public static void warn(String string) {
+  public static void warn(String username, String string) {
     setContext(MDC.getContext());
-    logger.warn(string);
+    logger.warn("[" + username + "]: " + string);
   }
 
-  public static void error(String string) {
+  public static void error(String username, String string) {
     setContext(MDC.getContext());
-    logger.error(string);
+    logger.error("[" + username + "]: " + string);
   }
 
-  public static void fatal(String string) {
+  public static void fatal(String username, String string) {
     setContext(MDC.getContext());
-    logger.fatal(string);
+    logger.fatal("[" + username + "]: " + string);
   }
 
   public static void logStackTrace(Exception e) {

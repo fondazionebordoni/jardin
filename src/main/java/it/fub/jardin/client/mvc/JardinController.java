@@ -539,7 +539,7 @@ public class JardinController extends Controller {
 
     /* Make the call */
     service.updateObjects(data.getResultsetId(), data.getNewObjectList(),
-        "$-notspec-$", callback);
+        "$-notspec-$", user.getUid(), callback);
 
   }
 
@@ -600,7 +600,7 @@ public class JardinController extends Controller {
       }
     };
 
-    service.massiveUpdate(data, callback);
+    service.massiveUpdate(data, user.getUid(), callback);
   }
 
   private void onGetValuesOfaField(final Object object, final String source) {
@@ -726,7 +726,7 @@ public class JardinController extends Controller {
     };
 
     /* Make the call */
-    service.setObjects(resultsetId, data, callback);
+    service.setObjects(resultsetId, data, user.getUid(), callback);
 
   }
 
@@ -804,7 +804,7 @@ public class JardinController extends Controller {
 
         };
 
-    service.getResultsetImproved(resultsetId, user.getGid(), callback);
+    service.getResultsetImproved(resultsetId, user.getUid(), callback);
   }
 
   private void onCreateFirstTab() {
@@ -830,7 +830,7 @@ public class JardinController extends Controller {
             // TODO Auto-generated method stub
             box.close();
             Info.display("Informazione", "Lista ResultSet caricata");
-            user.setResultsetList(resultsetList);
+//            user.setResultsetList(resultsetList);
             onGotFirstTab(resultsetList);
           }
 
@@ -973,7 +973,7 @@ public class JardinController extends Controller {
             for (EventType eventType : eventTypes) {
               JardinController.this.handleEvent(new AppEvent(eventType));
             }
-            service.getEvents(this);
+            service.getEvents(user.getUid(), this);
           }
 
           public void onFailure(final Throwable caught) {
@@ -982,7 +982,7 @@ public class JardinController extends Controller {
           }
         };
 
-    service.getEvents(callback);
+    service.getEvents(user.getUid(), callback);
 
     this.forwardToView(this.view, EventList.Init, user);
   }
@@ -1134,7 +1134,7 @@ public class JardinController extends Controller {
         /* Make the call */
         // service.setObjects(resultset.getId(), newItemList, callback);
         service.updateObjects(resultset.getId(), newItemList, new String(
-            "$-notspec-$"), callback);
+            "$-notspec-$"), grid.getUser().getUid(), callback);
       } else {
         Info.display("Informazione", "Nessuna modifica da salvare", "");
       }
@@ -1234,7 +1234,7 @@ public class JardinController extends Controller {
               };
 
               /* Make the call */
-              service.removeObjects(resultset, selectedRows, callback);
+              service.removeObjects(resultset, selectedRows, user.getUid(), callback);
             }
           }
         };

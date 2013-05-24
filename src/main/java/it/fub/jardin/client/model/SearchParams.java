@@ -25,6 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class SearchParams implements IsSerializable {
 
   private int resultsetId;
+  private int userId;
   private int groupId;
   private boolean limit = true;
   private List<BaseModelData> fieldsValuesList;
@@ -102,6 +103,20 @@ public class SearchParams implements IsSerializable {
    */
   public void setGroupId(int groupId) {
     this.groupId = groupId;
+  }
+
+  /**
+   * @return the userId
+   */
+  public int getUserId() {
+    return userId;
+  }
+
+  /**
+   * @param userId the userId to set
+   */
+  public void setUserId(int userId) {
+    this.userId = userId;
   }
 
 }
