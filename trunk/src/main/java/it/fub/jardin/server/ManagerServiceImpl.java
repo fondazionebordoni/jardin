@@ -231,6 +231,8 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
       final PagingLoadConfig config, final SearchParams searchParams)
       throws HiddenException {
     User user = getUserByUid(searchParams.getUserId());
+//    System.out.println("RS id: " + searchParams.getResultsetId());
+//    System.out.println("user id: " + user.getUsername());
     JardinLogger.info(user.getUsername(), "avviata query di ricerca su RS "
         + searchParams.getResultsetId());
     List<BaseModelData> records =

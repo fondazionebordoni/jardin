@@ -2336,7 +2336,7 @@ public class DbUtils {
               testo +=
                   md.getColumnLabel(i) + ": " + resultData.getString(i) + "\n";
             }
-            JardinLogger.debug(username, "\nmessaggio:\n" + testo);
+//            JardinLogger.debug(username, "\nmessaggio:\n" + testo);
             testo += "\n";
           }
 
@@ -2351,7 +2351,7 @@ public class DbUtils {
             // System.out.print(key + ": " + record.get(key) + "\n");
           }
           testo += "\n\n";
-          System.out.println(testo);
+//          System.out.println(testo);
           JardinLogger.error(username,
               "Notifica non inviata perchè è un inserimento!");
         }

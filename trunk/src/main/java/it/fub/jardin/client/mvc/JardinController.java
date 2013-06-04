@@ -1037,7 +1037,7 @@ public class JardinController extends Controller {
     // if
     // (this.user.getResultsetImprovedFromId(searchParams.getResultsetId()).isRead())
     // {
-    if (this.user.getResultsetImprovedFromId(searchParams.getResultsetId()) != null) {
+    if (this.user.getResultsetFromId(searchParams.getResultsetId()) != null) {
       if (this.user.getResultsetFromId(searchParams.getResultsetId()).getPermissions().isReadperm()) {
 
         // ///////////////////////////////////////////
@@ -1580,6 +1580,7 @@ public class JardinController extends Controller {
     SearchParams searchParams = new SearchParams(rs.getId());
     searchParams.setGroupId(user.getGid());
     searchParams.setAccurate(true);
+    searchParams.setUserId(user.getUid());
     List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
     SearchStringParser parser =
         new SearchStringParser(ifki.getLinkingField() + "=\""
