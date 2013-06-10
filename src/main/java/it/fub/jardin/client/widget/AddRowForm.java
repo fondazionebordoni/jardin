@@ -24,6 +24,7 @@ import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,6 +75,7 @@ public class AddRowForm extends Window {
   final FormPanel formPanel;
   Button button;
   // SearchParams searchData;
+  private String username;
   ResultsetImproved resultset;
 
   // private final JardinGrid grid;
@@ -124,8 +126,18 @@ public class AddRowForm extends Window {
   private void setAssistedFormPanel() {
     for (ResultsetField field : this.resultset.getFields()) {
 
+      // foreignkey con la tabella di utenti di sistema
       List values = new ArrayList();
       Field PF = FieldCreator.getField(field, values, 0, true, source);
+//      Field PF = null;
+//      if (field.getForeignKey().compareToIgnoreCase("__system_user") == 0) {
+//        PF = new TextField<String>();
+//        PF.setValue(username);
+//        PF.setEnabled(false);
+//      } else {      
+//        List values = new ArrayList();
+//        PF = FieldCreator.getField(field, values, 0, true, source);
+//      }
 
       if (!field.getInsertperm()) {
         PF.setEnabled(false);
@@ -187,9 +199,7 @@ public class AddRowForm extends Window {
             } else {
               SimpleComboValue<?> scv = (SimpleComboValue<?>) field.getValue();
               value = scv.getValue().toString();
-              // value = ((BaseModelData)
-              // field.getValue())
-              // .get(field.getName());
+
             }
           } else if (field instanceof ComboBox<?>) {
             if (field.getValue() == null) {
@@ -206,14 +216,12 @@ public class AddRowForm extends Window {
         }
         newItemList.add(newItem);
 
-//        AppEvent event = new AppEvent(EventList.saveNewRecord, newItemList);
-//        Dispatcher.forwardEvent(EventList.saveNewRecord, AddRowForm.this.resultset.getId());
+
         AppEvent event = new AppEvent(EventList.saveNewRecord);
         event.setData("object", newItemList);
         event.setData("resultsetid", AddRowForm.this.resultset.getId());
         Dispatcher.forwardEvent(event);
-//        AddRowForm.this.commitChangesAsync(AddRowForm.this.resultset.getId(),
-//            newItemList);
+
       }
     });
 
@@ -221,51 +229,6 @@ public class AddRowForm extends Window {
     this.setBottomComponent(buttonBar);
   }
 
-  /**
-   * @param resultsetId
-   * @param items
-   */
-//  private void commitChangesAsync(final Integer resultsetId,
-//      final List<BaseModelData> items) {
-//
-//    final MessageBox waitbox =
-//        MessageBox.wait("Attendere", "Salvataggio in corso...", "");
-//
-//    /* Create the service proxy class */
-//    final ManagerServiceAsync service =
-//        (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
-//
-//    /* Set up the callback */
-//    AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-//      public void onFailure(final Throwable caught) {
-//        waitbox.close();
-//        Dispatcher.forwardEvent(EventList.Error, caught.getLocalizedMessage());
-//      }
-//
-//      public void onSuccess(final Integer result) {
-//        waitbox.close();
-//        if (result.intValue() > 0) {
-//          Info.display("Informazione", "Dati salvati", "");
-//          SearchParams sp = new SearchParams(resultsetId);
-//          List<BaseModelData> queryFieldList = new ArrayList<BaseModelData>();
-//          BaseModelData bm = new BaseModelData();
-//
-//          bm.set("searchField", "");
-//          queryFieldList.add(bm);
-//          sp.setFieldsValuesList(queryFieldList);
-//          AddRowForm.this.hide();
-//          Dispatcher.forwardEvent(EventList.Search, sp);
-//
-//        } else {
-//          Dispatcher.forwardEvent(EventList.Error,
-//              "Impossibile salvare le modifiche");
-//        }
-//      }
-//    };
-//
-//    /* Make the call */
-//    service.setObjects(resultsetId, items, callback);
-//    // service.updateObjects(resultsetId, items, "$-notspec-$", callback);
-//  }
+
 
 }

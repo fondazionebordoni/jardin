@@ -53,8 +53,9 @@ public class JardinAddingPopUp extends Window {
   // SearchParams searchData;
   ResultsetImproved resultset;
   HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
+  private String username;
 
-  public JardinAddingPopUp(IncomingForeignKeyInformation fkIN) {
+  public JardinAddingPopUp(IncomingForeignKeyInformation fkIN, String username) {
     this.fkIN = fkIN;
 
     this.setSize(650, 550);
@@ -65,6 +66,7 @@ public class JardinAddingPopUp extends Window {
     this.setLayout(new FitLayout());
 
     this.resultset = this.fkIN.getInterestedResultset();
+    this.username = username;
 
     /* Creazione FormPanel */
     this.formPanel = new FormPanel();
@@ -95,7 +97,12 @@ public class JardinAddingPopUp extends Window {
         // System.out.println("aggiunto campo: " + field.getName());
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
-        if (field.getName().compareToIgnoreCase(linkingField) == 0) {
+        // System.out.println("FK: " + field.getForeignKey());
+        if (field.getForeignKey().compareToIgnoreCase("__system_user.username") == 0) {
+          f = new TextField<String>();
+          f.setValue(username);
+          f.setEnabled(false);
+        } else if (field.getName().compareToIgnoreCase(linkingField) == 0) {
           f = new TextField<String>();
 
           f.setValue(fdValue);
@@ -105,9 +112,9 @@ public class JardinAddingPopUp extends Window {
 
           f = FieldCreator.getField(field, values, 0, true, source);
 
-//          System.out.println("permessi campo " + field.getName() + " r:"
-//              + field.getReadperm() + " m:" + field.getModifyperm() + " i:"
-//              + field.getInsertperm() + " d:" + field.getDeleteperm());
+          // System.out.println("permessi campo " + field.getName() + " r:"
+          // + field.getReadperm() + " m:" + field.getModifyperm() + " i:"
+          // + field.getInsertperm() + " d:" + field.getDeleteperm());
 
           if (!field.getInsertperm()) {
             f.setEnabled(false);
