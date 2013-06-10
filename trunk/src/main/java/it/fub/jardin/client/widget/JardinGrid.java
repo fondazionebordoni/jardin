@@ -191,7 +191,7 @@ public class JardinGrid extends Grid<BaseModelData> {
             mitem.addListener(Events.Select, new Listener() {
               public void handleEvent(final BaseEvent be) {
 
-                setJardinAddingPopUp(new JardinAddingPopUp(fk));
+                setJardinAddingPopUp(new JardinAddingPopUp(fk, user.getUsername()));
 
               }
             });
