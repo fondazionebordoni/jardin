@@ -20,6 +20,7 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.tools.FieldDataType;
 
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -69,9 +70,7 @@ public class JardinColumnConfig extends ColumnConfig {
     CellEditor editor = null;
 
     if (f instanceof SimpleComboBox) {
-      if (field.getType().compareToIgnoreCase("int") == 0
-          || field.getType().compareToIgnoreCase("tinyint") == 0
-          || field.getType().compareToIgnoreCase("bigint") == 0) {
+      if (field.getSpecificType().compareToIgnoreCase(FieldDataType.INT) == 0) {
         ((SimpleComboBox) f).setEditable(false);
         editor = new CellEditor(f) {
           @Override
@@ -80,6 +79,24 @@ public class JardinColumnConfig extends ColumnConfig {
               return value;
             }
             return ((SimpleComboBox) f).findModel(value);
+          }
+
+          @Override
+          public Object postProcessValue(final Object value) {
+            if (value == null) {
+              return value;
+            }
+            return ((BaseModelData) value).get("value");
+          }
+        };
+      } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.TIME) == 0) {
+        editor = new CellEditor((TimeField)f) {
+          @Override
+          public Object preProcessValue(final Object value) {
+            if (value == null) {
+              return value;
+            }
+            return ((TimeField) f).findModel((Date)value);
           }
 
           @Override
@@ -120,7 +137,7 @@ public class JardinColumnConfig extends ColumnConfig {
 
     } else if (f instanceof TimeField) {
       editor = new CellEditor((TimeField) f);
-      this.setDateTimeFormat(DateTimeFormat.getFormat("HH:mm:ss"));
+      this.setDateTimeFormat(DateTimeFormat.getFormat("HH:mm"));
     } else {
       editor = new CellEditor(f);
     }
@@ -134,19 +151,14 @@ public class JardinColumnConfig extends ColumnConfig {
     }
 
     /* Gestione personalizzazione in base al tipo di campo */
-    String type = field.getType();
-    if ((type.compareToIgnoreCase("INT") == 0)
-        || (type.compareToIgnoreCase("DATE") == 0)
-        || (type.compareToIgnoreCase("DATETIME") == 0)
-        || (type.compareToIgnoreCase("TIME") == 0)) {
-      this.setAlignment(HorizontalAlignment.RIGHT);
-    }
+//    String type = field.getType();
+//    if ((type.compareToIgnoreCase("INT") == 0)
+//        || (type.compareToIgnoreCase("DATE") == 0)
+//        || (type.compareToIgnoreCase("DATETIME") == 0)
+//        || (type.compareToIgnoreCase("TIME") == 0)) {
+//      this.setAlignment(HorizontalAlignment.RIGHT);
+//    }
 
-    // if ((type.compareToIgnoreCase("DATE") == 0)
-    // || (type.compareToIgnoreCase("DATETIME") == 0)
-    // || (type.compareToIgnoreCase("TIME") == 0)) {
-    // this.setDateTimeFormat(DateTimeFormat.getMediumDateFormat());
-    // }
 
     this.setResizable(true);
     this.setHidden(!field.getVisible());

@@ -23,11 +23,13 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.ResultsetPlus;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.binding.SimpleComboBoxFieldBinding;
+import com.extjs.gxt.ui.client.binding.TimeFieldBinding;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -45,6 +47,8 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.Time;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -185,10 +189,37 @@ public class JardinTabItem extends TabItem {
 
     /* Binding con l'area di dettaglio */
     this.formbinding = new FormBinding(this.detail, false);
-    for (Field<?> field : this.detail.getFields()) {
-      if (field instanceof SimpleComboBox<?>) {
+    for (Field field : this.detail.getFields()) {
+      if (field instanceof SimpleComboBox) {
         this.formbinding.addFieldBinding(new SimpleComboBoxFieldBinding(
-            (SimpleComboBox<?>) field, field.getName()));
+            (SimpleComboBox) field, field.getName()));
+      } else if (field instanceof TimeField) {
+        this.formbinding.addFieldBinding(new TimeFieldBinding(
+            (TimeField) field, field.getName()) {
+          @Override
+          protected Object onConvertModelValue(Object value) {
+            if (value == null) {
+              return null;
+            }
+
+            Time time = new Time();
+            if (value instanceof String) {
+              int hours = Integer.parseInt(((String) value).substring(0, 2));
+              int mins = Integer.parseInt(((String) value).substring(3, 5));
+              System.out.println("ore: " + hours + "; minuti: " + mins);
+              time.setHour(hours);
+              time.setMinutes(mins);
+              // ((Time) value).setHour(Integer.parseInt(((String)
+              // value).substring(0, 1)));
+              // ((Time) value).setMinutes(Integer.parseInt(((String)
+              // value).substring(3, 4)));
+            }
+            // else time = (Time) value;
+            // return time;
+            Date date = time.getDate();
+            return ((TimeField) field).findModel(date);
+          }
+        });
       } else {
         this.formbinding.addFieldBinding(new FieldBinding(field,
             field.getName()));
@@ -247,7 +278,28 @@ public class JardinTabItem extends TabItem {
             if (be.getSelection().size() > 0) {
               BaseModelData record = be.getSelection().get(0);
               for (final Field field : JardinTabItem.this.detail.getFields()) {
-                if (field instanceof SimpleComboBox) {
+                // System.out.println(field.getName() + " " +
+                // field.getClass().toString());
+                if (field instanceof TimeField) {
+                  System.out.println("è un time!");
+                  Time defaultValue = new Time();
+                  if (record.get(field.getName()) != null) {
+                    System.out.println("valore time: "
+                        + record.get(field.getName()));
+                    int hours =
+                        Integer.parseInt(record.get(field.getName()).toString().substring(
+                            0, 1));
+                    int mins =
+                        Integer.parseInt(record.get(field.getName()).toString().substring(
+                            0, 1));
+                    defaultValue.setHour(hours);
+                    defaultValue.setMinutes(mins);
+
+                    ((TimeField) field).setValue(defaultValue);
+                    // ((TimeField) field).select(defaultValue);
+                  }
+
+                } else if (field instanceof SimpleComboBox) {
                   if (record.get(field.getName()) instanceof Integer) {
                     Integer defaultValue = record.get(field.getName());
                     ArrayList<Integer> defval = new ArrayList<Integer>();

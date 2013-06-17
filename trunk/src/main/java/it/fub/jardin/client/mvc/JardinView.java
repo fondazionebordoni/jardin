@@ -70,6 +70,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -276,6 +277,8 @@ public class JardinView extends View {
         // ((SimpleComboBox)
         // interestedRF.getFieldByName(interestedFieldName)).removeAll();
         ((SimpleComboBox) interestedRF.getFieldByName(interestedFieldName)).add(valuesList);
+        
+             
 
       } else if (event.getData("source").toString().compareToIgnoreCase("grid") == 0) {
         String interestedFieldName =
@@ -317,7 +320,8 @@ public class JardinView extends View {
             ((ForeignKey) event.getData("object")).getPointingFieldName();
 
         ((SimpleComboBox) interestedJAP.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
-
+        
+        
       } else if (event.getData("source").toString().compareToIgnoreCase(
           "detailpopup") == 0) {
         JardinDetailPopUp interestedJDP =

@@ -78,7 +78,7 @@ public class FieldCreator {
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
       final DateField f = new DateField();
       f.getPropertyEditor().setFormat(
-          DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));  
+          DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
       result = f;
     }/*
       * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f =
@@ -326,13 +326,9 @@ public class FieldCreator {
       NumberField f = new NumberField();
       f.setPropertyEditorType(Double.class);
       result = f;
-    }
-    /*
-     * else if (fieldType.compareToIgnoreCase("INT") == 0) { NumberField f = new
-     * NumberField(); f.setFormat(NumberFormat.getFormat("#")); result = f; }
-     */else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
+    } else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
       TimeField f = new TimeField();
-      f.setFormat(DateTimeFormat.getFormat("HH:mm:ss"));
+      f.setFormat(DateTimeFormat.getFormat("HH:mm"));
       result = f;
       // Log.debug(field.getName() + ": TIME");
     } else if ((fieldType.compareToIgnoreCase(FieldDataType.TEXT) == 0)
