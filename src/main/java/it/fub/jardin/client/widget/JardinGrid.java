@@ -40,6 +40,8 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.Time;
+import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -111,9 +113,10 @@ public class JardinGrid extends Grid<BaseModelData> {
         for (final ResultsetField field : resultset.getFields()) {
           if ((field.getForeignKey().compareToIgnoreCase("") != 0)
               && field.getForeignKey() != null) {
-            
+
             String fkinfo = field.getForeignKey();
-//            System.out.println("fk " + fkinfo + " per campo " + field.getName());
+            // System.out.println("fk " + fkinfo + " per campo " +
+            // field.getName());
             String[] fksplitted = fkinfo.split("\\.");
             // for (final ResultsetImproved rs : resultsets) {
             for (final Resultset rs : resultsetList) {
@@ -191,7 +194,8 @@ public class JardinGrid extends Grid<BaseModelData> {
             mitem.addListener(Events.Select, new Listener() {
               public void handleEvent(final BaseEvent be) {
 
-                setJardinAddingPopUp(new JardinAddingPopUp(fk, user.getUsername()));
+                setJardinAddingPopUp(new JardinAddingPopUp(fk,
+                    user.getUsername()));
 
               }
             });
@@ -234,6 +238,15 @@ public class JardinGrid extends Grid<BaseModelData> {
                 be.getGrid().getSelectionModel().getSelection().get(0);
             for (final ResultsetField field : resultset.getFields()) {
               if (JardinGrid.this.getColumnModel().getColumnById(
+                  field.getName()).getEditor().getField() instanceof TimeField) {
+                String defaultValue = selectedRow.get(field.getName());
+                Time defTime = new Time();
+                if (defaultValue != null) {
+                    defTime.setHour(Integer.parseInt(defaultValue.substring(0, 1)));
+                    defTime.setHour(Integer.parseInt(defaultValue.substring(3, 4)));
+                }
+                ((TimeField) cm.getColumnById(field.getName()).getEditor().getField()).setValue(defTime);
+              } else if (JardinGrid.this.getColumnModel().getColumnById(
                   field.getName()).getEditor().getField() instanceof SimpleComboBox) {
                 String fieldType = field.getSpecificType();
                 if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
@@ -252,8 +265,7 @@ public class JardinGrid extends Grid<BaseModelData> {
                 } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
                   Float defaultValue =
                       Float.parseFloat(selectedRow.get(field.getName()).toString());
-                  if (((SimpleComboBox<Float>) cm.getColumnById(
-                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
+                  if (((SimpleComboBox<Float>) cm.getColumnById(field.getName()).getEditor().getField()).getStore().getCount() == 0) {
                     List<Float> comboStore = new ArrayList<Float>();
                     comboStore.add(defaultValue);
                     ((SimpleComboBox<Float>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
@@ -267,7 +279,8 @@ public class JardinGrid extends Grid<BaseModelData> {
                     comboStore.add(defaultValue);
                     ((SimpleComboBox<Double>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
                   }
-                } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.ENUM) == 0) {
+                } else if (field.getSpecificType().compareToIgnoreCase(
+                    FieldDataType.ENUM) == 0) {
                   String defaultValue = selectedRow.get(field.getName());
                   ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(field.getFixedElements());
                   ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);

@@ -254,11 +254,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
 //    System.out.println("campo " + this.getName() + " di tipo " + this.getType());
   
     String type = this.getType();
-//    System.out.println("campo: " + this.getName());
-//    System.out.println(" LA (: " + type.indexOf("("));
-//    System.out.println(" LA ): " + type.lastIndexOf(")"));
-//    System.out.println("start: " + (type.indexOf("(") + 1) + "; end:"
-//        + (type.lastIndexOf(")") - 1));
+
     String fk = this.getForeignKey();
     this.setIsCombo(false);
     if (fk != null && fk.compareToIgnoreCase("") != 0)
