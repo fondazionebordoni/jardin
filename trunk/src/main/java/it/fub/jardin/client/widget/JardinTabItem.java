@@ -206,16 +206,10 @@ public class JardinTabItem extends TabItem {
             if (value instanceof String) {
               int hours = Integer.parseInt(((String) value).substring(0, 2));
               int mins = Integer.parseInt(((String) value).substring(3, 5));
-              System.out.println("ore: " + hours + "; minuti: " + mins);
+//              System.out.println("ore: " + hours + "; minuti: " + mins);
               time.setHour(hours);
               time.setMinutes(mins);
-              // ((Time) value).setHour(Integer.parseInt(((String)
-              // value).substring(0, 1)));
-              // ((Time) value).setMinutes(Integer.parseInt(((String)
-              // value).substring(3, 4)));
             }
-            // else time = (Time) value;
-            // return time;
             Date date = time.getDate();
             return ((TimeField) field).findModel(date);
           }
@@ -260,17 +254,7 @@ public class JardinTabItem extends TabItem {
     /* Binding con il nuovo store */
     this.formbinding.setStore(this.grid.getStore());
 
-    // this.grid.getSelectionModel().addListener(Events.SelectionChange,
-    // new Listener<SelectionChangedEvent<BaseModelData>>() {
-    // public void handleEvent(SelectionChangedEvent<BaseModelData> be) {
-    // if (be.getSelection().size() > 0) {
-    // BaseModelData record = be.getSelection().get(0);
-    // formbinding.bind(record);
-    // } else {
-    // formbinding.unbind();
-    // }
-    // }
-    // });
+    
     // ////////////////////////////////////////////////////////////////////////////////
     this.grid.getSelectionModel().addListener(Events.SelectionChange,
         new Listener<SelectionChangedEvent<BaseModelData>>() {
@@ -278,25 +262,23 @@ public class JardinTabItem extends TabItem {
             if (be.getSelection().size() > 0) {
               BaseModelData record = be.getSelection().get(0);
               for (final Field field : JardinTabItem.this.detail.getFields()) {
-                // System.out.println(field.getName() + " " +
-                // field.getClass().toString());
+           
                 if (field instanceof TimeField) {
-                  System.out.println("è un time!");
                   Time defaultValue = new Time();
                   if (record.get(field.getName()) != null) {
-                    System.out.println("valore time: "
-                        + record.get(field.getName()));
+                    
                     int hours =
                         Integer.parseInt(record.get(field.getName()).toString().substring(
-                            0, 1));
+                            0, 2));
                     int mins =
                         Integer.parseInt(record.get(field.getName()).toString().substring(
-                            0, 1));
+                            3, 5));
                     defaultValue.setHour(hours);
                     defaultValue.setMinutes(mins);
 
                     ((TimeField) field).setValue(defaultValue);
-                    // ((TimeField) field).select(defaultValue);
+//                    System.out.println("valore time: "
+//                        + record.get(field.getName()));
                   }
 
                 } else if (field instanceof SimpleComboBox) {

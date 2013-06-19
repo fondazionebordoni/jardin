@@ -380,24 +380,7 @@ public class FieldCreator {
     return result;
   }
 
-  // public static Field<?> createField(final ResultsetField field) {
-  //
-  // String specificType = field.getSpecificType();
-  // if (field.isCombo()) {
-  // if (specificType.compareToIgnoreCase(FieldDataType.VARCHAR) == 0) {
-  // SimpleComboBox<String> f = new SimpleComboBox<String>();
-  // f.setTriggerAction(TriggerAction.ALL);
-  // f.add(field.getFixedElements());
-  // return f;
-  // }
-  //
-  // } else {
-  //
-  // }
-  //
-  //
-  // return null;
-  // }
+
 
   public static Field<?> getField(final ResultsetField field,
       final String source) {
