@@ -472,7 +472,7 @@ public class JardinController extends Controller {
       }
       // else Log.error("ERRORE recupero resultset cliccato");
     } else if (t == EventList.GetValuesOfAField) {
-      System.out.println("sorgente evento: " + event.getData("source"));
+//      System.out.println("sorgente evento: " + event.getData("source"));
       this.onGetValuesOfaField(event.getData("object"),
           event.getData("source").toString());
 
@@ -480,12 +480,12 @@ public class JardinController extends Controller {
       if (event.getData() instanceof MassiveUpdateObject) {
         this.onMassiveUpdate((MassiveUpdateObject) event.getData());
       } else
-        System.out.println("ERRORE!!! che è??");
+        System.out.println("ERRORE!!! che è?? no MassiveUpdateObject");
     } else if (t == EventList.UpdateObjects) {
       if (event.getData() instanceof NewObjects) {
         this.onUpdateObjects((NewObjects) event.getData());
       } else
-        System.out.println("ERRORE!!! che è??");
+        System.out.println("ERRORE!!! che è?? no NewObjects");
     } else if (t == EventList.RetrievePkValues) {
       if (event.getData() instanceof SearchParams) {
         this.onRetrievePkValues((SearchParams) event.getData());

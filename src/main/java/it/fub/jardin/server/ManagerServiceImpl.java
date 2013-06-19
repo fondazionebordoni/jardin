@@ -74,6 +74,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     this.dbProperties = new DbProperties();
     this.dbConnectionHandler = this.dbProperties.getConnectionHandler();
     this.dbUtils = new DbUtils(dbProperties, dbConnectionHandler);
+//    this.users = dbUtils.getJardinUsers();
     this.setMailUtility(new MailUtility(
         dbConnectionHandler.getDbConnectionParameters().getMailSmtpHost(),
         dbConnectionHandler.getDbConnectionParameters().getMailSmtpAuth(),
@@ -175,10 +176,10 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     }
   }
 
-  private synchronized User getCurrentUser() {
-    String id = this.getThreadLocalRequest().getSession().getId();
-    return this.users.get(id);
-  }
+//  private synchronized User getCurrentUser() {
+//    String id = this.getThreadLocalRequest().getSession().getId();
+//    return this.users.get(id);
+//  }
 
   private synchronized List<User> getGroupUsers(final int gid) {
     ArrayList<User> group = new ArrayList<User>();
@@ -230,6 +231,7 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public PagingLoadResult<BaseModelData> getRecords(
       final PagingLoadConfig config, final SearchParams searchParams)
       throws HiddenException {
+//    System.out.println("utente " + searchParams.getUserId());
     User user = getUserByUid(searchParams.getUserId());
 //    System.out.println("RS id: " + searchParams.getResultsetId());
 //    System.out.println("user id: " + user.getUsername());
@@ -264,9 +266,10 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
   public User getUser(final Credentials credentials) throws VisibleException {
 
     User user = this.dbUtils.getUser(credentials);
-    String id = this.getThreadLocalRequest().getSession().getId();
+//    String id = this.getThreadLocalRequest().getSession().getId();
     synchronized (this) {
-      this.users.put(Integer.valueOf(id), user);
+//      this.users.put(Integer.valueOf(id), user);
+      this.users.put(user.getUid(), user);
     }
 
     JardinLogger.info(user.getUsername(), "LOGIN utente " + user.getName());
@@ -279,9 +282,9 @@ public class ManagerServiceImpl extends RemoteServiceServlet implements
     User user = this.dbUtils.getSimpleUser(credentials);
 
     // String id = this.getThreadLocalRequest().getSession().getId();
-    synchronized (this) {
+//    synchronized (this) {
       this.users.put(user.getUid(), user);
-    }
+//    }
 
     if (user != null) {
       if (logInitialized == false) {

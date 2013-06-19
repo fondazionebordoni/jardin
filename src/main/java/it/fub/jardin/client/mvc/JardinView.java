@@ -33,6 +33,7 @@ import it.fub.jardin.client.widget.JardinAddingPopUp;
 import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
 import it.fub.jardin.client.widget.JardinDetailPopUp;
+import it.fub.jardin.client.widget.JardinEditorPopUp;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinTabItem;
@@ -264,8 +265,7 @@ public class JardinView extends View {
 
         ((SimpleComboBox) interestedDetail.getFieldByName(interestedFieldName)).add(valuesList);
 
-      }
-      if (event.getData("source").toString().compareToIgnoreCase(
+      } else if (event.getData("source").toString().compareToIgnoreCase(
           "addingrowpopup") == 0) {
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
@@ -342,6 +342,16 @@ public class JardinView extends View {
 
         ((SimpleComboBox) interestedMUD.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
 
+      }  else if (event.getData("source").toString().compareToIgnoreCase(
+          "editorpopup") == 0) {
+        JardinEditorPopUp interestedJEP =
+            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinEditorPopUp();
+        
+        String interestedFieldName =
+            ((ForeignKey) event.getData("object")).getPointingFieldName();
+
+        ((SimpleComboBox) interestedJEP.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
+        // gestire
       }
     }
   }

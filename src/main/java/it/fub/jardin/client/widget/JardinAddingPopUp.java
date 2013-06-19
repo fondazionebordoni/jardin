@@ -208,6 +208,10 @@ public class JardinAddingPopUp extends Window {
               SimpleComboValue<?> scv = (SimpleComboValue<?>) field.getValue();
               value = scv.getValue().toString();
             }
+          } else if (field instanceof TimeField) {
+            value =
+                ((TimeField) field).getValue().getHour() + ":"
+                    + ((TimeField) field).getValue().getMinutes();
           } else if (field instanceof ComboBox<?>) {
             if (field.getValue() == null) {
               value = "";
@@ -218,12 +222,12 @@ public class JardinAddingPopUp extends Window {
             value = field.getValue();
           }
 
-          if (value != null) {
+//          if (value != null) {
             // System.out.println("aggiungere: " + property + " con valore "
             // + value);
             newItem.set(property, value);
             // Log.debug("aggiunto item " + newItem.get(property));
-          }
+//          }
         }
 
         // BaseModelData resultsetIdentifier = new BaseModelData();

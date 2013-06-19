@@ -1024,6 +1024,14 @@ public class DbUtils {
     return foreignKey;
   }
 
+  
+  
+//  public Map<Integer, User> getJardinUsers() {
+//    Map<Integer, User> users = new Map<Integer, User>();
+//    
+//    return null;
+//    
+//  }
   /**
    * @param fieldName
    * @param result
