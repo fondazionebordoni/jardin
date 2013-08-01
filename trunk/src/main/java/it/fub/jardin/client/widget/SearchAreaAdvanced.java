@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -115,15 +116,15 @@ public class SearchAreaAdvanced extends FormPanel {
         Field<?> f;
         if (combo) {
           // System.out.println(field.getAlias() + ": combo");
-//          f = FieldCreator.getField(field, values, true, true);
-          f = FieldCreator.getField(field, values, 0, true, source );
+          // f = FieldCreator.getField(field, values, true, true);
+          f = FieldCreator.getField(field, values, 0, true, source);
           // new ParametricField(resultset.getId(), field.getName(),
           // field.getName(), field.getAlias());
         } else {
           f = FieldCreator.getField(field, values, 0, true);
-//          f = new TextField<String>();
-//          f.setName(field.getName());
-//          f.setFieldLabel(field.getAlias());
+          // f = new TextField<String>();
+          // f.setName(field.getName());
+          // f.setFieldLabel(field.getAlias());
         }
         this.fieldList.add(f);
 
@@ -133,14 +134,14 @@ public class SearchAreaAdvanced extends FormPanel {
          * tipi di raggruppamenti base
          */
         String fieldSetName = mainFieldSetAlias + fieldGrouping.getName();
-        
+
         // /* Esamino il raggruppamento a cui appartiene il campo */
         // ResultsetFieldGroupings fieldGrouping =
         // this.resultset.getFieldGrouping(field.getIdgrouping());
         /* Se il campo non ha raggruppamento l'aggancio a quello base */
         if (fieldGrouping == null) {
           mainFieldSet.add(f);
-        } else {          
+        } else {
 
           /*
            * Se il fieldset non esiste lo creo e l'aggancio al fieldset
@@ -155,14 +156,17 @@ public class SearchAreaAdvanced extends FormPanel {
             mainFieldSet.add(fieldSet);
           }
 
-//          System.out.println("SA - campo " + f.getName() + " raggruppamento '" + fieldGrouping.getName() + "(" +field.getIdgrouping() + ")");
+          // System.out.println("SA - campo " + f.getName() +
+          // " raggruppamento '" + fieldGrouping.getName() + "("
+          // +field.getIdgrouping() + ")");
           /* Aggancio il campo al suo raggruppamento */
           fieldSet.add(f);
 
         }
 
-//        System.out.println("SA - campo " + f.getName() + " ricerca '" + mainFieldSetAlias
-//            + "' (sg=" + field.getSearchgrouping() + ")");
+        // System.out.println("SA - campo " + f.getName() + " ricerca '" +
+        // mainFieldSetAlias
+        // + "' (sg=" + field.getSearchgrouping() + ")");
 
       }
     }
@@ -180,13 +184,21 @@ public class SearchAreaAdvanced extends FormPanel {
         for (Field<?> field : SearchAreaAdvanced.this.fieldList) {
           String value = field.getRawValue();
           if ((value != null) && (value.length() > 0)) {
+            if (field instanceof CheckBox) {
+              if (value.compareToIgnoreCase("true") == 0) {
+                value = "1";
+              } else
+                value = "0";
+            }
+            
             BaseModelData m = new BaseModelData();
             m.set(field.getName(), value);
             queryFieldList.add(m);
+
           }
         }
 
-        SearchAreaAdvanced.this.searchParams.setFieldsValuesList(queryFieldList);        
+        SearchAreaAdvanced.this.searchParams.setFieldsValuesList(queryFieldList);
         Dispatcher.forwardEvent(EventList.Search,
             SearchAreaAdvanced.this.searchParams);
       }
@@ -202,8 +214,7 @@ public class SearchAreaAdvanced extends FormPanel {
     }));
 
   }
-  
-  
+
   public Field getFieldByName(String name) {
     for (Field fg : this.fieldList) {
       if (fg.getName().compareToIgnoreCase(name) == 0) {

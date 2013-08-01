@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -91,13 +92,13 @@ public class JardinColumnConfig extends ColumnConfig {
           }
         };
       } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.TIME) == 0) {
-        editor = new CellEditor((TimeField)f) {
+        editor = new CellEditor((TimeField) f) {
           @Override
           public Object preProcessValue(final Object value) {
             if (value == null) {
               return value;
             }
-            return ((TimeField) f).findModel((Date)value);
+            return ((TimeField) f).findModel((Date) value);
           }
 
           @Override
@@ -131,14 +132,18 @@ public class JardinColumnConfig extends ColumnConfig {
     } else if (f instanceof DateField) {
       editor = new CellEditor((DateField) f);
       if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
-        this.setDateTimeFormat(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
+        this.setDateTimeFormat(DateTimeFormat.getFormat("dd MMM yyyy HH:mm:ss"));
+        ((DateField) f).getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
       } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATE) == 0) {
-        this.setDateTimeFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
+        this.setDateTimeFormat(DateTimeFormat.getFormat("dd MMM yyyy"));
+        ((DateField) f).getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
       }
 
     } else if (f instanceof TimeField) {
       editor = new CellEditor((TimeField) f);
       this.setDateTimeFormat(DateTimeFormat.getFormat("HH:mm"));
+    } else if (f instanceof CheckBox) {
+      editor = new CellEditor((CheckBox) f);      
     } else {
       editor = new CellEditor(f);
     }
@@ -152,14 +157,13 @@ public class JardinColumnConfig extends ColumnConfig {
     }
 
     /* Gestione personalizzazione in base al tipo di campo */
-//    String type = field.getType();
-//    if ((type.compareToIgnoreCase("INT") == 0)
-//        || (type.compareToIgnoreCase("DATE") == 0)
-//        || (type.compareToIgnoreCase("DATETIME") == 0)
-//        || (type.compareToIgnoreCase("TIME") == 0)) {
-//      this.setAlignment(HorizontalAlignment.RIGHT);
-//    }
-
+    // String type = field.getType();
+    // if ((type.compareToIgnoreCase("INT") == 0)
+    // || (type.compareToIgnoreCase("DATE") == 0)
+    // || (type.compareToIgnoreCase("DATETIME") == 0)
+    // || (type.compareToIgnoreCase("TIME") == 0)) {
+    // this.setAlignment(HorizontalAlignment.RIGHT);
+    // }
 
     this.setResizable(true);
     this.setHidden(!field.getVisible());

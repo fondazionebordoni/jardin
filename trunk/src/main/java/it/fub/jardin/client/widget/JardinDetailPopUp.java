@@ -26,6 +26,7 @@ import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
+import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -125,29 +127,91 @@ public class JardinDetailPopUp extends Window {
           f.setEnabled(false);
         }
 
-        if (f instanceof DateField) {
+        // if (f instanceof DateField) {
+        // java.util.Date date = new java.util.Date();
+        // date = entry.get(field.getName());
+        // f.setValue(date);
+        // } else if (f instanceof TimeField) {
+        // Time time = new Time();
+        // time = entry.get(field.getName());
+        // f.setValue(time);
+        // } else if (f instanceof SimpleComboBox<?>) {
+        // if ((field.getSpecificType().compareToIgnoreCase(FieldDataType.INT)
+        // == 0)
+        // // || (field.getSpecificType().compareToIgnoreCase("tinyint") == 0)
+        // ) {
+        // ((SimpleComboBox<Integer>) f).add((Integer)
+        // entry.get(field.getName()));
+        // ((SimpleComboBox<Integer>) f).setSimpleValue((Integer)
+        // entry.get(field.getName()));
+        // } else if
+        // (field.getSpecificType().compareToIgnoreCase(FieldDataType.FLOAT) ==
+        // 0) {
+        // ((SimpleComboBox<Float>) f).add((Float) entry.get(field.getName()));
+        // ((SimpleComboBox<Float>) f).setSimpleValue((Float)
+        // entry.get(field.getName()));
+        // } else {
+        // ((SimpleComboBox<String>) f).add((String)
+        // entry.get(field.getName()));
+        // ((SimpleComboBox<String>) f).setSimpleValue((String)
+        // entry.get(field.getName()));
+        // }
+        // } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
+        // f.setValue(entry.get(field.getName()));
+        // }
+        if (f instanceof CheckBox) {
+          if (entry.get(field.getName()).toString().compareToIgnoreCase("true") == 0
+              || entry.get(field.getName()).toString().compareToIgnoreCase("1") == 0) {
+            ((CheckBox) f).setValue(Boolean.TRUE);
+          } else
+            ((CheckBox) f).setValue(Boolean.FALSE);
+        } else if (f instanceof TimeField) {
+          Time defaultValue = new Time();
+          if (entry.get(field.getName()) != null) {
+
+            int hours =
+                Integer.parseInt(entry.get(field.getName()).toString().substring(
+                    0, 2));
+            int mins =
+                Integer.parseInt(entry.get(field.getName()).toString().substring(
+                    3, 5));
+            defaultValue.setHour(hours);
+            defaultValue.setMinutes(mins);
+
+            defaultValue = ((TimeField) f).findModel(hours, mins);
+
+            ((TimeField) f).select(defaultValue);
+
+          }
+
+        } else if (f instanceof DateField) {
           java.util.Date date = new java.util.Date();
           date = entry.get(field.getName());
           f.setValue(date);
-        } else if (f instanceof TimeField) {
-          Time time = new Time();
-          time = entry.get(field.getName());
-          f.setValue(time);
-        } else if (f instanceof SimpleComboBox<?>) {
-          if ((field.getSpecificType().compareToIgnoreCase("int") == 0) || (field.getSpecificType().compareToIgnoreCase(
-                  "tinyint") == 0) || (field.getSpecificType().compareToIgnoreCase(
-                      "bigint") == 0)) {
+        } else if (f instanceof SimpleComboBox) {
+          if (field.getSpecificType().compareToIgnoreCase(FieldDataType.INT) == 0) {
             ((SimpleComboBox<Integer>) f).add((Integer) entry.get(field.getName()));
             ((SimpleComboBox<Integer>) f).setSimpleValue((Integer) entry.get(field.getName()));
-          } else if (field.getSpecificType().compareToIgnoreCase("float") == 0 ) {
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.FLOAT) == 0) {
             ((SimpleComboBox<Float>) f).add((Float) entry.get(field.getName()));
             ((SimpleComboBox<Float>) f).setSimpleValue((Float) entry.get(field.getName()));
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.DOUBLE) == 0) {
+            ((SimpleComboBox<Double>) f).add((Double) entry.get(field.getName()));
+            ((SimpleComboBox<Double>) f).setSimpleValue((Double) entry.get(field.getName()));
+          } else if (field.getSpecificType().compareToIgnoreCase(
+              FieldDataType.ENUM) == 0) {
+            String defaultValue = entry.get(field.getName());
+            ((SimpleComboBox<String>) f).add(field.getFixedElements());
+            ((SimpleComboBox<String>) f).setSimpleValue(defaultValue);
           } else {
             ((SimpleComboBox<String>) f).add((String) entry.get(field.getName()));
             ((SimpleComboBox<String>) f).setSimpleValue((String) entry.get(field.getName()));
           }
-        } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
-          f.setValue(entry.get(field.getName()));
+        } else if ((f instanceof TextField) || (f instanceof TextArea)) {
+          if (entry.get(field.getName()) != null)
+            f.setValue(entry.get(field.getName()).toString());
         }
 
         /* Esamino il raggruppamento a cui appartiene il campo */
