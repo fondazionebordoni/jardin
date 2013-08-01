@@ -25,6 +25,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
 import it.fub.jardin.client.tools.FieldDataType;
+import it.fub.jardin.client.tools.PopupOperations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,6 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 public class JardinGrid extends Grid<BaseModelData> {
 
   private ResultsetImproved resultset;
-  // private JardinRowEditor<BaseModelData> editor;
   private RowEditor<BaseModelData> editor;
   private SearchParams searchparams;
   private Integer userPreferenceHeaderId;
@@ -61,6 +61,8 @@ public class JardinGrid extends Grid<BaseModelData> {
   private JardinDetailPopUp jardinDetailPopup;
   private JardinAddingPopUp jardinAddingPopUp;
   private JardinEditorPopUp jardinEditorPopUp;
+  //PROVA
+  private JardinFormPopup jardinFormPopUp;
   private MassiveUpdateDialog massiveUpdateDialog;
   private AddRowForm addRowForm;
   // al massimo uno alla volta per tipo
@@ -150,14 +152,12 @@ public class JardinGrid extends Grid<BaseModelData> {
         m.add(sep);
 
         for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
-          // final String linkedTable = fk.getLinkingTable();
-          // final String linkedField = fk.getLinkingField();
+          
           if (!user.getResultsets().contains(fk.getInterestedResultset())) {
             user.addResultsetToList(fk.getInterestedResultset());
           }
           final String field = fk.getField();
-          // TODO sarebbe meglio spedire direttamente fk e non ricreare un
-          // nuovo
+          
 
           fk.setFieldValue("" + selectedRow.get(field));
 
@@ -206,7 +206,8 @@ public class JardinGrid extends Grid<BaseModelData> {
       }
     });
 
-    this.addListener(Events.CellClick,
+//    this.addListener(Events.CellClick,
+        this.addListener(Events.RowClick,
         new Listener<GridEvent<BaseModelData>>() {
           public void handleEvent(final GridEvent<BaseModelData> be) {
             if (be.isControlKey()) {
@@ -237,69 +238,11 @@ public class JardinGrid extends Grid<BaseModelData> {
           public void handleEvent(final GridEvent<BaseModelData> be) {
             // System.out.println("evento doppio clicl");
             final BaseModelData record =
-                be.getGrid().getSelectionModel().getSelection().get(0); // la
-                                                                        // prima
-                                                                        // riga
-                                                                        // selezionata...indice
-                                                                        // 0!
-            setJardinEditorPopUp(new JardinEditorPopUp(resultset, user.getUsername(), record));
-//            for (final ResultsetField field : resultset.getFields()) {
-//              String fieldType = field.getSpecificType();
-//              if (JardinGrid.this.getColumnModel().getColumnById(
-//                  field.getName()).getEditor().getField() instanceof SimpleComboBox) {
-//                if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
-//                  Integer defaultValue =
-//                      Integer.parseInt(record.get(field.getName()).toString());
-//                  if (((SimpleComboBox<Integer>) cm.getColumnById(
-//                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
-//                    List<Integer> comboStore = new ArrayList<Integer>();
-//                    comboStore.add(defaultValue);
-//                    ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
-//                  }
-//
-//                  ((SimpleComboBox<Integer>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
-//                } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
-//                  Float defaultValue =
-//                      Float.parseFloat(record.get(field.getName()).toString());
-//                  if (((SimpleComboBox<Float>) cm.getColumnById(field.getName()).getEditor().getField()).getStore().getCount() == 0) {
-//                    List<Float> comboStore = new ArrayList<Float>();
-//                    comboStore.add(defaultValue);
-//                    ((SimpleComboBox<Float>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
-//                  }
-//                } else if (fieldType.compareToIgnoreCase(FieldDataType.DOUBLE) == 0) {
-//                  Double defaultValue =
-//                      Double.parseDouble(record.get(field.getName()).toString());
-//                  if (((SimpleComboBox<Double>) cm.getColumnById(
-//                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
-//                    List<Double> comboStore = new ArrayList<Double>();
-//                    comboStore.add(defaultValue);
-//                    ((SimpleComboBox<Double>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
-//                  }
-//                } else if (field.getSpecificType().compareToIgnoreCase(
-//                    FieldDataType.ENUM) == 0) {
-//                  String defaultValue = record.get(field.getName());
-//                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(field.getFixedElements());
-//                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
-//                } else {
-//                  String defaultValue = record.get(field.getName());
-//
-//                  if (((SimpleComboBox<String>) cm.getColumnById(
-//                      field.getName()).getEditor().getField()).getStore().getCount() == 0) {
-//                    List<String> comboStore = new ArrayList<String>();
-//                    comboStore.add(defaultValue);
-//                    ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).add(comboStore);
-//                  }
-//
-//                  ((SimpleComboBox<String>) cm.getColumnById(field.getName()).getEditor().getField()).setSimpleValue(defaultValue);
-//                }
-//              }
-//            }
+                be.getGrid().getSelectionModel().getSelection().get(0); 
+//            setJardinEditorPopUp(new JardinEditorPopUp(resultset, user.getUsername(), record));
+            setJardinFormPopUp(new JardinFormPopup(resultset, record, null, user.getUsername(), PopupOperations.MODRECORD));
           }
         });
-
-//    editor = new RowEditor<BaseModelData>();
-//    editor.setClicksToEdit(ClicksToEdit.TWO);
-//    addPlugin(editor);
 
   }
 
@@ -511,19 +454,18 @@ public class JardinGrid extends Grid<BaseModelData> {
     this.jardinEditorPopUp = jardinEditorPopUp;
   }
 
-  // /**
-  // * @return the completeSearchedStore
-  // */
-  // public ListStore<BaseModelData> getCompleteSearchedStore() {
-  // return completeSearchedStore;
-  // }
-  //
-  // /**
-  // * @param completeSearchedStore the completeSearchedStore to set
-  // */
-  // public void setCompleteSearchedStore(ListStore<BaseModelData>
-  // completeSearchedStore) {
-  // this.completeSearchedStore = completeSearchedStore;
-  // }
+  /**
+   * @return the jardinFormPopUp
+   */
+  public JardinFormPopup getJardinFormPopUp() {
+    return jardinFormPopUp;
+  }
+
+  /**
+   * @param jardinFormPopUp the jardinFormPopUp to set
+   */
+  public void setJardinFormPopUp(JardinFormPopup jardinFormPopUp) {
+    this.jardinFormPopUp = jardinFormPopUp;
+  }
 
 }

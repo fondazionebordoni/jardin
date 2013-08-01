@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.bcel.generic.INSTANCEOF;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -37,6 +39,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -121,7 +124,15 @@ public class JardinEditorPopUp extends Window {
           f.setEnabled(false);
         }
 
-        if (f instanceof TimeField) {
+        if (f instanceof CheckBox) {
+          Boolean defaultValue = Boolean.FALSE;
+          if (record.get(field.getName()).toString().compareToIgnoreCase("1") == 0
+              || record.get(field.getName()).toString().compareToIgnoreCase(
+                  "true") == 0) {
+            defaultValue = Boolean.TRUE;
+          }
+          ((CheckBox) f).setValue(defaultValue);
+        } else if (f instanceof TimeField) {
           Time defaultValue = new Time();
           if (record.get(field.getName()) != null) {
 
@@ -139,15 +150,17 @@ public class JardinEditorPopUp extends Window {
             ((TimeField) f).select(defaultValue);
 
           }
-          
+
         } else if (f instanceof DateField) {
           java.util.Date date = new java.util.Date();
           date = record.get(field.getName());
-          f.setValue(date); 
+          f.setValue(date);
         } else if (f instanceof SimpleComboBox) {
           if (field.getSpecificType().compareToIgnoreCase(FieldDataType.INT) == 0) {
-            ((SimpleComboBox<Integer>) f).add((Integer) record.get(field.getName()));
-            ((SimpleComboBox<Integer>) f).setSimpleValue((Integer) record.get(field.getName()));
+            if (record.get(field.getName()) != null) {
+              ((SimpleComboBox<Integer>) f).add((Integer) record.get(field.getName()));
+              ((SimpleComboBox<Integer>) f).setSimpleValue((Integer) record.get(field.getName()));
+            }
           } else if (field.getSpecificType().compareToIgnoreCase(
               FieldDataType.FLOAT) == 0) {
             ((SimpleComboBox<Float>) f).add((Float) record.get(field.getName()));

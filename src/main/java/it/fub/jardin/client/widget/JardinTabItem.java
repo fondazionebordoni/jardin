@@ -44,6 +44,7 @@ import com.extjs.gxt.ui.client.store.Record.RecordUpdate;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -190,14 +191,38 @@ public class JardinTabItem extends TabItem {
     /* Binding con l'area di dettaglio */
     this.formbinding = new FormBinding(this.detail, false);
     for (Field field : this.detail.getFields()) {
-      if (field instanceof SimpleComboBox) {
+
+      if (field instanceof CheckBox) {
+//        System.out.println("binding checkbox!!!");
+        this.formbinding.addFieldBinding(new FieldBinding((CheckBox) field,
+            field.getName()) {
+          @Override
+          protected Object onConvertModelValue(Object value) {
+            Boolean newValue = new Boolean(Boolean.TRUE);
+            if (value instanceof String) {
+              if (((String) value).compareToIgnoreCase("1") == 0
+                  || ((String) value).compareToIgnoreCase("true") == 0) {
+                newValue = Boolean.TRUE;
+              } else
+                newValue = Boolean.FALSE;
+            } else if (value instanceof Integer) {
+              if (Integer.parseInt(value.toString()) == 1) {
+                newValue = Boolean.TRUE;
+              } newValue = Boolean.FALSE;              
+            }
+            return newValue;
+          }
+        });
+      } else if (field instanceof SimpleComboBox) {
         this.formbinding.addFieldBinding(new SimpleComboBoxFieldBinding(
             (SimpleComboBox) field, field.getName()));
       } else if (field instanceof TimeField) {
+
         this.formbinding.addFieldBinding(new TimeFieldBinding(
             (TimeField) field, field.getName()) {
           @Override
           protected Object onConvertModelValue(Object value) {
+            // System.out.println("binding!");
             if (value == null) {
               return null;
             }
@@ -206,7 +231,7 @@ public class JardinTabItem extends TabItem {
             if (value instanceof String) {
               int hours = Integer.parseInt(((String) value).substring(0, 2));
               int mins = Integer.parseInt(((String) value).substring(3, 5));
-//              System.out.println("ore: " + hours + "; minuti: " + mins);
+              // System.out.println("ore: " + hours + "; minuti: " + mins);
               time.setHour(hours);
               time.setMinutes(mins);
             }
@@ -254,7 +279,6 @@ public class JardinTabItem extends TabItem {
     /* Binding con il nuovo store */
     this.formbinding.setStore(this.grid.getStore());
 
-    
     // ////////////////////////////////////////////////////////////////////////////////
     this.grid.getSelectionModel().addListener(Events.SelectionChange,
         new Listener<SelectionChangedEvent<BaseModelData>>() {
@@ -262,11 +286,24 @@ public class JardinTabItem extends TabItem {
             if (be.getSelection().size() > 0) {
               BaseModelData record = be.getSelection().get(0);
               for (final Field field : JardinTabItem.this.detail.getFields()) {
-           
+//                 System.out.println(field.getClass().toString());
+                // if (field instanceof CheckBox) {
+                // // System.out.println("val: " + record.get(field.getName()));
+                // if
+                // ((record.get(field.getName())).toString().compareToIgnoreCase(
+                // "1") == 0
+                // ||
+                // (record.get(field.getName())).toString().compareToIgnoreCase(
+                // "true") == 0) {
+                // // System.out.println("check a true");
+                // ((CheckBox) field).setValue(Boolean.TRUE);
+                // } else
+                // ((CheckBox) field).setValue(Boolean.FALSE);
+                // } else
                 if (field instanceof TimeField) {
                   Time defaultValue = new Time();
                   if (record.get(field.getName()) != null) {
-                    
+
                     int hours =
                         Integer.parseInt(record.get(field.getName()).toString().substring(
                             0, 2));
@@ -277,8 +314,8 @@ public class JardinTabItem extends TabItem {
                     defaultValue.setMinutes(mins);
 
                     ((TimeField) field).setValue(defaultValue);
-//                    System.out.println("valore time: "
-//                        + record.get(field.getName()));
+                    // System.out.println("valore time: "
+                    // + record.get(field.getName()));
                   }
 
                 } else if (field instanceof SimpleComboBox) {
