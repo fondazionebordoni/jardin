@@ -2278,6 +2278,7 @@ public class DbUtils {
         }
 
         // Log.debug("Query UPDATE: " + ps);
+        JardinLogger.debug(username, "UPDATE (" + ps.toString() + ")");
         int num = ps.executeUpdate();
         if (num > 0) {
           JardinLogger.debug(username, "UPDATE (" + ps.toString() + ")");

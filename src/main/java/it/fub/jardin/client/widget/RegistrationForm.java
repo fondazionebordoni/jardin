@@ -61,7 +61,7 @@ public class RegistrationForm extends Window {
     // setAutoWidth(true);
     this.setPlain(true);
 
-    this.setHeading("FORM di REGISTRAZIONE UTENTE - Inserire dati preregistrati");
+    this.setTitle("FORM di REGISTRAZIONE UTENTE - Inserire dati preregistrati");
     this.setLayout(new FitLayout());
 
     KeyListener keyListener = new KeyListener() {

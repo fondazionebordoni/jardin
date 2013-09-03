@@ -88,7 +88,7 @@ public class JardinDetailPopUp extends Window {
     Resultset rs = data.get("RSLINKED");
     String linkingField = data.get("FK");
 
-    this.setHeading("Visualizzazione dati in " + rs.getAlias() + " ("
+    this.setTitle("Visualizzazione dati in " + rs.getAlias() + " ("
         + linkingField + "=" + data.get("VALUE") + ")");
     this.setLayout(new FitLayout());
 

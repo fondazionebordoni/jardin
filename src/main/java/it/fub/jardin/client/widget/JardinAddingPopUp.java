@@ -61,7 +61,7 @@ public class JardinAddingPopUp extends Window {
     this.setSize(650, 550);
     this.setPlain(true);
 
-    this.setHeading("Aggiunta record in "
+    this.setTitle("Aggiunta record in "
         + this.fkIN.getInterestedResultset().getAlias());
     this.setLayout(new FitLayout());
 

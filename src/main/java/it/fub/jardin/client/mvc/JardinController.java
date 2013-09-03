@@ -54,7 +54,6 @@ import com.extjs.gxt.charts.client.model.PieDataProvider;
 import com.extjs.gxt.charts.client.model.charts.BarChart;
 import com.extjs.gxt.charts.client.model.charts.BarChart.BarStyle;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -700,7 +699,7 @@ public class JardinController extends Controller {
     }
   }
 
-  private void onSaveNewRecord(List<BaseModelData> data, int resultsetId) {
+  private void onSaveNewRecord(List<BaseModelData> data, final int resultsetId) {
     final MessageBox waitbox =
         MessageBox.wait("Attendere", "Salvataggio in corso...", "");
 
@@ -717,7 +716,7 @@ public class JardinController extends Controller {
         waitbox.close();
         if (result.intValue() > 0) {
           Info.display("Informazione", "Dati salvati", "");
-
+          forwardToView(view, EventList.refreshStore, resultsetId);
         } else {
           Dispatcher.forwardEvent(EventList.Error,
               "Impossibile salvare il nuovo record");
@@ -1201,7 +1200,7 @@ public class JardinController extends Controller {
         final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
           public void handleEvent(final MessageBoxEvent ce) {
             Button btn = ce.getButtonClicked();
-            if (btn.getText().equalsIgnoreCase("yes")) {
+            if (btn.getTitle().equalsIgnoreCase("yes")) {
               final MessageBox waitbox =
                   MessageBox.wait("Attendere", "Eliminazione in corso...", "");
 
@@ -1562,7 +1561,7 @@ public class JardinController extends Controller {
     Dialog d = new Dialog();
     d.getButtonBar().removeAll();
     d.setMaximizable(true);
-    d.setHeading("Grafico " + resultsetAlias);
+    d.setTitle("Grafico " + resultsetAlias);
     d.setIconStyle("icon-chart");
     d.setLayout(new FitLayout());
     d.setSize(500, 500);

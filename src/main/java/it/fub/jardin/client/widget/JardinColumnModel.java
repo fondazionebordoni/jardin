@@ -19,6 +19,7 @@ package it.fub.jardin.client.widget;
 
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
+import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +37,11 @@ public class JardinColumnModel extends ColumnModel {
       if (field.getReadperm()) {
         List<String> values = new ArrayList<String>();
         // resultset.getForeignKeyList().getValues(field.getId());
-
-        ColumnConfig column = new JardinColumnConfig(field, values);
+        ColumnConfig column = null;
+//        if (field.getSpecificType().compareToIgnoreCase(FieldDataType.BOOLEAN) == 0) {
+//          column = new JardinCheckColumnConfig(field, values);
+//        } else
+          column = new JardinColumnConfig(field, values);
         // ColumnConfig column = new JardinColumnConfig(field);
 
         column.setHidden(!field.getVisible());

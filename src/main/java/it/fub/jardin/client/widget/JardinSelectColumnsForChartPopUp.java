@@ -55,7 +55,7 @@ public class JardinSelectColumnsForChartPopUp extends Window {
     this.setMinHeight(210);
     // this.setMinWidth(1000);
     this.setPlain(true);
-    this.setHeading("Selezione le colonne");
+    this.setTitle("Selezione le colonne");
     this.setLayout(new FitLayout());
 
     this.resultset = grid.getResultset();

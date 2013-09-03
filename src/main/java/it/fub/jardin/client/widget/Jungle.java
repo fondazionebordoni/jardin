@@ -43,7 +43,7 @@ public class Jungle extends Dialog {
   public Jungle(final ResultsetImproved resultset, final List<String> cm,
       final String xml) {
     this.setMaximizable(true);
-    this.setHeading("Jungle (Jardin warehousing): " + resultset.getAlias());
+    this.setTitle("Jungle (Jardin warehousing): " + resultset.getAlias());
     this.setWidth(500);
     this.setHeight(500);
     this.setLayout(new FitLayout());

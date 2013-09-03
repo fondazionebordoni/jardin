@@ -21,11 +21,14 @@ import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.ForeignKey;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.Plugin;
+import it.fub.jardin.client.model.ResourcePermissions;
 import it.fub.jardin.client.model.Resultset;
+import it.fub.jardin.client.model.ResultsetFieldGroupings;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.SearchResult;
 import it.fub.jardin.client.model.User;
+import it.fub.jardin.client.tools.PopupOperations;
 import it.fub.jardin.client.widget.AddRowForm;
 import it.fub.jardin.client.widget.ChangePasswordDialog;
 import it.fub.jardin.client.widget.HeaderArea;
@@ -34,6 +37,7 @@ import it.fub.jardin.client.widget.JardinColumnModel;
 import it.fub.jardin.client.widget.JardinDetail;
 import it.fub.jardin.client.widget.JardinDetailPopUp;
 import it.fub.jardin.client.widget.JardinEditorPopUp;
+import it.fub.jardin.client.widget.JardinFormPopup;
 import it.fub.jardin.client.widget.JardinGrid;
 import it.fub.jardin.client.widget.JardinGridToolBar;
 import it.fub.jardin.client.widget.JardinTabItem;
@@ -44,9 +48,12 @@ import it.fub.jardin.client.widget.SearchAreaAdvanced;
 import it.fub.jardin.client.widget.SearchAreaBase;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -68,16 +75,11 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -142,17 +144,18 @@ public class JardinView extends View {
     } else if (t == EventList.OpenRegistrationForm) {
       regForm = new RegistrationForm();
     } else if (t == EventList.RegistrationSuccessfull) {
-      Integer output = event.getData(); 
+      Integer output = event.getData();
       regForm.hide();
       if (output == 2 || output == 3) {
-      MessageBox.info(
-          "Registrazione utente",
-          "utente registrato con successo! controllare l'indirizzo email fornito per proseguire",
-          null);
-      } else MessageBox.alert(
-          "Registrazione utente",
-          "IMPOSSIBILE registrare utente!!! controllare che i dati inseriti siano quelli pre registrati",
-          null);
+        MessageBox.info(
+            "Registrazione utente",
+            "utente registrato con successo! controllare l'indirizzo email fornito per proseguire",
+            null);
+      } else
+        MessageBox.alert(
+            "Registrazione utente",
+            "IMPOSSIBILE registrare utente!!! controllare che i dati inseriti siano quelli pre registrati",
+            null);
     } else if (t == EventList.RegistrationError) {
       regForm.hide();
       MessageBox.info("Registrazione utente",
@@ -277,8 +280,6 @@ public class JardinView extends View {
         // ((SimpleComboBox)
         // interestedRF.getFieldByName(interestedFieldName)).removeAll();
         ((SimpleComboBox) interestedRF.getFieldByName(interestedFieldName)).add(valuesList);
-        
-             
 
       } else if (event.getData("source").toString().compareToIgnoreCase("grid") == 0) {
         String interestedFieldName =
@@ -320,12 +321,13 @@ public class JardinView extends View {
             ((ForeignKey) event.getData("object")).getPointingFieldName();
 
         ((SimpleComboBox) interestedJAP.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
-        
-        
+
       } else if (event.getData("source").toString().compareToIgnoreCase(
           "detailpopup") == 0) {
-        JardinDetailPopUp interestedJDP =
-            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinDetailPopup();
+//        JardinDetailPopUp interestedJDP =
+//            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinDetailPopup();
+        JardinFormPopup interestedJDP =
+            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinFormPopUp();
 
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
@@ -334,25 +336,31 @@ public class JardinView extends View {
 
       } else if (event.getData("source").toString().compareToIgnoreCase(
           "massupdatepopup") == 0) {
-        MassiveUpdateDialog interestedMUD =
-            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getMassiveUpdateDialog();
+//        MassiveUpdateDialog interestedMUD =
+//            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getMassiveUpdateDialog();
+        JardinFormPopup interestedMUD =
+            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinFormPopUp();
 
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
 
         ((SimpleComboBox) interestedMUD.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
 
-      }  else if (event.getData("source").toString().compareToIgnoreCase(
+      } else if (event.getData("source").toString().compareToIgnoreCase(
           "editorpopup") == 0) {
-        JardinEditorPopUp interestedJEP =
-            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinEditorPopUp();
-        
+//        JardinEditorPopUp interestedJEP =
+//            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinEditorPopUp();
+        JardinFormPopup interestedJEP =
+            ((JardinTabItem) this.main.getSelectedItem()).getGrid().getJardinFormPopUp();
+
         String interestedFieldName =
             ((ForeignKey) event.getData("object")).getPointingFieldName();
 
         ((SimpleComboBox) interestedJEP.getFieldByName(interestedFieldName)).add(((ForeignKey) event.getData("object")).getValues());
         // gestire
       }
+    } else if (t == EventList.refreshStore){
+//      getItemByResultsetId(Integer.parseInt(event.getData().toString())).getGrid().getStore().
     }
   }
 
@@ -389,12 +397,17 @@ public class JardinView extends View {
     JardinDetail detail = new JardinDetail(resultset);
 
     if (this.getItemByResultsetId(resultset.getId()) != null) {
+      FormBinding formBinding = new FormBinding(detail, false);
+      newTab.setFormBinding(formBinding);
+      grid.setFormBinding(formBinding);
       /* Aggiungere la griglia al tabItem */
-      newTab.setGrid(grid);
+      newTab.addGrid(grid);
       /* Aggiungere il dettaglio al tabitem */
       newTab.addDetail(detail);
       /* Aggiungere la ricerca avanzata al tabitem */
       newTab.addSearchAreaAdvanced(searchAreaAdvanced);
+      
+      
     } else
       System.out.println("tabitem nullo...impossibile aggiungere griglia e dettaglio");
 
@@ -478,7 +491,7 @@ public class JardinView extends View {
         cp.setWidth(200);
         cp.setLayout(new RowLayout(Orientation.VERTICAL));
         cp.setFrame(true);
-        cp.setHeading(resultset.getAlias());
+        cp.setTitle(resultset.getAlias());
         Label body = new Label(resultset.getNote());
         final int resId = resultset.getId();
         Button openButton = new Button("Apri Tab");
@@ -515,7 +528,7 @@ public class JardinView extends View {
 
   private void viewPlugin(final String data) {
     Window w = new Window();
-    w.setHeading("Jardin Plugin");
+    w.setTitle("Jardin Plugin");
     w.setModal(false);
     w.setResizable(true);
     w.setSize(800, 600);
@@ -559,11 +572,41 @@ public class JardinView extends View {
   // item.getGrid().addRow();
   // }
 
+  // private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {
+  // BaseModelData data = infoToView.get(0);
+  // Integer rsId = data.get("RSID");
+  // JardinTabItem item = this.getItemByResultsetId(rsId);
+  // item.getGrid().viewDetailPopUp(infoToView);
+  // }
   private void onViewPopUpDetail(final ArrayList<BaseModelData> infoToView) {
     BaseModelData data = infoToView.get(0);
     Integer rsId = data.get("RSID");
     JardinTabItem item = this.getItemByResultsetId(rsId);
-    item.getGrid().viewDetailPopUp(infoToView);
+    // fk.set("VALUE", selectedRow.get(field.getName()));
+    // fk.set("RSLINKED", rs);
+    Resultset res = (Resultset) data.get("RSLINKED");
+
+    ResultsetImproved resImp =
+        new ResultsetImproved(res.getId(), res.getName(), res.getAlias(),
+            res.getStatement(), res.getPermissions().isReadperm(),
+            res.getPermissions().isDeleteperm(),
+            res.getPermissions().isModifyperm(),
+            res.getPermissions().isInsertperm(), null);
+    resImp.setFields(res.getResultsetListField());
+    List<ResultsetFieldGroupings> resfg =
+        new ArrayList<ResultsetFieldGroupings>();
+    Iterator it = res.getFieldGroupings().entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry pairs = (Map.Entry) it.next();
+      resfg.add((ResultsetFieldGroupings) pairs.getValue()); // avoids a ConcurrentModificationException
+    }
+    resImp.setFieldGroupings(resfg);
+
+    // System.out.println("rs linkato: " + res.getAlias());
+    item.getGrid().setJardinFormPopUp(
+        new JardinFormPopup(resImp, infoToView.get(1), (String) data.get("FK"),
+            user.getUsername(), PopupOperations.ADDFKRECORD));
+    // item.getGrid().viewDetailPopUp(infoToView);
   }
 
   private void initUI() {
@@ -648,7 +691,6 @@ public class JardinView extends View {
     };
     MessageBox.alert("Errore", message, l);
   }
-
 
   private void onSearch(final SearchParams searchParams) {
     // TODO Auto-generated method stub

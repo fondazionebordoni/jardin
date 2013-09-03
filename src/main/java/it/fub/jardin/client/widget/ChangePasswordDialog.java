@@ -58,7 +58,7 @@ public class ChangePasswordDialog extends Dialog {
     this.setLayout(layout);
 
     this.setIconStyle("icon-user");
-    this.setHeading("Primo login per l'utente " + this.user.getUsername()
+    this.setTitle("Primo login per l'utente " + this.user.getUsername()
         + " - creare nuova password");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");

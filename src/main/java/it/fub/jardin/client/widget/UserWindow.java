@@ -45,7 +45,7 @@ public class UserWindow extends Window {
     this.user = user;
 
     this.setSize(380, 380);
-    this.setHeading("Area personale utente: <b>" + user.getFullName() + "</b>");
+    this.setTitle("Area personale utente: <b>" + user.getFullName() + "</b>");
     this.setLayout(new FitLayout());
     this.setBorders(false);
     // this.setResizable(false);
@@ -144,7 +144,7 @@ public class UserWindow extends Window {
           UserWindow.this.user.setOffice(office.getValue());
           UserWindow.this.user.setTelephone(telephone.getValue());
           UserWindow.this.user.updateUserProperties();
-          UserWindow.this.setHeading("Area personale utente: <b>"
+          UserWindow.this.setTitle("Area personale utente: <b>"
               + UserWindow.this.user.getFullName() + "</b>");
         } else {
           MessageBox.info("Attenzione", "Inserire un'indirizzo email valido",

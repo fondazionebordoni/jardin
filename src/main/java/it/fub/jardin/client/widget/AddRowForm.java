@@ -90,7 +90,7 @@ public class AddRowForm extends Window {
     /* Impostazione caratteristiche di Window */
     this.setSize(650, 550);
     this.setPlain(true);
-    this.setHeading("Inserimento nuovo elemento");
+    this.setTitle("Inserimento nuovo elemento");
     this.setLayout(new FitLayout());
 
     this.resultset = resultset;

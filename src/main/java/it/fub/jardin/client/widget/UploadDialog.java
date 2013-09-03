@@ -284,7 +284,7 @@ public class UploadDialog extends Window {
 
     // this.setLayout(new FitLayout());
     this.setIconStyle("icon-upload-file");
-    this.setHeading("File upload");
+    this.setTitle("File upload");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");
     this.setWidth(500);
