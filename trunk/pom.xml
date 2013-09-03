@@ -120,6 +120,12 @@
 			<version>2.2.5</version>
 			<classifier>gwt22</classifier>
 		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>com.extjs</groupId> -->
+		<!-- <artifactId>gxt</artifactId> -->
+		<!-- <version>2.3.0-gwt2</version> -->
+		<!-- </dependency> -->
+
 	</dependencies>
 
 	<build>

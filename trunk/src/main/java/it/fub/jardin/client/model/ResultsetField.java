@@ -282,7 +282,7 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
             type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
       this.setIsLenghtFixed(true);
 
-    } else if (type.startsWith("int") || type.startsWith("tinyint") || type.startsWith("bigint")) {
+    } else if (type.startsWith("int") || type.startsWith("bigint")) {
       this.setSpecificType(FieldDataType.INT);
       // System.out.println(" LA (: " + type.lastIndexOf("("));
       // System.out.println(" LA ): " + type.lastIndexOf(")"));
@@ -297,6 +297,22 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
             type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
       this.setIsLenghtFixed(false);
 
+    } else if (type.startsWith("tinyint")) {
+      int x = (type.lastIndexOf(")") - 1) - (type.lastIndexOf("(") + 1);
+      if (x == 0) {
+        char[] chars = { type.charAt(type.lastIndexOf("(") + 1) };
+        this.setLenght(Integer.parseInt(new String(chars)));
+      } else
+        this.setLenght(Integer.parseInt(type.substring(
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
+      this.setIsLenghtFixed(false);
+      if (this.getLenght() == 1) {
+        this.setSpecificType(FieldDataType.BOOLEAN);
+        ArrayList<String> fixedElem = new ArrayList<String>();
+        fixedElem.add("true");
+        fixedElem.add("false");
+        this.setFixedElements(fixedElem);
+      } else this.setSpecificType(FieldDataType.INT);
     } else if (type.startsWith("float")) {
       this.setSpecificType(FieldDataType.FLOAT);
       this.setIsLenghtFixed(false);

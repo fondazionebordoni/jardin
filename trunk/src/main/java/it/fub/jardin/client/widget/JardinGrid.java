@@ -24,13 +24,13 @@ import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.User;
-import it.fub.jardin.client.tools.FieldDataType;
 import it.fub.jardin.client.tools.PopupOperations;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -40,11 +40,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.Time;
-import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -58,16 +54,15 @@ public class JardinGrid extends Grid<BaseModelData> {
   private SearchParams searchparams;
   private Integer userPreferenceHeaderId;
   // POPUP MODALI:
-  private JardinDetailPopUp jardinDetailPopup;
   private JardinAddingPopUp jardinAddingPopUp;
-  private JardinEditorPopUp jardinEditorPopUp;
-  //PROVA
+  // PROVA
   private JardinFormPopup jardinFormPopUp;
   private MassiveUpdateDialog massiveUpdateDialog;
   private AddRowForm addRowForm;
   // al massimo uno alla volta per tipo
   private User user;
   private Menu m;
+  private FormBinding formBinding;
 
   // private ListStore<BaseModelData> completeSearchedStore;
 
@@ -94,7 +89,181 @@ public class JardinGrid extends Grid<BaseModelData> {
     this.setLoadMask(true);
 
     addContextMenu();
+
+//    onRowClickEvent();
+
+    onCellDoubleClickEvent();
+
+    onRenderEvent();
   }
+
+  private void onRenderEvent() {
+    // TODO Auto-generated method stub
+    this.addListener(Events.Render, new Listener<GridEvent<BaseModelData>>() {
+
+      public void handleEvent(final GridEvent<BaseModelData> be) {
+        // TODO Auto-generated method stub
+        ((JardinGridView) JardinGrid.this.getView()).setGridHeader();
+        ((JardinGridView) JardinGrid.this.getView()).getHeader().setToolTip(
+            "La colonna in grassetto sottolineato è la chiave primaria della tabella");
+      }
+
+    });
+  }
+
+  private void onCellDoubleClickEvent() {
+    // TODO Auto-generated method stub
+    this.addListener(Events.CellDoubleClick,
+        new Listener<GridEvent<BaseModelData>>() {
+          public void handleEvent(final GridEvent<BaseModelData> be) {
+            // System.out.println("evento doppio clicl");
+            final BaseModelData record =
+                be.getGrid().getSelectionModel().getSelection().get(0);
+            // setJardinEditorPopUp(new JardinEditorPopUp(resultset,
+            // user.getUsername(), record));
+            setJardinFormPopUp(new JardinFormPopup(resultset, record, null,
+                user.getUsername(), PopupOperations.MODRECORD));
+          }
+        });
+  }
+  
+  
+//  private void onSelectionChange(){
+//    this.getSelectionModel().addListener(Events.SelectionChange,
+//        new Listener<SelectionChangedEvent<BaseModelData>>() {
+//          public void handleEvent(final SelectionChangedEvent<BaseModelData> be) {
+//            if (be.getSelection().size() > 0) {
+//              BaseModelData record = be.getSelection().get(0);
+//              for (final Field field : detail.getFields()) {
+//
+//                if (field instanceof TimeField) {
+//                  Time defaultValue = new Time();
+//                  if (record.get(field.getName()) != null) {
+//
+//                    int hours =
+//                        Integer.parseInt(record.get(field.getName()).toString().substring(
+//                            0, 2));
+//                    int mins =
+//                        Integer.parseInt(record.get(field.getName()).toString().substring(
+//                            3, 5));
+//                    defaultValue.setHour(hours);
+//                    defaultValue.setMinutes(mins);
+//
+//                    ((TimeField) field).setValue(defaultValue);
+//                    // System.out.println("valore time: "
+//                    // + record.get(field.getName()));
+//                  }
+//
+//                } else if (field instanceof SimpleComboBox) {
+//                  if (record.get(field.getName()) instanceof Integer) {
+//                    Integer defaultValue = record.get(field.getName());
+//                    ArrayList<Integer> defval = new ArrayList<Integer>();
+//                    if (defaultValue != null) {
+//                      defval.add(defaultValue);
+//                    }
+//                    ((SimpleComboBox) field).add(defval);
+//                  } else {
+//                    String defaultValue = record.get(field.getName());
+//                    ArrayList<String> defval = new ArrayList<String>();
+//                    if (defaultValue != null) {
+//                      defval.add(defaultValue);
+//                    }
+//                    ((SimpleComboBox) field).add(defval);
+//                  }
+//                }
+//              }
+//              this.formBinding.bind(record);
+//            } else {
+//              this.formBinding.unbind();
+//            }
+//          }
+//        });
+//  }
+//  private void onRowClickEvent() {
+//    // TODO Auto-generated method stub
+//    this.addListener(Events.RowClick, new Listener<GridEvent<BaseModelData>>() {
+//      public void handleEvent(final GridEvent<BaseModelData> be) {
+//        if (be.isControlKey()) {
+//          List<BaseModelData> selected =
+//              be.getGrid().getSelectionModel().getSelectedItems();
+//          selected.add(store.getAt(be.getRowIndex()));
+//          be.getGrid().getSelectionModel().select(selected, true);
+//          formBinding.bind(getSelectionModel().getSelectedItem());
+//        } else {
+//          be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
+//          BaseModelData record = be.getGrid().getSelectionModel().getSelectedItems().get(0);
+//          for (final ColumnConfig column : be.getGrid().getColumnModel().getColumns()) {
+//            
+//            Field field = column.getEditor().getField();
+//            
+//            if (field instanceof TimeField) {
+//              Time defaultValue = new Time();
+//              if (record.get(field.getName()) != null) {
+//
+//                int hours =
+//                    Integer.parseInt(record.get(field.getName()).toString().substring(
+//                        0, 2));
+//                int mins =
+//                    Integer.parseInt(record.get(field.getName()).toString().substring(
+//                        3, 5));
+//                defaultValue.setHour(hours);
+//                defaultValue.setMinutes(mins);
+//
+//                ((TimeField) field).setValue(defaultValue);
+//                // System.out.println("valore time: "
+//                // + record.get(field.getName()));
+//              }
+//
+//            } else if (field instanceof SimpleComboBox) {   
+//              if (record.get(field.getName()) instanceof Integer) {
+//                Integer defaultValue = record.get(field.getName());
+//                ArrayList<Integer> defval = new ArrayList<Integer>();
+//                if (defaultValue != null) {
+//                  defval.add(defaultValue);
+//                }
+//                ((SimpleComboBox) field).add(defval);
+//              } else if (record.get(field.getName()) instanceof Integer) {
+//                Integer defaultValue = record.get(field.getName());
+//                ArrayList<Integer> defval = new ArrayList<Integer>();
+//                if (defaultValue != null) {
+//                  defval.add(defaultValue);
+//                }
+//                ((SimpleComboBox) field).add(defval);
+//              } else {
+//                String defaultValue = record.get(field.getName());
+//                ArrayList<String> defval = new ArrayList<String>();
+//                if (defaultValue != null) {
+//                  defval.add(defaultValue);
+//                }
+//                ((SimpleComboBox) field).add(defval);
+//              }
+//            } else if (field instanceof ComboBox) {
+//                //BOOLEANO
+//              System.out.println("griglia: bind su boolean");
+//                String defaultValue = record.get(field.getName());
+//                SimpleBoolean sb = new SimpleBoolean();
+//                if (defaultValue.compareToIgnoreCase("true") == 0) {
+//                  sb.setValue(1);
+//                  sb.setText("true");
+//                } else {
+//                  sb.setValue(0);
+//                  sb.setText("false");
+//                }
+//                ListStore<SimpleBoolean> theStore = new ListStore<SimpleBoolean>();
+//                theStore.add(SimpleBoolean.getSimpleBoobleans());
+////                if (defaultValue != null) {
+////                  theStore.add(sb);
+////                }
+//                ((ComboBox) field).setStore(theStore);
+//                
+//            }
+//          }
+//          
+//          formBinding.bind(getSelectionModel().getSelectedItem());
+//        }
+//      }
+//    });
+//  }
 
   private void addContextMenu() {
 
@@ -152,12 +321,11 @@ public class JardinGrid extends Grid<BaseModelData> {
         m.add(sep);
 
         for (final IncomingForeignKeyInformation fk : resultset.getForeignKeyIn()) {
-          
+
           if (!user.getResultsets().contains(fk.getInterestedResultset())) {
             user.addResultsetToList(fk.getInterestedResultset());
           }
           final String field = fk.getField();
-          
 
           fk.setFieldValue("" + selectedRow.get(field));
 
@@ -206,43 +374,46 @@ public class JardinGrid extends Grid<BaseModelData> {
       }
     });
 
-//    this.addListener(Events.CellClick,
-        this.addListener(Events.RowClick,
-        new Listener<GridEvent<BaseModelData>>() {
-          public void handleEvent(final GridEvent<BaseModelData> be) {
-            if (be.isControlKey()) {
-              List<BaseModelData> selected =
-                  be.getGrid().getSelectionModel().getSelectedItems();
-              selected.add(store.getAt(be.getRowIndex()));
-              be.getGrid().getSelectionModel().select(selected, true);
-            } else {
-              be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
-            }
-          }
-        });
+    // this.addListener(Events.CellClick,
+    // this.addListener(Events.RowClick,
+    // new Listener<GridEvent<BaseModelData>>() {
+    // public void handleEvent(final GridEvent<BaseModelData> be) {
+    // if (be.isControlKey()) {
+    // List<BaseModelData> selected =
+    // be.getGrid().getSelectionModel().getSelectedItems();
+    // selected.add(store.getAt(be.getRowIndex()));
+    // be.getGrid().getSelectionModel().select(selected, true);
+    // } else {
+    // be.getGrid().getSelectionModel().select(be.getRowIndex(), false);
+    // }
+    // }
+    // });
 
-    this.addListener(Events.Render, new Listener<GridEvent<BaseModelData>>() {
-
-      public void handleEvent(final GridEvent<BaseModelData> be) {
-        // TODO Auto-generated method stub
-        ((JardinGridView) JardinGrid.this.getView()).setGridHeader();
-        ((JardinGridView) JardinGrid.this.getView()).getHeader().setToolTip(
-            "La colonna in grassetto sottolineato è la chiave primaria della tabella");
-      }
-
-    });
+    // this.addListener(Events.Render, new Listener<GridEvent<BaseModelData>>()
+    // {
+    //
+    // public void handleEvent(final GridEvent<BaseModelData> be) {
+    // // TODO Auto-generated method stub
+    // ((JardinGridView) JardinGrid.this.getView()).setGridHeader();
+    // ((JardinGridView) JardinGrid.this.getView()).getHeader().setToolTip(
+    // "La colonna in grassetto sottolineato è la chiave primaria della tabella");
+    // }
+    //
+    // });
 
     // Set del valore dei SimpleComboBox
-    this.addListener(Events.CellDoubleClick,
-        new Listener<GridEvent<BaseModelData>>() {
-          public void handleEvent(final GridEvent<BaseModelData> be) {
-            // System.out.println("evento doppio clicl");
-            final BaseModelData record =
-                be.getGrid().getSelectionModel().getSelection().get(0); 
-//            setJardinEditorPopUp(new JardinEditorPopUp(resultset, user.getUsername(), record));
-            setJardinFormPopUp(new JardinFormPopup(resultset, record, null, user.getUsername(), PopupOperations.MODRECORD));
-          }
-        });
+    // this.addListener(Events.CellDoubleClick,
+    // new Listener<GridEvent<BaseModelData>>() {
+    // public void handleEvent(final GridEvent<BaseModelData> be) {
+    // // System.out.println("evento doppio clicl");
+    // final BaseModelData record =
+    // be.getGrid().getSelectionModel().getSelection().get(0);
+    // // setJardinEditorPopUp(new JardinEditorPopUp(resultset,
+    // user.getUsername(), record));
+    // setJardinFormPopUp(new JardinFormPopup(resultset, record, null,
+    // user.getUsername(), PopupOperations.MODRECORD));
+    // }
+    // });
 
   }
 
@@ -284,9 +455,9 @@ public class JardinGrid extends Grid<BaseModelData> {
   // new AddRowForm(this.getResultset());
   // }
 
-  public void viewDetailPopUp(final ArrayList<BaseModelData> data) {
-    this.setJardinDetailPopup(new JardinDetailPopUp(data));
-  }
+  // public void viewDetailPopUp(final ArrayList<BaseModelData> data) {
+  // this.setJardinDetailPopup(new JardinDetailPopUp(data));
+  // }
 
   public void showAllColumns() {
     ColumnModel cm = this.getColumnModel();
@@ -383,17 +554,17 @@ public class JardinGrid extends Grid<BaseModelData> {
   /**
    * @return the jardinDetailPopup
    */
-  public JardinDetailPopUp getJardinDetailPopup() {
-    return jardinDetailPopup;
-  }
+  // public JardinDetailPopUp getJardinDetailPopup() {
+  // return jardinDetailPopup;
+  // }
 
   /**
    * @param jardinDetailPopup
    *          the jardinDetailPopup to set
    */
-  public void setJardinDetailPopup(JardinDetailPopUp jardinDetailPopup) {
-    this.jardinDetailPopup = jardinDetailPopup;
-  }
+  // public void setJardinDetailPopup(JardinDetailPopUp jardinDetailPopup) {
+  // this.jardinDetailPopup = jardinDetailPopup;
+  // }
 
   /**
    * @return the jardinAddingPopUp
@@ -443,16 +614,17 @@ public class JardinGrid extends Grid<BaseModelData> {
   /**
    * @return the jardinEditorPopUp
    */
-  public JardinEditorPopUp getJardinEditorPopUp() {
-    return jardinEditorPopUp;
-  }
+  // public JardinEditorPopUp getJardinEditorPopUp() {
+  // return jardinEditorPopUp;
+  // }
 
   /**
-   * @param jardinEditorPopUp the jardinEditorPopUp to set
+   * @param jardinEditorPopUp
+   *          the jardinEditorPopUp to set
    */
-  public void setJardinEditorPopUp(JardinEditorPopUp jardinEditorPopUp) {
-    this.jardinEditorPopUp = jardinEditorPopUp;
-  }
+  // public void setJardinEditorPopUp(JardinEditorPopUp jardinEditorPopUp) {
+  // this.jardinEditorPopUp = jardinEditorPopUp;
+  // }
 
   /**
    * @return the jardinFormPopUp
@@ -462,10 +634,16 @@ public class JardinGrid extends Grid<BaseModelData> {
   }
 
   /**
-   * @param jardinFormPopUp the jardinFormPopUp to set
+   * @param jardinFormPopUp
+   *          the jardinFormPopUp to set
    */
   public void setJardinFormPopUp(JardinFormPopup jardinFormPopUp) {
     this.jardinFormPopUp = jardinFormPopUp;
+  }
+
+  public void setFormBinding(FormBinding formBinding) {
+    // TODO Auto-generated method stub
+    this.formBinding = formBinding;
   }
 
 }

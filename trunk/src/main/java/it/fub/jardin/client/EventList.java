@@ -184,4 +184,6 @@ public class EventList {
 
   public static final EventType OpenRegistrationForm = new EventType();
 
+  public static final EventType refreshStore = new EventType();
+
 }

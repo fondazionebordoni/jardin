@@ -79,9 +79,8 @@ public class JardinDetail extends FormPanel {
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
         // System.out.println("campo del dettaglio: " + field.getName());
 
-         List<String> values = new ArrayList<String>();
-         Field f = FieldCreator.getField(field, values, 0, true, source);
-
+        List<String> values = new ArrayList<String>();
+        Field f = FieldCreator.getField(field, values, 0, true, source);
 
         if ((labelWidth > 0) && (field.getAlias().length() > labelWidth / 10)) {
           f.setFieldLabel(field.getAlias().substring(0, labelWidth / 10)
@@ -119,12 +118,13 @@ public class JardinDetail extends FormPanel {
           /* Aggancio il campo al suo raggruppamento */
           fieldSet.add(f);
         }
-        
+
         fieldList.add(f);
-//        System.out.println("AGGIUNTO " + f.getName() + " al dettaglio");
+
+        // System.out.println("AGGIUNTO " + f.getName() + " al dettaglio");
+
       }
 
-      
     }
   }
 

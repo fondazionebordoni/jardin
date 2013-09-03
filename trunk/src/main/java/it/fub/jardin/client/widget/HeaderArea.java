@@ -58,7 +58,7 @@ public class HeaderArea extends HtmlContainer {
       @Override
       public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
-        w.setHeading("Info");
+        w.setTitle("Info");
         w.setModal(true);
         w.setSize(460, 140);
         w.setMaximizable(false);
@@ -76,7 +76,7 @@ public class HeaderArea extends HtmlContainer {
       public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
         w.setIconStyle("icon-book");
-        w.setHeading("Aiuto");
+        w.setTitle("Aiuto");
         w.setModal(false);
         w.setSize(460, 410);
         w.setMaximizable(true);
@@ -92,7 +92,7 @@ public class HeaderArea extends HtmlContainer {
       public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
         w.setIconStyle("icon-book");
-        w.setHeading("FAQ");
+        w.setTitle("FAQ");
         w.setModal(false);
         w.setSize(460, 410);
         w.setMaximizable(true);
@@ -107,7 +107,7 @@ public class HeaderArea extends HtmlContainer {
       @Override
       public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
-        w.setHeading("Calcolatrice");
+        w.setTitle("Calcolatrice");
         w.setModal(false);
         w.setSize(340, 410);
         w.setMaximizable(false);
@@ -123,7 +123,7 @@ public class HeaderArea extends HtmlContainer {
       @Override
       public void componentSelected(final ButtonEvent ce) {
         Window w = new Window();
-        w.setHeading("Calendario");
+        w.setTitle("Calendario");
         w.setModal(false);
         w.setSize(460, 250);
         w.setMaximizable(false);

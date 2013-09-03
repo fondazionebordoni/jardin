@@ -73,7 +73,7 @@ public class MassiveUpdateDialog extends Window {
     setGridStore(gridStore);
     setSearchParams(searchParams);
 
-    setHeading("Modifica Massiva");
+    setTitle("Modifica Massiva");
     setModal(true);
     setMaximizable(true);
     setToolTip("Modifica massiva record...");

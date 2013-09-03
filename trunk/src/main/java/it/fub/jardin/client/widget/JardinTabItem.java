@@ -20,7 +20,6 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.ResultsetImproved;
-import it.fub.jardin.client.model.ResultsetPlus;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,18 +32,15 @@ import com.extjs.gxt.ui.client.binding.TimeFieldBinding;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreEvent;
-import com.extjs.gxt.ui.client.store.Record.RecordUpdate;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -85,6 +81,20 @@ public class JardinTabItem extends TabItem {
 
     this.createWest();
     this.createCenter();
+
+    // this.grid.getStore().addListener(Store.Update,
+    // new Listener<StoreEvent<BaseModelData>>() {
+    // public void handleEvent(final StoreEvent<BaseModelData> be) {
+    // if (be.getOperation() == RecordUpdate.EDIT) {
+    // JardinTabItem.this.formbinding.bind(JardinTabItem.this.grid.getSelectionModel().getSelectedItem());
+    // System.out.println("tabitem:store modificato");
+    // // Dispatcher.forwardEvent(EventList.CommitChanges,
+    // // JardinTabItem.this.grid);
+    // }
+    // //
+    // JardinTabItem.this.formbinding.bind(JardinTabItem.this.grid.getSelectionModel().getSelectedItem());
+    // }
+    // });
   }
 
   private void createWest() {
@@ -137,7 +147,7 @@ public class JardinTabItem extends TabItem {
   private void createDetail() {
     this.center_south = new ContentPanel(new FitLayout());
     this.center_south.setHeaderVisible(true);
-    this.center_south.setHeading("Dettaglio del record della griglia");
+    this.center_south.setTitle("Dettaglio del record della griglia");
     // this.center_south.setLayoutOnChange(true);
     this.center_south.add(new WaitPanel());
 
@@ -171,7 +181,7 @@ public class JardinTabItem extends TabItem {
     return this.grid;
   }
 
-  public void setGrid(final JardinGrid grid) {
+  public void addGrid(final JardinGrid grid) {
     this.grid = grid;
     this.center_center.removeAll();
     JardinGridToolBar toolbar =
@@ -189,31 +199,119 @@ public class JardinTabItem extends TabItem {
     this.center_south.collapse();
 
     /* Binding con l'area di dettaglio */
-    this.formbinding = new FormBinding(this.detail, false);
-    for (Field field : this.detail.getFields()) {
+    // this.formbinding = new FormBinding(this.detail, false);
+    this.grid.getSelectionModel().addListener(Events.SelectionChange,
+        new Listener<SelectionChangedEvent<BaseModelData>>() {
+          public void handleEvent(final SelectionChangedEvent<BaseModelData> be) {
+            if (be.getSelection().size() > 0) {
+              BaseModelData record = be.getSelection().get(0);
+              for (final Field field : JardinTabItem.this.detail.getFields()) {
 
-      if (field instanceof CheckBox) {
-//        System.out.println("binding checkbox!!!");
-        this.formbinding.addFieldBinding(new FieldBinding((CheckBox) field,
-            field.getName()) {
-          @Override
-          protected Object onConvertModelValue(Object value) {
-            Boolean newValue = new Boolean(Boolean.TRUE);
-            if (value instanceof String) {
-              if (((String) value).compareToIgnoreCase("1") == 0
-                  || ((String) value).compareToIgnoreCase("true") == 0) {
-                newValue = Boolean.TRUE;
-              } else
-                newValue = Boolean.FALSE;
-            } else if (value instanceof Integer) {
-              if (Integer.parseInt(value.toString()) == 1) {
-                newValue = Boolean.TRUE;
-              } newValue = Boolean.FALSE;              
+                if (field instanceof TimeField) {
+                  Time defaultValue = new Time();
+                  if (record.get(field.getName()) != null) {
+
+                    int hours =
+                        Integer.parseInt(record.get(field.getName()).toString().substring(
+                            0, 2));
+                    int mins =
+                        Integer.parseInt(record.get(field.getName()).toString().substring(
+                            3, 5));
+                    defaultValue.setHour(hours);
+                    defaultValue.setMinutes(mins);
+
+                    ((TimeField) field).setValue(defaultValue);
+                    // System.out.println("valore time: "
+                    // + record.get(field.getName()));
+                  }
+
+                } else if (field instanceof SimpleComboBox) {
+                  if (record.get(field.getName()) instanceof Integer) {
+                    Integer defaultValue = record.get(field.getName());
+                    ArrayList<Integer> defval = new ArrayList<Integer>();
+                    if (defaultValue != null) {
+                      defval.add(defaultValue);
+                    }
+                    ((SimpleComboBox) field).add(defval);
+                  } else if (record.get(field.getName()) instanceof Boolean) {
+                    Boolean defaultValue = record.get(field.getName());
+                    ArrayList<Boolean> defval = new ArrayList<Boolean>();
+                    if (defaultValue != null) {
+                      defval.add(defaultValue);
+                    }
+                    ((SimpleComboBox) field).add(defval);
+                  } else {
+                    String defaultValue = record.get(field.getName());
+                    ArrayList<String> defval = new ArrayList<String>();
+                    if (defaultValue != null) {
+                      defval.add(defaultValue);
+                    }
+                    ((SimpleComboBox) field).add(defval);
+                  }
+                }
+                // else if (field instanceof ComboBox) {
+                // // BOOLEANO
+                // // System.out.println("tabitem: bind su boolean...valore: "
+                // // + record.get(field.getName()));
+                // String defaultValue = record.get(field.getName());
+                // SimpleBoolean sb = new SimpleBoolean();
+                // if (defaultValue.compareToIgnoreCase("1") == 0) {
+                // sb.setValue(1);
+                // sb.setName("true");
+                // } else {
+                // sb.setValue(0);
+                // sb.setName("false");
+                // }
+                // ListStore<SimpleBoolean> theStore =
+                // new ListStore<SimpleBoolean>();
+                // theStore.add(FieldCreator.getSimpleBooleans());
+                // ((ComboBox) field).setStore(theStore);
+                // ((ComboBox) field).setValue(sb);
+                //
+                // }
+              }
+              JardinTabItem.this.formbinding.bind(record);
+            } else {
+              JardinTabItem.this.formbinding.unbind();
             }
-            return newValue;
           }
         });
-      } else if (field instanceof SimpleComboBox) {
+    for (Field field : this.detail.getFields()) {
+
+      field.addListener(Events.Blur, new Listener<BaseEvent>() {
+
+        @Override
+        public void handleEvent(BaseEvent be) {
+          // TODO Auto-generated method stub
+          Dispatcher.forwardEvent(EventList.CommitChanges,
+              JardinTabItem.this.grid);
+        }
+      });
+
+      // if (field instanceof CheckBox) {
+      // // System.out.println("binding checkbox!!!");
+      // this.formbinding.addFieldBinding(new FieldBinding((CheckBox) field,
+      // field.getName()) {
+      // @Override
+      // protected Object onConvertModelValue(Object value) {
+      // Boolean newValue = new Boolean(Boolean.TRUE);
+      // if (value instanceof String) {
+      // if (((String) value).compareToIgnoreCase("1") == 0
+      // || ((String) value).compareToIgnoreCase("true") == 0) {
+      // newValue = Boolean.TRUE;
+      // } else
+      // newValue = Boolean.FALSE;
+      // } else if (value instanceof Integer) {
+      // if (Integer.parseInt(value.toString()) == 1) {
+      // newValue = Boolean.TRUE;
+      // }
+      // newValue = Boolean.FALSE;
+      // }
+      // return newValue;
+      // }
+      // });
+      // } else
+      if (field instanceof SimpleComboBox) {
         this.formbinding.addFieldBinding(new SimpleComboBoxFieldBinding(
             (SimpleComboBox) field, field.getName()));
       } else if (field instanceof TimeField) {
@@ -265,83 +363,71 @@ public class JardinTabItem extends TabItem {
 
     ((JardinGridView) this.grid.getView()).setGridHeader();
 
-    this.grid.getStore().addListener(Store.Update,
-        new Listener<StoreEvent<BaseModelData>>() {
-          public void handleEvent(final StoreEvent<BaseModelData> be) {
-            if (be.getOperation() == RecordUpdate.EDIT) {
-              Dispatcher.forwardEvent(EventList.CommitChanges,
-                  JardinTabItem.this.grid);
-            }
-            JardinTabItem.this.formbinding.bind(JardinTabItem.this.grid.getSelectionModel().getSelectedItem());
-          }
-        });
+    // this.grid.getStore().addListener(Store.Update,
+    // new Listener<StoreEvent<BaseModelData>>() {
+    // public void handleEvent(final StoreEvent<BaseModelData> be) {
+    // if (be.getOperation() == RecordUpdate.EDIT) {
+    // System.out.println("tabitem:store modificato");
+    // Dispatcher.forwardEvent(EventList.CommitChanges,
+    // JardinTabItem.this.grid);
+    // }
+    // JardinTabItem.this.formbinding.bind(JardinTabItem.this.grid.getSelectionModel().getSelectedItem());
+    // }
+    // });
 
     /* Binding con il nuovo store */
     this.formbinding.setStore(this.grid.getStore());
 
     // ////////////////////////////////////////////////////////////////////////////////
-    this.grid.getSelectionModel().addListener(Events.SelectionChange,
-        new Listener<SelectionChangedEvent<BaseModelData>>() {
-          public void handleEvent(final SelectionChangedEvent<BaseModelData> be) {
-            if (be.getSelection().size() > 0) {
-              BaseModelData record = be.getSelection().get(0);
-              for (final Field field : JardinTabItem.this.detail.getFields()) {
-//                 System.out.println(field.getClass().toString());
-                // if (field instanceof CheckBox) {
-                // // System.out.println("val: " + record.get(field.getName()));
-                // if
-                // ((record.get(field.getName())).toString().compareToIgnoreCase(
-                // "1") == 0
-                // ||
-                // (record.get(field.getName())).toString().compareToIgnoreCase(
-                // "true") == 0) {
-                // // System.out.println("check a true");
-                // ((CheckBox) field).setValue(Boolean.TRUE);
-                // } else
-                // ((CheckBox) field).setValue(Boolean.FALSE);
-                // } else
-                if (field instanceof TimeField) {
-                  Time defaultValue = new Time();
-                  if (record.get(field.getName()) != null) {
-
-                    int hours =
-                        Integer.parseInt(record.get(field.getName()).toString().substring(
-                            0, 2));
-                    int mins =
-                        Integer.parseInt(record.get(field.getName()).toString().substring(
-                            3, 5));
-                    defaultValue.setHour(hours);
-                    defaultValue.setMinutes(mins);
-
-                    ((TimeField) field).setValue(defaultValue);
-                    // System.out.println("valore time: "
-                    // + record.get(field.getName()));
-                  }
-
-                } else if (field instanceof SimpleComboBox) {
-                  if (record.get(field.getName()) instanceof Integer) {
-                    Integer defaultValue = record.get(field.getName());
-                    ArrayList<Integer> defval = new ArrayList<Integer>();
-                    if (defaultValue != null) {
-                      defval.add(defaultValue);
-                    }
-                    ((SimpleComboBox) field).add(defval);
-                  } else {
-                    String defaultValue = record.get(field.getName());
-                    ArrayList<String> defval = new ArrayList<String>();
-                    if (defaultValue != null) {
-                      defval.add(defaultValue);
-                    }
-                    ((SimpleComboBox) field).add(defval);
-                  }
-                }
-              }
-              JardinTabItem.this.formbinding.bind(record);
-            } else {
-              JardinTabItem.this.formbinding.unbind();
-            }
-          }
-        });
+    // this.grid.getSelectionModel().addListener(Events.SelectionChange,
+    // new Listener<SelectionChangedEvent<BaseModelData>>() {
+    // public void handleEvent(final SelectionChangedEvent<BaseModelData> be) {
+    // if (be.getSelection().size() > 0) {
+    // BaseModelData record = be.getSelection().get(0);
+    // for (final Field field : JardinTabItem.this.detail.getFields()) {
+    //
+    // if (field instanceof TimeField) {
+    // Time defaultValue = new Time();
+    // if (record.get(field.getName()) != null) {
+    //
+    // int hours =
+    // Integer.parseInt(record.get(field.getName()).toString().substring(
+    // 0, 2));
+    // int mins =
+    // Integer.parseInt(record.get(field.getName()).toString().substring(
+    // 3, 5));
+    // defaultValue.setHour(hours);
+    // defaultValue.setMinutes(mins);
+    //
+    // ((TimeField) field).setValue(defaultValue);
+    // // System.out.println("valore time: "
+    // // + record.get(field.getName()));
+    // }
+    //
+    // } else if (field instanceof SimpleComboBox) {
+    // if (record.get(field.getName()) instanceof Integer) {
+    // Integer defaultValue = record.get(field.getName());
+    // ArrayList<Integer> defval = new ArrayList<Integer>();
+    // if (defaultValue != null) {
+    // defval.add(defaultValue);
+    // }
+    // ((SimpleComboBox) field).add(defval);
+    // } else {
+    // String defaultValue = record.get(field.getName());
+    // ArrayList<String> defval = new ArrayList<String>();
+    // if (defaultValue != null) {
+    // defval.add(defaultValue);
+    // }
+    // ((SimpleComboBox) field).add(defval);
+    // }
+    // }
+    // }
+    // JardinTabItem.this.formbinding.bind(record);
+    // } else {
+    // JardinTabItem.this.formbinding.unbind();
+    // }
+    // }
+    // });
     // //////////////////////////////////////////////////////////////////////////////////
   }
 
@@ -371,6 +457,11 @@ public class JardinTabItem extends TabItem {
    */
   public void setSearchAreaAdvanced(SearchAreaAdvanced searchAreaAdvanced) {
     this.searchAreaAdvanced = searchAreaAdvanced;
+  }
+
+  public void setFormBinding(FormBinding formBinding) {
+    // TODO Auto-generated method stub
+    this.formbinding = formBinding;
   }
 
 }

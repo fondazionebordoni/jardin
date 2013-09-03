@@ -84,7 +84,7 @@ public class JardinEditorPopUp extends Window {
     this.setSize(650, 550);
     this.setPlain(true);
 
-    this.setHeading("Modifica dati in " + resultset.getAlias());
+    this.setTitle("Modifica dati in " + resultset.getAlias());
     this.setLayout(new FitLayout());
 
     this.resultset = resultset;

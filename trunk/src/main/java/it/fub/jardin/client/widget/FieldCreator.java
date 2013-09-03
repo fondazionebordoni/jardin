@@ -33,7 +33,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.widget.DatePicker;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -286,6 +285,14 @@ public class FieldCreator {
         result = f;
       } else if (fieldType.compareToIgnoreCase(FieldDataType.BOOLEAN) == 0) {
         CheckBox f = new CheckBox();
+        // final ComboBox<SimpleBoolean> f = new ComboBox<SimpleBoolean>();
+        // // f.setDisplayField("label");
+        // ListStore<SimpleBoolean> boxStore = new ListStore<SimpleBoolean>();
+        // boxStore.add(new SimpleBoolean("true", 1));
+        // boxStore.add(new SimpleBoolean("false", 0));
+        // f.setStore(boxStore);
+        // f.setTypeAhead(true);
+        // f.setTriggerAction(TriggerAction.ALL);
         result = f;
       } else {
         final SimpleComboBox f = new SimpleComboBox<String>();
@@ -409,10 +416,57 @@ public class FieldCreator {
       f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
 
       result = f;
-      // Log.debug(field.getName() + ": DATE");
     } else if (fieldType.compareToIgnoreCase(FieldDataType.BOOLEAN) == 0) {
       // System.out.println("FIELDCREATOR: boleano!!!!");
-      CheckBox f = new CheckBox();
+//      final SimpleComboBox<String> f = new SimpleComboBox<String>();
+//
+//      f.add(field.getFixedElements());
+//      f.setTriggerAction(TriggerAction.ALL);
+//      Listener<BaseEvent> l = new Listener<BaseEvent>() {
+//
+//        @Override
+//        public void handleEvent(BaseEvent be) {
+//          f.removeAll();
+//          f.add(field.getFixedElements());
+//        }
+//      };
+//      f.addListener(Events.OnClick, l);
+      
+      final SimpleComboBox<Boolean> f = new SimpleComboBox<Boolean>();
+//      f.removeAll();
+      f.add(new Boolean(Boolean.TRUE));
+      f.add(new Boolean(Boolean.FALSE));
+      f.setTriggerAction(TriggerAction.ALL);
+      Listener<BaseEvent> l = new Listener<BaseEvent>() {
+
+        @Override
+        public void handleEvent(BaseEvent be) {
+          f.removeAll();
+          f.add(new Boolean(Boolean.TRUE));
+          f.add(new Boolean(Boolean.FALSE));
+        }
+      };
+      f.addListener(Events.OnClick, l);
+
+      // ListStore<SimpleBoolean> boxStore = new ListStore<SimpleBoolean>();
+      // boxStore.add(getSimpleBooleans());
+      // // System.out.println("echo " +
+      // SimpleBoolean.getSimpleBoobleans().get(0).getName());
+      // final ComboBox<SimpleBoolean> f = new ComboBox<SimpleBoolean>();
+      // f.setDisplayField("name");
+      // f.setEmptyText("sadfasdf...");
+      // f.setStore(boxStore);
+      // f.setTypeAhead(true);
+      // f.setTriggerAction(ComboBox.TriggerAction.ALL);
+      // Listener<BaseEvent> l = new Listener<BaseEvent>() {
+      //
+      // @Override
+      // public void handleEvent(BaseEvent be) {
+      // System.out.println(f.getStore().getAt(0).getName() +
+      // f.getStore().getAt(1).getName());
+      // }
+      // };
+      // f.addListener(Events.OnClick, l);
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
       DateField f = new DateField();
@@ -484,6 +538,8 @@ public class FieldCreator {
 
     return result;
   }
+
+
 
   /*
    * usato nel JardinFormPopup

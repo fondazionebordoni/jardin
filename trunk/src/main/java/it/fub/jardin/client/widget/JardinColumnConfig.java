@@ -23,16 +23,17 @@ import it.fub.jardin.client.tools.FieldDataType;
 import java.util.Date;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class JardinColumnConfig extends ColumnConfig {
@@ -109,6 +110,60 @@ public class JardinColumnConfig extends ColumnConfig {
             return ((BaseModelData) value).get("value");
           }
         };
+      } else if (field.getSpecificType().compareToIgnoreCase(
+          FieldDataType.BOOLEAN) == 0) {
+
+        ((SimpleComboBox) f).setEditable(false);
+        editor = new CellEditor(f) {
+          @Override
+          public Object preProcessValue(final Object value) {
+            if (value == null) {
+              return value;
+            }
+            return ((SimpleComboBox) f).findModel(value);
+          }
+
+          @Override
+          public Object postProcessValue(final Object value) {
+            if (value == null) {
+              return value;
+            }
+            return ((BaseModelData) value).get("value");
+          }
+        };
+
+        GridCellRenderer<BaseModelData> booleanRender =
+            new GridCellRenderer<BaseModelData>() {
+              @Override
+              public Object render(BaseModelData model, String property,
+                  ColumnData config, int rowIndex, int colIndex,
+                  ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
+                // TODO Auto-generated method stub
+                Object val = model.get(property);
+                if (val instanceof String) {
+                  if (val.toString().compareToIgnoreCase("true") == 0
+                      || val.toString().compareToIgnoreCase("1") == 0) {
+                    // return "<span style='color: green'>true</span>";
+                    return new Boolean(Boolean.TRUE);
+                  } else if (val.toString().compareToIgnoreCase("false") == 0
+                      || val.toString().compareToIgnoreCase("0") == 0) {
+                    // return "<span style='color: red'>false</span>";
+                    return new Boolean(Boolean.FALSE);
+                  }
+                }
+                // else if (val instanceof Integer) {
+                // if (Integer.parseInt(val.toString()) == 1) {
+                // return "<span style='color: green'>true</span>";
+                // } else if (Integer.parseInt(val.toString()) == 0) {
+                // return "<span style='color: red'>false</span>";
+                // }
+                // }
+                return val;
+              }
+
+            };
+        this.setRenderer(booleanRender);
+
       } else {
         ((SimpleComboBox) f).setEditable(false);
         editor = new CellEditor(f) {
@@ -129,21 +184,24 @@ public class JardinColumnConfig extends ColumnConfig {
           }
         };
       }
+      // } else if (f instanceof CheckBox) {
+      // editor = new CellEditor((CheckBox) f);
+      // if (this.getRenderer().)
     } else if (f instanceof DateField) {
       editor = new CellEditor((DateField) f);
       if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATETIME) == 0) {
         this.setDateTimeFormat(DateTimeFormat.getFormat("dd MMM yyyy HH:mm:ss"));
-        ((DateField) f).getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
+        ((DateField) f).getPropertyEditor().setFormat(
+            DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
       } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.DATE) == 0) {
         this.setDateTimeFormat(DateTimeFormat.getFormat("dd MMM yyyy"));
-        ((DateField) f).getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
+        ((DateField) f).getPropertyEditor().setFormat(
+            DateTimeFormat.getFormat("yyyy-MM-dd"));
       }
 
     } else if (f instanceof TimeField) {
       editor = new CellEditor((TimeField) f);
       this.setDateTimeFormat(DateTimeFormat.getFormat("HH:mm"));
-    } else if (f instanceof CheckBox) {
-      editor = new CellEditor((CheckBox) f);      
     } else {
       editor = new CellEditor(f);
     }

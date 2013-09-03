@@ -51,7 +51,7 @@ public class LoginDialog extends Dialog {
     this.setLayout(layout);
 
     this.setIconStyle("icon-user");
-    this.setHeading("Manager Login");
+    this.setTitle("Manager Login");
     this.setModal(true);
     this.setBodyStyle("padding: 8px 4px;");
     this.setWidth(440);
