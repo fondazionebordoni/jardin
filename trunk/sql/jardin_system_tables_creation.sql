@@ -6,16 +6,6 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
-DROP DATABASE IF EXISTS jardin;
-CREATE DATABASE jardin;
-
-USE jardin;
-
---
--- Database: `jardin`
---
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `__system_field`
