@@ -640,9 +640,10 @@ public class FieldCreator {
       f.getPropertyEditor().setFormat(
           DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
       if (defaultValue != null) {
-        java.util.Date date = new java.util.Date();
-        date.setTime(Long.parseLong(defaultValue.toString()));
-        f.setValue(date);
+//        java.util.Date date = new java.util.Date();
+//        date.setTime(Long.parseLong(defaultValue.toString()));
+//        f.setValue(date);
+        f.setValue((Date)defaultValue);
       }
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
