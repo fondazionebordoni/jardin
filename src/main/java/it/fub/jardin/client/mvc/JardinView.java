@@ -444,7 +444,7 @@ public class JardinView extends View {
 
         // index = index + ((x * y) - 1);
         resultset = resultSetList.get(index);
-        // System.out.println("set RS " + index + ": " + resultset.getAlias());
+//         System.out.println("set RS " + index + ": " + resultset.getAlias());
         ContentPanel cp = new ContentPanel();
         cp.setCollapsible(false);
         cp.setWidth(200);
@@ -475,6 +475,7 @@ public class JardinView extends View {
         cp.add(openButton, new RowData(1, -1, new Margins(4)));
 
         Draggable d = new Draggable(cp);
+        d.setEnabled(Boolean.FALSE);
 
         mainTable.setWidget(x, y, cp);
         index++;
@@ -491,7 +492,7 @@ public class JardinView extends View {
         cp.setWidth(200);
         cp.setLayout(new RowLayout(Orientation.VERTICAL));
         cp.setFrame(true);
-        cp.setTitle(resultset.getAlias());
+        cp.setHeading(resultset.getAlias());
         Label body = new Label(resultset.getNote());
         final int resId = resultset.getId();
         Button openButton = new Button("Apri Tab");
