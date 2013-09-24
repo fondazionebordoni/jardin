@@ -476,6 +476,10 @@ public class FieldCreator {
     } else if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
       NumberField f = new NumberField();
       f.setPropertyEditorType(Integer.class);
+      f.setMaxLength(field.getLenght());
+      if (field.isLenghtFixed()) {
+        f.setMinLength(field.getLenght());
+      } else f.setMinLength(1);
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
       NumberField f = new NumberField();
@@ -516,7 +520,10 @@ public class FieldCreator {
     } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0) {
       TextField<String> f = new TextField<String>();
       f.setMaxLength(field.getLenght());
-      f.setMinLength(field.getLenght());
+      f.setMaxLength(field.getLenght());
+      if (field.isLenghtFixed()) {
+        f.setMinLength(field.getLenght());
+      } else f.setMinLength(1);
       f.setRawValue(field.getDefaultVAlue());
 
       result = f;
@@ -652,6 +659,10 @@ public class FieldCreator {
       if (defaultValue != null) {
         f.setValue(Integer.parseInt(defaultValue.toString()));
       }
+      f.setMaxLength(field.getLenght());
+      if (field.isLenghtFixed()) {
+        f.setMinLength(field.getLenght());
+      } else f.setMinLength(1);
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
       NumberField f = new NumberField();
@@ -714,7 +725,9 @@ public class FieldCreator {
     } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0) {
       TextField<String> f = new TextField<String>();
       f.setMaxLength(field.getLenght());
-      f.setMinLength(field.getLenght());
+      if (field.isLenghtFixed()) {
+        f.setMinLength(field.getLenght());
+      } else f.setMinLength(1);
       f.setRawValue(field.getDefaultVAlue());
       if (defaultValue != null) {
         f.setValue(defaultValue.toString());
