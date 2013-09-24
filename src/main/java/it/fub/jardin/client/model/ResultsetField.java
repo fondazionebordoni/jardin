@@ -268,8 +268,9 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
         this.setLenght(Integer.parseInt(new String(chars)));
       } else
         this.setLenght(Integer.parseInt(type.substring(
-            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
       this.setIsLenghtFixed(false);
+//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
 
     } else if (type.startsWith("char")) {
       this.setSpecificType(FieldDataType.CHAR);
@@ -279,8 +280,9 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
         this.setLenght(Integer.parseInt(new String(chars)));
       } else
         this.setLenght(Integer.parseInt(type.substring(
-            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
-      this.setIsLenghtFixed(true);
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
+      this.setIsLenghtFixed(false);
+//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
 
     } else if (type.startsWith("int") || type.startsWith("bigint")) {
       this.setSpecificType(FieldDataType.INT);
@@ -294,8 +296,9 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
         this.setLenght(Integer.parseInt(new String(chars)));
       } else
         this.setLenght(Integer.parseInt(type.substring(
-            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
       this.setIsLenghtFixed(false);
+//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
 
     } else if (type.startsWith("tinyint")) {
       int x = (type.lastIndexOf(")") - 1) - (type.lastIndexOf("(") + 1);
@@ -304,8 +307,10 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
         this.setLenght(Integer.parseInt(new String(chars)));
       } else
         this.setLenght(Integer.parseInt(type.substring(
-            type.lastIndexOf("(") + 1, type.lastIndexOf(")") - 1)));
+            type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
       this.setIsLenghtFixed(false);
+//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
+
       if (this.getLenght() == 1) {
         this.setSpecificType(FieldDataType.BOOLEAN);
         ArrayList<String> fixedElem = new ArrayList<String>();
