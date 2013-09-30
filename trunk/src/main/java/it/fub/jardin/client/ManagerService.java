@@ -24,6 +24,7 @@ import it.fub.jardin.client.model.FieldsMatrix;
 import it.fub.jardin.client.model.HeaderPreferenceList;
 import it.fub.jardin.client.model.MassiveUpdateObject;
 import it.fub.jardin.client.model.Message;
+import it.fub.jardin.client.model.NewObjects;
 import it.fub.jardin.client.model.Plugin;
 import it.fub.jardin.client.model.RegistrationInfo;
 import it.fub.jardin.client.model.Resultset;

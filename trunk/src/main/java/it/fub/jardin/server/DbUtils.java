@@ -477,9 +477,9 @@ public class DbUtils {
       int resultWidth = result.getMetaData().getColumnCount();
       JardinLogger.debug(username, "INFO SQL: query di ricerca: " + query);
       // this.log(query);
-      ResultSet res =
-          connection.getMetaData().getColumns(null, null,
-              result.getMetaData().getTableName(1), null);
+//      ResultSet res =
+//          connection.getMetaData().getColumns(null, null,
+//              result.getMetaData().getTableName(1), null);
 
       // HashTable types = new HashTable();
       // while (res.next()) {
@@ -494,6 +494,7 @@ public class DbUtils {
           // String key = result.getMetaData().getColumnLabel(i);//
           // getColumnClassName(i);
           Object value;
+          String filedName = field.getName().toString();
           // if (value != null) {
           // System.out.println("colonna: " + field.getName() + " del tipo "
           // + field.getSpecificType());
@@ -501,31 +502,31 @@ public class DbUtils {
               || field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0
               || field.getSpecificType().compareToIgnoreCase(FieldDataType.ENUM) == 0
               || field.getSpecificType().compareToIgnoreCase(FieldDataType.TEXT) == 0) {
-            value = result.getString(field.getName());
+            value = result.getString(filedName);
           } else if (field.getSpecificType().compareToIgnoreCase(
               FieldDataType.INT) == 0) {
             // value = ((BigDecimal)
             // result.getObject(i)).floatValue();
-            value = result.getInt(field.getName());
+            value = result.getInt(filedName);
           } else if (field.getSpecificType().compareToIgnoreCase(
               FieldDataType.FLOAT) == 0) {
-            value = result.getFloat(field.getName());
+            value = result.getFloat(filedName);
           } else if (field.getSpecificType().compareToIgnoreCase(
               FieldDataType.DOUBLE) == 0) {
-            value = result.getDouble(field.getName());
+            value = result.getDouble(filedName);
           } else if (field.getSpecificType().compareToIgnoreCase(
               FieldDataType.DATE) == 0) {
-            value = result.getDate(field.getName());
+            value = result.getDate(filedName);
           } else if (field.getSpecificType().compareToIgnoreCase(
               FieldDataType.DATETIME) == 0) {
             try {
-              value = result.getTimestamp(field.getName());
+              value = result.getTimestamp(filedName);
             } catch (Exception e) {
-              value = result.getObject(field.getName());
+              value = result.getObject(filedName);
             }
 
           } else {
-            value = result.getString(field.getName());
+            value = result.getString(filedName);
           }
           // }
           // TODO Inserire un controllo di compatibilità di
@@ -550,7 +551,8 @@ public class DbUtils {
           // }
           // }
           // System.out.println(key + ": " + value.getClass());
-          map.set(field.getName(), value);
+//          System.out.println(field.getName() + " - " + value);
+          map.set(filedName, value);
         }
         records.add(map);
       }
