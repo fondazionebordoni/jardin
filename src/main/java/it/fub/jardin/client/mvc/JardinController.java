@@ -280,8 +280,8 @@ public class JardinController extends Controller {
         // Log.error("Errore nei dati di EventList.ViewPopUpDetail");
       }
     } else if (t == EventList.RemoveRows) {
-      if (event.getData() instanceof Integer) {
-        this.onRemoveRows((Integer) event.getData());
+      if (event.getData() instanceof NewObjects) {
+        this.onRemoveRows((NewObjects) event.getData());
       } else {
         // TODO Gestire errore nei dati di EventList.RemoveRows
         // Log.error("Errore nei dati di EventList.RemoveRows");
@@ -1179,70 +1179,41 @@ public class JardinController extends Controller {
     // }
   }
 
-  private void onRemoveRows(final int resultset) {
-    if (this.user.getResultsetImprovedFromId(resultset).isDelete()) {
+  private void onRemoveRows(final NewObjects removingObjs) {
+    if (this.user.getResultsetImprovedFromId(removingObjs.getResultsetId()).isDelete()) {
       final JardinGrid grid =
-          this.view.getItemByResultsetId(resultset).getGrid();
+          this.view.getItemByResultsetId(removingObjs.getResultsetId()).getGrid();
 
-      final List<BaseModelData> selectedRows =
-          grid.getSelectionModel().getSelection();
-
-      int numrows = selectedRows.size();
-      if (numrows > 0) {
-
-        String prompt = "Vuoi davvero eliminare ";
-        if (numrows > 1) {
-          prompt += numrows + " righe dal database?";
-        } else {
-          prompt += "la riga dal database?";
-        }
-
-        final Listener<MessageBoxEvent> l = new Listener<MessageBoxEvent>() {
-          public void handleEvent(final MessageBoxEvent ce) {
-            Button btn = ce.getButtonClicked();
-            if (btn.getTitle().equalsIgnoreCase("yes")) {
-              final MessageBox waitbox =
-                  MessageBox.wait("Attendere", "Eliminazione in corso...", "");
-
-              /* Create the service proxy class */
-              // final ManagerServiceAsync service =
-              // (ManagerServiceAsync) Registry.get(Jardin.SERVICE);
 
               /* Set up the callback */
               AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
                 public void onFailure(final Throwable caught) {
-                  waitbox.close();
+//                  waitbox.close();
                   Dispatcher.forwardEvent(EventList.Error,
                       caught.getLocalizedMessage());
                 }
 
-                public void onSuccess(final Integer result) {
-                  waitbox.close();
-                  if (result.intValue() <= 0) {
+                @Override
+                public void onSuccess(Integer result) {
+//                  waitbox.close();
+                  if (Integer.valueOf(result) <= 0) {
                     Dispatcher.forwardEvent(EventList.Error,
                         "Nessuna riga eliminata");
                   } else {
                     ListStore<BaseModelData> store = grid.getStore();
-                    for (BaseModelData row : selectedRows) {
+                    for (BaseModelData row : removingObjs.getNewObjectList()) {
                       store.remove(row);
                     }
                     store.commitChanges();
                     Info.display("Informazione", "Dati cancellati", "");
                   }
                 }
+
               };
 
               /* Make the call */
-              service.removeObjects(resultset, selectedRows, user.getUid(), callback);
-            }
-          }
-        };
+              service.removeObjects(removingObjs.getResultsetId(), removingObjs.getNewObjectList(), user.getUid(), callback);
 
-        MessageBox.confirm("Attenzione", prompt, l);
-
-      } else {
-        Info.display("Informazione", "Selezionare almeno una riga", "");
-      }
     } else {
       Dispatcher.forwardEvent(EventList.Error,
           "L'utente non dispone dei permessi di eliminazione");

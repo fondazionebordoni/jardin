@@ -20,6 +20,7 @@ package it.fub.jardin.client.widget;
 import it.fub.jardin.client.EventList;
 import it.fub.jardin.client.SearchStringParser;
 import it.fub.jardin.client.model.HeaderPreferenceList;
+import it.fub.jardin.client.model.NewObjects;
 import it.fub.jardin.client.model.ResultsetField;
 import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
@@ -35,13 +36,16 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -265,8 +269,8 @@ public class JardinGridToolBar extends ToolBar {
           }
         }
       }
-      
-//      parser.printMap(searchMap);
+
+      // parser.printMap(searchMap);
     }
 
     grid.getSearchparams().setFieldsValuesList(queryFieldList);
@@ -305,7 +309,40 @@ public class JardinGridToolBar extends ToolBar {
     if (this.resultset.isDelete()) {
       this.add(new Button("Rimuovi righe",
           IconHelper.createStyle("icon-delete"),
-          this.getListenerWithGrid(EventList.RemoveRows)));
+          new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+              // TODO Auto-generated method stub
+              final List<BaseModelData> selectedRows =
+                  grid.getSelectionModel().getSelection();
+
+              int numrows = selectedRows.size();
+              if (numrows > 0) {
+
+                String prompt = "Vuoi davvero eliminare ";
+                if (numrows > 1) {
+                  prompt += numrows + " righe dal database?";
+                } else {
+                  prompt += "la riga dal database?";
+                }
+
+                MessageBox.confirm("Attenzione", prompt,
+                    new Listener<MessageBoxEvent>() {
+
+                      @Override
+                      public void handleEvent(MessageBoxEvent be) {
+                        // TODO Auto-generated method stub
+                        Button btn = be.getButtonClicked();
+                        if (btn.getText().compareToIgnoreCase("yes") == 0) {
+                          NewObjects removingObjs = new NewObjects(resultset.getId(), selectedRows);
+                          Dispatcher.forwardEvent(EventList.RemoveRows, removingObjs);
+                        } else System.out.println(btn.getText());
+                      }
+                    });
+              } else Info.display("Informazione", "Selezionare almeno una riga", "");
+            }
+          }));
     }
 
     if (this.resultset.isModify()) {
