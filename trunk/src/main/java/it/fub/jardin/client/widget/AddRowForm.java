@@ -222,6 +222,7 @@ public class AddRowForm extends Window {
         event.setData("resultsetid", AddRowForm.this.resultset.getId());
         Dispatcher.forwardEvent(event);
 
+        AddRowForm.this.hide();
       }
     });
 
