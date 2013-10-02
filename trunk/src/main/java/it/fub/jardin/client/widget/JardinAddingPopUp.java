@@ -23,15 +23,12 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
@@ -61,7 +58,7 @@ public class JardinAddingPopUp extends Window {
     this.setSize(650, 550);
     this.setPlain(true);
 
-    this.setTitle("Aggiunta record in "
+    this.setHeading("Aggiunta record in "
         + this.fkIN.getInterestedResultset().getAlias());
     this.setLayout(new FitLayout());
 
@@ -93,7 +90,7 @@ public class JardinAddingPopUp extends Window {
       List values = new ArrayList();
       Field f = null;
 
-      if (field.getInsertperm()) {
+      if (field.getReadperm()) {
         // System.out.println("aggiunto campo: " + field.getName());
         /* Creo preventivamente un campo, poi ne gestisco la grafica */
 
@@ -120,67 +117,34 @@ public class JardinAddingPopUp extends Window {
             f.setEnabled(false);
           }
 
-          if (f instanceof DateField) {
-            java.util.Date date = new java.util.Date();
-            // if (fdValue != null && fdValue != "") {
-            f.setValue(date);
-            // }
-          } else if (f instanceof TimeField) {
-            Time time = new Time();
-            if (fdValue != null && fdValue != "") {
-              f.setValue(time);
-            }
-          } else if (f instanceof SimpleComboBox<?>) {
-            // if ((field.getType().compareToIgnoreCase("int") == 0)
-            // || (field.getType().compareToIgnoreCase("real") == 0)) {
-            // ((SimpleComboBox<Integer>) f).add(Integer.valueOf(fdValue));
-            // if (fdValue != null && fdValue != "") {
-            // ((SimpleComboBox<Integer>)
-            // f).setSimpleValue(Integer.valueOf(fdValue));
-            // }
-            // } else {
-            // ((SimpleComboBox<String>) f).add(fdValue);
-            // if (fdValue != null && fdValue != "") {
-            // ((SimpleComboBox<String>) f).setSimpleValue(fdValue);
-            // }
-            // }
-          } else if ((f instanceof TextField<?>) || (f instanceof TextArea)) {
-            f = new TextField<String>();
-            f.setValue("");
-          }
         }
-      } else {
-        f = new TextField<String>();
-        f.setValue("");
-        f.setEnabled(false);
+
+        f.setFieldLabel(field.getAlias());
+        f.setName(field.getName());
+
+        /* Esamino il raggruppamento a cui appartiene il campo */
+        ResultsetFieldGroupings fieldGrouping =
+            this.resultset.getFieldGrouping(field.getIdgrouping());
+
+        String fieldSetName = fieldGrouping.getName();
+
+        /*
+         * Se il fieldset non esiste lo creo e l'aggancio a pannello
+         */
+        FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
+        if (fieldSet == null) {
+          fieldSet =
+              new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
+                  labelWidth, padding);
+          this.fieldSetList.put(fieldSetName, fieldSet);
+          this.formPanel.add(fieldSet);
+        }
+
+        /* Aggancio il campo al suo raggruppamento */
+        fieldSet.add(f);
+
+        this.fieldList.add(f);
       }
-
-      f.setFieldLabel(field.getAlias());
-      f.setName(field.getName());
-
-      /* Esamino il raggruppamento a cui appartiene il campo */
-      ResultsetFieldGroupings fieldGrouping =
-          this.resultset.getFieldGrouping(field.getIdgrouping());
-
-      String fieldSetName = fieldGrouping.getName();
-
-      /*
-       * Se il fieldset non esiste lo creo e l'aggancio a pannello
-       */
-      FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
-      if (fieldSet == null) {
-        fieldSet =
-            new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
-                labelWidth, padding);
-        this.fieldSetList.put(fieldSetName, fieldSet);
-        this.formPanel.add(fieldSet);
-      }
-
-      /* Aggancio il campo al suo raggruppamento */
-      fieldSet.add(f);
-
-      this.fieldList.add(f);
-
     }
   }
 
@@ -222,12 +186,12 @@ public class JardinAddingPopUp extends Window {
             value = field.getValue();
           }
 
-//          if (value != null) {
-            // System.out.println("aggiungere: " + property + " con valore "
-            // + value);
-            newItem.set(property, value);
-            // Log.debug("aggiunto item " + newItem.get(property));
-//          }
+          // if (value != null) {
+          // System.out.println("aggiungere: " + property + " con valore "
+          // + value);
+          newItem.set(property, value);
+          // Log.debug("aggiunto item " + newItem.get(property));
+          // }
         }
 
         // BaseModelData resultsetIdentifier = new BaseModelData();

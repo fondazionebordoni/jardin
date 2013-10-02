@@ -25,6 +25,7 @@ import it.fub.jardin.client.tools.FieldDataType;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -44,6 +45,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 public class FieldCreator {
 
@@ -414,29 +416,42 @@ public class FieldCreator {
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DATE) == 0) {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        if (field.getDefaultVAlue() != null && field.getDefaultVAlue().compareToIgnoreCase("") != 0) {
+          Date date =
+              DateTimeFormat.getFormat("yyyy-MM-dd").parse(
+                  field.getDefaultVAlue());
+          f.setValue(date);
+        }
 
+      }
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.BOOLEAN) == 0) {
       // System.out.println("FIELDCREATOR: boleano!!!!");
-//      final SimpleComboBox<String> f = new SimpleComboBox<String>();
-//
-//      f.add(field.getFixedElements());
-//      f.setTriggerAction(TriggerAction.ALL);
-//      Listener<BaseEvent> l = new Listener<BaseEvent>() {
-//
-//        @Override
-//        public void handleEvent(BaseEvent be) {
-//          f.removeAll();
-//          f.add(field.getFixedElements());
-//        }
-//      };
-//      f.addListener(Events.OnClick, l);
-      
+      // final SimpleComboBox<String> f = new SimpleComboBox<String>();
+      //
+      // f.add(field.getFixedElements());
+      // f.setTriggerAction(TriggerAction.ALL);
+      // Listener<BaseEvent> l = new Listener<BaseEvent>() {
+      //
+      // @Override
+      // public void handleEvent(BaseEvent be) {
+      // f.removeAll();
+      // f.add(field.getFixedElements());
+      // }
+      // };
+      // f.addListener(Events.OnClick, l);
+
       final SimpleComboBox<Boolean> f = new SimpleComboBox<Boolean>();
-//      f.removeAll();
+      // f.removeAll();
       f.add(new Boolean(Boolean.TRUE));
       f.add(new Boolean(Boolean.FALSE));
       f.setTriggerAction(TriggerAction.ALL);
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        f.setRawValue(field.getDefaultVAlue());
+      }
       Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
         @Override
@@ -446,6 +461,7 @@ public class FieldCreator {
           f.add(new Boolean(Boolean.FALSE));
         }
       };
+
       f.addListener(Events.OnClick, l);
 
       // ListStore<SimpleBoolean> boxStore = new ListStore<SimpleBoolean>();
@@ -472,6 +488,28 @@ public class FieldCreator {
       DateField f = new DateField();
       f.getPropertyEditor().setFormat(
           DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // // settare valore di default
+        // String value = field.getDefaultVAlue();
+        // GregorianCalendar gc = new GregorianCalendar();
+        // gc.set(Integer.parseInt(((String) value).substring(0, 4)),
+        // Integer.parseInt(((String) value).substring(5, 7)),
+        // Integer.parseInt(((String) value).substring(8, 10)),
+        // Integer.parseInt(((String) value).substring(11, 13)),
+        // Integer.parseInt(((String) value).substring(14, 16)),
+        // Integer.parseInt(((String) value).substring(17, 19)));
+        // f.setValue(gc.getTime());
+        String defString = null;
+        if (field.getDefaultVAlue().compareToIgnoreCase("0000-00-00 00:00:00") != 0
+            && field.getDefaultVAlue() != null
+            && field.getDefaultVAlue().compareToIgnoreCase("") != 0) {
+          defString = field.getDefaultVAlue();
+          Date date =
+              DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").parse(defString);
+          f.setValue(date);
+        }
+      }
+
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
       NumberField f = new NumberField();
@@ -479,31 +517,75 @@ public class FieldCreator {
       f.setMaxLength(field.getLenght());
       if (field.isLenghtFixed()) {
         f.setMinLength(field.getLenght());
-      } else f.setMinLength(1);
+      } else
+        f.setMinLength(1);
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        if (field.getDefaultVAlue() != null
+            && field.getDefaultVAlue().compareToIgnoreCase("") != 0) {
+          f.setValue(Integer.parseInt(field.getDefaultVAlue()));
+        }
+      }
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
       NumberField f = new NumberField();
       f.setPropertyEditorType(Float.class);
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        if (field.getDefaultVAlue() != null && field.getDefaultVAlue().compareToIgnoreCase("") != 0) {
+          f.setValue(Float.parseFloat(field.getDefaultVAlue()));
+        }
+      }
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.DOUBLE) == 0) {
       NumberField f = new NumberField();
       f.setPropertyEditorType(Double.class);
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        if (field.getDefaultVAlue() != null && field.getDefaultVAlue().compareToIgnoreCase("") != 0) {
+          f.setValue(Double.parseDouble(field.getDefaultVAlue()));
+        }
+      }
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.TIME) == 0) {
       TimeField f = new TimeField();
       f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+
+        if (field.getDefaultVAlue() != null && field.getDefaultVAlue().compareToIgnoreCase("") != 0) {
+          Time time =
+              new Time(
+                  Integer.parseInt(((String) field.getDefaultVAlue()).substring(
+                      0, 2)),
+                  Integer.parseInt(((String) field.getDefaultVAlue()).substring(
+                      3, 5)));
+          f.setValue(time);
+        }
+      }
+
       result = f;
       // Log.debug(field.getName() + ": TIME");
     } else if ((fieldType.compareToIgnoreCase(FieldDataType.TEXT) == 0)
         && textarea) {
       TextArea f = new TextArea();
       // f.setFormat(DateTimeFormat.getFormat("HH:mm"));
+      if (field.getDefaultVAlue() != null) {
+        f.setValue(field.getDefaultVAlue());
+      }
       result = f;
     } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.ENUM) == 0) {
       final SimpleComboBox<String> f = new SimpleComboBox<String>();
 
-      f.add(field.getFixedElements());
       f.setTriggerAction(TriggerAction.ALL);
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        f.removeAll();
+        f.add(field.getFixedElements());
+        f.setRawValue(field.getDefaultVAlue());
+      }
+      
+      
       Listener<BaseEvent> l = new Listener<BaseEvent>() {
 
         @Override
@@ -511,10 +593,14 @@ public class FieldCreator {
           // TODO Auto-generated method stub
           f.removeAll();
           f.add(field.getFixedElements());
-
+          if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+            // settare valore di default
+            f.setRawValue(field.getDefaultVAlue());
+          }
         }
 
       };
+
       f.addListener(Events.OnClick, l);
       result = f;
     } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0) {
@@ -523,14 +609,26 @@ public class FieldCreator {
       f.setMaxLength(field.getLenght());
       if (field.isLenghtFixed()) {
         f.setMinLength(field.getLenght());
-      } else f.setMinLength(1);
-      f.setRawValue(field.getDefaultVAlue());
+      } else
+        f.setMinLength(1);
+
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        if (field.getDefaultVAlue() != null) {
+          f.setRawValue(field.getDefaultVAlue());
+        }
+      }
 
       result = f;
     } else {
       // Log.debug(field.getName() + ": TEXT");
       TextField<String> f = new TextField<String>();
-
+      if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
+        // settare valore di default
+        if (field.getDefaultVAlue() != null) {
+          f.setRawValue(field.getDefaultVAlue());
+        }
+      }
       result = f;
     }
 
@@ -545,8 +643,6 @@ public class FieldCreator {
 
     return result;
   }
-
-
 
   /*
    * usato nel JardinFormPopup
@@ -647,10 +743,10 @@ public class FieldCreator {
       f.getPropertyEditor().setFormat(
           DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss"));
       if (defaultValue != null) {
-//        java.util.Date date = new java.util.Date();
-//        date.setTime(Long.parseLong(defaultValue.toString()));
-//        f.setValue(date);
-        f.setValue((Date)defaultValue);
+        // java.util.Date date = new java.util.Date();
+        // date.setTime(Long.parseLong(defaultValue.toString()));
+        // f.setValue(date);
+        f.setValue((Date) defaultValue);
       }
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.INT) == 0) {
@@ -662,7 +758,8 @@ public class FieldCreator {
       f.setMaxLength(field.getLenght());
       if (field.isLenghtFixed()) {
         f.setMinLength(field.getLenght());
-      } else f.setMinLength(1);
+      } else
+        f.setMinLength(1);
       result = f;
     } else if (fieldType.compareToIgnoreCase(FieldDataType.FLOAT) == 0) {
       NumberField f = new NumberField();
@@ -727,7 +824,8 @@ public class FieldCreator {
       f.setMaxLength(field.getLenght());
       if (field.isLenghtFixed()) {
         f.setMinLength(field.getLenght());
-      } else f.setMinLength(1);
+      } else
+        f.setMinLength(1);
       f.setRawValue(field.getDefaultVAlue());
       if (defaultValue != null) {
         f.setValue(defaultValue.toString());

@@ -57,7 +57,8 @@ public class JardinFormPopup extends Window {
   private ResultsetImproved resultset;
   private BaseModelData record = null;
   private String username;
-
+  private String operation;
+  
   HashMap<String, FieldSet> fieldSetList = new HashMap<String, FieldSet>();
 
   public enum operations {
@@ -78,6 +79,7 @@ public class JardinFormPopup extends Window {
     this.resultset = resultset;
     this.record = fieldsAndValues;
     this.username = username;
+    this.operation = operation;
     /* Creazione FormPanel */
     this.formPanel = new FormPanel();
     this.formPanel.setBodyBorder(false);
@@ -95,13 +97,13 @@ public class JardinFormPopup extends Window {
       setHeading("Modifica dati in " + resultset.getAlias());
       setSource("editorpopup");
       createAddRowPopup();
-//      createModRowPopup();
+      // createModRowPopup();
       this.setButtons(PopupOperations.MODRECORD);
     } else if (operation.compareToIgnoreCase(PopupOperations.ADDFKRECORD) == 0) {
       setHeading("Dettaglio record in " + resultset.getAlias());
       setSource("detailpopup");
       createAddRowPopup();
-//      createModRowPopup();
+      // createModRowPopup();
       this.setButtons(PopupOperations.ADDFKRECORD);
     }
 
@@ -111,40 +113,51 @@ public class JardinFormPopup extends Window {
 
   }
 
-
-
   private void createAddRowPopup() {
     // TODO Auto-generated method stub
     for (ResultsetField field : this.resultset.getFields()) {
-//      System.out.println("campo " + field.getName() + " con valore " + record.get(field.getName()));
-      Field PF = FieldCreator.getField(field, record.get(field.getName()), source);
+      // System.out.println("campo " + field.getName() + " con valore " +
+      // record.get(field.getName()));
+      if (field.getReadperm()) {
+//        System.out.println("campo: " + field.getName() + "|" + record.get(field.getName()));
+        Field PF =
+            FieldCreator.getField(field, record.get(field.getName()), source);
 
-      if (!field.getInsertperm()) {
-        PF.setEnabled(false);
+        if (operation.compareToIgnoreCase(PopupOperations.MODRECORD) == 0 && !field.getModifyperm()) {
+          PF.setEnabled(false);
+        }
+        
+        if (operation.compareToIgnoreCase(PopupOperations.ADDRECORD) == 0 && !field.getInsertperm()) {
+          PF.setEnabled(false);
+        }
+        
+        if (operation.compareToIgnoreCase(PopupOperations.ADDFKRECORD) == 0 && !field.getInsertperm()) {
+          PF.setEnabled(false);
+        }
+
+        /* Esamino il raggruppamento a cui appartiene il campo */
+        ResultsetFieldGroupings fieldGrouping =
+            this.resultset.getFieldGrouping(field.getIdgrouping());
+
+        String fieldSetName = fieldGrouping.getName();
+
+        /*
+         * Se il fieldset non esiste lo creo e l'aggancio a pannello
+         */
+        FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
+        if (fieldSet == null) {
+          fieldSet =
+              new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
+                  labelWidth, padding);
+          this.fieldSetList.put(fieldSetName, fieldSet);
+          this.formPanel.add(fieldSet);
+        }
+
+        /* Aggancio il campo al suo raggruppamento */
+        fieldSet.add(PF);
+
+        this.fieldList.add(PF);
       }
-
-      /* Esamino il raggruppamento a cui appartiene il campo */
-      ResultsetFieldGroupings fieldGrouping =
-          this.resultset.getFieldGrouping(field.getIdgrouping());
-
-      String fieldSetName = fieldGrouping.getName();
-
-      /*
-       * Se il fieldset non esiste lo creo e l'aggancio a pannello
-       */
-      FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
-      if (fieldSet == null) {
-        fieldSet =
-            new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
-                labelWidth, padding);
-        this.fieldSetList.put(fieldSetName, fieldSet);
-        this.formPanel.add(fieldSet);
-      }
-
-      /* Aggancio il campo al suo raggruppamento */
-      fieldSet.add(PF);
-
-      this.fieldList.add(PF);
     }
   }
 
@@ -277,7 +290,6 @@ public class JardinFormPopup extends Window {
     this.setBottomComponent(buttonBar);
   }
 
-  
   public Field getFieldByName(String name) {
     for (Field fg : this.fieldList) {
       if (fg.getName().compareToIgnoreCase(name) == 0) {
@@ -288,6 +300,5 @@ public class JardinFormPopup extends Window {
     // System.out.println("ritorno campo: UN CAZZO!");
     return null;
   }
-  
-  
+
 }
