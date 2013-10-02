@@ -26,6 +26,7 @@ import it.fub.jardin.client.model.ResultsetImproved;
 import it.fub.jardin.client.model.SearchParams;
 import it.fub.jardin.client.model.Template;
 import it.fub.jardin.client.model.Tool;
+import it.fub.jardin.client.tools.PopupOperations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -298,6 +299,7 @@ public class JardinGridToolBar extends ToolBar {
               if (resultset.isInsert()) {
                 AddRowForm arf = new AddRowForm(resultset);
                 grid.setAddRowForm(arf);
+                
               } else {
                 Dispatcher.forwardEvent(EventList.Error,
                     "L'utente non dispone dei permessi di inserimento");
