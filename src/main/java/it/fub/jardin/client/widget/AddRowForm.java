@@ -127,50 +127,51 @@ public class AddRowForm extends Window {
     for (ResultsetField field : this.resultset.getFields()) {
 
       // foreignkey con la tabella di utenti di sistema
-      List values = new ArrayList();
-      Field PF = FieldCreator.getField(field, values, 0, true, source);
-//      Field PF = null;
-//      if (field.getForeignKey().compareToIgnoreCase("__system_user") == 0) {
-//        PF = new TextField<String>();
-//        PF.setValue(username);
-//        PF.setEnabled(false);
-//      } else {      
-//        List values = new ArrayList();
-//        PF = FieldCreator.getField(field, values, 0, true, source);
-//      }
+      if (field.getReadperm()) {
+        List values = new ArrayList();
+        Field PF = FieldCreator.getField(field, values, 0, true, source);
+        // Field PF = null;
+        // if (field.getForeignKey().compareToIgnoreCase("__system_user") == 0)
+        // {
+        // PF = new TextField<String>();
+        // PF.setValue(username);
+        // PF.setEnabled(false);
+        // } else {
+        // List values = new ArrayList();
+        // PF = FieldCreator.getField(field, values, 0, true, source);
+        // }
 
-      if (!field.getInsertperm()) {
-        PF.setEnabled(false);
+        if (!field.getInsertperm()) {
+          PF.setEnabled(false);
+        }
+
+        /* Esamino il raggruppamento a cui appartiene il campo */
+        ResultsetFieldGroupings fieldGrouping =
+            this.resultset.getFieldGrouping(field.getIdgrouping());
+
+        String fieldSetName = fieldGrouping.getName();
+
+        /*
+         * Se il fieldset non esiste lo creo e l'aggancio a pannello
+         */
+        FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
+        if (fieldSet == null) {
+          fieldSet =
+              new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
+                  labelWidth, padding);
+          this.fieldSetList.put(fieldSetName, fieldSet);
+          this.formPanel.add(fieldSet);
+        }
+
+        /* Aggancio il campo al suo raggruppamento */
+        fieldSet.add(PF);
+
+        this.fieldList.add(PF);
+        // this.formPanel.add(PF);
       }
-
-      /* Esamino il raggruppamento a cui appartiene il campo */
-      ResultsetFieldGroupings fieldGrouping =
-          this.resultset.getFieldGrouping(field.getIdgrouping());
-
-      String fieldSetName = fieldGrouping.getName();
-
-      /*
-       * Se il fieldset non esiste lo creo e l'aggancio a pannello
-       */
-      FieldSet fieldSet = this.fieldSetList.get(fieldSetName);
-      if (fieldSet == null) {
-        fieldSet =
-            new SimpleFieldSet(fieldGrouping.getAlias(), defaultWidth,
-                labelWidth, padding);
-        this.fieldSetList.put(fieldSetName, fieldSet);
-        this.formPanel.add(fieldSet);
-      }
-
-      /* Aggancio il campo al suo raggruppamento */
-      fieldSet.add(PF);
-      
-      this.fieldList.add(PF);
-//      this.formPanel.add(PF);
-
     }
   }
 
-  
   private void setButtons() {
     ButtonBar buttonBar = new ButtonBar();
     this.button = new Button("Aggiungi", new SelectionListener<ButtonEvent>() {
@@ -216,7 +217,6 @@ public class AddRowForm extends Window {
         }
         newItemList.add(newItem);
 
-
         AppEvent event = new AppEvent(EventList.saveNewRecord);
         event.setData("object", newItemList);
         event.setData("resultsetid", AddRowForm.this.resultset.getId());
@@ -229,7 +229,5 @@ public class AddRowForm extends Window {
     buttonBar.add(this.button);
     this.setBottomComponent(buttonBar);
   }
-
-
 
 }
