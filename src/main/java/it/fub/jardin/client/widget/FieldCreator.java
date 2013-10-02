@@ -582,7 +582,8 @@ public class FieldCreator {
         // settare valore di default
         f.removeAll();
         f.add(field.getFixedElements());
-        f.setRawValue(field.getDefaultVAlue());
+//        f.setOriginalValue(field.getDefaultVAlue());   
+        f.setSimpleValue(field.getDefaultVAlue());
       }
       
       
@@ -595,7 +596,7 @@ public class FieldCreator {
           f.add(field.getFixedElements());
           if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
             // settare valore di default
-            f.setRawValue(field.getDefaultVAlue());
+            f.setSimpleValue(field.getDefaultVAlue());
           }
         }
 
@@ -606,7 +607,6 @@ public class FieldCreator {
     } else if (field.getSpecificType().compareToIgnoreCase(FieldDataType.CHAR) == 0) {
       TextField<String> f = new TextField<String>();
       f.setMaxLength(field.getLenght());
-      f.setMaxLength(field.getLenght());
       if (field.isLenghtFixed()) {
         f.setMinLength(field.getLenght());
       } else
@@ -615,18 +615,19 @@ public class FieldCreator {
       if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
         // settare valore di default
         if (field.getDefaultVAlue() != null) {
-          f.setRawValue(field.getDefaultVAlue());
+          f.setValue(field.getDefaultVAlue());
         }
       }
 
       result = f;
     } else {
+//      System.out.println("campo " + field.getName() + " def " + field.getDefaultVAlue());
       // Log.debug(field.getName() + ": TEXT");
       TextField<String> f = new TextField<String>();
       if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
         // settare valore di default
         if (field.getDefaultVAlue() != null) {
-          f.setRawValue(field.getDefaultVAlue());
+          f.setValue(field.getDefaultVAlue());
         }
       }
       result = f;
@@ -812,7 +813,7 @@ public class FieldCreator {
           // TODO Auto-generated method stub
           f.removeAll();
           f.add(field.getFixedElements());
-
+          f.setSimpleValue(defaultValue.toString());
         }
 
       };
@@ -826,7 +827,7 @@ public class FieldCreator {
         f.setMinLength(field.getLenght());
       } else
         f.setMinLength(1);
-      f.setRawValue(field.getDefaultVAlue());
+      f.setValue(field.getDefaultVAlue());
       if (defaultValue != null) {
         f.setValue(defaultValue.toString());
       }
