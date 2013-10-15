@@ -131,15 +131,15 @@ public class AddRowForm extends Window {
         List values = new ArrayList();
         Field PF = FieldCreator.getField(field, values, 0, true, source);
         // Field PF = null;
-        // if (field.getForeignKey().compareToIgnoreCase("__system_user") == 0)
-        // {
-        // PF = new TextField<String>();
-        // PF.setValue(username);
-        // PF.setEnabled(false);
-        // } else {
-        // List values = new ArrayList();
-        // PF = FieldCreator.getField(field, values, 0, true, source);
-        // }
+        if (field.getForeignKey().compareToIgnoreCase("__system_user") == 0) {
+          PF = new TextField<String>();
+          PF.setValue(username);
+          PF.setEnabled(false);
+        }
+//        else {
+////          List values = new ArrayList();
+//          PF = FieldCreator.getField(field, values, 0, true, source);
+//        }
 
         if (!field.getInsertperm()) {
           PF.setEnabled(false);
