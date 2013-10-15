@@ -450,7 +450,7 @@ public class FieldCreator {
       f.setTriggerAction(TriggerAction.ALL);
       if (source.compareToIgnoreCase("addingrowpopup") == 0 || source.compareToIgnoreCase("addingpopup") == 0) {
         // settare valore di default
-        f.setRawValue(field.getDefaultVAlue());
+        f.setSimpleValue(Boolean.parseBoolean(field.getDefaultVAlue()));
       }
       Listener<BaseEvent> l = new Listener<BaseEvent>() {
 

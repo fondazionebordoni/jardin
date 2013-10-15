@@ -250,9 +250,10 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
   }
 
   public void setSpecificType() {
-    
-//    System.out.println("campo " + this.getName() + " di tipo " + this.getType());
-  
+
+    // System.out.println("campo " + this.getName() + " di tipo " +
+    // this.getType());
+
     String type = this.getType();
 
     String fk = this.getForeignKey();
@@ -270,7 +271,8 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
         this.setLenght(Integer.parseInt(type.substring(
             type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
       this.setIsLenghtFixed(false);
-//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
+      // System.out.println("lunghezza campo " + this.getName() + " di tipo " +
+      // this.getType() + ": " + this.getLenght() );
 
     } else if (type.startsWith("char")) {
       this.setSpecificType(FieldDataType.CHAR);
@@ -282,49 +284,58 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
         this.setLenght(Integer.parseInt(type.substring(
             type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
       this.setIsLenghtFixed(false);
-//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
+      // System.out.println("lunghezza campo " + this.getName() + " di tipo " +
+      // this.getType() + ": " + this.getLenght() );
 
+    } else if (type.compareToIgnoreCase("int") == 0) { // retrocompatibilità con jardin 2
+      this.setSpecificType(FieldDataType.INT);
+      this.setIsLenghtFixed(false);
+      this.setLenght(32);
     } else if (type.startsWith("int") || type.startsWith("bigint")) {
       this.setSpecificType(FieldDataType.INT);
-      // System.out.println(" LA (: " + type.lastIndexOf("("));
-      // System.out.println(" LA ): " + type.lastIndexOf(")"));
-      // System.out.println("start: " + (type.lastIndexOf("(")+1) + "; end:" +
-      // (type.lastIndexOf(")")-1));
-      int x = (type.lastIndexOf(")") - 1) - (type.lastIndexOf("(") + 1);
+//      System.out.println("lunghezza campo: da " + (type.indexOf(")") - 1) + " a " + (type.indexOf("(") + 1));
+      int x = (type.indexOf(")") - 1) - (type.indexOf("(") + 1);
       if (x == 0) {
         char[] chars = { type.charAt(type.lastIndexOf("(") + 1) };
         this.setLenght(Integer.parseInt(new String(chars)));
       } else
-        this.setLenght(Integer.parseInt(type.substring(
-            type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
+         this.setLenght(Integer.parseInt(type.substring(type.indexOf("(")
+         + 1, type.indexOf(")"))));
+      
+//        this.setLenght((type.lastIndexOf(")") - 1)
+//            - (type.lastIndexOf("(") + 1));
       this.setIsLenghtFixed(false);
-//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
+//       System.out.println("lunghezza campo " + this.getName() + " di tipo " +
+//       this.getType() + ": " + this.getLenght() );
 
+    } else if (type.compareToIgnoreCase("tinyint(1)") == 0) {
+      this.setSpecificType(FieldDataType.BOOLEAN);
+      ArrayList<String> fixedElem = new ArrayList<String>();
+      fixedElem.add("true");
+      fixedElem.add("false");
+      this.setLenght(5);
+      this.setFixedElements(fixedElem);
     } else if (type.startsWith("tinyint")) {
+      this.setSpecificType(FieldDataType.INT);
       int x = (type.lastIndexOf(")") - 1) - (type.lastIndexOf("(") + 1);
       if (x == 0) {
         char[] chars = { type.charAt(type.lastIndexOf("(") + 1) };
         this.setLenght(Integer.parseInt(new String(chars)));
       } else
-        this.setLenght(Integer.parseInt(type.substring(
-            type.lastIndexOf("(") + 1, type.lastIndexOf(")"))));
+        this.setLenght(Integer.parseInt(type.substring(type.indexOf("(")
+            + 1, type.indexOf(")"))));
       this.setIsLenghtFixed(false);
-//      System.out.println("lunghezza campo " + this.getName() + " di tipo " + this.getType() + ": " + this.getLenght() );
-
-      if (this.getLenght() == 1) {
-        this.setSpecificType(FieldDataType.BOOLEAN);
-        ArrayList<String> fixedElem = new ArrayList<String>();
-        fixedElem.add("true");
-        fixedElem.add("false");
-        this.setFixedElements(fixedElem);
-      } else this.setSpecificType(FieldDataType.INT);
+//      System.out.println("lunghezza campo " + this.getName() + " di tipo "
+//          + this.getType() + ": " + this.getLenght());
+      
     } else if (type.startsWith("float")) {
       this.setSpecificType(FieldDataType.FLOAT);
       this.setIsLenghtFixed(false);
       this.setLenght(20);
-//      if (type.indexOf("(") != -1) {
-//        setLenght(Integer.parseInt(type.substring(type.indexOf("(")+1, type.indexOf(",")-1)));
-//      } else setLenght(20);
+      // if (type.indexOf("(") != -1) {
+      // setLenght(Integer.parseInt(type.substring(type.indexOf("(")+1,
+      // type.indexOf(",")-1)));
+      // } else setLenght(20);
     } else if (type.startsWith("double")) {
       this.setSpecificType(FieldDataType.DOUBLE);
     } else if (type.startsWith("timestamp") || type.startsWith("datetime")) {
@@ -345,15 +356,16 @@ public class ResultsetField extends BaseTreeModel implements IsSerializable {
       for (int i = 0; i < elementsWithCommas.length; i++) {
         String newElement = elementsWithCommas[i].replaceAll("\'", "");
         elements.add(newElement);
-//        System.out.println("added: " + newElement + "/"+ elementsWithCommas.length);
+        // System.out.println("added: " + newElement + "/"+
+        // elementsWithCommas.length);
       }
       this.setFixedElements(elements);
+    } else if (type.compareToIgnoreCase("string") == 0) { //retrocompatibilità con versione 2 di jardin
+      this.setSpecificType(FieldDataType.VARCHAR);
     } else {
       this.setSpecificType(FieldDataType.VARCHAR);
       this.setIsLenghtFixed(false);
     }
   }
-
-
 
 }
